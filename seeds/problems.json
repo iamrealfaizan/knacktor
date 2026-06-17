@@ -1,0 +1,13 @@
+[
+  {
+    "slug": "4sum",
+    "number": 18,
+    "title": "4Sum",
+    "difficulty": "medium",
+    "topics": ["array", "two-pointers", "sorting"],
+    "patterns": ["two-pointers", "sorting"],
+    "sheets": [],
+    "hasVisualization": true,
+    "isPremium": false
+  }
+]
