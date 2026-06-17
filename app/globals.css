@@ -38,12 +38,21 @@
     --kn-ink-2:     #8E887A;
     --kn-border-0:  #E6E1D5;
     --kn-border-1:  #D8D2C4;
-    --kn-current:   #C2603F;  /* active / highlighted element */
-    --kn-compared:  #2E72C4;  /* pointer / compared element   */
-    --kn-result:    #2F9E73;  /* result / found element       */
-    --kn-special:   #8A5CC2;  /* pivot / special              */
-    --kn-amber:     #E0A82E;  /* warning / auxiliary          */
-    --kn-error:     #A6371F;  /* pruned / error               */
+    --kn-current:          #C2603F;  /* active / highlighted element */
+    --kn-compared:         #2E72C4;  /* pointer / compared element   */
+    --kn-result:           #2F9E73;  /* result / found element       */
+    --kn-special:          #8A5CC2;  /* pivot / special              */
+    --kn-amber:            #E0A82E;  /* warning / auxiliary          */
+    --kn-error:            #A6371F;  /* pruned / error               */
+    /* subtle tints — for badges, tags, backgrounds */
+    --kn-result-subtle:    #EBF5F0;
+    --kn-result-border:    #A8D9C2;
+    --kn-amber-subtle:     #FBF0D4;
+    --kn-amber-border:     #EFD08A;
+    --kn-error-subtle:     #F9EAE7;
+    --kn-error-border:     #E0A898;
+    --kn-current-subtle:   #F9EDEA;
+    --kn-current-border:   #E4B5A8;
 
     /* ── Font variables (populated by next/font in layout.tsx) ──── */
     --font-sans: var(--font-inter);
