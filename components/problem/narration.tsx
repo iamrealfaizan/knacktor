@@ -22,8 +22,8 @@ export function Narration({
           ▸ HAPPENING
         </span>
         <span className="text-[13px] text-kn-ink-0 truncate flex-1">{narration.happening}</span>
-        <Button size="sm" variant="ghost" onClick={onToggle} className="h-6 px-2 font-mono text-[9px] text-kn-ink-2 gap-1 ml-auto">
-          expand <ChevronUp className="h-3 w-3" />
+        <Button size="icon" variant="ghost" onClick={onToggle} className="h-6 w-6 text-kn-ink-2 ml-auto" title="Expand narration">
+          <ChevronUp className="h-4 w-4" />
         </Button>
       </div>
     );
@@ -31,8 +31,8 @@ export function Narration({
 
   return (
     <div className="flex-none h-[150px] border-t border-kn-border-0 bg-kn-surface-0 px-4 py-3 relative">
-      <Button size="sm" variant="outline" onClick={onToggle} className="absolute top-2 right-3 h-6 px-2 font-mono text-[9px] text-kn-ink-2 border-kn-border-0 gap-1 z-10">
-        collapse <ChevronDown className="h-3 w-3" />
+      <Button size="icon" variant="ghost" onClick={onToggle} className="absolute top-2 right-3 h-6 w-6 text-kn-ink-2 z-10" title="Collapse narration">
+        <ChevronDown className="h-4 w-4" />
       </Button>
       <div className="grid grid-cols-2 gap-x-7 gap-y-2.5 h-full">
         <Block label="▸ WHAT'S HAPPENING" labelColor="text-kn-current" body={narration.happening} bodyClass="text-kn-ink-0" />

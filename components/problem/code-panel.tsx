@@ -40,7 +40,7 @@ export function CodePanel({
 
   if (collapsed) {
     return (
-      <div className="h-full w-12 flex-none border-r border-kn-border-0 bg-kn-surface-1 flex flex-col items-center pt-2">
+      <div className="h-full w-12 flex-none bg-kn-surface-1 flex flex-col items-center pt-2">
         <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-8 w-8 text-kn-ink-2" title="Expand code">
           <PanelLeftOpen className="h-4 w-4" />
         </Button>
@@ -62,8 +62,8 @@ export function CodePanel({
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             {copied ? "copied" : "copy"}
           </Button>
-          <Button size="icon" variant="outline" onClick={onToggleCollapse} className="h-6 w-6 border-kn-border-0" title="Collapse code">
-            <PanelLeftClose className="h-3.5 w-3.5" />
+          <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-6 w-6 text-kn-ink-2" title="Collapse code">
+            <PanelLeftClose className="h-4 w-4" />
           </Button>
         </div>
       </div>

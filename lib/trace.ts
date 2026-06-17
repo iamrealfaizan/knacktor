@@ -130,6 +130,26 @@ export interface PresetInput {
   isEdgeCase: boolean;
 }
 
+// ── Input constraints (M1.5 — drives validation for custom input) ────────────
+export interface InputField {
+  name: string;
+  type: "int[]" | "int";
+  label: string;
+  placeholder: string;
+  // numeric range (applies to int, and to each element of int[]):
+  min?: number;
+  max?: number;
+  // length bounds (int[] only):
+  minLen?: number;
+  maxLen?: number;
+}
+
+export interface InputConstraints {
+  fields: InputField[];
+  /** buildTrace throws if steps exceed this — prevents Vercel timeouts */
+  maxSteps: number;
+}
+
 // ── ProblemFull — the problem doc joined with its approaches & presets ──────
 export interface ProblemFull {
   slug: string;
@@ -140,6 +160,7 @@ export interface ProblemFull {
   patterns: string[];
   statement: string;
   supportsCustomInput: boolean;
+  inputConstraints?: InputConstraints;
   presetInputs: PresetInput[];
   approaches: Approach[];
   recommendedApproachId: string;

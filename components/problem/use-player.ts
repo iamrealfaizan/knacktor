@@ -22,11 +22,28 @@ export interface Player {
   progress: number; // 0..1
 }
 
-export function usePlayer(total: number, keyEventIndices: number[]): Player {
+/**
+ * @param total            - number of steps in the active trace
+ * @param keyEventIndices  - indices of key events (scrubber diamonds)
+ * @param traceKey         - opaque string that changes when the active trace
+ *                           changes; triggers a reset to step 0 + stops play
+ */
+export function usePlayer(
+  total: number,
+  keyEventIndices: number[],
+  traceKey: string
+): Player {
   const [idx, setIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Reset to step 0 whenever the active trace changes
+  useEffect(() => {
+    if (timer.current) clearTimeout(timer.current);
+    setPlaying(false);
+    setIdx(0);
+  }, [traceKey]);
 
   const clamp = useCallback(
     (i: number) => Math.max(0, Math.min(total - 1, i)),
@@ -40,7 +57,7 @@ export function usePlayer(total: number, keyEventIndices: number[]): Player {
   const next = useCallback(() => { setPlaying(false); setIdx((i) => clamp(i + 1)); }, [clamp]);
   const togglePlay = useCallback(() => {
     setPlaying((p) => {
-      if (!p && idx >= total - 1) setIdx(0); // restart from start if at end
+      if (!p && idx >= total - 1) setIdx(0);
       return !p;
     });
   }, [idx, total]);
