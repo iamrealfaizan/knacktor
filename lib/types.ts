@@ -1,4 +1,5 @@
-// Core domain types — mirrors Schema.md contracts
+// Core domain types — mirrors Schema.md contracts.
+// All fields with dates are ISO strings (serialized at the content-service boundary).
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -16,8 +17,8 @@ export interface Problem {
   sheets: string[];
   hasVisualization: boolean;
   isPremium: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Topic {
@@ -25,6 +26,8 @@ export interface Topic {
   slug: string;
   name: string;
   description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Pattern {
@@ -33,6 +36,8 @@ export interface Pattern {
   name: string;
   description?: string;
   mustKnow: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Sheet {
@@ -41,6 +46,8 @@ export interface Sheet {
   name: string;
   description?: string;
   problemSlugs: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProblemFilters {
