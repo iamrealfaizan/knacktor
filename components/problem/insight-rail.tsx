@@ -37,7 +37,7 @@ export function InsightRail({
 }) {
   if (collapsed) {
     return (
-      <div className="h-full w-12 flex-none border-l border-kn-border-0 bg-kn-surface-1 flex flex-col items-center pt-2">
+      <div className="h-full w-12 flex-none bg-kn-surface-1 flex flex-col items-center pt-2">
         <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-8 w-8 text-kn-ink-2" title="Expand rail">
           <PanelRightOpen className="h-4 w-4" />
         </Button>
