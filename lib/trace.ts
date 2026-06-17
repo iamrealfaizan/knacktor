@@ -116,8 +116,10 @@ export interface Approach {
   complexityBudget: { counter: string; label: string }[];
   language: "python";
   source: string;
-  /** lineNo -> plain-language explanation */
+  /** lineNo -> algorithm-level explanation (shown in narration panel) */
   lineExplanations: Record<number, string>;
+  /** lineNo -> beginner-friendly syntax explanation (shown in hover tooltip) */
+  syntaxExplanations?: Record<number, string>;
   primaryPrimitive: string;
   auxStructures: string[];
 }

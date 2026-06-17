@@ -129,9 +129,9 @@ export function InsightRail({
         </div>
       </Section>
 
-      {/* Call stack */}
-      <Section title="CALL STACK">
-        {step.callStack && step.callStack.length > 0 ? (
+      {/* Call stack — only shown for recursive problems */}
+      {step.callStack && step.callStack.length > 0 && (
+        <Section title="CALL STACK">
           <div className="flex flex-col gap-1">
             {step.callStack.map((f) => (
               <div
@@ -145,10 +145,8 @@ export function InsightRail({
               </div>
             ))}
           </div>
-        ) : (
-          <span className="text-[12px] italic text-kn-ink-2">auto-hidden · iterative</span>
-        )}
-      </Section>
+        </Section>
+      )}
 
       {/* Notes */}
       <Section title="NOTES" suffix="· local" grow>
@@ -170,7 +168,7 @@ function Section({
   grow?: boolean;
 }) {
   return (
-    <section className={cn("px-3 py-3 border-b border-kn-border-0", grow && "flex-1 flex flex-col")}>
+    <section className={cn("px-3 py-3 border-b border-kn-border-0 last:border-b-0", grow && "flex-1 flex flex-col")}>
       <p className="font-mono text-[9px] font-bold tracking-widest text-kn-ink-2 mb-2">
         {title}
         {suffix && <span className="font-normal tracking-normal normal-case"> {suffix}</span>}

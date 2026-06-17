@@ -55,6 +55,28 @@ const LINE_EXPLANATIONS: Record<number, string> = {
   18: "Return every quadruplet found.",
 };
 
+const SYNTAX_EXPLANATIONS: Record<number, string> = {
+  1:  "def defines a new function. The name is four_sum. It takes two inputs: nums (a list of numbers) and target (a single number).",
+  2:  "nums.sort() sorts the list in-place — it rearranges the numbers from smallest to largest, modifying nums directly.",
+  3:  "len(nums) counts how many items are in the list and returns that number. We store it in n so we don't call len() repeatedly.",
+  4:  "[] creates an empty list. We store it in res — this is where we'll collect our answers as we find them.",
+  5:  "range(n - 3) produces the numbers 0, 1, 2 … up to n-4. The for loop runs once for each value, assigning it to i.",
+  6:  "range(i + 1, n - 2) starts just after i and stops before n-2. This prevents j from overlapping with i or the two right pointers.",
+  7:  "This is tuple unpacking — Python lets you assign two variables at once. lo gets j+1 and hi gets n-1 in a single line.",
+  8:  "while runs its block repeatedly as long as the condition is True. lo < hi means the two pointers haven't crossed yet.",
+  9:  "The + operator adds numbers together. We chain four of them to get the total of the four chosen elements.",
+  10: "== checks if two values are exactly equal. if then decides whether to run the indented block below.",
+  11: "[nums[i], nums[j], nums[lo], nums[hi]] builds a new list of four elements using square brackets.",
+  12: "res.append(...) adds the item in parentheses to the end of the res list, growing it by one.",
+  13: "+= 1 is shorthand for lo = lo + 1. It increases lo by one, moving the pointer one step to the right.",
+  14: "-= 1 is shorthand for hi = hi - 1. It decreases hi by one, moving the pointer one step to the left.",
+  15: "elif means 'else if' — it only runs if the previous if was False. It checks a second condition.",
+  16: "+= 1 on lo again moves the left pointer right to try a larger number.",
+  17: "else catches everything not matched by if or elif — no condition needed, it just runs as the final fallback.",
+  18: "-= 1 on hi moves the right pointer left to try a smaller number.",
+  19: "return hands the result back to whoever called the function. The function ends here.",
+};
+
 export const FOURSUM_APPROACH: Approach = {
   id: "sort-two-pointers",
   name: "Sort + Two Pointers",
@@ -68,6 +90,7 @@ export const FOURSUM_APPROACH: Approach = {
   language: "python",
   source: SOURCE,
   lineExplanations: LINE_EXPLANATIONS,
+  syntaxExplanations: SYNTAX_EXPLANATIONS,
   primaryPrimitive: "array",
   auxStructures: [],
 };

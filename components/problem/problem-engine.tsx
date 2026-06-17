@@ -164,7 +164,7 @@ export function ProblemEngine({
 
   return (
     <TooltipProvider delay={300}>
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col font-mono">
         <TopBar problem={problem} mode={mode} setMode={setMode} dark={dark} toggleTheme={toggle} />
 
         {/* Body */}
