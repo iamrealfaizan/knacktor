@@ -34,7 +34,7 @@ export function buildTrace(input: FourSumInput): {
   let moves = 0;
   let iP = -1, jP = -1, loP = -1, hiP = -1, sVal: number | null = null;
 
-  const counters = () => ({ comparisons, moves });
+  const counters = () => ({ comparisons, moves, timeOps: comparisons + moves, spaceUnits: 1 });
 
   function cellStates(matched: number[] = []): Record<string, CellState> {
     const cs: Record<string, CellState> = {};
@@ -244,6 +244,172 @@ export function buildTrace(input: FourSumInput): {
     happening: `Return ${res.length} quadruplet(s).`,
     why: "Every i/j pair has been checked with converging pointers.",
     invariant: "res contains all unique-by-position answers.",
+  }, { op: "return res" });
+
+  return { steps, finalResult: res };
+}
+
+// ── Brute Force tracer (O(n⁴) — 4 nested loops) ──────────────────────────────
+
+type BruteQuad = [number, number, number, number];
+
+export function buildBruteForceTrace(input: FourSumInput): {
+  steps: Step[];
+  finalResult: BruteQuad[];
+} {
+  const { nums, target } = input;
+  const a = [...nums].sort((x, y) => x - y);
+  const n = a.length;
+  const res: BruteQuad[] = [];
+  const steps: Step[] = [];
+  let comparisons = 0;
+
+  let iP = -1, jP = -1, kP = -1, lP = -1;
+
+  function cellStates(matched: number[] = []): Record<string, CellState> {
+    const cs: Record<string, CellState> = {};
+    for (let idx = 0; idx < n; idx++) cs[idx] = "idle";
+    if (iP >= 0) cs[iP] = "special";
+    if (jP >= 0) cs[jP] = "special";
+    if (kP >= 0 && kP < n) cs[kP] = "compared";
+    if (lP >= 0 && lP < n) cs[lP] = "compared";
+    for (const m of matched) cs[m] = "result";
+    return cs;
+  }
+
+  function ptrs() {
+    const p: { name: string; at: number }[] = [];
+    if (iP >= 0) p.push({ name: "i", at: iP });
+    if (jP >= 0) p.push({ name: "j", at: jP });
+    if (kP >= 0 && kP < n) p.push({ name: "lo", at: kP });
+    if (lP >= 0 && lP < n) p.push({ name: "hi", at: lP });
+    return p;
+  }
+
+  function vars(): Record<string, unknown> {
+    const v: Record<string, unknown> = { target, n };
+    v.res = res.map((q) => [...q]);
+    if (iP >= 0) v.i = iP;
+    if (jP >= 0) v.j = jP;
+    if (kP >= 0) v.lo = kP;
+    if (lP >= 0) v.hi = lP;
+    return v;
+  }
+
+  function push(
+    codeKey: number,
+    phase: Step["phase"],
+    changedVars: string[],
+    narration: Step["narration"],
+    extra: { op?: string; isKeyEvent?: boolean; matched?: number[] } = {}
+  ) {
+    if (steps.length >= MAX_STEPS) {
+      throw new Error(`Input too large — would exceed ${MAX_STEPS} steps.`);
+    }
+    const visual: ArrayVisualState = {
+      type: "array",
+      values: a,
+      cellStates: cellStates(extra.matched),
+      pointers: ptrs(),
+    };
+    steps.push({
+      i: steps.length,
+      codeKey,
+      phase,
+      narration,
+      vars: vars(),
+      changedVars,
+      counters: { comparisons, timeOps: comparisons, spaceUnits: 1 },
+      visual,
+      op: extra.op,
+      isKeyEvent: extra.isKeyEvent,
+    });
+  }
+
+  // ── execute ────────────────────────────────────────────────────────────────
+
+  push(2, "init", [], {
+    happening: "Sort the array ascending.",
+    why: "Sorted order helps skip duplicates later and makes the logic predictable.",
+    invariant: "nums is non-decreasing from here on.",
+  }, { op: "nums.sort()" });
+
+  push(3, "init", ["n"], {
+    happening: `n is set to ${n}.`,
+    why: "Cache the length so the loop bounds are easy to read.",
+    invariant: "n = len(nums).",
+  }, { op: `n = ${n}` });
+
+  push(4, "init", ["res"], {
+    happening: "res created, empty.",
+    why: "This list will collect every matching quadruplet.",
+    invariant: "res holds all answers found so far.",
+  }, { op: "res = []" });
+
+  for (iP = 0; iP < n - 3; iP++) {
+    push(5, "loop", ["i"], {
+      happening: `i = ${iP}, nums[i] = ${a[iP]}.`,
+      why: "Fix the first element of the quadruplet.",
+      invariant: `i anchors the leftmost element.`,
+    }, { op: `i = ${iP}` });
+
+    for (jP = iP + 1; jP < n - 2; jP++) {
+      push(6, "loop", ["j"], {
+        happening: `j = ${jP}, nums[j] = ${a[jP]}.`,
+        why: "Fix the second element, always after i.",
+        invariant: `i < j at all times.`,
+      }, { op: `j = ${jP}` });
+
+      for (kP = jP + 1; kP < n - 1; kP++) {
+        push(7, "loop", ["lo"], {
+          happening: `k = ${kP}, nums[k] = ${a[kP]}.`,
+          why: "Fix the third element, always after j.",
+          invariant: `i < j < k at all times.`,
+        }, { op: `k = ${kP}` });
+
+        for (lP = kP + 1; lP < n; lP++) {
+          push(8, "loop", ["hi"], {
+            happening: `l = ${lP}, nums[l] = ${a[lP]}.`,
+            why: "Try the fourth element — all combinations are checked.",
+            invariant: `i < j < k < l at all times.`,
+          }, { op: `l = ${lP}` });
+
+          const s = a[iP] + a[jP] + a[kP] + a[lP];
+          comparisons++;
+          if (s === target) {
+            push(9, "check", [], {
+              happening: `${a[iP]}+${a[jP]}+${a[kP]}+${a[lP]} = ${s} == target.`,
+              why: "All four sum to the target — this is a valid quadruplet.",
+              invariant: "Equality means these four numbers are an answer.",
+            }, { isKeyEvent: true, matched: [iP, jP, kP, lP] });
+
+            const quad: BruteQuad = [a[iP], a[jP], a[kP], a[lP]];
+            res.push(quad);
+            push(10, "update", ["res"], {
+              happening: `Append [${quad.join(", ")}] to res.`,
+              why: "Record this quadruplet.",
+              invariant: `res now has ${res.length} answer(s).`,
+            }, { op: "res.append(...)", isKeyEvent: true, matched: [iP, jP, kP, lP] });
+          } else {
+            push(9, "check", [], {
+              happening: `${a[iP]}+${a[jP]}+${a[kP]}+${a[lP]} = ${s} ≠ target (${target}).`,
+              why: "No match — move on to the next combination.",
+              invariant: "Only sums equal to target are recorded.",
+            });
+          }
+        }
+        lP = -1;
+      }
+      kP = -1;
+    }
+    jP = -1;
+  }
+  iP = -1;
+
+  push(11, "done", [], {
+    happening: `Return ${res.length} quadruplet(s).`,
+    why: "Every combination of 4 indices has been checked.",
+    invariant: "res contains all answers.",
   }, { op: "return res" });
 
   return { steps, finalResult: res };

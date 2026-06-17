@@ -112,8 +112,6 @@ export interface Approach {
   kind: "brute" | "optimal" | "alternative";
   summary: string;
   complexity: { time: string; space: string };
-  /** drives the live complexity meter: counterKey -> budget label */
-  complexityBudget: { counter: string; label: string }[];
   language: "python";
   source: string;
   /** lineNo -> algorithm-level explanation (shown in narration panel) */

@@ -12,15 +12,11 @@ const TOOLTIP_H = 90;
 
 export function CodePanel({
   approach,
-  approaches,
-  onSelectApproach,
   currentLine,
   collapsed,
   onToggleCollapse,
 }: {
   approach: Approach;
-  approaches: Approach[];
-  onSelectApproach: (id: string) => void;
   currentLine: number;
   collapsed: boolean;
   onToggleCollapse: () => void;
@@ -94,28 +90,6 @@ export function CodePanel({
           </Button>
         </div>
       </div>
-
-      {/* approach tabs */}
-      {approaches.length > 1 && (
-        <div className="flex-none flex items-center h-9 border-b border-kn-border-0 bg-kn-surface-1">
-          {approaches.map((a) => (
-            <button
-              key={a.id}
-              onClick={() => onSelectApproach(a.id)}
-              className={cn(
-                "h-full px-3 text-xs border-r border-kn-border-0 transition-colors",
-                a.id === approach.id
-                  ? "bg-kn-current text-white font-semibold"
-                  : "text-kn-ink-2 hover:text-kn-ink-0"
-              )}
-            >
-              {a.name}
-              {a.kind === "optimal" && <span className="ml-1 text-[10px] opacity-85">★</span>}
-            </button>
-          ))}
-          <span className="ml-auto pr-3 font-mono text-[9px] font-bold tracking-widest text-kn-ink-2">APPROACH</span>
-        </div>
-      )}
 
       {/* code body */}
       <div className="flex-1 overflow-auto cs-scroll py-2.5">

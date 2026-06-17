@@ -20,8 +20,7 @@ export function InsightRail({
   step,
   prevVars,
   idx,
-  maxCounters,
-  budgets,
+  complexity,
   slug,
   collapsed,
   onToggleCollapse,
@@ -29,8 +28,7 @@ export function InsightRail({
   step: Step;
   prevVars: Record<string, unknown>;
   idx: number;
-  maxCounters: Record<string, number>;
-  budgets: { counter: string; label: string }[];
+  complexity: { time: string; space: string };
   slug: string;
   collapsed: boolean;
   onToggleCollapse: () => void;
@@ -49,6 +47,29 @@ export function InsightRail({
   }
 
   const results = (step.vars.res as unknown[]) ?? [];
+
+  const n = (step.vars.n as number) || 1;
+
+  // Derive theoretical budget from complexity notation + n
+  function theoreticalBudget(notation: string): number {
+    if (notation === "O(1)") return 1;
+    if (/n[⁴^]?4|n⁴/.test(notation)) return Math.pow(n, 4);
+    if (/n[³^]?3|n³/.test(notation)) return Math.pow(n, 3);
+    if (/n[²^]?2|n²/.test(notation)) return Math.pow(n, 2);
+    if (/n\s*log/.test(notation)) return Math.ceil(n * Math.log2(Math.max(n, 2)));
+    if (/O\(n\)/.test(notation)) return n;
+    return n;
+  }
+
+  // TIME: fall back to comparisons+moves for preset traces without timeOps
+  const timeOps = step.counters.timeOps
+    ?? ((step.counters.comparisons ?? 0) + (step.counters.moves ?? 0));
+  const timeBudget = theoreticalBudget(complexity.time);
+  const timePct = Math.min(100, (timeOps / timeBudget) * 100);
+
+  const spaceUnits = step.counters.spaceUnits ?? 1;
+  const spaceBudget = theoreticalBudget(complexity.space);
+  const spacePct = Math.min(100, (spaceUnits / spaceBudget) * 100);
 
   return (
     <div className="h-full flex flex-col bg-kn-surface-0 overflow-y-auto cs-scroll">
@@ -86,28 +107,49 @@ export function InsightRail({
       </Section>
 
       {/* Complexity */}
-      <Section title="COMPLEXITY" suffix="· live ops vs budget">
-        <div className="flex flex-col gap-2.5">
-          {budgets.map((b) => {
-            const value = step.counters[b.counter] ?? 0;
-            const max = Math.max(maxCounters[b.counter] ?? 1, 1);
-            const pct = Math.min(100, (value / max) * 100);
-            const isFirst = b.counter === budgets[0].counter;
-            return (
-              <div key={b.counter}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <span className="text-[12px] text-kn-ink-1">{b.label}</span>
-                  <span className="font-mono text-[12px] font-semibold text-kn-ink-0">{value}</span>
-                </div>
-                <div className="h-2 rounded bg-kn-track overflow-hidden">
-                  <div
-                    className="h-full rounded transition-[width] duration-300"
-                    style={{ width: `${pct}%`, background: isFirst ? "var(--kn-current)" : "var(--kn-result)" }}
-                  />
-                </div>
+      <Section title="COMPLEXITY">
+        <div className="flex flex-col gap-3.5">
+          {/* TIME */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">TIME</span>
+                <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+                  {complexity.time}
+                </span>
               </div>
-            );
-          })}
+              <span className="font-mono text-[12px] text-kn-ink-1">
+                {timeOps} / {timeBudget.toLocaleString()} ops
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-kn-track overflow-hidden">
+              <div
+                className="h-full rounded-full transition-[width] duration-300"
+                style={{ width: `${timePct}%`, background: "var(--kn-current)" }}
+              />
+            </div>
+          </div>
+
+          {/* SPACE */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">SPACE</span>
+                <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+                  {complexity.space}
+                </span>
+              </div>
+              <span className="font-mono text-[12px] text-kn-ink-1">
+                {spaceUnits} / {spaceBudget.toLocaleString()} unit{spaceBudget !== 1 ? "s" : ""}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-kn-track overflow-hidden">
+              <div
+                className="h-full rounded-full transition-[width] duration-300"
+                style={{ width: `${spacePct}%`, background: "var(--kn-result)" }}
+              />
+            </div>
+          </div>
         </div>
       </Section>
 

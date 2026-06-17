@@ -8,7 +8,7 @@
  * Add a new entry here whenever a new problem + tracer is authored.
  */
 import type { Step } from "@/lib/trace";
-import { buildTrace as build4Sum, type FourSumInput } from "./4sum";
+import { buildTrace as build4Sum, buildBruteForceTrace as build4SumBrute, type FourSumInput } from "./4sum";
 
 export interface TraceResult {
   steps: Step[];
@@ -21,5 +21,6 @@ export type TraceBuilder = (input: unknown) => TraceResult;
 export const TRACERS: Record<string, Record<string, TraceBuilder>> = {
   "4sum": {
     "sort-two-pointers": (input) => build4Sum(input as FourSumInput),
+    "brute-force": (input) => build4SumBrute(input as FourSumInput),
   },
 };
