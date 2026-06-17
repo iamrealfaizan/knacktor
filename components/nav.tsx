@@ -15,6 +15,10 @@ const NAV_LINKS = [
 export function Nav() {
   const pathname = usePathname();
 
+  // The problem-detail page has its own TopBar (no-scroll flagship layout).
+  const isProblemDetail = /^\/problems\/[^/]+$/.test(pathname);
+  if (isProblemDetail) return null;
+
   return (
     <nav className="h-14 border-b border-kn-border-0 bg-kn-surface-0 sticky top-0 z-50 flex items-center px-6 gap-8">
       <Link

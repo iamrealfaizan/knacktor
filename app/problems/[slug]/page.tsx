@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getProblemFull, getTrace } from "@/lib/content-service";
+import { ProblemEngine } from "@/components/problem/problem-engine";
 
 interface Props {
   params: { slug: string };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  return { title: params.slug };
+  const problem = await getProblemFull(params.slug);
+  return { title: problem?.title ?? params.slug };
 }
 
-export default function ProblemPage({ params }: Props) {
-  return (
-    <div className="flex-1 flex items-center justify-center text-kn-ink-2 text-sm">
-      Problem visualizer for{" "}
-      <span className="font-mono ml-1 text-kn-ink-1">{params.slug}</span>
-      {/* Full problem page engine — M1.4 */}
-    </div>
+export default async function ProblemPage({ params }: Props) {
+  const problem = await getProblemFull(params.slug);
+  if (!problem) notFound();
+
+  const trace = await getTrace(
+    params.slug,
+    problem.recommendedApproachId,
+    problem.presetInputs[0].id
   );
+  if (!trace) notFound();
+
+  return <ProblemEngine problem={problem} trace={trace} />;
 }

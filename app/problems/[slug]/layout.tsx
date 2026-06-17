@@ -1,12 +1,9 @@
-// Problem page is no-scroll: fixed-height panels below the 3.5rem nav
+// Problem page is the flagship no-scroll teaching loop: it owns the full
+// viewport (its own TopBar replaces the global Nav, which hides on this route).
 export default function ProblemLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="h-[calc(100svh-3.5rem)] overflow-hidden flex flex-col">
-      {children}
-    </div>
-  );
+  return <div className="h-screen overflow-hidden">{children}</div>;
 }

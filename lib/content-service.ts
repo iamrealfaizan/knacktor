@@ -8,8 +8,36 @@
  */
 import clientPromise from "./mongodb";
 import type { Problem, Topic, Pattern, Sheet, ProblemFilters } from "./types";
+import type { ProblemFull, Trace } from "./trace";
+import {
+  FOURSUM_PROBLEM,
+  FOURSUM_TRACE,
+} from "./fixtures/4sum";
 
 const DB = "knacktor";
+
+// ── Full problem + trace (M1.4) ────────────────────────────────────────────
+// Fixture-backed until the M1.5 tracer + M1.6 content land. The page depends
+// only on these signatures, so swapping to MongoDB later is transparent.
+const FULL_PROBLEMS: Record<string, ProblemFull> = {
+  [FOURSUM_PROBLEM.slug]: FOURSUM_PROBLEM,
+};
+const TRACES: Record<string, Trace> = {
+  [`${FOURSUM_TRACE.problemSlug}:${FOURSUM_TRACE.approachId}:${FOURSUM_TRACE.inputId}`]:
+    FOURSUM_TRACE,
+};
+
+export async function getProblemFull(slug: string): Promise<ProblemFull | null> {
+  return FULL_PROBLEMS[slug] ?? null;
+}
+
+export async function getTrace(
+  slug: string,
+  approachId: string,
+  inputId: string
+): Promise<Trace | null> {
+  return TRACES[`${slug}:${approachId}:${inputId}`] ?? null;
+}
 
 async function db() {
   return (await clientPromise).db(DB);
