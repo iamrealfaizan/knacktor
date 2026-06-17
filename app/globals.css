@@ -2,22 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    /* ── shadcn system (oklch, warm-paper mapped) ─────────────────── */
+    --background:             oklch(0.945 0.008 90);   /* #F4F1EA */
+    --foreground:             oklch(0.140 0.006 85);   /* #211F1B */
+    --card:                   oklch(1     0     0);    /* #FFFFFF */
+    --card-foreground:        oklch(0.140 0.006 85);
+    --popover:                oklch(1     0     0);
+    --popover-foreground:     oklch(0.140 0.006 85);
+    --primary:                oklch(0.560 0.140 38);   /* #C2603F vermillion */
+    --primary-foreground:     oklch(1     0     0);
+    --secondary:              oklch(0.970 0.007 95);   /* #FAF8F2 */
+    --secondary-foreground:   oklch(0.140 0.006 85);
+    --muted:                  oklch(0.960 0.009 90);   /* #F7F4ED */
+    --muted-foreground:       oklch(0.580 0.013 80);   /* #8E887A */
+    --accent:                 oklch(0.960 0.009 90);
+    --accent-foreground:      oklch(0.140 0.006 85);
+    --destructive:            oklch(0.440 0.140 32);   /* #A6371F */
+    --destructive-foreground: oklch(1     0     0);
+    --border:                 oklch(0.890 0.012 85);   /* #E6E1D5 */
+    --input:                  oklch(0.890 0.012 85);
+    --ring:                   oklch(0.560 0.140 38);   /* #C2603F */
+    --radius:                 0.5rem;
+    --radius-md:              calc(var(--radius) - 2px);
+    --radius-sm:              calc(var(--radius) - 4px);
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+    /* ── Knacktor exact tokens (hex) — never override or inline ───── */
+    --kn-bg:        #F4F1EA;
+    --kn-surface-0: #FFFFFF;
+    --kn-surface-1: #FAF8F2;
+    --kn-surface-2: #F7F4ED;
+    --kn-ink-0:     #211F1B;
+    --kn-ink-1:     #565147;
+    --kn-ink-2:     #8E887A;
+    --kn-border-0:  #E6E1D5;
+    --kn-border-1:  #D8D2C4;
+    --kn-current:   #C2603F;  /* active / highlighted element */
+    --kn-compared:  #2E72C4;  /* pointer / compared element   */
+    --kn-result:    #2F9E73;  /* result / found element       */
+    --kn-special:   #8A5CC2;  /* pivot / special              */
+    --kn-amber:     #E0A82E;  /* warning / auxiliary          */
+    --kn-error:     #A6371F;  /* pruned / error               */
+
+    /* ── Font variables (populated by next/font in layout.tsx) ──── */
+    --font-sans: var(--font-inter);
+    --font-mono: var(--font-jetbrains-mono);
+  }
+
+  .dark {
+    /* ── shadcn dark (warm-dark mapped) ──────────────────────────── */
+    --background:             oklch(0.135 0.008 90);   /* #1C1B14 */
+    --foreground:             oklch(0.860 0.013 82);   /* #DBD5C7 */
+    --card:                   oklch(0.155 0.009 85);   /* #211F19 */
+    --card-foreground:        oklch(0.860 0.013 82);
+    --popover:                oklch(0.155 0.009 85);
+    --popover-foreground:     oklch(0.860 0.013 82);
+    --primary:                oklch(0.560 0.140 38);
+    --primary-foreground:     oklch(1     0     0);
+    --secondary:              oklch(0.175 0.009 83);   /* #26241D */
+    --secondary-foreground:   oklch(0.860 0.013 82);
+    --muted:                  oklch(0.220 0.010 77);   /* #322E27 */
+    --muted-foreground:       oklch(0.630 0.015 79);   /* #9A9384 */
+    --accent:                 oklch(0.220 0.010 77);
+    --accent-foreground:      oklch(0.860 0.013 82);
+    --destructive:            oklch(0.440 0.140 32);
+    --destructive-foreground: oklch(1     0     0);
+    --border:                 oklch(0.280 0.013 75);   /* #403B33 */
+    --input:                  oklch(0.280 0.013 75);
+    --ring:                   oklch(0.560 0.140 38);
+
+    /* ── Knacktor dark exact tokens ──────────────────────────────── */
+    --kn-bg:        #1C1B14;
+    --kn-surface-0: #211F19;
+    --kn-surface-1: #26241D;
+    --kn-surface-2: #322E27;
+    --kn-ink-0:     #DBD5C7;
+    --kn-ink-1:     #9A9384;
+    --kn-ink-2:     #A39C8C;
+    --kn-border-0:  #403B33;
+    --kn-border-1:  #34302A;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-kn-bg text-kn-ink-0 font-sans antialiased;
+  }
 }
 
 @layer utilities {
