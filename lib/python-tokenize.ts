@@ -40,8 +40,6 @@ export function tokenizeLine(line: string): Token[] {
   const tokens: Token[] = [];
   TOKEN_RE.lastIndex = 0;
   let m: RegExpExecArray | null;
-  let prevWord: string | null = null;
-
   while ((m = TOKEN_RE.exec(line)) !== null) {
     const [, comment, str, num, word, ws, op, punc] = m;
     if (comment !== undefined) {
@@ -61,7 +59,6 @@ export function tokenizeLine(line: string): Token[] {
       } else {
         tokens.push({ t: word, c: "var" });
       }
-      prevWord = word;
     } else if (ws !== undefined) {
       tokens.push({ t: ws, c: "txt" });
     } else if (op !== undefined) {
