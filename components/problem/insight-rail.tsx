@@ -56,35 +56,6 @@ export function InsightRail({
   const results = (step.vars.res as unknown[]) ?? [];
 
   // Infer n from vars, falling back to the visual array length
-  const n = (() => {
-    const fromVars = step.vars.n as number | undefined;
-    if (fromVars && fromVars > 0) return fromVars;
-    const v = step.visual;
-    if (v.type === "array" || v.type === "bar-container") return v.values.length;
-    return 1;
-  })();
-
-  // Derive theoretical budget from complexity notation + n
-  function theoreticalBudget(notation: string): number {
-    if (notation === "O(1)") return 1;
-    if (/n[⁴^]?4|n⁴/.test(notation)) return Math.pow(n, 4);
-    if (/n[³^]?3|n³/.test(notation)) return Math.pow(n, 3);
-    if (/n[²^]?2|n²/.test(notation)) return Math.pow(n, 2);
-    if (/n\s*log/.test(notation)) return Math.ceil(n * Math.log2(Math.max(n, 2)));
-    if (/O\(n\)/.test(notation)) return n;
-    return n;
-  }
-
-  // TIME: fall back to comparisons+moves for preset traces without timeOps
-  const timeOps = step.counters.timeOps
-    ?? ((step.counters.comparisons ?? 0) + (step.counters.moves ?? 0));
-  const timeBudget = theoreticalBudget(complexity.time);
-  const timePct = Math.min(100, (timeOps / timeBudget) * 100);
-
-  const spaceUnits = step.counters.spaceUnits ?? 1;
-  const spaceBudget = theoreticalBudget(complexity.space);
-  const spacePct = Math.min(100, (spaceUnits / spaceBudget) * 100);
-
   return (
     <div className="h-full flex flex-col bg-kn-surface-0 overflow-y-auto cs-scroll">
       {/* header */}
