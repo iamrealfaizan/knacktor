@@ -1,0 +1,543 @@
+{
+  "slug": "container-with-most-water",
+  "number": 11,
+  "title": "Container With Most Water",
+  "difficulty": "medium",
+  "topics": ["array", "two-pointers", "greedy"],
+  "patterns": ["two-pointers"],
+  "statement": "You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]). Find two lines that together with the x-axis form a container that stores the most water. Return the maximum amount of water the container can store. You may not slant the container.",
+  "recommendedApproachId": "two-pointers",
+  "supportsCompare": true,
+  "supportsCustomInput": true,
+
+  "approaches": [
+    {
+      "id": "brute-force",
+      "name": "Brute Force",
+      "kind": "brute",
+      "summary": "Try every possible pair of lines and calculate the water area for each pair.",
+      "complexity": {
+        "time": "O(n^2)",
+        "space": "O(1)"
+      },
+      "primaryPrimitive": "array",
+      "auxStructures": [],
+      "source": "class Solution(object):\n    def maxArea(self, height):\n        mx = 0\n        n = len(height)\n        for i in range(n):\n            for j in range(i + 1, n):\n                width = j - i\n                h = min(height[i], height[j])\n                area = width * h\n                mx = max(mx, area)\n        return mx",
+      "lineExplanations": {
+        "1": "Define the Solution class for LeetCode.",
+        "2": "Define the maxArea function that takes the height array.",
+        "3": "Initialize the maximum area as 0.",
+        "4": "Store the length of the height array.",
+        "5": "Pick the first line.",
+        "6": "Pick the second line after the first line.",
+        "7": "Calculate the distance between the two lines.",
+        "8": "The container height is limited by the shorter line.",
+        "9": "Calculate the water area.",
+        "10": "Update the maximum area if this pair gives a larger area.",
+        "11": "Return the largest area found."
+      },
+      "syntaxExplanations": {
+        "3": "mx stores the best answer found so far.",
+        "5": "range(n) loops from 0 to n - 1.",
+        "6": "range(i + 1, n) checks every line to the right of i.",
+        "8": "min() returns the smaller of the two heights.",
+        "10": "max() keeps the larger value between mx and area."
+      }
+    },
+    {
+      "id": "two-pointers",
+      "name": "Two Pointers",
+      "kind": "optimal",
+      "summary": "Start with the widest container using two pointers. Calculate the area, then move the pointer at the shorter line inward.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(1)"
+      },
+      "primaryPrimitive": "array",
+      "auxStructures": [],
+      "source": "class Solution(object):\n    def maxArea(self, height):\n        lp = 0\n        rp = len(height) - 1\n        mx = 0\n\n        while lp < rp:\n            width = rp - lp\n            h = min(height[lp], height[rp])\n            area = width * h\n            mx = max(mx, area)\n\n            if height[lp] < height[rp]:\n                lp += 1\n            else:\n                rp -= 1\n\n        return mx",
+      "lineExplanations": {
+        "1": "Define the Solution class for LeetCode.",
+        "2": "Define the maxArea function that receives the height array.",
+        "3": "Place the left pointer at the start of the array.",
+        "4": "Place the right pointer at the end of the array.",
+        "5": "Initialize the maximum area as 0.",
+        "7": "Keep checking while the two pointers have not crossed.",
+        "8": "The width is the distance between the two pointers.",
+        "9": "The usable water height is limited by the shorter line.",
+        "10": "Calculate the current container area.",
+        "11": "Update the best maximum area found so far.",
+        "13": "If the left line is shorter, move the left pointer inward.",
+        "14": "Move the left pointer one step right.",
+        "15": "Otherwise, move the right pointer inward.",
+        "16": "Move the right pointer one step left.",
+        "18": "Return the largest area found."
+      },
+      "syntaxExplanations": {
+        "3": "lp stands for left pointer.",
+        "4": "rp stands for right pointer. len(height) - 1 gives the last index.",
+        "7": "while lp < rp keeps looping while there are two valid lines.",
+        "8": "rp - lp gives the horizontal distance between the two lines.",
+        "9": "height[lp] accesses the left line height, and height[rp] accesses the right line height.",
+        "11": "max(mx, area) keeps the larger value.",
+        "13": "The shorter side limits the water, so we move that pointer.",
+        "14": "lp += 1 means lp = lp + 1.",
+        "16": "rp -= 1 means rp = rp - 1."
+      }
+    }
+  ],
+
+  "presetInputs": [
+    {
+      "id": "example-1",
+      "label": "Example 1",
+      "value": {
+        "height": [1, 8, 6, 2, 5, 4, 8, 3, 7]
+      },
+      "isEdgeCase": false,
+      "expectedOutput": 49
+    },
+    {
+      "id": "example-2",
+      "label": "Example 2",
+      "value": {
+        "height": [1, 1]
+      },
+      "isEdgeCase": false,
+      "expectedOutput": 1
+    },
+    {
+      "id": "edge-all-zero",
+      "label": "All zero heights",
+      "value": {
+        "height": [0, 0, 0, 0]
+      },
+      "isEdgeCase": true,
+      "expectedOutput": 0
+    },
+    {
+      "id": "edge-increasing",
+      "label": "Increasing heights",
+      "value": {
+        "height": [1, 2, 3, 4, 5]
+      },
+      "isEdgeCase": true,
+      "expectedOutput": 6
+    },
+    {
+      "id": "edge-decreasing",
+      "label": "Decreasing heights",
+      "value": {
+        "height": [5, 4, 3, 2, 1]
+      },
+      "isEdgeCase": true,
+      "expectedOutput": 6
+    }
+  ],
+
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "height",
+        "type": "int[]",
+        "label": "Heights",
+        "placeholder": "e.g. 1,8,6,2,5,4,8,3,7",
+        "min": 0,
+        "max": 10000,
+        "minLen": 2,
+        "maxLen": 12
+      }
+    ],
+    "maxSteps": 1000
+  },
+
+  "traces": [
+    {
+      "approachId": "two-pointers",
+      "inputId": "example-1",
+      "finalResult": 49,
+      "keyEventIndices": [3],
+      "steps": [
+        {
+          "i": 0,
+          "codeKey": 3,
+          "phase": "init",
+          "op": "lp = 0, rp = 8, mx = 0",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Start with the left pointer at index 0 and the right pointer at index 8.",
+            "why": "This gives the widest possible container first.",
+            "invariant": "mx stores the largest area found so far."
+          },
+          "vars": {
+            "height": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "lp": 0,
+            "rp": 8,
+            "mx": 0
+          },
+          "changedVars": ["lp", "rp", "mx"],
+          "counters": { "comparisons": 0, "moves": 0, "timeOps": 0, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "left", "1": "idle", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "idle", "8": "right" },
+            "pointers": [{ "name": "lp", "at": 0 }, { "name": "rp", "at": 8 }],
+            "container": { "left": 0, "right": 8, "width": 8, "waterHeight": 1, "area": 8 }
+          }
+        },
+        {
+          "i": 1,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(1, 7) * 8 = 8",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 0 and index 8 gives area 8.",
+            "why": "The width is 8, and the shorter height is 1.",
+            "invariant": "The current best area becomes 8."
+          },
+          "vars": { "lp": 0, "rp": 8, "width": 8, "h": 1, "area": 8, "mx": 8 },
+          "changedVars": ["width", "h", "area", "mx"],
+          "counters": { "comparisons": 1, "moves": 0, "timeOps": 1, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "current", "1": "idle", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "idle", "8": "current" },
+            "pointers": [{ "name": "lp", "at": 0 }, { "name": "rp", "at": 8 }],
+            "container": { "left": 0, "right": 8, "width": 8, "waterHeight": 1, "area": 8 }
+          }
+        },
+        {
+          "i": 2,
+          "codeKey": 14,
+          "phase": "move",
+          "op": "height[lp] < height[rp], so lp += 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the left pointer from index 0 to index 1.",
+            "why": "The left line is shorter, so it limits the water. Moving it is our only chance to find a bigger area.",
+            "invariant": "To possibly find a larger area, we must try a taller left boundary."
+          },
+          "vars": { "lp": 1, "rp": 8, "mx": 8 },
+          "changedVars": ["lp"],
+          "counters": { "comparisons": 2, "moves": 1, "timeOps": 2, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "visited", "1": "left", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "idle", "8": "right" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 8 }],
+            "container": { "left": 1, "right": 8, "width": 7, "waterHeight": 7, "area": 49 }
+          }
+        },
+        {
+          "i": 3,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 7) * 7 = 49",
+          "isKeyEvent": true,
+          "narration": {
+            "happening": "Using lines at index 1 and index 8 gives area 49.",
+            "why": "The width is 7, and the shorter height is 7.",
+            "invariant": "This is the best area found so far — and it will be the final answer."
+          },
+          "vars": { "lp": 1, "rp": 8, "width": 7, "h": 7, "area": 49, "mx": 49 },
+          "changedVars": ["width", "h", "area", "mx"],
+          "counters": { "comparisons": 3, "moves": 1, "timeOps": 3, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "result", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "idle", "8": "result" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 8 }],
+            "container": { "left": 1, "right": 8, "width": 7, "waterHeight": 7, "area": 49 }
+          }
+        },
+        {
+          "i": 4,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "height[rp] <= height[lp], so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 8 to index 7.",
+            "why": "The right line is shorter (or equal), so moving it is our only hope for a bigger area.",
+            "invariant": "The maximum area is still 49."
+          },
+          "vars": { "lp": 1, "rp": 7, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 4, "moves": 2, "timeOps": 4, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "right", "8": "visited" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 7 }],
+            "container": { "left": 1, "right": 7, "width": 6, "waterHeight": 3, "area": 18 }
+          }
+        },
+        {
+          "i": 5,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 3) * 6 = 18",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 7 gives area 18.",
+            "why": "The width is 6, and the shorter height is 3.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 7, "width": 6, "h": 3, "area": 18, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 5, "moves": 2, "timeOps": 5, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "idle", "7": "current", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 7 }],
+            "container": { "left": 1, "right": 7, "width": 6, "waterHeight": 3, "area": 18 }
+          }
+        },
+        {
+          "i": 6,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "height[rp] <= height[lp], so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 7 to index 6.",
+            "why": "The right line at height 3 is shorter.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 6, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 6, "moves": 3, "timeOps": 6, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "right", "7": "visited", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 6 }],
+            "container": { "left": 1, "right": 6, "width": 5, "waterHeight": 8, "area": 40 }
+          }
+        },
+        {
+          "i": 7,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 8) * 5 = 40",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 6 gives area 40.",
+            "why": "The width is 5, and both heights are 8.",
+            "invariant": "Even though the height is larger, the narrower width means area is still less than 49."
+          },
+          "vars": { "lp": 1, "rp": 6, "width": 5, "h": 8, "area": 40, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 7, "moves": 3, "timeOps": 7, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "idle", "3": "idle", "4": "idle", "5": "idle", "6": "current", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 6 }],
+            "container": { "left": 1, "right": 6, "width": 5, "waterHeight": 8, "area": 40 }
+          }
+        },
+        {
+          "i": 8,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "heights equal, so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 6 to index 5.",
+            "why": "When heights are equal, moving either pointer is valid. This implementation moves right.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 5, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 8, "moves": 4, "timeOps": 8, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "idle", "3": "idle", "4": "idle", "5": "right", "6": "visited", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 5 }],
+            "container": { "left": 1, "right": 5, "width": 4, "waterHeight": 4, "area": 16 }
+          }
+        },
+        {
+          "i": 9,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 4) * 4 = 16",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 5 gives area 16.",
+            "why": "The right line has height 4, so it limits the water.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 5, "width": 4, "h": 4, "area": 16, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 9, "moves": 4, "timeOps": 9, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "idle", "3": "idle", "4": "idle", "5": "current", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 5 }],
+            "container": { "left": 1, "right": 5, "width": 4, "waterHeight": 4, "area": 16 }
+          }
+        },
+        {
+          "i": 10,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "height[rp] < height[lp], so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 5 to index 4.",
+            "why": "The right line is shorter.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 4, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 10, "moves": 5, "timeOps": 10, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "idle", "3": "idle", "4": "right", "5": "visited", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 4 }],
+            "container": { "left": 1, "right": 4, "width": 3, "waterHeight": 5, "area": 15 }
+          }
+        },
+        {
+          "i": 11,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 5) * 3 = 15",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 4 gives area 15.",
+            "why": "The width has shrunk and the shorter height is 5.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 4, "width": 3, "h": 5, "area": 15, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 11, "moves": 5, "timeOps": 11, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "idle", "3": "idle", "4": "current", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 4 }],
+            "container": { "left": 1, "right": 4, "width": 3, "waterHeight": 5, "area": 15 }
+          }
+        },
+        {
+          "i": 12,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "height[rp] < height[lp], so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 4 to index 3.",
+            "why": "The right line is shorter.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 3, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 12, "moves": 6, "timeOps": 12, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "idle", "3": "right", "4": "visited", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 3 }],
+            "container": { "left": 1, "right": 3, "width": 2, "waterHeight": 2, "area": 4 }
+          }
+        },
+        {
+          "i": 13,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 2) * 2 = 4",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 3 gives area 4.",
+            "why": "The width is only 2, and the shorter height is 2.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 3, "width": 2, "h": 2, "area": 4, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 13, "moves": 6, "timeOps": 13, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "idle", "3": "current", "4": "dimmed", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 3 }],
+            "container": { "left": 1, "right": 3, "width": 2, "waterHeight": 2, "area": 4 }
+          }
+        },
+        {
+          "i": 14,
+          "codeKey": 16,
+          "phase": "move",
+          "op": "height[rp] < height[lp], so rp -= 1",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Move the right pointer from index 3 to index 2.",
+            "why": "The right line is shorter.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 2, "mx": 49 },
+          "changedVars": ["rp"],
+          "counters": { "comparisons": 14, "moves": 7, "timeOps": 14, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "left", "2": "right", "3": "visited", "4": "dimmed", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 2 }],
+            "container": { "left": 1, "right": 2, "width": 1, "waterHeight": 6, "area": 6 }
+          }
+        },
+        {
+          "i": 15,
+          "codeKey": 10,
+          "phase": "check",
+          "op": "area = min(8, 6) * 1 = 6",
+          "isKeyEvent": false,
+          "narration": {
+            "happening": "Using lines at index 1 and index 2 gives area 6.",
+            "why": "The width is only 1.",
+            "invariant": "The maximum area remains 49."
+          },
+          "vars": { "lp": 1, "rp": 2, "width": 1, "h": 6, "area": 6, "mx": 49 },
+          "changedVars": ["width", "h", "area"],
+          "counters": { "comparisons": 15, "moves": 7, "timeOps": 15, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "current", "2": "current", "3": "dimmed", "4": "dimmed", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "dimmed" },
+            "pointers": [{ "name": "lp", "at": 1 }, { "name": "rp", "at": 2 }],
+            "container": { "left": 1, "right": 2, "width": 1, "waterHeight": 6, "area": 6 }
+          }
+        },
+        {
+          "i": 16,
+          "codeKey": 18,
+          "phase": "return",
+          "op": "return 49",
+          "isKeyEvent": true,
+          "narration": {
+            "happening": "Pointers have crossed — return 49.",
+            "why": "We have checked every necessary pair. No larger container exists.",
+            "invariant": "The best container uses indices 1 and 8 with area 49."
+          },
+          "vars": { "lp": 1, "rp": 1, "mx": 49 },
+          "changedVars": [],
+          "counters": { "comparisons": 15, "moves": 7, "timeOps": 15, "spaceUnits": 1 },
+          "visual": {
+            "type": "bar-container",
+            "values": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+            "cellStates": { "0": "dimmed", "1": "result", "2": "dimmed", "3": "dimmed", "4": "dimmed", "5": "dimmed", "6": "dimmed", "7": "dimmed", "8": "result" },
+            "pointers": [],
+            "container": { "left": 1, "right": 8, "width": 7, "waterHeight": 7, "area": 49 }
+          }
+        }
+      ]
+    }
+  ]
+}

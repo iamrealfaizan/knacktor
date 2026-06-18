@@ -47,8 +47,16 @@ function toPlain<T>(v: T): T {
 }
 
 // ── Full problem (ProblemFull) ────────────────────────────────────────────────
-// Still fixture-backed until ProblemFull content is fully migrated to MongoDB.
+// Reads from MongoDB `problemsFull` collection (JSON-seeded problems).
+// Falls back to in-memory fixtures for legacy TypeScript-tracer problems (4Sum).
 export async function getProblemFull(slug: string): Promise<ProblemFull | null> {
+  try {
+    const collection = (await db()).collection<ProblemFull & { _id: unknown }>("problemsFull");
+    const doc = await collection.findOne({ slug });
+    if (doc) return toPlain(doc) as ProblemFull;
+  } catch {
+    // MongoDB unavailable — fall through to fixture
+  }
   return FIXTURE_PROBLEMS[slug] ?? null;
 }
 

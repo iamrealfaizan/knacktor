@@ -154,12 +154,19 @@ export function buildTrace(input: FourSumInput): {
         invariant: "The answer pair, if any, lies between lo and hi.",
       }, { window: { from: loP, to: hiP } });
 
-      while (loP < hiP) {
+      while (true) {
+        // ── line 8: while lo < hi — emit on EVERY check, including the exit ──
+        const whileCond = loP < hiP;
         push(8, "loop", [], {
-          happening: `lo (${loP}) < hi (${hiP}) — keep searching.`,
-          why: "The pointers haven't crossed, so a pair is still possible.",
+          happening: whileCond
+            ? `lo (${loP}) < hi (${hiP}) — condition is true, enter loop body.`
+            : `lo (${loP}) is not less than hi (${hiP}) — condition is false, exit loop.`,
+          why: whileCond
+            ? "The pointers haven't crossed, so a pair is still possible."
+            : "The pointers have met. Every pair in this window has been checked.",
           invariant: "The bright band between lo and hi is the live search space.",
         }, { window: { from: loP, to: hiP } });
+        if (!whileCond) break;
 
         comparisons++;
         sVal = a[iP] + a[jP] + a[loP] + a[hiP];
@@ -170,8 +177,9 @@ export function buildTrace(input: FourSumInput): {
         }, { op: `s = ${sVal}`, window: { from: loP, to: hiP } });
 
         if (sVal === target) {
+          // ── line 10: if s == target — TRUE ────────────────────────────────
           push(10, "check", [], {
-            happening: `s (${sVal}) == target (${target}).`,
+            happening: `s (${sVal}) == target (${target}) — condition is TRUE.`,
             why: "A match — record this quadruplet.",
             invariant: "Equality means these four numbers are an answer.",
           }, { isKeyEvent: true, window: { from: loP, to: hiP } });
@@ -190,48 +198,66 @@ export function buildTrace(input: FourSumInput): {
           });
 
           moves++;
-          const fromLo = loP; loP++;
+          const fromLo1 = loP; loP++;
           push(12, "update", ["lo"], {
-            happening: `Move lo inward: ${fromLo} → ${loP}.`,
+            happening: `Move lo inward: ${fromLo1} → ${loP}.`,
             why: "Advance past this matched pair to find new ones.",
             invariant: "lo only ever moves right.",
-          }, { op: "lo += 1", ghosts: [{ name: "lo", from: fromLo, to: loP }], window: { from: loP, to: hiP } });
+          }, { op: "lo += 1", ghosts: [{ name: "lo", from: fromLo1, to: loP }], window: { from: loP, to: hiP } });
 
           moves++;
-          const fromHi = hiP; hiP--;
+          const fromHi1 = hiP; hiP--;
           push(13, "update", ["hi"], {
-            happening: `Move hi inward: ${fromHi} → ${hiP}.`,
+            happening: `Move hi inward: ${fromHi1} → ${hiP}.`,
             why: "Shrink the window from the top too.",
             invariant: "hi only ever moves left.",
-          }, { op: "hi -= 1", ghosts: [{ name: "hi", from: fromHi, to: hiP }], window: { from: loP, to: hiP } });
-        } else if (sVal < target) {
-          push(14, "check", [], {
-            happening: `s (${sVal}) < target (${target}).`,
-            why: "The sum is too small — we need a larger number.",
-            invariant: "Sorted order means moving lo right increases the sum.",
-          }, { window: { from: loP, to: hiP } });
-
-          moves++;
-          const fromLo = loP; loP++;
-          push(15, "update", ["lo"], {
-            happening: `Move lo right: ${fromLo} → ${loP}.`,
-            why: "A larger lo value raises the sum toward the target.",
-            invariant: "Excluded cells dim out — never deleted.",
-          }, { op: "lo += 1", ghosts: [{ name: "lo", from: fromLo, to: loP }], window: { from: loP, to: hiP } });
+          }, { op: "hi -= 1", ghosts: [{ name: "hi", from: fromHi1, to: hiP }], window: { from: loP, to: hiP } });
         } else {
-          push(16, "check", [], {
-            happening: `s (${sVal}) > target (${target}).`,
-            why: "The sum is too big — we need a smaller number.",
-            invariant: "Moving hi left decreases the sum.",
+          // ── line 10: if s == target — FALSE ───────────────────────────────
+          push(10, "check", [], {
+            happening: `s (${sVal}) ≠ target (${target}) — condition is FALSE.`,
+            why: "This is not a matching quadruplet. Check the elif branch.",
+            invariant: `Best result count so far: ${res.length}.`,
           }, { window: { from: loP, to: hiP } });
 
-          moves++;
-          const fromHi = hiP; hiP--;
-          push(17, "update", ["hi"], {
-            happening: `Move hi left: ${fromHi} → ${hiP}.`,
-            why: "A smaller hi value lowers the sum toward the target.",
-            invariant: "Excluded cells dim out — never deleted.",
-          }, { op: "hi -= 1", ghosts: [{ name: "hi", from: fromHi, to: hiP }], window: { from: loP, to: hiP } });
+          if (sVal < target) {
+            // ── line 14: elif s < target — TRUE ─────────────────────────────
+            push(14, "check", [], {
+              happening: `s (${sVal}) < target (${target}) — elif condition is TRUE.`,
+              why: "The sum is too small — we need a larger number.",
+              invariant: "Sorted order means moving lo right increases the sum.",
+            }, { window: { from: loP, to: hiP } });
+
+            moves++;
+            const fromLo2 = loP; loP++;
+            push(15, "update", ["lo"], {
+              happening: `Move lo right: ${fromLo2} → ${loP}.`,
+              why: "A larger lo value raises the sum toward the target.",
+              invariant: "Excluded cells dim out — never deleted.",
+            }, { op: "lo += 1", ghosts: [{ name: "lo", from: fromLo2, to: loP }], window: { from: loP, to: hiP } });
+          } else {
+            // ── line 14: elif s < target — FALSE ────────────────────────────
+            push(14, "check", [], {
+              happening: `s (${sVal}) is NOT less than target — elif condition is FALSE.`,
+              why: "The sum is too big. Go to the else branch.",
+              invariant: `s (${sVal}) > target (${target}).`,
+            }, { window: { from: loP, to: hiP } });
+
+            // ── line 16: else ────────────────────────────────────────────────
+            push(16, "check", [], {
+              happening: `Entering else — s (${sVal}) > target (${target}).`,
+              why: "The sum is too big — we need a smaller number.",
+              invariant: "Moving hi left decreases the sum.",
+            }, { window: { from: loP, to: hiP } });
+
+            moves++;
+            const fromHi2 = hiP; hiP--;
+            push(17, "update", ["hi"], {
+              happening: `Move hi left: ${fromHi2} → ${hiP}.`,
+              why: "A smaller hi value lowers the sum toward the target.",
+              invariant: "Excluded cells dim out — never deleted.",
+            }, { op: "hi -= 1", ghosts: [{ name: "hi", from: fromHi2, to: hiP }], window: { from: loP, to: hiP } });
+          }
         }
       }
       sVal = null;

@@ -47,7 +47,25 @@ export function ProblemEngine({
   // Active trace state — starts with first preset
   const firstPresetId = problem.presetInputs[0].id;
   const [activeInputId, setActiveInputId] = useState(firstPresetId);
-  const [activeTrace, setActiveTrace] = useState<Trace>(presetTraces[firstPresetId]!);
+  const [activeTrace, setActiveTrace] = useState<Trace>(() => {
+    const builder = TRACERS[problem.slug]?.[problem.recommendedApproachId];
+    if (builder) {
+      try {
+        const firstPreset = problem.presetInputs[0];
+        const { steps, finalResult } = builder(firstPreset.value);
+        return {
+          problemSlug: problem.slug,
+          approachId: problem.recommendedApproachId,
+          inputId: firstPreset.id,
+          steps,
+          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
+          finalResult,
+          traceVersion: "0.1.0",
+        };
+      } catch { /* fall through to stored trace */ }
+    }
+    return presetTraces[firstPresetId]!;
+  });
   // traceNonce changes on every swap so usePlayer resets correctly
   const traceNonce = useRef(0);
   const [traceKey, setTraceKey] = useState(`${firstPresetId}-0`);
@@ -107,10 +125,33 @@ export function ProblemEngine({
   }
 
   function handleSelectPreset(presetId: string) {
+    const preset = problem.presetInputs.find((p) => p.id === presetId);
+    if (!preset) return;
+    // Live tracer takes priority — always produces up-to-date steps
+    const builder = TRACERS[problem.slug]?.[approachId];
+    if (builder) {
+      try {
+        const { steps, finalResult } = builder(preset.value);
+        const newTrace: Trace = {
+          problemSlug: problem.slug,
+          approachId,
+          inputId: presetId,
+          steps,
+          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
+          finalResult,
+          traceVersion: "0.1.0",
+        };
+        swapTrace(newTrace, presetId);
+        setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+        return;
+      } catch { /* fall through to stored trace */ }
+    }
+    // Fallback: use stored MongoDB trace (for problems without a registered tracer)
     const t = presetTraces[presetId];
-    if (!t) return;
-    swapTrace(t, presetId);
-    setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+    if (t) {
+      swapTrace(t, presetId);
+      setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+    }
   }
 
   function handleToggleCustomInput() {

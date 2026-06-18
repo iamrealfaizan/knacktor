@@ -8,13 +8,20 @@ import { cn } from "@/lib/utils";
 import type { Step } from "@/lib/trace";
 
 const VAR_COLOR: Record<string, string> = {
-  i: "var(--kn-ptr-i)",
-  j: "var(--kn-ptr-j)",
-  lo: "var(--kn-ptr-lo)",
-  hi: "var(--kn-ptr-hi)",
-  s: "var(--kn-current)",
+  i:    "var(--kn-ptr-i)",
+  j:    "var(--kn-ptr-j)",
+  lo:   "var(--kn-ptr-lo)",
+  hi:   "var(--kn-ptr-hi)",
+  s:    "var(--kn-current)",
+  lp:   "var(--kn-ptr-lo)",
+  rp:   "var(--kn-ptr-hi)",
+  mx:   "var(--kn-result)",
 };
-const SCALAR_ORDER = ["target", "n", "i", "j", "lo", "hi", "s"];
+const SCALAR_ORDER = [
+  "target", "n",
+  "i", "j", "lo", "hi", "s",
+  "lp", "rp", "mx", "width", "h", "area",
+];
 
 export function InsightRail({
   step,
@@ -48,7 +55,14 @@ export function InsightRail({
 
   const results = (step.vars.res as unknown[]) ?? [];
 
-  const n = (step.vars.n as number) || 1;
+  // Infer n from vars, falling back to the visual array length
+  const n = (() => {
+    const fromVars = step.vars.n as number | undefined;
+    if (fromVars && fromVars > 0) return fromVars;
+    const v = step.visual;
+    if (v.type === "array" || v.type === "bar-container") return v.values.length;
+    return 1;
+  })();
 
   // Derive theoretical budget from complexity notation + n
   function theoreticalBudget(notation: string): number {
@@ -110,66 +124,42 @@ export function InsightRail({
       <Section title="COMPLEXITY">
         <div className="flex flex-col gap-3.5">
           {/* TIME */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">TIME</span>
-                <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
-                  {complexity.time}
-                </span>
-              </div>
-              <span className="font-mono text-[12px] text-kn-ink-1">
-                {timeOps} / {timeBudget.toLocaleString()} ops
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-kn-track overflow-hidden">
-              <div
-                className="h-full rounded-full transition-[width] duration-300"
-                style={{ width: `${timePct}%`, background: "var(--kn-current)" }}
-              />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">TIME</span>
+            <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+              {complexity.time}
+            </span>
           </div>
 
           {/* SPACE */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">SPACE</span>
-                <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
-                  {complexity.space}
-                </span>
-              </div>
-              <span className="font-mono text-[12px] text-kn-ink-1">
-                {spaceUnits} / {spaceBudget.toLocaleString()} unit{spaceBudget !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-kn-track overflow-hidden">
-              <div
-                className="h-full rounded-full transition-[width] duration-300"
-                style={{ width: `${spacePct}%`, background: "var(--kn-result)" }}
-              />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">SPACE</span>
+            <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+              {complexity.space}
+            </span>
           </div>
         </div>
       </Section>
 
-      {/* Result set */}
-      <Section title="RESULT SET" suffix="· quadruplets found">
-        <div className="flex gap-1.5 flex-wrap">
-          {results.map((q, k) => (
-            <span
-              key={k}
-              className="kn-anim-pop-in px-2 py-1 rounded-lg font-mono text-[12px] font-semibold text-kn-ink-0"
-              style={{ border: "1.5px solid var(--kn-result)", background: "var(--kn-result-subtle)" }}
-            >
-              [{(q as number[]).join(",")}]
-            </span>
-          ))}
-          {results.length === 0 && (
-            <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
-          )}
-        </div>
-      </Section>
+      {/* Result set — only shown for problems that track a `res` array (e.g., 4Sum) */}
+      {"res" in step.vars && (
+        <Section title="RESULT SET" suffix="· quadruplets found">
+          <div className="flex gap-1.5 flex-wrap">
+            {results.map((q, k) => (
+              <span
+                key={k}
+                className="kn-anim-pop-in px-2 py-1 rounded-lg font-mono text-[12px] font-semibold text-kn-ink-0"
+                style={{ border: "1.5px solid var(--kn-result)", background: "var(--kn-result-subtle)" }}
+              >
+                [{(q as number[]).join(",")}]
+              </span>
+            ))}
+            {results.length === 0 && (
+              <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
+            )}
+          </div>
+        </Section>
+      )}
 
       {/* Call stack — only shown for recursive problems */}
       {step.callStack && step.callStack.length > 0 && (

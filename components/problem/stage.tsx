@@ -4,14 +4,21 @@ import { useRef, useState } from "react";
 import { Plus, Minus, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrayRenderer } from "./array-renderer";
+import { BarContainerRenderer } from "./bar-container-renderer";
 import type { VisualState } from "@/lib/trace";
 
-const LEGEND = [
+const ARRAY_LEGEND = [
   { label: "i", color: "var(--kn-ptr-i)" },
   { label: "j", color: "var(--kn-ptr-j)" },
   { label: "lo", color: "var(--kn-ptr-lo)" },
   { label: "hi", color: "var(--kn-ptr-hi)" },
   { label: "match", color: "var(--kn-result)" },
+];
+
+const BAR_CONTAINER_LEGEND = [
+  { label: "lp", color: "var(--kn-ptr-lo)" },
+  { label: "rp", color: "var(--kn-ptr-hi)" },
+  { label: "best", color: "var(--kn-result)" },
 ];
 
 export function Stage({
@@ -47,8 +54,9 @@ export function Stage({
   function onUp() { drag.current = null; }
   function reset() { setScale(1); setPan({ x: 0, y: 0 }); }
 
-  const n = visual.type === "array" ? visual.values.length : 6;
+  const n = (visual.type === "array" || visual.type === "bar-container") ? visual.values.length : 6;
   const vbW = Math.max(n * 56 + 200, 520);
+  const legend = visual.type === "bar-container" ? BAR_CONTAINER_LEGEND : ARRAY_LEGEND;
 
   return (
     <div
@@ -71,7 +79,7 @@ export function Stage({
 
       {/* legend */}
       <div className="absolute top-2.5 right-3 z-10 flex gap-3 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5 text-[11px]">
-        {LEGEND.map((l) => (
+        {legend.map((l) => (
           <span key={l.label} className="flex items-center gap-1.5 text-kn-ink-1">
             <span className="w-2.5 h-2.5 rounded-sm" style={{ background: l.color }} />
             {l.label}
@@ -82,12 +90,15 @@ export function Stage({
       {/* SVG canvas */}
       <svg
         className="w-full h-full"
-        viewBox={`${-vbW / 2} -160 ${vbW} 380`}
+        viewBox={`${-vbW / 2} ${visual.type === "bar-container" ? -220 : -160} ${vbW} ${visual.type === "bar-container" ? 340 : 380}`}
         preserveAspectRatio="xMidYMid meet"
       >
         <g transform={`translate(${pan.x} ${pan.y}) scale(${scale})`} style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}>
           {visual.type === "array" && (
             <ArrayRenderer visual={visual} vars={vars} target={target} />
+          )}
+          {visual.type === "bar-container" && (
+            <BarContainerRenderer visual={visual} />
           )}
         </g>
       </svg>

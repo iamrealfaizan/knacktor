@@ -18,7 +18,9 @@ export type CellState =
   | "path"
   | "special"
   | "error"
-  | "dimmed";
+  | "dimmed"
+  | "left"
+  | "right";
 
 // ── VisualState — discriminated union by `type` (MVP: array | linkedList | recursion)
 export interface ArrayVisualState {
@@ -55,10 +57,25 @@ export interface RecursionVisualState {
   treeEdges?: { from: string; to: string }[];
 }
 
+export interface BarContainerVisualState {
+  type: "bar-container";
+  values: number[];
+  cellStates: Record<string, CellState>;
+  pointers: { name: string; at: number }[];
+  container?: {
+    left: number;
+    right: number;
+    width: number;
+    waterHeight: number;
+    area: number;
+  };
+}
+
 export type VisualState =
   | ArrayVisualState
   | LinkedListVisualState
-  | RecursionVisualState;
+  | RecursionVisualState
+  | BarContainerVisualState;
 
 // ── Step (Schema §2.5) — one per executed source line (D8) ──────────────────
 export type StepPhase =
@@ -66,6 +83,7 @@ export type StepPhase =
   | "loop"
   | "check"
   | "update"
+  | "move"
   | "recurse"
   | "return"
   | "done";

@@ -9,6 +9,7 @@
  */
 import type { Step } from "@/lib/trace";
 import { buildTrace as build4Sum, buildBruteForceTrace as build4SumBrute, type FourSumInput } from "./4sum";
+import { buildTrace as buildContainer, type ContainerInput } from "./container-with-most-water";
 
 export interface TraceResult {
   steps: Step[];
@@ -22,5 +23,8 @@ export const TRACERS: Record<string, Record<string, TraceBuilder>> = {
   "4sum": {
     "sort-two-pointers": (input) => build4Sum(input as FourSumInput),
     "brute-force": (input) => build4SumBrute(input as FourSumInput),
+  },
+  "container-with-most-water": {
+    "two-pointers": (input) => buildContainer(input as ContainerInput),
   },
 };
