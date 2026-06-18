@@ -95,8 +95,8 @@ export function usePlayer(
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === " ") { e.preventDefault(); togglePlay(); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); e.shiftKey ? jumpToKey(1) : next(); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); e.shiftKey ? jumpToKey(-1) : prev(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); if (e.shiftKey) jumpToKey(1); else next(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); if (e.shiftKey) jumpToKey(-1); else prev(); }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

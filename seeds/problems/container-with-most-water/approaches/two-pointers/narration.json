@@ -1,0 +1,33 @@
+{
+  "byLine": {
+    "3": { "happening": "Measure the array: n = {n} lines.", "why": "We need the index of the last line.", "invariant": "n = {n}." },
+    "4": { "happening": "Start the best area at 0.", "why": "No container has been measured yet.", "invariant": "mx is the largest area found so far." },
+    "5": { "happening": "Place the left wall lp at index 0.", "why": "Begin with the widest possible container.", "invariant": "lp is the left boundary." },
+    "6": { "happening": "Place the right wall rp at index {rp}.", "why": "The two walls start as far apart as possible.", "invariant": "The container spans [lp, rp]." },
+    "7": [
+      { "when": "lp < rp", "happening": "lp ({lp}) < rp ({rp}) — keep searching.", "why": "There is still width between the walls to try.", "invariant": "Best area so far: {mx}." },
+      { "happening": "lp ({lp}) has met rp ({rp}) — stop.", "why": "Width is 0; no wider container remains.", "invariant": "Every useful pair has been tried." }
+    ],
+    "8": { "happening": "Water height = min({height[lp]}, {height[rp]}) = {h}.", "why": "Water spills over the shorter of the two walls.", "invariant": "h is capped by the shorter side." },
+    "9": { "happening": "Width = rp − lp = {w}.", "why": "The horizontal distance between the two walls.", "invariant": "w = {w}." },
+    "10": { "happening": "Area = {h} × {w} = {area}.", "why": "This is how much water this container holds.", "invariant": "Comparing against the best so far ({mx})." },
+    "11": [
+      { "when": "area > mx", "happening": "New best! {area} beats the previous {mx}.", "why": "This container holds more water than any seen before.", "invariant": "mx becomes {area}." },
+      { "happening": "{area} does not beat {mx} — keep the current best.", "why": "A previous container was at least as good.", "invariant": "mx stays {mx}." }
+    ],
+    "12": [
+      { "when": "height[lp] < height[rp]", "happening": "Left wall ({height[lp]}) is shorter than right ({height[rp]}).", "why": "Only moving the shorter wall can ever increase the area.", "invariant": "We will move lp inward." },
+      { "happening": "Right wall ({height[rp]}) is no taller than left ({height[lp]}).", "why": "Move the shorter (right) wall, hoping for a taller one.", "invariant": "We will move rp inward." }
+    ],
+    "13": { "happening": "Advance the left wall inward (currently {lp}).", "why": "Discard the shorter left wall and try the next line.", "invariant": "lp only increases." },
+    "15": { "happening": "Retreat the right wall inward (currently {rp}).", "why": "Discard the shorter right wall and try the next line.", "invariant": "rp only decreases." },
+    "16": { "happening": "Return the largest area: {mx}.", "why": "Every candidate width has been checked.", "invariant": "The search is complete." }
+  },
+  "byPhase": {
+    "init": { "happening": "Set up the two walls.", "why": "Prepare the widest container.", "invariant": "Setup." },
+    "loop": { "happening": "Continue narrowing.", "why": "Test the next pair of walls.", "invariant": "Searching." },
+    "check": { "happening": "Measure this container.", "why": "Compute and compare its area.", "invariant": "Evaluating." },
+    "move": { "happening": "Move the shorter wall.", "why": "Only that can increase the area.", "invariant": "Narrowing." },
+    "return": { "happening": "Return the result.", "why": "Done.", "invariant": "Complete." }
+  }
+}

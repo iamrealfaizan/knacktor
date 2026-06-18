@@ -1,0 +1,43 @@
+{
+  "primitive": "bar-container",
+  "valuesFrom": "height",
+  "pointers": [
+    { "name": "lp", "var": "lp" },
+    { "name": "rp", "var": "rp" }
+  ],
+  "flags": {
+    "isNewMax": "area > mx"
+  },
+  "cellStateRules": [
+    { "state": "result", "when": "idx==lp || idx==rp", "onlyWhen": "isNewMax" },
+    { "state": "left", "when": "idx==lp" },
+    { "state": "right", "when": "idx==rp" },
+    { "state": "dimmed", "when": "idx < lp || idx > rp" },
+    { "state": "idle", "when": "true" }
+  ],
+  "derived": {
+    "container": {
+      "left": "lp",
+      "right": "rp",
+      "width": "rp - lp",
+      "waterHeight": "min(height[lp], height[rp])",
+      "area": "(rp - lp) * min(height[lp], height[rp])"
+    }
+  },
+  "ghosts": { "track": ["lp", "rp"] },
+  "counters": [
+    { "name": "comparisons", "onLines": [10] },
+    { "name": "moves", "onLines": [13, 15] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6] },
+    { "phase": "loop", "lines": [7] },
+    { "phase": "check", "lines": [8, 9, 10, 11, 12] },
+    { "phase": "move", "lines": [13, 15] },
+    { "phase": "return", "lines": [16] }
+  ],
+  "keyEvents": [
+    { "line": 11, "when": "area > mx", "label": "New best area", "kind": "best" },
+    { "line": 16, "label": "Largest container", "kind": "return" }
+  ]
+}

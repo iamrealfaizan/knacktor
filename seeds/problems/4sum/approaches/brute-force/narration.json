@@ -1,0 +1,25 @@
+{
+  "byLine": {
+    "3": { "happening": "Sort nums ascending → {nums}.", "why": "Sorting keeps each quadruplet in a canonical order so answers don't duplicate.", "invariant": "nums is non-decreasing." },
+    "4": { "happening": "Count the elements: n = {n}.", "why": "We need the length to bound four nested loops.", "invariant": "n is fixed at {n}." },
+    "5": { "happening": "Start an empty result list res.", "why": "It collects every quadruplet that sums to the target.", "invariant": "res holds all answers found so far." },
+    "6": { "happening": "Pick the first index i = {i} (value {nums[i]}).", "why": "The outermost of four nested loops.", "invariant": "i is the first of four indices." },
+    "7": { "happening": "Pick the second index j = {j} (value {nums[j]}).", "why": "j is always to the right of i.", "invariant": "i < j." },
+    "8": { "happening": "Pick the third index k = {k} (value {nums[k]}).", "why": "k is always to the right of j.", "invariant": "j < k." },
+    "9": { "happening": "Pick the fourth index l = {l} (value {nums[l]}).", "why": "l is always to the right of k — every combination is tried exactly once.", "invariant": "k < l." },
+    "10": { "happening": "Sum the four: {nums[i]} + {nums[j]} + {nums[k]} + {nums[l]} = {s}.", "why": "Brute force checks the sum of every distinct quadruplet.", "invariant": "s is this combination's sum." },
+    "11": [
+      { "when": "s == target", "happening": "s ({s}) == target ({target}) — a match!", "why": "This quadruplet sums to the target.", "invariant": "Record it." },
+      { "happening": "s ({s}) ≠ target ({target}) — skip.", "why": "This combination doesn't sum to the target.", "invariant": "Move on to the next l." }
+    ],
+    "12": { "happening": "Record the quadruplet [{nums[i]}, {nums[j]}, {nums[k]}, {nums[l]}].", "why": "It sums exactly to the target.", "invariant": "Adding it to the result set." },
+    "13": { "happening": "Return {len(res)} quadruplet(s).", "why": "Every one of the n⁴ combinations has been checked.", "invariant": "The search is complete." }
+  },
+  "byPhase": {
+    "init": { "happening": "Initialize the search.", "why": "Set up the variables the algorithm needs.", "invariant": "Setup in progress." },
+    "loop": { "happening": "Pick the next combination.", "why": "Enumerate every quadruplet.", "invariant": "Search ongoing." },
+    "check": { "happening": "Evaluate the current sum.", "why": "Compare against the target.", "invariant": "Deciding whether to record." },
+    "update": { "happening": "Record a quadruplet.", "why": "It matched the target.", "invariant": "Result set growing." },
+    "return": { "happening": "Return the result.", "why": "The algorithm is done.", "invariant": "Complete." }
+  }
+}

@@ -1,0 +1,5 @@
+[
+  { "id": "example-1", "label": "Has duplicates", "value": { "nums": [-2, -1, 0, 0, 1, 2], "target": 0 }, "isEdgeCase": false, "expectedOutput": [[-2, -1, 1, 2], [-2, 0, 0, 2], [-1, 0, 0, 1]] },
+  { "id": "example-2", "label": "No solution", "value": { "nums": [1, 2, 3, 4], "target": 100 }, "isEdgeCase": false, "expectedOutput": [] },
+  { "id": "example-3", "label": "All zeros", "value": { "nums": [0, 0, 0, 0], "target": 0 }, "isEdgeCase": true, "expectedOutput": [[0, 0, 0, 0]] }
+]

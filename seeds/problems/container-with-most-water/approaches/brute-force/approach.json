@@ -1,0 +1,27 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force",
+  "kind": "brute",
+  "summary": "Try every pair of lines and keep the largest area — O(n²).",
+  "complexity": { "time": "O(n²)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.maxArea",
+  "primaryPrimitive": "bar-container",
+  "auxStructures": [],
+  "resultSpec": { "varName": "mx", "label": "BEST AREA", "suffix": "· max water", "render": "scalar" },
+  "varColors": { "i": "ptr-lo", "j": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Get n, the number of vertical lines.",
+    "4": "Track the maximum area found so far.",
+    "5": "Outer loop: choose the left line i.",
+    "6": "Inner loop: choose a right line j to the right of i.",
+    "7": "Water height is limited by the shorter of lines i and j.",
+    "8": "Width is the distance between i and j.",
+    "9": "Area = height × width for this pair.",
+    "10": "Keep the larger of the current best and this area.",
+    "11": "Return the largest area found over all pairs."
+  },
+  "syntaxExplanations": {
+    "6": "range(i + 1, n) starts just past i so each pair is tried once."
+  }
+}

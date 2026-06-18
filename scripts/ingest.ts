@@ -189,6 +189,90 @@ async function ingestProblem(
   return traceCount;
 }
 
+// ── Bundle path (D9) — metadata from problem.json, traces from the Python pipeline ─
+async function ingestBundle(
+  db: Db,
+  bundleDir: string,
+  maps: { diff: Map<string, string>; topic: Map<string, string>; pattern: Map<string, string> }
+): Promise<number> {
+  const { buildTrace } = await import("../lib/tracer/pipeline");
+  const { assertLineCoverage } = await import("../lib/validators/validate-trace");
+  const now = new Date();
+
+  const problem = JSON.parse(fs.readFileSync(path.join(bundleDir, "problem.json"), "utf-8"));
+  const presets = JSON.parse(fs.readFileSync(path.join(bundleDir, "presets.json"), "utf-8"));
+  const approachesDir = path.join(bundleDir, "approaches");
+  const approachIds = fs.readdirSync(approachesDir).filter((d) =>
+    fs.existsSync(path.join(approachesDir, d, "approach.json"))
+  );
+
+  // Build embedded Approach docs (source injected from solution.py).
+  const approaches = approachIds.map((id) => {
+    const meta = JSON.parse(fs.readFileSync(path.join(approachesDir, id, "approach.json"), "utf-8"));
+    const source = fs.readFileSync(path.join(approachesDir, id, "solution.py"), "utf-8");
+    return { ...meta, source };
+  });
+  // brute first, then optimal, then alternative — stable Compare default
+  const order = { brute: 0, optimal: 1, alternative: 2 } as Record<string, number>;
+  approaches.sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9));
+
+  const difficultyId = resolveIds([problem.difficulty], maps.diff, "difficulties")[0];
+  const topicIds = resolveIds(problem.topics, maps.topic, "topics");
+  const patternIds = resolveIds(problem.patterns, maps.pattern, "patterns");
+
+  await db.collection("problems").updateOne(
+    { slug: problem.slug },
+    {
+      $set: {
+        slug: problem.slug, number: problem.number, title: problem.title,
+        difficultyId, topicIds, patternIds, statement: problem.statement,
+        hasVisualization: true, isPremium: false,
+        supportsCustomInput: !!problem.supportsCustomInput,
+        supportsCompare: approaches.length >= 2,
+        recommendedApproachId: problem.recommendedApproachId,
+        approaches, presetInputs: presets, inputConstraints: problem.inputConstraints,
+        schemaVersion: "2.0", updatedAt: now,
+      },
+      $setOnInsert: { createdAt: now },
+    },
+    { upsert: true }
+  );
+  const doc = await db.collection("problems").findOne({ slug: problem.slug }, { projection: { _id: 1 } });
+  const problemId = doc!._id as ObjectId;
+  console.log(`  ↑ problems/${problem.slug} (bundle, Python tracer)`);
+
+  let traceCount = 0;
+  for (const approach of approaches) {
+    const covered = new Set<number>();
+    let executable: number[] = [];
+    for (const preset of presets) {
+      const built = buildTrace(bundleDir, approach.id, preset.id, preset.expectedOutput);
+      built.coveredLines.forEach((l) => covered.add(l));
+      executable = built.executableLines;
+      const compressed = gzipSync(Buffer.from(JSON.stringify(built.steps), "utf-8"));
+      await db.collection("traces").updateOne(
+        { problemId, approachId: approach.id, inputId: preset.id },
+        {
+          $set: {
+            problemId, problemSlug: problem.slug, approachId: approach.id, inputId: preset.id,
+            stepCount: built.steps.length, keyEventIndices: built.keyEventIndices,
+            finalResult: built.finalResult, compression: "gzip",
+            stepsCompressed: compressed, byteSize: compressed.length,
+            traceVersion: TRACE_VERSION, updatedAt: now,
+          },
+          $setOnInsert: { createdAt: now },
+        },
+        { upsert: true }
+      );
+      console.log(`    ↑ traces/${problem.slug}:${approach.id}:${preset.id} (${built.steps.length} steps, ${(compressed.length / 1024).toFixed(1)}KB gz)`);
+      traceCount++;
+    }
+    assertLineCoverage(executable, covered, `${problem.slug}:${approach.id}`);
+    console.log(`    ✓ ${approach.id}: No Line Left Behind (${executable.length} lines covered)`);
+  }
+  return traceCount;
+}
+
 // ── Sheets (entries reference problems by _id) ───────────────────────────────
 async function seedSheets(db: Db) {
   const file = path.join(SEEDS_DIR, "sheets.json");
@@ -237,20 +321,32 @@ async function main() {
   const { TRACERS } = await import("../lib/tracers/index");
   const { FOURSUM_PROBLEM } = await import("../lib/fixtures/4sum");
 
-  // Problem sources: 4Sum (fixture) + container (JSON metadata)
-  const sources: ProblemSource[] = [FOURSUM_PROBLEM as unknown as ProblemSource];
+  // ── Bundles (D9 Python pipeline): subdirs of seeds/problems/ with problem.json
+  const bundleDirs = fs.existsSync(PROBLEMS_DIR)
+    ? fs.readdirSync(PROBLEMS_DIR).filter((d) =>
+        fs.existsSync(path.join(PROBLEMS_DIR, d, "problem.json"))
+      )
+    : [];
+  const bundleSlugs = new Set(bundleDirs);
+
+  console.log("\nIngesting bundles (Python tracer)…");
+  let traces = 0;
+  for (const dir of bundleDirs) {
+    traces += await ingestBundle(db, path.join(PROBLEMS_DIR, dir), { diff, topic, pattern });
+  }
+
+  // ── Legacy fixture/TS-tracer sources (only for slugs without a bundle yet)
+  const sources: ProblemSource[] = [];
+  if (!bundleSlugs.has("4sum")) sources.push(FOURSUM_PROBLEM as unknown as ProblemSource);
   const containerFile = path.join(PROBLEMS_DIR, "container-with-most-water.json");
-  if (fs.existsSync(containerFile)) {
+  if (fs.existsSync(containerFile) && !bundleSlugs.has("container-with-most-water")) {
     const c = JSON.parse(fs.readFileSync(containerFile, "utf-8"));
-    // strip embedded hand-written traces — steps come from the TS tracer
-    delete c.traces;
+    delete c.traces; // steps come from the TS tracer
     sources.push(c as ProblemSource);
   }
 
-  console.log("\nIngesting problems + traces…");
-  let traces = 0;
+  if (sources.length) console.log("\nIngesting legacy problems (TS tracers)…");
   for (const src of sources) {
-    // Compare requires >= 2 approaches that can actually produce a trace.
     const traceable = src.approaches.filter((a) => TRACERS[src.slug]?.[a.id]).length;
     src.supportsCompare = src.supportsCompare && traceable >= 2;
     traces += await ingestProblem(db, src, { diff, topic, pattern }, TRACERS as never);
@@ -260,7 +356,8 @@ async function main() {
   await seedSheets(db);
 
   await client.close();
-  console.log(`\n✓ Ingest complete — ${sources.length} problem(s), ${traces} trace(s)`);
+  const totalProblems = bundleDirs.length + sources.length;
+  console.log(`\n✓ Ingest complete — ${totalProblems} problem(s) (${bundleDirs.length} bundle, ${sources.length} legacy), ${traces} trace(s)`);
 }
 
 main().catch((err) => {

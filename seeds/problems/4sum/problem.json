@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "4sum",
+  "number": 18,
+  "title": "4Sum",
+  "difficulty": "medium",
+  "topics": ["array", "two-pointers", "sorting"],
+  "patterns": ["two-pointers", "sorting"],
+  "statement": "Given an array nums of n integers, return all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that:\n\n  • 0 <= a, b, c, d < n\n  • a, b, c, and d are distinct\n  • nums[a] + nums[b] + nums[c] + nums[d] == target\n\nYou may return the answer in any order.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": true,
+  "recommendedApproachId": "sort-two-pointers",
+  "inputConstraints": {
+    "fields": [
+      { "name": "nums", "type": "int[]", "label": "Array (nums)", "placeholder": "-2, -1, 0, 0, 1, 2", "min": -300, "max": 300, "minLen": 4, "maxLen": 8 },
+      { "name": "target", "type": "int", "label": "Target", "placeholder": "0", "min": -1200, "max": 1200 }
+    ],
+    "maxSteps": 2000
+  }
+}

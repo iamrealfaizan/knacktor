@@ -11,8 +11,6 @@ import { Narration } from "./narration";
 import { InsightRail } from "./insight-rail";
 import { ControlDock } from "./control-dock";
 import type { ProblemFull, Trace } from "@/lib/trace";
-import { TRACERS } from "@/lib/tracers/index";
-import { validateCustomInput } from "@/lib/validators/validate-input";
 import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
 
 /** True on desktop (>= lg). Defaults to true for SSR so the flagship desktop
@@ -66,10 +64,11 @@ export interface CustomInputState {
 
 export function ProblemEngine({
   problem,
-  presetTraces,
+  approachTraces,
 }: {
   problem: ProblemFull;
-  presetTraces: Record<string, Trace>;
+  /** approachId -> (inputId -> precomputed Python trace) */
+  approachTraces: Record<string, Record<string, Trace>>;
 }) {
   const { dark, toggle } = useTheme();
   const isDesktop = useIsDesktop();
@@ -81,28 +80,22 @@ export function ProblemEngine({
   const [railW, setRailW] = useState(320);
   const [approachId, setApproachId] = useState(problem.recommendedApproachId);
 
-  // Active trace state — starts with first preset
+  // Resolve a precomputed trace for (approach, input); fall back to that
+  // approach's first available trace.
+  const traceFor = useCallback(
+    (aId: string, inputId: string): Trace | undefined => {
+      const byInput = approachTraces[aId] ?? {};
+      return byInput[inputId] ?? Object.values(byInput)[0];
+    },
+    [approachTraces]
+  );
+
+  // Active trace state — starts with the recommended approach's first preset
   const firstPresetId = problem.presetInputs[0].id;
   const [activeInputId, setActiveInputId] = useState(firstPresetId);
-  const [activeTrace, setActiveTrace] = useState<Trace>(() => {
-    const builder = TRACERS[problem.slug]?.[problem.recommendedApproachId];
-    if (builder) {
-      try {
-        const firstPreset = problem.presetInputs[0];
-        const { steps, finalResult } = builder(firstPreset.value);
-        return {
-          problemSlug: problem.slug,
-          approachId: problem.recommendedApproachId,
-          inputId: firstPreset.id,
-          steps,
-          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
-          finalResult,
-          traceVersion: "0.1.0",
-        };
-      } catch { /* fall through to stored trace */ }
-    }
-    return presetTraces[firstPresetId]!;
-  });
+  const [activeTrace, setActiveTrace] = useState<Trace>(
+    () => traceFor(problem.recommendedApproachId, firstPresetId)!
+  );
   // traceNonce changes on every swap so usePlayer resets correctly
   const traceNonce = useRef(0);
   const [traceKey, setTraceKey] = useState(`${firstPresetId}-0`);
@@ -133,30 +126,6 @@ export function ProblemEngine({
     setNarrOpen(MODE_LAYOUT[m].narr);
   }, []);
 
-  function handleSelectApproach(id: string) {
-    setApproachId(id);
-    // If the preset trace bundle was built for a different approach, re-run the tracer
-    const firstPreset = problem.presetInputs[0];
-    const existingTrace = Object.values(presetTraces).find((t) => t.approachId === id);
-    if (existingTrace) {
-      swapTrace(existingTrace, existingTrace.inputId);
-    } else {
-      const builder = TRACERS[problem.slug]?.[id];
-      if (!builder) return;
-      const { steps, finalResult } = builder(firstPreset.value);
-      const t: Trace = {
-        problemSlug: problem.slug,
-        approachId: id,
-        inputId: firstPreset.id,
-        steps,
-        keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
-        finalResult,
-        traceVersion: "0.1.0",
-      };
-      swapTrace(t, firstPreset.id);
-    }
-  }
-
   function swapTrace(newTrace: Trace, newInputId: string) {
     traceNonce.current += 1;
     setActiveTrace(newTrace);
@@ -164,30 +133,15 @@ export function ProblemEngine({
     setTraceKey(`${newInputId}-${traceNonce.current}`);
   }
 
+  function handleSelectApproach(id: string) {
+    setApproachId(id);
+    // Keep the same example if this approach has it; else its first preset.
+    const t = traceFor(id, activeInputId);
+    if (t) swapTrace(t, t.inputId);
+  }
+
   function handleSelectPreset(presetId: string) {
-    const preset = problem.presetInputs.find((p) => p.id === presetId);
-    if (!preset) return;
-    // Live tracer takes priority — always produces up-to-date steps
-    const builder = TRACERS[problem.slug]?.[approachId];
-    if (builder) {
-      try {
-        const { steps, finalResult } = builder(preset.value);
-        const newTrace: Trace = {
-          problemSlug: problem.slug,
-          approachId,
-          inputId: presetId,
-          steps,
-          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
-          finalResult,
-          traceVersion: "0.1.0",
-        };
-        swapTrace(newTrace, presetId);
-        setCustomInput((s) => ({ ...s, open: false, errors: {} }));
-        return;
-      } catch { /* fall through to stored trace */ }
-    }
-    // Fallback: use stored MongoDB trace (for problems without a registered tracer)
-    const t = presetTraces[presetId];
+    const t = traceFor(approachId, presetId);
     if (t) {
       swapTrace(t, presetId);
       setCustomInput((s) => ({ ...s, open: false, errors: {} }));
@@ -198,48 +152,11 @@ export function ProblemEngine({
     setCustomInput((s) => ({ ...s, open: !s.open, errors: {} }));
   }
 
-  function handleCustomRun(raw: Record<string, string>) {
-    if (!problem.inputConstraints) return;
-
-    const validation = validateCustomInput(raw, problem.inputConstraints);
-    if (!validation.ok) {
-      setCustomInput((s) => ({ ...s, errors: validation.errors }));
-      return;
-    }
-
-    setCustomInput((s) => ({ ...s, errors: {}, running: true }));
-
-    // setTimeout(0) lets React render the loading state before the
-    // synchronous tracer blocks the event loop
-    setTimeout(() => {
-      try {
-        // Use the LIVE selected approach (not recommendedApproachId) so the
-        // generated trace matches the code panel the user is looking at.
-        const builder = TRACERS[problem.slug]?.[approachId];
-        if (!builder) throw new Error("No tracer registered for this problem.");
-
-        const { steps, finalResult } = builder(validation.parsed);
-        const customTrace: Trace = {
-          problemSlug: problem.slug,
-          approachId,
-          inputId: "custom",
-          steps,
-          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
-          finalResult,
-          traceVersion: "0.1.0",
-        };
-        swapTrace(customTrace, "custom");
-        setCustomInput((s) => ({ ...s, running: false }));
-      } catch (err) {
-        setCustomInput((s) => ({
-          ...s,
-          running: false,
-          errors: {
-            _: err instanceof Error ? err.message : "Failed to generate trace.",
-          },
-        }));
-      }
-    }, 0);
+  // Custom input is deferred (D12); the UI is gated off behind CUSTOM_INPUT_ENABLED.
+  // This handler stays as a stub so re-enabling is a one-line flag flip + wiring a
+  // sandboxed /api/trace call here.
+  function handleCustomRun(_raw: Record<string, string>) {
+    setCustomInput((s) => ({ ...s, errors: { _: "Custom input is temporarily disabled." } }));
   }
 
   // ── panel resize ──────────────────────────────────────────────────────────

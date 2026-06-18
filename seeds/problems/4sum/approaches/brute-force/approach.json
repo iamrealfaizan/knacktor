@@ -1,0 +1,30 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force",
+  "kind": "brute",
+  "summary": "Check every combination of four indices with four nested loops — O(n⁴).",
+  "complexity": { "time": "O(n⁴)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.fourSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": { "varName": "res", "label": "RESULT SET", "suffix": "· quadruplets found", "render": "tuple-list" },
+  "varColors": { "i": "ptr-i", "j": "ptr-j", "k": "ptr-lo", "l": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Sort so each recorded quadruplet is in a canonical (non-duplicating) order.",
+    "4": "len(nums) gives the number of elements, n.",
+    "5": "Create an empty list to collect the answer quadruplets.",
+    "6": "First loop: choose the first index.",
+    "7": "Second loop: choose the second index, right of the first.",
+    "8": "Third loop: choose the third index, right of the second.",
+    "9": "Fourth loop: choose the fourth index, right of the third.",
+    "10": "Add the four chosen values to form the candidate sum.",
+    "11": "If the sum equals the target, this quadruplet is an answer.",
+    "12": "Append the four values to the results.",
+    "13": "Return every quadruplet that summed to the target."
+  },
+  "syntaxExplanations": {
+    "6": "range(n) yields 0, 1, …, n-1.",
+    "7": "range(i + 1, n) starts just after i so indices never repeat."
+  }
+}

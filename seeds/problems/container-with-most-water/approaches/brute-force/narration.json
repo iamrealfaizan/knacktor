@@ -1,0 +1,22 @@
+{
+  "byLine": {
+    "3": { "happening": "Measure the array: n = {n} lines.", "why": "We loop over every pair of lines.", "invariant": "n = {n}." },
+    "4": { "happening": "Start the best area at 0.", "why": "No container has been measured yet.", "invariant": "mx is the largest area found so far." },
+    "5": { "happening": "Pick the left line i = {i} (height {height[i]}).", "why": "The outer of two nested loops.", "invariant": "i is the left wall." },
+    "6": { "happening": "Pick the right line j = {j} (height {height[j]}).", "why": "j is always to the right of i, so each pair is tried once.", "invariant": "i < j." },
+    "7": { "happening": "Water height = min({height[i]}, {height[j]}) = {h}.", "why": "Water spills over the shorter of the two lines.", "invariant": "h is capped by the shorter side." },
+    "8": { "happening": "Width = j − i = {w}.", "why": "The horizontal distance between the two lines.", "invariant": "w = {w}." },
+    "9": { "happening": "Area = {h} × {w} = {area}.", "why": "This is how much water this pair holds.", "invariant": "Comparing against the best so far ({mx})." },
+    "10": [
+      { "when": "area > mx", "happening": "New best! {area} beats the previous {mx}.", "why": "This pair forms a larger container than any before.", "invariant": "mx becomes {area}." },
+      { "happening": "{area} does not beat {mx}.", "why": "A previous pair was at least as good.", "invariant": "mx stays {mx}." }
+    ],
+    "11": { "happening": "Return the largest area: {mx}.", "why": "Every one of the n² pairs has been checked.", "invariant": "The search is complete." }
+  },
+  "byPhase": {
+    "init": { "happening": "Set up the search.", "why": "Prepare to scan all pairs.", "invariant": "Setup." },
+    "loop": { "happening": "Pick the next pair.", "why": "Enumerate every pair of lines.", "invariant": "Scanning." },
+    "check": { "happening": "Measure this pair.", "why": "Compute and compare its area.", "invariant": "Evaluating." },
+    "return": { "happening": "Return the result.", "why": "Done.", "invariant": "Complete." }
+  }
+}

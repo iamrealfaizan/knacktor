@@ -1,0 +1,41 @@
+{
+  "primitive": "bar-container",
+  "valuesFrom": "height",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" }
+  ],
+  "flags": {
+    "isNewMax": "area > mx"
+  },
+  "cellStateRules": [
+    { "state": "result", "when": "idx==i || idx==j", "onlyWhen": "isNewMax" },
+    { "state": "left", "when": "idx==i" },
+    { "state": "right", "when": "idx==j" },
+    { "state": "dimmed", "when": "idx < i || idx > j" },
+    { "state": "idle", "when": "true" }
+  ],
+  "derived": {
+    "container": {
+      "left": "i",
+      "right": "j",
+      "width": "j - i",
+      "waterHeight": "min(height[i], height[j])",
+      "area": "(j - i) * min(height[i], height[j])"
+    }
+  },
+  "ghosts": { "track": ["i", "j"] },
+  "counters": [
+    { "name": "comparisons", "onLines": [9] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4] },
+    { "phase": "loop", "lines": [5, 6] },
+    { "phase": "check", "lines": [7, 8, 9, 10] },
+    { "phase": "return", "lines": [11] }
+  ],
+  "keyEvents": [
+    { "line": 10, "when": "area > mx", "label": "New best area", "kind": "best" },
+    { "line": 11, "label": "Largest container", "kind": "return" }
+  ]
+}

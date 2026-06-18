@@ -1,0 +1,5 @@
+[
+  { "id": "example-1", "label": "Example 1", "value": { "nums": [1, 2, 3] }, "isEdgeCase": false, "expectedOutput": 0 },
+  { "id": "example-2", "label": "Example 2", "value": { "nums": [3, 2, 1] }, "isEdgeCase": false, "expectedOutput": 0 },
+  { "id": "edge-1", "label": "Edge case", "value": { "nums": [1] }, "isEdgeCase": true, "expectedOutput": 0 }
+]

@@ -1,0 +1,39 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" },
+    { "name": "k", "var": "k" },
+    { "name": "l", "var": "l" }
+  ],
+  "flags": {
+    "isMatch": "s == target"
+  },
+  "cellStateRules": [
+    { "state": "result", "when": "idx==i || idx==j || idx==k || idx==l", "onlyWhen": "isMatch" },
+    { "state": "special", "when": "idx==i || idx==j" },
+    { "state": "compared", "when": "idx==k || idx==l" },
+    { "state": "idle", "when": "true" }
+  ],
+  "readout": {
+    "when": "s != null && phase != 'return'",
+    "expr": "{nums[i]} + {nums[j]} + {nums[k]} + {nums[l]} = {s}",
+    "relation": "target {target}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "comparisons", "onLines": [10] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5] },
+    { "phase": "loop", "lines": [6, 7, 8, 9] },
+    { "phase": "check", "lines": [10, 11] },
+    { "phase": "update", "lines": [12] },
+    { "phase": "return", "lines": [13] }
+  ],
+  "keyEvents": [
+    { "line": 11, "when": "s == target", "label": "Quadruplet matched", "kind": "match" },
+    { "line": 13, "label": "All quadruplets found", "kind": "return" }
+  ]
+}

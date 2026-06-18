@@ -1,0 +1,38 @@
+{
+  "id": "sort-two-pointers",
+  "name": "Sort + Two Pointers",
+  "kind": "optimal",
+  "summary": "Sort, fix the first two indices, then converge a pair from both ends — O(n³).",
+  "complexity": { "time": "O(n³)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.fourSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": { "varName": "res", "label": "RESULT SET", "suffix": "· quadruplets found", "render": "tuple-list" },
+  "varColors": { "i": "ptr-i", "j": "ptr-j", "lo": "ptr-lo", "hi": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Sort the array so identical values sit together and pointers can converge.",
+    "4": "len(nums) gives the number of elements, n.",
+    "5": "Create an empty list to collect the answer quadruplets.",
+    "6": "Outer loop: pick the first of the four numbers.",
+    "7": "Second loop: pick the second number, always to the right of the first.",
+    "8": "lo points just past j — the left end of the two-pointer window.",
+    "9": "hi points at the last element — the right end of the window.",
+    "10": "While the pointers haven't crossed, there are still pairs to test.",
+    "11": "Add the four current values; this is the candidate sum.",
+    "12": "If the sum equals the target, we found a quadruplet.",
+    "13": "Append the four values to the results.",
+    "14": "Move lo inward to look for the next distinct pair.",
+    "15": "Move hi inward as well after recording a match.",
+    "16": "If the sum is too small, only the left side should grow.",
+    "17": "Increment lo to increase the sum.",
+    "19": "Otherwise the sum is too big, so decrement hi to shrink it.",
+    "20": "Return every quadruplet that summed to the target."
+  },
+  "syntaxExplanations": {
+    "3": "nums.sort() sorts the list in place, ascending.",
+    "5": "[] is an empty Python list.",
+    "10": "while runs the block repeatedly until the condition is false.",
+    "16": "elif means 'else if' — checked only when the if above was false."
+  }
+}

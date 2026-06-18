@@ -1,0 +1,32 @@
+{
+  "id": "two-pointers",
+  "name": "Two Pointers",
+  "kind": "optimal",
+  "summary": "Start wide; always move the shorter wall inward — O(n).",
+  "complexity": { "time": "O(n)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.maxArea",
+  "primaryPrimitive": "bar-container",
+  "auxStructures": [],
+  "resultSpec": { "varName": "mx", "label": "BEST AREA", "suffix": "· max water", "render": "scalar" },
+  "varColors": { "lp": "ptr-lo", "rp": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Get n, the number of vertical lines.",
+    "4": "Track the maximum area found so far.",
+    "5": "Left wall starts at the first line.",
+    "6": "Right wall starts at the last line — the widest container.",
+    "7": "Keep going while the two walls haven't met.",
+    "8": "Water height is limited by the shorter of the two walls.",
+    "9": "Width is the distance between the walls.",
+    "10": "Area = height × width for this container.",
+    "11": "Keep the larger of the current best and this area.",
+    "12": "Compare the two walls to decide which to move.",
+    "13": "The left wall is shorter, so move it inward.",
+    "15": "Otherwise the right wall is shorter (or equal), so move it inward.",
+    "16": "Return the largest area found."
+  },
+  "syntaxExplanations": {
+    "6": "n - 1 is the index of the last element.",
+    "8": "min(a, b) returns the smaller of two values."
+  }
+}

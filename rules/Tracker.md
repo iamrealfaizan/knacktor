@@ -47,9 +47,9 @@
 | `M1.2` | Content schema + ingest pipeline | ✅ Done |
 | `M1.3` | Discovery surfaces (problems, topics, patterns pages) | ✅ Done |
 | `M1.4` | Problem-page engine + simulation player | ✅ Done (being generalized in M1.5R) |
-| `M1.5R` | **Re-architecture** (D9–D14): hybrid Python tracer, `_id` DB, generic engine, Compare, mobile, authoring template + validation | ⏳ In progress |
+| `M1.5R` | **Re-architecture** (D9–D14): hybrid Python tracer ✅, `_id` DB ✅, generic engine (rail/player/dock/statement/mobile) ✅, authoring template + trace validation ✅; Compare dual-lane ❌; renderer families (linked list/tree/…) ❌ | ⏳ In progress |
 | `M1.5` | Custom-input runtime sandbox (deferred per D12) | ⏸ Deferred |
-| `M1.6` | Pilot problems (`4Sum` re-authored as gold reference, `Container` converted, `Reverse Linked List` ❌) | ⏳ Re-baselining |
+| `M1.6` | Pilot problems — `4Sum` ✅ + `Container` ✅ both on the Python tracer (bundles); `Reverse Linked List` ❌ (needs linked-list renderer) | ✅ 2 of 2 pilots |
 | `M1.7` | Hardening (SEO / a11y / motion / sandbox abuse) | ❌ Not started |
 
 ## What is built (as of last audit)
@@ -95,12 +95,18 @@
 - **4Sum** ✅ — `lib/fixtures/4sum.ts`: 118+ steps, full pointer/cell/window/sum-chip states, narration, complexity counters, key events; presets: Example 1
 - **Reverse Linked List** ❌ — not started; also needs linked-list renderer
 
-## Immediate next tasks (M1.5R re-architecture — see plan)
-1. **Workstream 1** ✅ in progress: persist D9–D14 into CLAUDE.md, Tracker, Schema, + new Authoring.md & CompareAndResponsive.md.
-2. **Workstream 2–3**: `_id` DB migration (+ `difficulties` collection) and gzip trace storage.
-3. **Workstream 4–5**: Python tracer + visual-mapping/narration DSL; authoring template + validator-first ingest.
-4. **Workstream 6**: generic engine (de-hardcode rail, statement Sheet, Compare mode, generic renderers, labeled diamonds, player hardening, mobile, custom-input flag).
-5. **Workstream 7**: re-author 4Sum as the gold reference end-to-end; convert Container.
+## Done in M1.5R so far
+1. **WS1** ✅ D9–D14 + Authoring.md + CompareAndResponsive.md.
+2. **WS2–3** ✅ `_id` DB (+ `difficulties`), gzip trace storage, content-service id→slug + decompression.
+3. **WS4** ✅ **Hybrid Python tracer pipeline** — `tracer/run.py` (sys.settrace capture), `lib/tracer/*` (safe expr DSL, mapping, narration, pipeline, python bridge), `lib/validators/validate-trace.ts`. 4Sum re-authored as the gold bundle (`seeds/problems/4sum/`, both approaches), traced + validated + reseeded. Author template at `tracer/template/`.
+4. **WS6a** ✅ generic insight rail, player/seekbar/diamonds/speed, statement Sheet, mobile, custom-input flag + bug fix, generic array pointer lanes + data-driven readout.
+5. **Docs** ✅ [ADDING_PROBLEMS.md](../ADDING_PROBLEMS.md) — step-by-step authoring guide + full DSL reference + Claude prompt. **`npm run build` passes clean** (lint + types + all 9 routes).
+
+## Immediate next tasks
+1. **Delete dead legacy code** — both pilots are bundles and the engine now reads DB traces for all approaches via `approachTraces` (page loads them per approach; `TRACERS`/`validateCustomInput` removed from the engine). Now removable: `lib/tracers/*`, `lib/fixtures/4sum.ts`, the `TRACERS` registry, and `ingestProblem`/`ProblemSource`/the fixture imports + legacy block in `scripts/ingest.ts`.
+2. **Compare mode dual-lane UI** (WS6b) — both pilots now have `supportsCompare:true` + 2 Python-traced approaches, ready to wire.
+3. **`validate-problem.ts`** (bundle shape / reference / ≥3-preset checks) to complete D13.
+4. New structure renderers (linked list, tree, …) as each new problem needs one.
 
 ## Open questions
 - **Custom-input sandbox tech** (deferred per D12): pyodide (WASM, in-browser, no server cost) vs. sandboxed subprocess API route. Decide when re-enabling custom input.
