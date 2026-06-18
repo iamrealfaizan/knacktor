@@ -11,6 +11,7 @@ export type TokenClass =
   | "str"
   | "var"
   | "pun"
+  | "op"
   | "com"
   | "txt";
 
@@ -33,7 +34,7 @@ const BUILTIN_FNS = new Set([
 ]);
 
 const TOKEN_RE =
-  /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)|(\s+)|([^\sA-Za-z0-9_])/g;
+  /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)|(\s+)|(==|!=|<=|>=|\+=|-=|\*\*=|\/\/=|\*=|\/=|%=|\*\*|\/\/|[+\-*\/%<>&|^~=])|([^\sA-Za-z0-9_])/g;
 
 export function tokenizeLine(line: string): Token[] {
   const tokens: Token[] = [];
@@ -42,7 +43,7 @@ export function tokenizeLine(line: string): Token[] {
   let prevWord: string | null = null;
 
   while ((m = TOKEN_RE.exec(line)) !== null) {
-    const [, comment, str, num, word, ws, punc] = m;
+    const [, comment, str, num, word, ws, op, punc] = m;
     if (comment !== undefined) {
       tokens.push({ t: comment, c: "com" });
     } else if (str !== undefined) {
@@ -56,13 +57,15 @@ export function tokenizeLine(line: string): Token[] {
       if (KEYWORDS.has(word) && !isCall) {
         tokens.push({ t: word, c: "kw" });
       } else if (isCall || BUILTIN_FNS.has(word)) {
-        tokens.push({ t: word, c: prevWord === "def" ? "fn" : "fn" });
+        tokens.push({ t: word, c: "fn" });
       } else {
         tokens.push({ t: word, c: "var" });
       }
       prevWord = word;
     } else if (ws !== undefined) {
       tokens.push({ t: ws, c: "txt" });
+    } else if (op !== undefined) {
+      tokens.push({ t: op, c: "op" });
     } else if (punc !== undefined) {
       tokens.push({ t: punc, c: "pun" });
     }
@@ -78,6 +81,7 @@ export const SYNTAX_CLASS: Record<TokenClass, string> = {
   str: "text-kn-syn-str",
   var: "text-kn-syn-var",
   pun: "text-kn-syn-pun",
+  op:  "text-kn-syn-op",
   com: "text-kn-syn-com",
   txt: "",
 };
