@@ -70,14 +70,15 @@
     --kn-ptr-j:  #8A5CC2;
     --kn-ptr-lo: #2E72C4;
     --kn-ptr-hi: #C28A1E;
-    /* python syntax */
-    --kn-syn-kw:  #A6371F;
-    --kn-syn-fn:  #2E72C4;
-    --kn-syn-num: #7A4FB5;
-    --kn-syn-str: #2F8F5B;
-    --kn-syn-var: #3A352D;
-    --kn-syn-pun: #9A9384;
-    --kn-syn-com: #A39C8C;
+    /* python syntax — LeetCode One Light */
+    --kn-syn-kw:  #a626a4;
+    --kn-syn-fn:  #4078f2;
+    --kn-syn-num: #986801;
+    --kn-syn-str: #50a14f;
+    --kn-syn-var: #383a42;
+    --kn-syn-pun: #a0a1a7;
+    --kn-syn-op:  #0184bc;
+    --kn-syn-com: #a0a1a7;
 
     /* ── Font variables (populated by next/font in layout.tsx) ──── */
     --font-sans: var(--font-inter);
@@ -148,14 +149,15 @@
     --kn-ptr-j:  #B493E6;
     --kn-ptr-lo: #6BA6E8;
     --kn-ptr-hi: #E0B255;
-    /* python syntax */
-    --kn-syn-kw:  #E08763;
-    --kn-syn-fn:  #6BA6E8;
-    --kn-syn-num: #C3A0F0;
-    --kn-syn-str: #6FC79A;
-    --kn-syn-var: #D7D2C6;
-    --kn-syn-pun: #9A9384;
-    --kn-syn-com: #7E786C;
+    /* python syntax — LeetCode One Dark */
+    --kn-syn-kw:  #c678dd;
+    --kn-syn-fn:  #61afef;
+    --kn-syn-num: #d19a66;
+    --kn-syn-str: #98c379;
+    --kn-syn-var: #abb2bf;
+    --kn-syn-pun: #abb2bf;
+    --kn-syn-op:  #56b6c2;
+    --kn-syn-com: #5c6370;
   }
 
   * {

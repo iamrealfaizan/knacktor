@@ -17,6 +17,7 @@ import path from "path";
 loadEnvConfig(process.cwd());
 
 const SEEDS_DIR = path.join(process.cwd(), "seeds");
+const PROBLEMS_DIR = path.join(SEEDS_DIR, "problems");
 const DB_NAME = "knacktor";
 
 interface SeedDoc {
@@ -66,6 +67,100 @@ async function ingestFile(db: Db, collectionName: string, file: string): Promise
     console.log(`  ↑ ${collectionName}/${slug}`);
     count++;
   }
+  return count;
+}
+
+interface JsonProblemFile {
+  slug: string;
+  number: number;
+  title: string;
+  difficulty: string;
+  topics: string[];
+  patterns: string[];
+  statement: string;
+  recommendedApproachId: string;
+  supportsCompare: boolean;
+  supportsCustomInput: boolean;
+  approaches: Array<{ id: string; kind: string; [key: string]: unknown }>;
+  presetInputs: Array<{ id: string; [key: string]: unknown }>;
+  inputConstraints?: unknown;
+  traces: Array<{
+    approachId: string;
+    inputId: string;
+    finalResult: unknown;
+    keyEventIndices: number[];
+    steps: unknown[];
+  }>;
+}
+
+async function ingestJsonProblems(db: Db): Promise<number> {
+  if (!fs.existsSync(PROBLEMS_DIR)) return 0;
+
+  const files = fs.readdirSync(PROBLEMS_DIR).filter((f) => f.endsWith(".json"));
+  if (files.length === 0) return 0;
+
+  const now = new Date();
+  let count = 0;
+
+  for (const file of files) {
+    const raw = fs.readFileSync(path.join(PROBLEMS_DIR, file), "utf-8");
+    const problem: JsonProblemFile = JSON.parse(raw);
+
+    // Normalize approach kind: "baseline" → "brute"
+    const approaches = problem.approaches.map((a) => ({
+      ...a,
+      kind: a.kind === "baseline" ? "brute" : a.kind,
+    }));
+
+    // Upsert full problem document (ProblemFull) into problemsFull collection
+    const problemFull = {
+      slug: problem.slug,
+      number: problem.number,
+      title: problem.title,
+      difficulty: problem.difficulty,
+      topics: problem.topics,
+      patterns: problem.patterns,
+      statement: problem.statement,
+      recommendedApproachId: problem.recommendedApproachId,
+      supportsCompare: problem.supportsCompare,
+      supportsCustomInput: problem.supportsCustomInput,
+      approaches,
+      presetInputs: problem.presetInputs,
+      inputConstraints: problem.inputConstraints,
+      updatedAt: now,
+    };
+
+    await db.collection("problemsFull").updateOne(
+      { slug: problem.slug },
+      { $set: problemFull, $setOnInsert: { createdAt: now } },
+      { upsert: true }
+    );
+    console.log(`  ↑ problemsFull/${problem.slug}`);
+    count++;
+
+    // Upsert each embedded trace
+    for (const trace of problem.traces) {
+      const traceDoc = {
+        problemSlug: problem.slug,
+        approachId: trace.approachId,
+        inputId: trace.inputId,
+        steps: trace.steps,
+        keyEventIndices: trace.keyEventIndices,
+        finalResult: trace.finalResult,
+        traceVersion: "0.1.0",
+        updatedAt: now,
+      };
+
+      await db.collection("traces").updateOne(
+        { problemSlug: problem.slug, approachId: trace.approachId, inputId: trace.inputId },
+        { $set: traceDoc, $setOnInsert: { createdAt: now } },
+        { upsert: true }
+      );
+      console.log(`  ↑ traces/${problem.slug}:${trace.approachId}:${trace.inputId} (${trace.steps.length} steps)`);
+      count++;
+    }
+  }
+
   return count;
 }
 
@@ -154,7 +249,14 @@ async function main() {
     total += await ingestFile(db, col, file);
   }
 
-  console.log("\nComputing preset traces…");
+  console.log("\nIngesting JSON problem files…");
+  const jsonCount = await ingestJsonProblems(db);
+  total += jsonCount;
+
+  // Setup index for problemsFull collection
+  await db.collection("problemsFull").createIndex({ slug: 1 }, { unique: true });
+
+  console.log("\nComputing preset traces (TypeScript tracers)…");
   const traceCount = await ingestTraces(db);
   total += traceCount;
 

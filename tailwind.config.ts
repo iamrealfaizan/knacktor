@@ -7,6 +7,7 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     container: {
@@ -98,6 +99,7 @@ const config: Config = {
           "syn-str": "var(--kn-syn-str)",
           "syn-var": "var(--kn-syn-var)",
           "syn-pun": "var(--kn-syn-pun)",
+          "syn-op": "var(--kn-syn-op)",
           "syn-com": "var(--kn-syn-com)",
         },
       },

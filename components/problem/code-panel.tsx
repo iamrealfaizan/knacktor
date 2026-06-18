@@ -7,27 +7,26 @@ import { cn } from "@/lib/utils";
 import { tokenizeLine, SYNTAX_CLASS } from "@/lib/python-tokenize";
 import type { Approach } from "@/lib/trace";
 
+const TOOLTIP_W = 300;
+const TOOLTIP_H = 90;
+
 export function CodePanel({
   approach,
-  approaches,
-  onSelectApproach,
   currentLine,
   collapsed,
   onToggleCollapse,
 }: {
   approach: Approach;
-  approaches: Approach[];
-  onSelectApproach: (id: string) => void;
   currentLine: number;
   collapsed: boolean;
   onToggleCollapse: () => void;
 }) {
   const lines = approach.source.split("\n");
   const [hover, setHover] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [copied, setCopied] = useState(false);
   const activeRef = useRef<HTMLDivElement | null>(null);
 
-  // auto-scroll the active line into view
   useEffect(() => {
     activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [currentLine]);
@@ -38,9 +37,33 @@ export function CodePanel({
     setTimeout(() => setCopied(false), 1200);
   }
 
+  function handleLineMouseMove(e: React.MouseEvent, lineNo: number) {
+    setHover(lineNo);
+    setMousePos({ x: e.clientX, y: e.clientY });
+  }
+
+  function handleLineMouseLeave() {
+    setHover(null);
+    setMousePos(null);
+  }
+
+  // Compute tooltip position — flip left/up if near viewport edge
+  const tooltipStyle = mousePos
+    ? (() => {
+        const x = mousePos.x + 18;
+        const y = mousePos.y + 10;
+        return {
+          left: x + TOOLTIP_W > window.innerWidth ? mousePos.x - TOOLTIP_W - 10 : x,
+          top: y + TOOLTIP_H > window.innerHeight ? mousePos.y - TOOLTIP_H - 10 : y,
+        };
+      })()
+    : { left: 0, top: 0 };
+
+  const showTooltip = hover !== null && !!(approach.syntaxExplanations?.[hover]) && mousePos !== null;
+
   if (collapsed) {
     return (
-      <div className="h-full w-12 flex-none bg-kn-surface-1 flex flex-col items-center pt-2">
+      <div className="h-full w-full bg-kn-surface-1 flex flex-col items-center pt-2">
         <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-8 w-8 text-kn-ink-2" title="Expand code">
           <PanelLeftOpen className="h-4 w-4" />
         </Button>
@@ -68,28 +91,6 @@ export function CodePanel({
         </div>
       </div>
 
-      {/* approach tabs */}
-      {approaches.length > 1 && (
-        <div className="flex-none flex items-center h-9 border-b border-kn-border-0 bg-kn-surface-1">
-          {approaches.map((a) => (
-            <button
-              key={a.id}
-              onClick={() => onSelectApproach(a.id)}
-              className={cn(
-                "h-full px-3 text-xs border-r border-kn-border-0 transition-colors",
-                a.id === approach.id
-                  ? "bg-kn-current text-white font-semibold"
-                  : "text-kn-ink-2 hover:text-kn-ink-0"
-              )}
-            >
-              {a.name}
-              {a.kind === "optimal" && <span className="ml-1 text-[10px] opacity-85">★</span>}
-            </button>
-          ))}
-          <span className="ml-auto pr-3 font-mono text-[9px] font-bold tracking-widest text-kn-ink-2">APPROACH</span>
-        </div>
-      )}
-
       {/* code body */}
       <div className="flex-1 overflow-auto cs-scroll py-2.5">
         {lines.map((line, i) => {
@@ -100,8 +101,8 @@ export function CodePanel({
             <div
               key={lineNo}
               ref={active ? activeRef : undefined}
-              onMouseEnter={() => setHover(lineNo)}
-              onMouseLeave={() => setHover(null)}
+              onMouseMove={(e) => handleLineMouseMove(e, lineNo)}
+              onMouseLeave={handleLineMouseLeave}
               className={cn(
                 "flex gap-2.5 items-baseline pr-3 py-px relative cursor-default",
                 active && "bg-kn-accent-soft shadow-[inset_3px_0_0_var(--kn-current)]"
@@ -123,19 +124,22 @@ export function CodePanel({
             </div>
           );
         })}
-
-        {/* hover-line explainer */}
-        {hover !== null && approach.lineExplanations[hover] && (
-          <div className="mx-2.5 mt-2.5 rounded-lg border border-kn-compared bg-kn-blue-soft px-3 py-2.5">
-            <p className="font-mono text-[8.5px] font-bold tracking-widest text-kn-compared mb-1">
-              ⌕ LINE {hover} · EXPLAIN
-            </p>
-            <p className="text-[12.5px] leading-snug text-kn-ink-1">
-              {approach.lineExplanations[hover]}
-            </p>
-          </div>
-        )}
       </div>
+
+      {/* floating line explainer — fixed to viewport, follows cursor */}
+      {showTooltip && (
+        <div
+          className="fixed z-50 pointer-events-none rounded-lg border border-kn-compared bg-kn-surface-0 px-3 py-2.5 shadow-md"
+          style={{ left: tooltipStyle.left, top: tooltipStyle.top, width: TOOLTIP_W }}
+        >
+          <p className="font-mono text-[8.5px] font-bold tracking-widest text-kn-compared mb-1">
+            ⌕ LINE {hover} · SYNTAX
+          </p>
+          <p className="text-[12.5px] leading-snug text-kn-ink-1">
+            {approach.syntaxExplanations?.[hover!]}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

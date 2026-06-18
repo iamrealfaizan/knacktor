@@ -4,6 +4,30 @@ Knacktor is a **desktop-first, visual-learning DSA platform**. Its flagship is a
 where a learner watches an algorithm *solve itself* — real Python highlighting line-by-line, a cinematic
 animation, and live variables/complexity, controlled like a media player. **The simulation is the USP.**
 
+## MANDATORY: Read these rules before acting — scoped by task type
+
+Always read **rules/Rules.md** first for any code change — it contains hard constraints that override everything.
+
+Then read the additional docs that match the task:
+
+| Task type | Must read before starting |
+|---|---|
+| Writing or editing a **tracer** | `rules/SimulationRules.md` · `rules/Schema.md` |
+| Writing or editing a **renderer / visual component** | `rules/SimulationRules.md` · `rules/Design.md` |
+| Writing or editing any **UI component or layout** | `rules/Design.md` |
+| Working with **Trace / Step / VisualState data** | `rules/Schema.md` |
+| Working with the **engine, API routes, or Content Service** | `rules/TechSpec.md` · `rules/Schema.md` |
+| Working with **custom input or sandboxed execution** | `rules/Security.md` |
+| Starting a **new feature or milestone** | `rules/Implementation.md` · `rules/Tracker.md` |
+| Making a **product or UX decision** | `rules/PRD.md` · `rules/AppFlow.md` |
+| Updating **Tracker.md** is required after any decision or milestone change | `rules/Tracker.md` |
+
+**Reference only (read when you need the visual ground truth):** `rules/4Sum Visualizer.html` is the final locked UI/UX prototype — match it exactly for any layout or animation question. `rules/dsaPRD.md` is archived. `rules/MainScreenDesign.md` and `rules/PlanningPromptAndQuestions.md` are background only.
+
+After reading, cite the section you relied on (e.g. "per SimulationRules §B-1").
+
+
+
 ## Canonical docs — ALWAYS obey these (in `./rules/`)
 | Doc | Authority |
 |---|---|
@@ -38,6 +62,7 @@ animation, and live variables/complexity, controlled like a media player. **The 
 - **All simulations MUST conform to SimulationRules.md**; each renderer matches its §B/§C entry.
 - The **four mandated simulation behaviors** are non-negotiable: ① creation pop-in (new var appears empty/`∅`), ② population flash, ③ smooth movement (glide, never teleport), ④ path-tracing (draw the route as it's covered).
 - Visualizer-first; no-scroll desktop teaching loop; exactly one `current` element; ≤6 simultaneous semantic colors.
+- **No Line Left Behind**: Every executable line in the displayed Python code MUST emit at least one `Step`. This includes: the `while` condition on entry AND on the final FALSE evaluation (so the learner sees why the loop exits), every variable assignment, both the `if` branch AND the `else` branch (the `else:` keyword gets its own step when entered), and every `return`. Only blank lines, `class`, and `def` declarations are exempt. A highlight that jumps over a line is a bug — this is a learning tool where the code trace IS the lesson. Everything shown in the code panel, the insight rail, the stage, and the narration must be in sync at every step: the highlighted line, the variable values, the visual state, and the narration must all describe the same moment in the algorithm's execution.
 
 ## Database
 - Dev DB = **MongoDB Atlas (cloud)** via `MONGODB_URI` in `.env.local` (never commit secrets).

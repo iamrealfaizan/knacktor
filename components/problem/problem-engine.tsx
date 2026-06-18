@@ -47,7 +47,25 @@ export function ProblemEngine({
   // Active trace state — starts with first preset
   const firstPresetId = problem.presetInputs[0].id;
   const [activeInputId, setActiveInputId] = useState(firstPresetId);
-  const [activeTrace, setActiveTrace] = useState<Trace>(presetTraces[firstPresetId]!);
+  const [activeTrace, setActiveTrace] = useState<Trace>(() => {
+    const builder = TRACERS[problem.slug]?.[problem.recommendedApproachId];
+    if (builder) {
+      try {
+        const firstPreset = problem.presetInputs[0];
+        const { steps, finalResult } = builder(firstPreset.value);
+        return {
+          problemSlug: problem.slug,
+          approachId: problem.recommendedApproachId,
+          inputId: firstPreset.id,
+          steps,
+          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
+          finalResult,
+          traceVersion: "0.1.0",
+        };
+      } catch { /* fall through to stored trace */ }
+    }
+    return presetTraces[firstPresetId]!;
+  });
   // traceNonce changes on every swap so usePlayer resets correctly
   const traceNonce = useRef(0);
   const [traceKey, setTraceKey] = useState(`${firstPresetId}-0`);
@@ -60,13 +78,13 @@ export function ProblemEngine({
   });
 
   const player = usePlayer(activeTrace.steps.length, activeTrace.keyEventIndices, traceKey);
-  const step = activeTrace.steps[player.idx];
-  const prevVars = activeTrace.steps[player.idx - 1]?.vars ?? {};
+  const safeIdx = Math.min(player.idx, activeTrace.steps.length - 1);
+  const step = activeTrace.steps[safeIdx];
+  const prevVars = activeTrace.steps[safeIdx - 1]?.vars ?? {};
   const approach = problem.approaches.find((a) => a.id === approachId) ?? problem.approaches[0];
 
   const activePreset = problem.presetInputs.find((p) => p.id === activeInputId);
   const target = (activePreset?.value as { target?: number })?.target ?? 0;
-  const maxCounters = activeTrace.steps[activeTrace.steps.length - 1]?.counters ?? {};
 
   const setMode = useCallback((m: Mode) => {
     setModeState(m);
@@ -74,6 +92,30 @@ export function ProblemEngine({
     setRailCollapsed(MODE_LAYOUT[m].rail);
     setNarrOpen(MODE_LAYOUT[m].narr);
   }, []);
+
+  function handleSelectApproach(id: string) {
+    setApproachId(id);
+    // If the preset trace bundle was built for a different approach, re-run the tracer
+    const firstPreset = problem.presetInputs[0];
+    const existingTrace = Object.values(presetTraces).find((t) => t.approachId === id);
+    if (existingTrace) {
+      swapTrace(existingTrace, existingTrace.inputId);
+    } else {
+      const builder = TRACERS[problem.slug]?.[id];
+      if (!builder) return;
+      const { steps, finalResult } = builder(firstPreset.value);
+      const t: Trace = {
+        problemSlug: problem.slug,
+        approachId: id,
+        inputId: firstPreset.id,
+        steps,
+        keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
+        finalResult,
+        traceVersion: "0.1.0",
+      };
+      swapTrace(t, firstPreset.id);
+    }
+  }
 
   function swapTrace(newTrace: Trace, newInputId: string) {
     traceNonce.current += 1;
@@ -83,10 +125,33 @@ export function ProblemEngine({
   }
 
   function handleSelectPreset(presetId: string) {
+    const preset = problem.presetInputs.find((p) => p.id === presetId);
+    if (!preset) return;
+    // Live tracer takes priority — always produces up-to-date steps
+    const builder = TRACERS[problem.slug]?.[approachId];
+    if (builder) {
+      try {
+        const { steps, finalResult } = builder(preset.value);
+        const newTrace: Trace = {
+          problemSlug: problem.slug,
+          approachId,
+          inputId: presetId,
+          steps,
+          keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
+          finalResult,
+          traceVersion: "0.1.0",
+        };
+        swapTrace(newTrace, presetId);
+        setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+        return;
+      } catch { /* fall through to stored trace */ }
+    }
+    // Fallback: use stored MongoDB trace (for problems without a registered tracer)
     const t = presetTraces[presetId];
-    if (!t) return;
-    swapTrace(t, presetId);
-    setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+    if (t) {
+      swapTrace(t, presetId);
+      setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+    }
   }
 
   function handleToggleCustomInput() {
@@ -164,8 +229,17 @@ export function ProblemEngine({
 
   return (
     <TooltipProvider delay={300}>
-      <div className="h-full flex flex-col">
-        <TopBar problem={problem} mode={mode} setMode={setMode} dark={dark} toggleTheme={toggle} />
+      <div className="h-full flex flex-col font-mono">
+        <TopBar
+          problem={problem}
+          mode={mode}
+          setMode={setMode}
+          dark={dark}
+          toggleTheme={toggle}
+          approaches={problem.approaches}
+          activeApproachId={approachId}
+          onSelectApproach={handleSelectApproach}
+        />
 
         {/* Body */}
         <div className="flex-1 flex min-h-0">
@@ -176,8 +250,6 @@ export function ProblemEngine({
           >
             <CodePanel
               approach={approach}
-              approaches={problem.approaches}
-              onSelectApproach={setApproachId}
               currentLine={step.codeKey}
               collapsed={codeCollapsed}
               onToggleCollapse={() => setCodeCollapsed((c) => !c)}
@@ -215,8 +287,7 @@ export function ProblemEngine({
               step={step}
               prevVars={prevVars}
               idx={player.idx}
-              maxCounters={maxCounters}
-              budgets={approach.complexityBudget}
+              complexity={approach.complexity}
               slug={problem.slug}
               collapsed={railCollapsed}
               onToggleCollapse={() => setRailCollapsed((c) => !c)}

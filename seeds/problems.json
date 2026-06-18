@@ -9,5 +9,16 @@
     "sheets": [],
     "hasVisualization": true,
     "isPremium": false
+  },
+  {
+    "slug": "container-with-most-water",
+    "number": 11,
+    "title": "Container With Most Water",
+    "difficulty": "medium",
+    "topics": ["array", "two-pointers", "greedy"],
+    "patterns": ["two-pointers"],
+    "sheets": [],
+    "hasVisualization": true,
+    "isPremium": false
   }
 ]
