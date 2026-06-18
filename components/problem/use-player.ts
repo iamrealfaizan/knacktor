@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const SPEEDS = [0.5, 1, 2] as const;
+const SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3] as const;
 const BASE_INTERVAL_MS = 1500;
 
 export interface Player {
@@ -31,7 +31,9 @@ export interface Player {
 export function usePlayer(
   total: number,
   keyEventIndices: number[],
-  traceKey: string
+  traceKey: string,
+  /** when false, this player ignores keyboard (Compare mode owns the keyboard) */
+  enableKeyboard = true
 ): Player {
   const [idx, setIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -88,16 +90,17 @@ export function usePlayer(
 
   // keyboard transport
   useEffect(() => {
+    if (!enableKeyboard) return;
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === " ") { e.preventDefault(); togglePlay(); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); next(); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); e.shiftKey ? jumpToKey(1) : next(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); e.shiftKey ? jumpToKey(-1) : prev(); }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [togglePlay, next, prev]);
+  }, [enableKeyboard, togglePlay, next, prev, jumpToKey]);
 
   return {
     idx,

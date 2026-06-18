@@ -131,6 +131,7 @@ export const FOURSUM_BRUTE_APPROACH: Approach = {
   syntaxExplanations: BRUTE_SYNTAX_EXPLANATIONS,
   primaryPrimitive: "array",
   auxStructures: [],
+  resultSpec: { varName: "res", label: "RESULT SET", suffix: "· quadruplets found", render: "tuple-list" },
 };
 
 // ── Optimal approach ──────────────────────────────────────────────────────────
@@ -147,6 +148,7 @@ export const FOURSUM_APPROACH: Approach = {
   syntaxExplanations: SYNTAX_EXPLANATIONS,
   primaryPrimitive: "array",
   auxStructures: [],
+  resultSpec: { varName: "res", label: "RESULT SET", suffix: "· quadruplets found", render: "tuple-list" },
 };
 
 const FOURSUM_CONSTRAINTS: InputConstraints = {

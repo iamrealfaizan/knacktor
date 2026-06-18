@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Moon, Sun, Code2, ChevronDown, Check } from "lucide-react";
+import { Moon, Sun, Code2, ChevronDown, Check, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,6 +10,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type { Approach, ProblemFull } from "@/lib/trace";
 import type { Mode } from "./problem-engine";
@@ -71,6 +78,44 @@ export function TopBar({
           {problem.patterns[0].replace(/-/g, " ")}
         </Badge>
       )}
+
+      {/* Problem statement — hidden by default, opens in a side sheet */}
+      <Sheet>
+        <SheetTrigger
+          render={
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1.5 px-2.5 font-mono text-[11px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-1 shrink-0"
+            >
+              <FileText className="h-3.5 w-3.5" /> Problem
+            </Button>
+          }
+        />
+        <SheetContent side="right" className="gap-4">
+          <div className="flex items-center gap-2">
+            <SheetTitle className="flex-1">
+              {problem.number}. {problem.title}
+            </SheetTitle>
+            <Badge
+              variant="outline"
+              className="font-mono text-[10px] tracking-wider uppercase border-transparent bg-kn-med-bg text-kn-med-ink"
+            >
+              {problem.difficulty}
+            </Badge>
+            <SheetClose
+              render={
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-kn-ink-2">
+                  <X className="h-4 w-4" />
+                </Button>
+              }
+            />
+          </div>
+          <article className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-kn-ink-1">
+            {problem.statement}
+          </article>
+        </SheetContent>
+      </Sheet>
 
       {/* Approach selector */}
       <DropdownMenu>

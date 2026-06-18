@@ -3,8 +3,8 @@
 > **Role:** living **roadmap + decision log** (both). The AI agent and team update this to keep the whole picture in mind. Major planning decisions are recorded **here only** (single source, no duplication).
 
 ## Current status
-- Project state: **M1.1–M1.4 fully implemented; M1.5–M1.7 remaining.**
-- Canonical build docs: finalized (PRD, TechSpec, AppFlow, Design, Schema, Implementation, Rules, Security, **SimulationRules**).
+- Project state: **RE-ARCHITECTURE IN PROGRESS (2026-06).** M1.1–M1.4 shipped but the engine was hardcoded to 4Sum, Compare mode was a dead flag, custom input used the wrong approach, and traces were hand-built (drift). We paused feature work to fix the foundation for **sync, trust, and scale** — see decisions **D9–D14** and the re-architecture plan.
+- Canonical build docs: finalized (PRD, TechSpec, AppFlow, Design, Schema, Implementation, Rules, Security, **SimulationRules**, **Authoring**, **CompareAndResponsive**).
 - Simulation rulebook: [SimulationRules.md](SimulationRules.md) — canonical for all simulation visuals/motion (full DS + pattern taxonomy).
 - Visual reference baseline: [`4Sum Visualizer.html`](4Sum%20Visualizer.html) (**final, locked**). [dsaPRD.md](dsaPRD.md) Part II is **archived** (superseded by SimulationRules).
 
@@ -19,6 +19,14 @@
 - **D6 — Full taxonomy specified now.** All 16 data-structure families + all listed patterns have rules immediately, even where renderers ship later.
 - **D7 — dsaPRD Part II superseded, re-mapped to exact 4Sum tokens.** [dsaPRD.md](dsaPRD.md) is now an **archived reference**.
 - **D8 — Every executed line emits a step + explanation** (loops re-emit). Supersedes the "annotate meaningful lines only" model.
+
+### Re-architecture decisions (D9–D14, 2026-06)
+- **D9 — Hybrid trace model.** A **Python tracer** (`sys.settrace`) executes the author's real solution → step skeleton (every executed line → one step + real var snapshot + counters). Sync is mechanical, drift impossible. An authored **visual-mapping layer** transforms each step's real captured state into the bespoke `VisualState`; animation is derived from the same per-step state, so it cannot drift from code. **Authors never hand-write step arrays.** Replaces the TS tracers in `lib/tracers/*` and the `TRACERS` registry. See [Authoring.md](Authoring.md).
+- **D10 — `_id` relationships.** `problems`, `topics`, `difficulties`, `patterns`, `sheets` are separate collections referencing each other by Mongo `_id`. `slug` kept only for routing. Approaches & presets **embedded** in the problem doc (1:1 ownership, never queried alone). DB wiped + re-seeded. Supersedes the earlier slug-string relationship model.
+- **D11 — Trace storage.** One doc per `(problemId, approachId, inputId)`, full per-step snapshots, gzip-compressed `BinData`; GridFS only as overflow (>~12 MB). Decompressed at the content-service boundary; player/renderer unchanged.
+- **D12 — Custom input deferred.** Commented out behind build-time flag `CUSTOM_INPUT_ENABLED`; wrong-approach bug fixed in the disabled path. *Supersedes D4* — sandbox runtime (Pyodide vs server) decided in a later milestone.
+- **D13 — Authoring template + loud validation.** Fixed per-problem bundle (Authoring.md). Validator-first ingest checks: No-Line-Left-Behind, narration completeness, ≥3 examples/approach incl. an edge case, expected-output match, visual-state validity, `_id` reference resolution — **aborts the whole ingest on any violation, nothing partial written.**
+- **D14 — Mobile.** Desktop = canonical no-scroll 5-panel layout. Below `lg` (1024px): vertical stack top bar → code → simulation → narration → insight → controller (pinned to bottom). See [CompareAndResponsive.md](CompareAndResponsive.md).
 
 ### Standing decisions (from planning)
 - Full platform; first milestone = engine + **1–2** pilot problems.
@@ -38,9 +46,10 @@
 | `M1.1` | Platform foundation (Next.js + design tokens + route skeletons) | ✅ Done |
 | `M1.2` | Content schema + ingest pipeline | ✅ Done |
 | `M1.3` | Discovery surfaces (problems, topics, patterns pages) | ✅ Done |
-| `M1.4` | Problem-page engine + simulation player | ✅ Done |
-| `M1.5` | Trace pipeline (preset + sandboxed custom input) | ⏳ In progress — UI stub only |
-| `M1.6` | Pilot problems (`4Sum` ✅, `Reverse Linked List` ❌) | ⏳ Partial (1 of 2) |
+| `M1.4` | Problem-page engine + simulation player | ✅ Done (being generalized in M1.5R) |
+| `M1.5R` | **Re-architecture** (D9–D14): hybrid Python tracer, `_id` DB, generic engine, Compare, mobile, authoring template + validation | ⏳ In progress |
+| `M1.5` | Custom-input runtime sandbox (deferred per D12) | ⏸ Deferred |
+| `M1.6` | Pilot problems (`4Sum` re-authored as gold reference, `Container` converted, `Reverse Linked List` ❌) | ⏳ Re-baselining |
 | `M1.7` | Hardening (SEO / a11y / motion / sandbox abuse) | ❌ Not started |
 
 ## What is built (as of last audit)
@@ -86,16 +95,17 @@
 - **4Sum** ✅ — `lib/fixtures/4sum.ts`: 118+ steps, full pointer/cell/window/sum-chip states, narration, complexity counters, key events; presets: Example 1
 - **Reverse Linked List** ❌ — not started; also needs linked-list renderer
 
-## Immediate next tasks
-1. **M1.5**: Design Python tracer approach (pyodide in-browser vs. sandboxed API route) — resolve open question
-2. **M1.6**: Build `Reverse Linked List` problem — requires linked-list renderer first
-3. **M1.7**: SEO (metadata, sitemap, OG), a11y audit, sandbox abuse protection
+## Immediate next tasks (M1.5R re-architecture — see plan)
+1. **Workstream 1** ✅ in progress: persist D9–D14 into CLAUDE.md, Tracker, Schema, + new Authoring.md & CompareAndResponsive.md.
+2. **Workstream 2–3**: `_id` DB migration (+ `difficulties` collection) and gzip trace storage.
+3. **Workstream 4–5**: Python tracer + visual-mapping/narration DSL; authoring template + validator-first ingest.
+4. **Workstream 6**: generic engine (de-hardcode rail, statement Sheet, Compare mode, generic renderers, labeled diamonds, player hardening, mobile, custom-input flag).
+5. **Workstream 7**: re-author 4Sum as the gold reference end-to-end; convert Container.
 
 ## Open questions
-- **Sandbox tech** (blocker for M1.5): pyodide (WASM, in-browser, no server cost) vs. sandboxed subprocess API route vs. managed service. Pyodide is the lowest-friction path for MVP.
-- **Reverse Linked List confirmed** as second pilot (recommended); no blocker other than linked-list renderer work.
-- `content_index` population strategy: currently derived at query time; revisit if query latency becomes a problem.
-- First custom-input support surface beyond the two pilots.
+- **Custom-input sandbox tech** (deferred per D12): pyodide (WASM, in-browser, no server cost) vs. sandboxed subprocess API route. Decide when re-enabling custom input.
+- **Reverse Linked List** as third problem — needs the linked-list renderer (out of scope for the current slice).
+- `content_index` dropped; `problems` text index covers MVP search. Revisit if search needs ranking.
 
 ## Risks
 - Tracer + sandbox complexity is the hardest remaining unknown (M1.5 blocker).

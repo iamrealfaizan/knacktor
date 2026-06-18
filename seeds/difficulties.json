@@ -1,0 +1,5 @@
+[
+  { "slug": "easy", "name": "Easy", "rank": 1, "color": "result" },
+  { "slug": "medium", "name": "Medium", "rank": 2, "color": "amber" },
+  { "slug": "hard", "name": "Hard", "rank": 3, "color": "error" }
+]

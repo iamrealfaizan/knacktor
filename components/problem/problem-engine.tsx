@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useTheme } from "./theme-provider";
 import { usePlayer } from "./use-player";
@@ -13,6 +13,42 @@ import { ControlDock } from "./control-dock";
 import type { ProblemFull, Trace } from "@/lib/trace";
 import { TRACERS } from "@/lib/tracers/index";
 import { validateCustomInput } from "@/lib/validators/validate-input";
+import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
+
+/** True on desktop (>= lg). Defaults to true for SSR so the flagship desktop
+ *  layout renders without a flash; corrects on mount for narrow viewports (D14). */
+function useIsDesktop(): boolean {
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isDesktop;
+}
+
+/** Per-trace ordered variable registry: union of var names in first-seen order. */
+function buildVarOrder(trace: Trace): string[] {
+  const order: string[] = [];
+  const seen = new Set<string>();
+  for (const s of trace.steps) {
+    for (const k of Object.keys(s.vars)) {
+      if (!seen.has(k)) { seen.add(k); order.push(k); }
+    }
+  }
+  return order;
+}
+
+/** Step index -> key-event descriptor, for labeled scrubber diamonds. */
+function buildKeyEvents(trace: Trace): Record<number, { label: string; kind?: string }> {
+  const map: Record<number, { label: string; kind?: string }> = {};
+  for (const s of trace.steps) {
+    if (s.isKeyEvent && s.keyEvent) map[s.i] = s.keyEvent;
+  }
+  return map;
+}
 
 export type Mode = "Learn" | "Focus" | "Compare";
 
@@ -36,6 +72,7 @@ export function ProblemEngine({
   presetTraces: Record<string, Trace>;
 }) {
   const { dark, toggle } = useTheme();
+  const isDesktop = useIsDesktop();
   const [mode, setModeState] = useState<Mode>("Learn");
   const [codeCollapsed, setCodeCollapsed] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(false);
@@ -82,6 +119,9 @@ export function ProblemEngine({
   const step = activeTrace.steps[safeIdx];
   const prevVars = activeTrace.steps[safeIdx - 1]?.vars ?? {};
   const approach = problem.approaches.find((a) => a.id === approachId) ?? problem.approaches[0];
+
+  const varOrder = useMemo(() => buildVarOrder(activeTrace), [activeTrace]);
+  const keyEvents = useMemo(() => buildKeyEvents(activeTrace), [activeTrace]);
 
   const activePreset = problem.presetInputs.find((p) => p.id === activeInputId);
   const target = (activePreset?.value as { target?: number })?.target ?? 0;
@@ -173,13 +213,15 @@ export function ProblemEngine({
     // synchronous tracer blocks the event loop
     setTimeout(() => {
       try {
-        const builder = TRACERS[problem.slug]?.[problem.recommendedApproachId];
+        // Use the LIVE selected approach (not recommendedApproachId) so the
+        // generated trace matches the code panel the user is looking at.
+        const builder = TRACERS[problem.slug]?.[approachId];
         if (!builder) throw new Error("No tracer registered for this problem.");
 
         const { steps, finalResult } = builder(validation.parsed);
         const customTrace: Trace = {
           problemSlug: problem.slug,
-          approachId: problem.recommendedApproachId,
+          approachId,
           inputId: "custom",
           steps,
           keyEventIndices: steps.filter((s) => s.isKeyEvent).map((s) => s.i),
@@ -241,26 +283,26 @@ export function ProblemEngine({
           onSelectApproach={handleSelectApproach}
         />
 
-        {/* Body */}
-        <div className="flex-1 flex min-h-0">
+        {/* Body — horizontal no-scroll on desktop; vertical scroll stack on mobile (D14) */}
+        <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
           {/* Code panel */}
           <section
-            className="flex-none border-r border-kn-border-0 min-h-0 relative"
-            style={{ width: codeCollapsed ? 48 : codeW }}
+            className="flex-none border-b lg:border-b-0 lg:border-r border-kn-border-0 min-h-0 relative w-full h-[42vh] lg:h-auto"
+            style={isDesktop ? { width: codeCollapsed ? 48 : codeW } : undefined}
           >
             <CodePanel
               approach={approach}
               currentLine={step.codeKey}
-              collapsed={codeCollapsed}
+              collapsed={isDesktop && codeCollapsed}
               onToggleCollapse={() => setCodeCollapsed((c) => !c)}
             />
-            {!codeCollapsed && (
+            {isDesktop && !codeCollapsed && (
               <div className="absolute top-0 right-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("code")} />
             )}
           </section>
 
           {/* Center: stage + narration */}
-          <section className="flex-1 min-w-0 flex flex-col min-h-0">
+          <section className="flex-1 min-w-0 flex flex-col min-h-0 h-[60vh] lg:h-auto">
             <Stage
               visual={step.visual}
               vars={step.vars}
@@ -277,10 +319,10 @@ export function ProblemEngine({
 
           {/* Insight rail */}
           <section
-            className="flex-none border-l border-kn-border-0 min-h-0 relative"
-            style={{ width: railCollapsed ? 48 : railW }}
+            className="flex-none border-t lg:border-t-0 lg:border-l border-kn-border-0 min-h-0 relative w-full h-[50vh] lg:h-auto"
+            style={isDesktop ? { width: railCollapsed ? 48 : railW } : undefined}
           >
-            {!railCollapsed && (
+            {isDesktop && !railCollapsed && (
               <div className="absolute top-0 left-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("rail")} />
             )}
             <InsightRail
@@ -289,8 +331,11 @@ export function ProblemEngine({
               idx={player.idx}
               complexity={approach.complexity}
               slug={problem.slug}
-              collapsed={railCollapsed}
+              collapsed={isDesktop && railCollapsed}
               onToggleCollapse={() => setRailCollapsed((c) => !c)}
+              varOrder={varOrder}
+              varColors={approach.varColors}
+              resultSpec={approach.resultSpec}
             />
           </section>
         </div>
@@ -298,10 +343,12 @@ export function ProblemEngine({
         <ControlDock
           player={player}
           keyEventIndices={activeTrace.keyEventIndices}
+          keyEvents={keyEvents}
           presets={problem.presetInputs}
           activeInputId={activeInputId}
           inputConstraints={problem.inputConstraints}
           customInput={customInput}
+          customInputEnabled={CUSTOM_INPUT_ENABLED}
           onSelectPreset={handleSelectPreset}
           onToggleCustomInput={handleToggleCustomInput}
           onCustomRun={handleCustomRun}

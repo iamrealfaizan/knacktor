@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Play, Pause, SkipBack, SkipForward, ChevronLeft, ChevronRight,
-  ChevronDown, Loader2, RotateCcw, Pencil,
+  ChevronDown, Loader2, RotateCcw, Pencil, Diamond,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,22 +14,37 @@ import type { CustomInputState } from "./problem-engine";
 interface ControlDockProps {
   player: Player;
   keyEventIndices: number[];
+  /** step index -> semantic key-event descriptor (drives diamond tooltips) */
+  keyEvents?: Record<number, { label: string; kind?: string }>;
   presets: PresetInput[];
   activeInputId: string;
   inputConstraints?: InputConstraints;
   customInput: CustomInputState;
+  /** D12 — custom input is gated off until re-enabled */
+  customInputEnabled?: boolean;
   onSelectPreset: (id: string) => void;
   onToggleCustomInput: () => void;
   onCustomRun: (raw: Record<string, string>) => void;
 }
 
+// key-event kind -> token-based diamond color class
+const KIND_CLASS: Record<string, string> = {
+  match: "bg-kn-result border-kn-result-border",
+  best: "bg-kn-amber border-kn-amber-bd",
+  result: "bg-kn-result border-kn-result-border",
+  boundary: "bg-kn-compared border-kn-compared",
+  return: "bg-kn-current border-kn-current-border",
+};
+
 export function ControlDock({
   player,
   keyEventIndices,
+  keyEvents,
   presets,
   activeInputId,
   inputConstraints,
   customInput,
+  customInputEnabled = false,
   onSelectPreset,
   onToggleCustomInput,
   onCustomRun,
@@ -60,6 +75,21 @@ export function ControlDock({
     player.seek(Math.round(f * (player.total - 1)));
   }
 
+  // Draggable scrubber: capture the pointer and seek continuously while dragging.
+  const dragging = useRef(false);
+  function onTrackPointerDown(e: React.PointerEvent) {
+    dragging.current = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    seekFromEvent(e.clientX);
+  }
+  function onTrackPointerMove(e: React.PointerEvent) {
+    if (dragging.current) seekFromEvent(e.clientX);
+  }
+  function onTrackPointerUp(e: React.PointerEvent) {
+    dragging.current = false;
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+  }
+
   function handleSelectPreset(id: string) {
     setDropOpen(false);
     onSelectPreset(id);
@@ -85,32 +115,38 @@ export function ControlDock({
   const isCustomActive = activeInputId === "custom";
   const activePreset = presets.find((p) => p.id === activeInputId);
   const selectorLabel = isCustomActive ? "Custom input" : (activePreset?.label ?? "Example");
-  const hasConstraints = !!inputConstraints?.fields.length;
+  const hasConstraints = !!inputConstraints?.fields.length && customInputEnabled;
   const globalError = customInput.errors["_"];
 
   return (
     <footer className="flex-none border-t border-kn-border-0 bg-kn-surface-0 px-4 pt-3 pb-3 flex flex-col gap-2.5">
 
-      {/* Scrubber */}
+      {/* Scrubber (draggable) */}
       <div
         ref={trackRef}
-        className="relative h-[18px] cursor-pointer select-none"
-        onMouseDown={(e) => seekFromEvent(e.clientX)}
+        className="relative h-[18px] cursor-pointer select-none touch-none"
+        onPointerDown={onTrackPointerDown}
+        onPointerMove={onTrackPointerMove}
+        onPointerUp={onTrackPointerUp}
       >
         <div className="absolute top-1.5 left-0 right-0 h-1.5 rounded bg-kn-track" />
         <div
           className="absolute top-1.5 left-0 h-1.5 rounded bg-kn-current transition-[width] duration-200"
           style={{ width: `${player.progress * 100}%` }}
         />
-        {keyEventIndices.map((k) => (
-          <span
-            key={k}
-            title={`Key event · step ${k + 1}`}
-            onMouseDown={(e) => { e.stopPropagation(); player.seek(k); }}
-            className="absolute w-2.5 h-2.5 bg-kn-amber border border-kn-amber-bd cursor-pointer"
-            style={{ left: `${(k / (player.total - 1)) * 100}%`, top: 3, transform: "translateX(-50%) rotate(45deg)" }}
-          />
-        ))}
+        {keyEventIndices.map((k) => {
+          const ev = keyEvents?.[k];
+          const cls = (ev?.kind && KIND_CLASS[ev.kind]) || "bg-kn-amber border-kn-amber-bd";
+          return (
+            <span
+              key={k}
+              title={ev ? `${ev.label} · step ${k + 1}` : `Key event · step ${k + 1}`}
+              onPointerDown={(e) => { e.stopPropagation(); player.seek(k); }}
+              className={`absolute w-2.5 h-2.5 border cursor-pointer ${cls}`}
+              style={{ left: `${(k / (player.total - 1)) * 100}%`, top: 3, transform: "translateX(-50%) rotate(45deg)" }}
+            />
+          );
+        })}
         <span
           className="absolute w-4 h-4 rounded-full bg-kn-surface-0 border-[2.5px] border-kn-current transition-[left] duration-200 pointer-events-none"
           style={{ left: `${player.progress * 100}%`, top: -1, transform: "translateX(-50%)" }}
@@ -123,8 +159,8 @@ export function ControlDock({
         {/* LEFT — input selector or custom input fields */}
         <div className="flex items-center gap-2 min-w-0 pr-4">
 
-          {/* CUSTOM INPUT FIELDS — shown in place of the selector when custom is open */}
-          {customInput.open ? (
+          {/* CUSTOM INPUT FIELDS — shown in place of the selector when custom is open (D12: gated off) */}
+          {customInput.open && customInputEnabled ? (
             <div className="flex items-center gap-2 flex-wrap">
               {inputConstraints!.fields.map((field) => (
                 <div key={field.name} className="flex flex-col gap-0.5">
@@ -259,6 +295,7 @@ export function ControlDock({
         {/* CENTER — transport controls, absolutely centered to the full row */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
           <Transport label="First" onClick={player.first}><SkipBack className="h-3.5 w-3.5" /></Transport>
+          <Transport label="Prev key event (Shift+←)" onClick={() => player.jumpToKey(-1)}><Diamond className="h-3 w-3 -scale-x-100" /></Transport>
           <Transport label="Step back" onClick={player.prev}><ChevronLeft className="h-4 w-4" /></Transport>
           <Tooltip>
             <TooltipTrigger
@@ -274,6 +311,7 @@ export function ControlDock({
             <TooltipContent>{player.playing ? "Pause" : "Play"} (space)</TooltipContent>
           </Tooltip>
           <Transport label="Step forward" onClick={player.next}><ChevronRight className="h-4 w-4" /></Transport>
+          <Transport label="Next key event (Shift+→)" onClick={() => player.jumpToKey(1)}><Diamond className="h-3 w-3" /></Transport>
           <Transport label="Last" onClick={player.last}><SkipForward className="h-3.5 w-3.5" /></Transport>
         </div>
 
@@ -296,7 +334,7 @@ export function ControlDock({
       {/* Key event caption */}
       <div className="flex items-center gap-1.5 text-[11px] text-kn-ink-2">
         <span className="w-2 h-2 bg-kn-amber border border-kn-amber-bd inline-block" style={{ transform: "rotate(45deg)" }} />
-        diamonds jump to key events — matches &amp; appended answers
+        diamonds mark key moments — hover for details · drag the bar to scrub
       </div>
     </footer>
   );

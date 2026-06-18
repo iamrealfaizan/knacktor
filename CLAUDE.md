@@ -40,20 +40,28 @@ After reading, cite the section you relied on (e.g. "per SimulationRules §B-1")
 | [rules/PRD.md](rules/PRD.md) | Product requirements & acceptance criteria. |
 | [rules/AppFlow.md](rules/AppFlow.md) | User & author flows. |
 | [rules/Security.md](rules/Security.md) | Execution/abuse safety for the sandboxed custom-input tracer. |
-| [rules/Tracker.md](rules/Tracker.md) | Living roadmap + decision log (D1–D8). **Update it as work progresses.** |
+| [rules/Authoring.md](rules/Authoring.md) | **Canonical authoring template** + visual-mapping DSL + validation rules. The fixed bundle the team (with Claude) fills for every new problem. |
+| [rules/CompareAndResponsive.md](rules/CompareAndResponsive.md) | Compare-mode spec (default brute-vs-optimal, dual players, independent playback) + mobile stacked-layout spec. |
+| [rules/Tracker.md](rules/Tracker.md) | Living roadmap + decision log (D1–D14). **Update it as work progresses.** |
 
 **Reference only (not authority):** [rules/4Sum Visualizer.html](rules/4Sum%20Visualizer.html) is the
 **final, locked** UI/UX reference — match it exactly. [rules/dsaPRD.md](rules/dsaPRD.md) Part II is
 **archived** (superseded by SimulationRules.md). `MainScreenDesign.md`, `PlanningPromptAndQuestions.md`,
 `Requirements.txt` are background.
 
-## Locked decisions (D1–D8 — see Tracker for detail)
+## Locked decisions (D1–D14 — see Tracker for detail)
 - **D1** Content is **DB-canonical, file-seeded**: problems authored as files → traced → ingested into MongoDB → served by slug.
 - **D2** Build the **engine + visual-primitive library ONCE**; problems are pure data. A new structure = one-time primitive; bespoke per-problem rendering only as a sparing escape hatch.
 - **D3** **Warm-paper aesthetic is canonical** — match the prototype's exact hexes + fonts.
-- **D4** **Live, sandboxed custom input is in M1.**
+- **D4** **Live, sandboxed custom input is in M1.** *(Superseded by D12 — deferred.)*
 - **D5–D7** One canonical SimulationRules.md; full DS+pattern taxonomy specified; dsaPRD Part II archived.
 - **D8** **Every executed source line emits a step + line explanation** (loops re-emit; key events get scrubber markers).
+- **D9 Hybrid trace model.** A **Python tracer** (`sys.settrace`) executes the author's real solution and produces the step *skeleton* — every executed line → one step with the real variable snapshot + counters, so code↔vars↔step sync is mechanical and cannot drift. An authored **visual-mapping layer** turns each step's real captured state into the bespoke `VisualState`; because the animation is derived from the tracer's real per-step state, it cannot drift from the code either. **Authors never hand-write step arrays.**
+- **D10 `_id` relationships.** `problems`, `topics`, `difficulties`, `patterns`, `sheets` are separate collections referencing each other by Mongo `_id`. `slug` is kept only for routing. **Approaches & presets stay embedded** in the problem doc (1:1 ownership). DB is wiped and re-seeded clean.
+- **D11 Trace storage.** One document per `(problemId, approachId, inputId)`, full per-step snapshots, gzip-compressed in a `BinData` field; GridFS only as an overflow valve (>~12 MB).
+- **D12 Custom input deferred.** Commented out everywhere behind a single build-time flag (`CUSTOM_INPUT_ENABLED`); the wrong-approach bug is fixed in the disabled path. Runtime sandbox (Pyodide vs server) decided later.
+- **D13 Authoring template + loud validation.** A fixed, Claude-fillable per-problem bundle (see Authoring.md); ingest validates No-Line-Left-Behind, narration completeness, ≥3 examples/approach incl. an edge case, expected-output match, visual-state validity, and `_id` reference resolution — **failing the whole ingest on any violation.**
+- **D14 Mobile.** Desktop stays the canonical no-scroll 5-panel layout; below `lg` (1024px) panels stack vertically: top bar → code → simulation → narration → insight → controller pinned to bottom.
 
 ## Hard engineering rules (from Rules.md)
 - Stack: **Next.js App Router + TypeScript + Tailwind + ESLint** (this app).
@@ -64,8 +72,10 @@ After reading, cite the section you relied on (e.g. "per SimulationRules §B-1")
 - Visualizer-first; no-scroll desktop teaching loop; exactly one `current` element; ≤6 simultaneous semantic colors.
 - **No Line Left Behind**: Every executable line in the displayed Python code MUST emit at least one `Step`. This includes: the `while` condition on entry AND on the final FALSE evaluation (so the learner sees why the loop exits), every variable assignment, both the `if` branch AND the `else` branch (the `else:` keyword gets its own step when entered), and every `return`. Only blank lines, `class`, and `def` declarations are exempt. A highlight that jumps over a line is a bug — this is a learning tool where the code trace IS the lesson. Everything shown in the code panel, the insight rail, the stage, and the narration must be in sync at every step: the highlighted line, the variable values, the visual state, and the narration must all describe the same moment in the algorithm's execution.
 
-## Database
+## Database (D10)
 - Dev DB = **MongoDB Atlas (cloud)** via `MONGODB_URI` in `.env.local` (never commit secrets).
+- Collections `problems`, `topics`, `difficulties`, `patterns`, `sheets` reference each other by **Mongo `_id`** (primary/foreign keys); `slug` is kept **only** for routing. Approaches & presets are **embedded** in the problem doc. Traces live in `traces`, gzip-compressed per `(problemId, approachId, inputId)` (D11).
+- **Traces are produced ONLY by the Python tracer** (D9). Never hand-author step arrays. Ingest is validator-first and **fails the whole run on any contract violation** (D13).
 
 ## Working agreement
 - Consult the relevant doc before building each piece; cite it (e.g. "Array renderer per SimulationRules §B-1").
