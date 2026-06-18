@@ -41,7 +41,7 @@ After reading, cite the section you relied on (e.g. "per SimulationRules §B-1")
 | [rules/AppFlow.md](rules/AppFlow.md) | User & author flows. |
 | [rules/Security.md](rules/Security.md) | Execution/abuse safety for the sandboxed custom-input tracer. |
 | [rules/Authoring.md](rules/Authoring.md) | **Canonical authoring template** + visual-mapping DSL + validation rules. The fixed bundle the team (with Claude) fills for every new problem. |
-| [ADDING_PROBLEMS.md](ADDING_PROBLEMS.md) | **Step-by-step "how to add a problem" guide** (practical walkthrough of Authoring.md, with the full DSL reference, validator-error fixes, and a ready Claude prompt). Start here to add content. |
+| [ADDING_PROBLEMS.md](ADDING_PROBLEMS.md) | **Self-contained LLM authoring prompt.** Paste it + `tracer/template/problem.combined.json` + the LeetCode problem into any LLM → get a working combined JSON → `npm run import-problem` + `npm run ingest`. Embeds the seeded slugs, the DSL grammar + forbidden list, all caveats, and a mandatory self-validation pass. Start here to add content. |
 | [rules/CompareAndResponsive.md](rules/CompareAndResponsive.md) | Compare-mode spec (default brute-vs-optimal, dual players, independent playback) + mobile stacked-layout spec. |
 | [rules/Tracker.md](rules/Tracker.md) | Living roadmap + decision log (D1–D14). **Update it as work progresses.** |
 

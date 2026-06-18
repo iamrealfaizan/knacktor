@@ -24,7 +24,18 @@
     "13": "Return every quadruplet that summed to the target."
   },
   "syntaxExplanations": {
-    "6": "range(n) yields 0, 1, …, n-1.",
-    "7": "range(i + 1, n) starts just after i so indices never repeat."
+    "1": "class Solution: the wrapper class for your solution.",
+    "2": "def declares the method; self is the object, nums and target are inputs.",
+    "3": "nums.sort() reorders the list in place, ascending.",
+    "4": "len(nums) gives the count; stored in n.",
+    "5": "[] is a new empty list for answers.",
+    "6": "for i in range(n) loops i over 0 … n-1.",
+    "7": "Nested loop: j starts at i+1 so j is always right of i.",
+    "8": "Nested loop: k starts at j+1.",
+    "9": "Innermost loop: l starts at k+1 — four distinct indices.",
+    "10": "Adds the four indexed values into s.",
+    "11": "if runs its block only when the condition is true.",
+    "12": ".append(...) adds the 4-element list to res.",
+    "13": "return hands back the list of quadruplets."
   }
 }

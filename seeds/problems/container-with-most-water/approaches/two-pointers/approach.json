@@ -26,7 +26,21 @@
     "16": "Return the largest area found."
   },
   "syntaxExplanations": {
-    "6": "n - 1 is the index of the last element.",
-    "8": "min(a, b) returns the smaller of two values."
+    "1": "class Solution: the required wrapper class.",
+    "2": "def declares maxArea; self is the object, height is the input list.",
+    "3": "len(height) counts the lines; stored in n.",
+    "4": "Assigns mx = 0, the running best area.",
+    "5": "Assigns lp = 0, the left index.",
+    "6": "n - 1 is the last index; assigned to rp.",
+    "7": "while repeats while lp < rp is true.",
+    "8": "min(a, b) returns the smaller of the two heights.",
+    "9": "Subtraction gives the width between the two walls.",
+    "10": "* multiplies height by width to get the area.",
+    "11": "max(a, b) keeps the larger of mx and area.",
+    "12": "if compares the two wall heights.",
+    "13": "+= 1 moves lp one step right.",
+    "14": "else runs when the if condition was false.",
+    "15": "-= 1 moves rp one step left.",
+    "16": "return hands back the best area."
   }
 }

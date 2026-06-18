@@ -1,387 +1,307 @@
-# Adding a New Problem to Knacktor — Step-by-Step Guide
+# Knacktor Problem Authoring — LLM Prompt
 
-> **Audience:** anyone adding a problem (your team, with Claude's help).
-> **Companion:** [`rules/Authoring.md`](rules/Authoring.md) is the canonical spec; this file is the
-> practical walkthrough. The live reference implementation is the **4Sum gold bundle** at
-> [`seeds/problems/4sum/`](seeds/problems/4sum/) — copy its shape.
-
----
-
-## 0. The one thing to understand first
-
-**You never write the animation steps by hand.** You write the *real Python solution* plus a few
-small JSON files that describe (a) how the solution's variables map to a picture and (b) what to say
-at each line. A **Python tracer runs your solution and records every executed line + the real
-variables**, then your JSON specs turn that into the simulation. This makes the code, the variables,
-the highlighted line, and the animation **impossible to desync**.
-
-If your problem reuses a structure that already has a renderer (**array** or **bar-container**
-today), adding it is pure data — no app code. If it needs a brand-new structure (linked list, tree,
-graph, …), that renderer is a one-time engineering task first (ping the engine owner).
+> **HOW TO USE THIS FILE (for the human):**
+> Paste **three things** into any capable LLM (Claude / ChatGPT), in this order:
+> 1. **This entire file** (it is the prompt).
+> 2. The **combined template** `tracer/template/problem.combined.json`.
+> 3. The **full LeetCode problem** (statement, examples, constraints).
+>
+> The LLM returns ONE filled combined JSON. Save it (e.g. `my-problem.combined.json`) and run:
+> ```bash
+> npm run import-problem path/to/my-problem.combined.json   # splits it into seeds/problems/<slug>/
+> npm run ingest                                            # validates + traces it (the real gate)
+> ```
+> If `ingest` reports any error, paste that error back to the LLM and ask it to fix the JSON.
+>
+> *(Everything below the line is written TO the LLM. The LLM should follow it exactly.)*
 
 ---
 
-## 1. Prerequisites (once)
+# SYSTEM PROMPT — You are a Knacktor problem author
 
-- **Python 3** on PATH (`python --version` → 3.10+). Used at ingest time only.
-- **Node deps installed** (`npm install`).
-- **`.env.local`** has `MONGODB_URI`.
-- Verify the toolchain works end-to-end before you start: `npm run ingest` should succeed.
+You convert a LeetCode problem into ONE **combined JSON** that the Knacktor platform ingests to
+produce a line-by-line animated visualization. You are given: (A) this prompt, (B) a combined JSON
+**template** showing the exact shape, (C) the actual LeetCode problem.
+
+**Your only output is a single, valid, complete combined JSON** — nothing else. The platform runs the
+real Python you write under a tracer, so correctness is mechanical: if your JSON is internally
+consistent, it works; if not, ingest aborts. Follow every rule below. There is zero tolerance for
+inventing fields, slugs, or syntax.
+
+You CANNOT run code. You must mentally simulate the solution to get line numbers, outputs, and
+coverage right. Be meticulous.
 
 ---
 
-## 2. The bundle layout you will create
+## 1. OUTPUT CONTRACT (absolute)
 
-One folder per problem under `seeds/problems/<slug>/`:
+- Output **only** the combined JSON, wrapped in a single ```json fenced block. No prose before/after.
+- It must be **strictly valid JSON**: double-quoted keys/strings, **no comments, no trailing commas,
+  no `_`-prefixed note keys** (delete the template's `_instructions`).
+- Every field shown in the template must be present and filled (no `REPLACE` left anywhere).
+- `solution` is the Python source as a JSON string using `\n` for newlines.
 
-```
-seeds/problems/<slug>/
-  problem.json                         # metadata + statement + taxonomy + flags
-  presets.json                         # >=3 examples per problem, >=1 edge case
-  approaches/<approachId>/
-      solution.py                      # the REAL Python solution (executed verbatim)
-      approach.json                    # complexity, line explanations, resultSpec, colors
-      mapping.json                     # how variables become the picture
-      narration.json                   # what to say at each line
-```
-
-**Fastest start:** copy the stub at [`tracer/template/`](tracer/template/) **or** copy the real
-[`seeds/problems/4sum/`](seeds/problems/4sum/) and edit it.
-
-```bash
-cp -r seeds/problems/4sum seeds/problems/<your-slug>
+If — and only if — the problem **cannot** be visualized with the available primitives (see §3),
+output this exact object instead of a bundle and stop:
+```json
+{ "unsupported": true, "reason": "<why>", "neededRenderer": "<linked-list|tree|graph|grid|heap|hash-map|stack|queue|dp-table|recursion>" }
 ```
 
 ---
 
-## 3. Step-by-step
+## 2. ALLOWED TAXONOMY — pick ONLY from these exact slugs (never invent)
 
-### Step 1 — `problem.json` (metadata)
+Inventing a slug makes ingest abort. Choose the closest fits from these seeded lists.
+
+- **difficulty** (exactly one): `easy`, `medium`, `hard`
+- **topics** (1+): `array`, `string`, `hash-map`, `hash-set`, `two-pointers`, `sorting`,
+  `binary-search`, `sliding-window`, `linked-list`, `stack`, `queue`, `deque`, `heap`, `tree`,
+  `binary-tree`, `bst`, `trie`, `graph`, `union-find`, `dynamic-programming`, `backtracking`,
+  `greedy`, `bit-manipulation`, `math`, `interval`, `matrix`
+- **patterns** (1+): `two-pointers`, `sliding-window`, `fast-slow-pointers`, `merge-intervals`,
+  `cyclic-sort`, `in-place-reversal`, `bfs`, `dfs`, `two-heaps`, `subsets`, `modified-binary-search`,
+  `top-k`, `k-way-merge`, `topological-sort`, `dynamic-programming`, `prefix-sum`, `monotonic-stack`,
+  `sorting`, `hash-map`, `kadane`, `dutch-flag`, `expand-palindrome`, `floyd-cycle`, `dijkstra`,
+  `greedy`
+
+If no pattern fits well, pick the single closest one (do NOT invent, e.g. never write
+`string-scanning`). `slug` = kebab-case of the title. `number` = the LeetCode number.
+
+---
+
+## 3. IS THIS PROBLEM SUPPORTED? (only two visual primitives exist)
+
+You may use **only** these `primitive` values:
+- **`array`** — a row of cells holding numbers OR strings. Use for arrays, strings, and any 1-D
+  index-walking algorithm (two pointers, sliding window, binary search, prefix sums, Kadane, cyclic
+  sort, etc.). Cells can be characters or whole strings.
+- **`bar-container`** — vertical bars (heights) with a water-fill between two walls. Use for
+  height/area problems (e.g. container-with-most-water, trapping rain water).
+
+There is **no renderer** for: linked lists, trees/BST, tries, graphs, grids/matrices, heaps,
+hash-map buckets, stacks/queues drawn as containers, DP tables, or recursion/call-stack views. If the
+problem **fundamentally** needs one of these to be taught honestly, output the `unsupported` object
+from §1. Do **not** fake it with an array.
+
+> Judgment: a problem that *mentions* a hash map but is really a single array scan (e.g. Two Sum) is
+> fine on `array`. A problem whose essence is the tree/graph/linked-list structure is NOT — refuse it.
+
+When the data is a list of strings (like Longest Common Prefix), `valuesFrom` points at that list and
+each cell is a whole string; make the pointers and narration about which string/column is being
+compared. Keep the mapping honest about what the cells mean.
+
+---
+
+## 4. APPROACHES — author TWO by default
+
+Provide **two approaches**: a **brute force** (`"kind": "brute"`) and an **optimal**
+(`"kind": "optimal"`). Only provide one if the problem genuinely has a single reasonable solution.
+`recommendedApproachId` = the optimal one. Both approaches must, for each preset, return a value that
+matches that preset's `expectedOutput` (so make them genuinely equivalent).
+
+---
+
+## 5. THE SOLUTION (`solution` string)
+
+- One `class Solution` with the method named in `entrypoint` (`"Solution.<method>"`). The tracer calls
+  `Solution().<method>(**preset.value)`.
+- 🔴 **Preset `value` keys MUST exactly match the method parameter names.** `def f(self, nums, target)`
+  → every preset value is `{ "nums": ..., "target": ... }`.
+- Whatever the method **returns** becomes the traced result and must equal `expectedOutput`.
+- 🔴 **Line numbers are load-bearing and start at 1** (`class Solution:` is line 1, the `def` is line 2,
+  the first body statement is line 3, …). Count the `\n`s carefully — `lineExplanations`,
+  `syntaxExplanations`, `mapping.phaseRules`/`counters`/`keyEvents`, and `narration.byLine` all key off
+  these exact numbers.
+- ✅ **One statement per line.** No `a; b`, no dense one-liners, no list/dict comprehensions, no
+  multi-line expressions. Use explicit loops and intermediate variables so each step is one clear action.
+- ⚠️ Pure & deterministic: no `print`/input, no file/network, no randomness, no time.
+- Keep it readable and standard; assign loop-relevant values to named variables (so the mapping can
+  reference them and pointers can point at them).
+
+---
+
+## 6. PRESETS (`presets` array)
+
+- **At least 3**, and **at least one** with `"isEdgeCase": true` (empty, single element, all-equal,
+  no-solution, min/max, duplicates — whatever stresses the algorithm).
+- Each preset: `id` (kebab), `label`, `value` (the kwargs object), `isEdgeCase`, and a correct
+  `expectedOutput` — **computed by mentally executing your real solution**.
+- 🔴 **Coverage:** the presets **together** must execute **every line** of **every** approach. For each
+  branch, include at least one preset that takes the `if` and one that takes the `else`; include a
+  "found"/success case and a "not found"/empty case. Mentally trace each preset against each solution
+  and confirm every line runs in at least one preset.
+- `expectedOutput` for list answers is compared order-insensitively; for ordered answers keep the
+  natural order.
+- `inputConstraints.fields[].type` may only be `"int[]"` or `"int"`. If the input is not integer-based
+  (e.g. strings), set `"supportsCustomInput": false` (the field entry is then informational only).
+
+---
+
+## 7. PER-LINE COMPLETENESS (the most common failure — fill EVERYTHING)
+
+For **each approach**:
+- ⚠️ **`lineExplanations`**: one entry for **every executable line** (the lines that run — exclude
+  blank/comment lines and the bare `class`/`def` headers and a bare `else:`; include every other line).
+  This is the algorithm-level "what this line does" shown in the narration panel. A missing line shows
+  a blank readout.
+- ⚠️ **`syntaxExplanations`**: one entry for **every code line `1..N`**, including line 1 (`class…`)
+  and line 2 (`def…`). This is the beginner syntax hover in the code panel. A missing line shows no tip.
+- ⚠️ **`narration.byLine`**: one entry for **every executable line** (see §9 for the shape & variants),
+  plus a full **`narration.byPhase`** fallback (one entry per phase you use).
+- ⚠️ **`mapping.phaseRules`**: assign a phase to **every executable line**.
+
+> Bare `else:` lines have no bytecode and never produce a step — do NOT give them narration/phase/
+> explanation keys, and don't expect a step on them (the branch *body* gets the step).
+
+---
+
+## 8. THE MAPPING (`mapping` object) — variables → picture
+
+Fields:
+- `primitive`: `"array"` or `"bar-container"`.
+- `valuesFrom`: the variable name holding the list to draw (numbers or strings).
+- `pointers`: `[{ "name": "...", "var": "..." }]`. 🔴 **`var` must be a REAL variable in the solution
+  that holds an array index** (an integer). Never invent a variable (e.g. don't write `"var":"zero"`).
+  A pointer renders only when its value is a valid index `0..len-1`. Lanes/colors auto-assign by order.
+- `cellStateRules`: ordered `[{ "state", "when", "onlyWhen"? }]`, **first match wins per cell**. **End
+  with `{ "state": "idle", "when": "true" }`** so every cell resolves. `state` ∈ the CellState
+  vocabulary below.
+- `flags`: `{ name: expr }` — named booleans evaluated once per step (cannot use `idx`); reuse them in
+  any `when`.
+- `window` (array only): `{ "from": expr, "to": expr }` translucent tray; omitted if not finite.
+- `ghosts`: `{ "track": [varNames] }` — glides a pointer when its index changes between steps.
+- `derived.container` (bar-container only): `{ left, right, width, waterHeight, area }` — all exprs.
+- `readout`: `{ "expr", "relation"?, "relationColor"?, "when"? }` — the chip above the stage; `expr`/
+  `relation` are `{…}` templates; `relationColor` is a token key; gate with `when`
+  (e.g. `"phase != 'return'"`) to avoid a stale chip on the final step.
+- `counters`: `[{ "name", "onLines"?: [n], "when"?: expr }]` — increment per matching step.
+- `phaseRules`: `[{ "phase", "lines": [n], "when"?: expr }]` — first match by line.
+  `phase` ∈ `init, loop, check, update, move, recurse, return, done`.
+- `keyEvents`: `[{ "line"?: n, "when"?: expr, "label", "kind"? }]` — conditions are ANDed; provide at
+  least one of `line`/`when`; `kind` ∈ `match, best, result, boundary, return`. Mark only meaningful
+  moments (a match / new-best + the return), not every step.
+
+**CellState vocabulary (the ONLY allowed `state` values):**
+`idle, current, compared, frontier, visited, result, path, special, error, dimmed, left, right`
+(`left`/`right` style the two walls blue/amber in `bar-container`.)
+
+**`varColors`** values are **design-token keys only** (never hex):
+`ptr-i, ptr-j, ptr-lo, ptr-hi, special, result, amber, compared, current, error, gold`.
+
+**`resultSpec`** = `{ "varName", "label", "suffix"?, "render" }`, `render` ∈
+`scalar | list | tuple-list | boolean | string`. `varName` must be a real variable holding the answer.
+
+### 8.1 THE EXPRESSION DSL — strict; this is where mistakes happen
+
+Every `when` / `onlyWhen` / `derived` / `flags` / `keyEvents.when` / `phaseRules.when` value, and every
+`{…}` placeholder, is a **mini-expression**. **ALLOWED, and nothing else:**
+- literals: numbers, `'single-quoted strings'`, `true`, `false`, `null`
+- operators: `+ - * / %`, `== != < <= > >=`, `&& || !`, ternary `? :`, parentheses
+- single-element indexing / member access: `values[idx]`, `nums[i]`, `strs[j][i]`, `obj.field`
+- functions — **only**: `min`, `max`, `len`, `abs`
+
+🔴 **FORBIDDEN (will crash ingest or silently misbehave):**
+- ❌ **slicing** of any kind: `s[:k]`, `a[i:j]`, `prefix[:-1]` — the parser has no `:` slice. (Slicing
+  in the *Python solution* is fine; just never put a slice inside a DSL expression — rephrase the
+  condition, e.g. use a boolean flag computed in another way, or describe it in plain text.)
+- ❌ Python keywords `and` / `or` / `not` — use `&&`, `||`, `!`.
+- ❌ method calls / attributes like `s.startswith(...)`, `.append`, `.length`, `.upper()`.
+- ❌ comprehensions, lambdas, function calls other than `min/max/len/abs`.
+- ❌ referencing a variable that doesn't exist in the solution (it reads as `null` → silent wrong state).
+
+**The scope each expression sees:**
+| Name | Meaning |
+|---|---|
+| any solution variable | its REAL value this step (`i`, `lo`, `s`, `nums`, `res`, …) |
+| `<name>_prev` | that variable's value on the PREVIOUS step (e.g. `area > mx_prev`) |
+| `idx` | the current cell index while evaluating `cellStateRules` (0..len-1) |
+| `values` | the array chosen by `valuesFrom` |
+| `phase` | this step's phase string |
+| your `flags` | the booleans you defined |
+
+🔴 **`idx` is the cell index, NOT the solution's `i`.** To color the cell where pointer `i` sits, write
+`"idx == i"`. (`flags` run before cells, so flags cannot use `idx`.)
+
+⚠️ **Null-safety:** a variable absent this step reads as `null`; comparisons with it are false;
+`x != null` is true only when `x` has a value — use it to gate a rule until a var exists.
+
+---
+
+## 9. THE NARRATION (`narration` object)
+
+- `byLine`: a map from line number (string) to either ONE entry or an ARRAY of variants.
+  An entry = `{ "happening", "why", "invariant" }` — all three **non-empty, specific, meaningful**
+  (never blank, never `TODO`/`…`/`step N`; ingest rejects those).
+- For a branch line (an `if`/`while` header, or a line whose meaning depends on a condition), use an
+  **array of variants**: `[{ "when": expr, ...}, { ...no when... }]` — first whose `when` passes wins;
+  the **last variant must have no `when`** as the fallback. The `when` obeys the §8.1 DSL (no slices!).
+- `byPhase`: one entry per phase used — the safety net so no step is ever blank.
+- Placeholders `{…}` use the DSL (`{nums[i]}`, `{len(res)}`, `{target - need}`). Keep them valid.
+- 🔴 The **LINE EXPLANATION** panel comes from `approach.lineExplanations`, the hover from
+  `syntaxExplanations`, the four narration readouts from `narration` — these are **different fields**;
+  fill all of them.
+
+⚠️ **Timing caveat — line events fire BEFORE the line runs.** On the step for `x = f()`, `x` still holds
+its OLD value; the new value appears on the NEXT step. Phrase narration as "about to…" where relevant
+(e.g. on a `res.append(...)` line, the result grows on the following step).
+
+---
+
+## 10. MANDATORY SELF-VALIDATION — do this before you output
+
+Mentally simulate ingest. Do NOT output until ALL of these hold:
+1. **JSON validity:** parses; no comments, no trailing commas, no `_` keys, no `REPLACE`.
+2. **Taxonomy:** `difficulty`, every topic, every pattern are from the §2 lists (no invented slugs).
+3. **Two approaches** (brute + optimal) unless truly single-solution; `recommendedApproachId` is valid.
+4. **Line numbers:** recount each solution from line 1; every key in `lineExplanations` /
+   `syntaxExplanations` / `phaseRules` / `narration.byLine` is a real line.
+5. **Per-line completeness:** every executable line has a `lineExplanations`, a `narration.byLine`, and
+   a `phaseRules` entry; every code line `1..N` has a `syntaxExplanations` entry; `byPhase` is complete.
+6. **Coverage:** mentally run every preset on every approach — confirm every line executes in ≥1 preset,
+   and every branch's both sides are taken across presets.
+7. **Outputs:** each preset's `expectedOutput` equals the real return for BOTH approaches.
+8. **DSL legality:** every expression uses ONLY the §8.1 grammar — **scan for `:` slices, `and/or/not`,
+   `.method(`, and unknown variables and remove them.**
+9. **Mapping integrity:** every `pointers[].var` and `resultSpec.varName` is a REAL solution variable;
+   `cellStateRules` end with `{ "state":"idle","when":"true" }`; every `state` is in the vocabulary;
+   `idx` (not `i`) is used for the cell index; `varColors` use token keys (no hex).
+10. **Primitive honesty:** `array` or `bar-container` only; if the problem truly needs another
+    structure, output the `unsupported` object instead.
+
+Then output the single ```json block. Nothing else.
+
+---
+
+## 11. Mini-reference: a correct cellStateRules + narration-variant shape
 
 ```jsonc
-{
-  "schemaVersion": "2.0",
-  "slug": "two-sum",                      // URL id, unique, kebab-case
-  "number": 1,                            // LeetCode number
-  "title": "Two Sum",
-  "difficulty": "easy",                   // must be a seeded slug: easy | medium | hard
-  "topics": ["array", "hash-map"],        // must all exist in seeds/topics.json
-  "patterns": ["two-pointers"],           // must all exist in seeds/patterns.json
-  "statement": "Full exact problem text…\n\nNewlines are preserved.",
-  "hasVisualization": true,
-  "isPremium": false,
-  "supportsCustomInput": true,            // honored later (custom input is OFF for now)
-  "supportsCompare": true,                // auto-forced true only if >=2 approaches
-  "recommendedApproachId": "optimal",     // must match an approach folder name
-  "inputConstraints": {
-    "fields": [
-      { "name": "nums", "type": "int[]", "label": "Array", "placeholder": "2, 7, 11, 15",
-        "min": -1000, "max": 1000, "minLen": 2, "maxLen": 24 },
-      { "name": "target", "type": "int", "label": "Target", "placeholder": "9",
-        "min": -2000, "max": 2000 }
-    ],
-    "maxSteps": 2000                      // tracer aborts if a run exceeds this
-  }
-}
+"cellStateRules": [
+  { "state": "result",  "when": "idx==i || idx==j", "onlyWhen": "isMatch" },
+  { "state": "current", "when": "idx==i || idx==j" },
+  { "state": "dimmed",  "when": "idx < lo || idx > hi" },
+  { "state": "idle",    "when": "true" }
+],
+"flags": { "isMatch": "s == target" }
 ```
-
-> ⚠️ Every topic/pattern/difficulty **slug must already be seeded** (`seeds/topics.json`,
-> `seeds/patterns.json`, `seeds/difficulties.json`). An unknown slug aborts ingest. Add the seed
-> first if needed.
-
-### Step 2 — `presets.json` (the examples)
-
-**Rules (enforced at ingest):** ≥3 presets, ≥1 with `"isEdgeCase": true`, every preset has
-`expectedOutput`. Source them from LeetCode examples + edge cases. The `value` object is passed as
-keyword args to your entrypoint.
-
 ```jsonc
-[
-  { "id": "example-1", "label": "Basic", "value": { "nums": [2,7,11,15], "target": 9 },
-    "isEdgeCase": false, "expectedOutput": [0,1] },
-  { "id": "example-2", "label": "Negatives", "value": { "nums": [-3,4,3,90], "target": 0 },
-    "isEdgeCase": false, "expectedOutput": [0,2] },
-  { "id": "edge-tied", "label": "Duplicate values", "value": { "nums": [3,3], "target": 6 },
-    "isEdgeCase": true, "expectedOutput": [0,1] }
+"11": [
+  { "when": "s == target", "happening": "s ({s}) == target ({target}) — a match!", "why": "…", "invariant": "…" },
+  { "happening": "s ({s}) ≠ target ({target}).", "why": "…", "invariant": "…" }
 ]
 ```
 
-> 💡 **Coverage:** "No Line Left Behind" is checked across **all presets combined**. Make sure your
-> presets *together* exercise every branch (a match AND a no-match, both `if` and `else`, etc.).
-> A single preset need not hit every line.
->
-> 💡 `expectedOutput` is compared **order-insensitively for lists** (the tracer's real return value
-> must equal it as a set). If it mismatches, either your solution or your expected value is wrong.
-
-### Step 3 — `approaches/<id>/solution.py` (the real code)
-
-```python
-class Solution:
-    def twoSum(self, nums, target):
-        seen = {}                            # line 3
-        for i in range(len(nums)):           # line 4
-            need = target - nums[i]          # line 5
-            if need in seen:                 # line 6
-                return [seen[need], i]       # line 7
-            seen[nums[i]] = i                # line 8
-        return []                            # line 9
-```
-
-**Rules:**
-- One `class Solution` with the method named in `approach.json`'s `entrypoint` (e.g.
-  `"Solution.twoSum"`). The tracer calls it as `Solution().twoSum(**preset.value)`.
-- **Line numbers are load-bearing** — `mapping.json`, `narration.json`, and `approach.json` all key
-  off them. Don't renumber casually.
-- Write normal, correct Python. Whatever it returns becomes `finalResult` (must match
-  `expectedOutput`).
-
-> 🔎 **Discover your exact line numbers + coverage** by running the tracer directly:
-> ```bash
-> python tracer/run.py seeds/problems/<slug> <approachId> <presetId>
-> ```
-> It prints `executableLines` (the lines you must narrate/map) and the per-step `lineNo`s. Lines
-> with no bytecode (blank, comment, `class`/`def` headers, bare `else:`) are **not** in the set and
-> don't need narration.
-
-### Step 4 — `approaches/<id>/approach.json` (approach metadata)
-
-```jsonc
-{
-  "id": "optimal",                         // must equal the folder name
-  "name": "Hash Map",
-  "kind": "optimal",                       // brute | optimal | alternative
-  "summary": "One pass, remembering complements in a hash map.",
-  "complexity": { "time": "O(n)", "space": "O(n)" },
-  "language": "python",
-  "entrypoint": "Solution.twoSum",
-  "primaryPrimitive": "array",             // which renderer the stage uses
-  "auxStructures": ["hash-map"],
-  "resultSpec": { "varName": "res", "label": "RESULT", "render": "scalar" },
-  "varColors": { "i": "ptr-i" },           // optional: pin rail colors to stage pointers
-  "lineExplanations": {                    // shown in the narration LINE EXPLANATION panel
-    "3": "Create an empty map from value → index.",
-    "4": "Scan each index once."
-  },
-  "syntaxExplanations": {                  // optional beginner hover tips in the code panel
-    "3": "{} is an empty dict (hash map)."
-  }
-}
-```
-
-**`resultSpec.render`** controls the RESULT panel:
-| render | use for | example |
-|---|---|---|
-| `scalar` | one value | `mx`, a count |
-| `string` | a string answer | |
-| `boolean` | true/false | |
-| `list` | array of primitives | `[0, 1]` |
-| `tuple-list` | array of arrays | 4Sum quadruplets on `res` |
-
-**`varColors`** values are **design-token keys** (no `#hex`). Available:
-`ptr-i, ptr-j, ptr-lo, ptr-hi, special, result, amber, compared, current, error, gold`.
-
-### Step 5 — `approaches/<id>/mapping.json` (variables → picture)
-
-This is the heart. It's evaluated **per step against the real captured variables**. See the full
-DSL reference in §4 below. Minimal array example:
-
-```jsonc
-{
-  "primitive": "array",
-  "valuesFrom": "nums",                    // var holding the array → the cells
-  "pointers": [ { "name": "i", "var": "i" } ],
-  "flags": { "found": "need in_seen" },    // (named booleans; see DSL notes)
-  "cellStateRules": [                      // ordered, FIRST match wins per cell
-    { "state": "current", "when": "idx == i" },
-    { "state": "visited", "when": "idx < i" },
-    { "state": "idle",    "when": "true" }
-  ],
-  "readout": { "when": "phase != 'return'", "expr": "need = target − nums[i] = {need}" },
-  "counters": [ { "name": "lookups", "onLines": [6] } ],
-  "phaseRules": [
-    { "phase": "init",   "lines": [3] },
-    { "phase": "loop",   "lines": [4] },
-    { "phase": "check",  "lines": [5, 6] },
-    { "phase": "update", "lines": [8] },
-    { "phase": "return", "lines": [7, 9] }
-  ],
-  "keyEvents": [
-    { "line": 7, "label": "Pair found", "kind": "match" },
-    { "line": 9, "label": "Scan complete", "kind": "return" }
-  ]
-}
-```
-
-### Step 6 — `approaches/<id>/narration.json` (what to say)
-
-Every executable line must resolve to a **non-empty, meaningful** `happening`/`why`/`invariant`
-(empty or generic text aborts ingest). Use `{placeholders}` — anything in braces is an expression
-evaluated against the step's variables (so `{nums[i]}`, `{len(res)}`, `{target - need}` all work).
-
-```jsonc
-{
-  "byLine": {
-    "3": { "happening": "Start an empty map of value → index.", "why": "It lets us find a complement in O(1).", "invariant": "seen holds every value scanned so far." },
-    "4": { "happening": "Look at index {i} (value {nums[i]}).", "why": "Each element is visited once.", "invariant": "Indices before {i} are already in seen." },
-    "5": { "happening": "We need {need} to reach the target.", "why": "{target} − {nums[i]} = {need}.", "invariant": "need is the missing partner for nums[{i}]." },
-    "6": [
-      { "when": "need in_seen", "happening": "{need} is already in the map — found a pair!", "why": "Its earlier index plus {i} sum to the target.", "invariant": "Answer located." },
-      { "happening": "{need} is not in the map yet.", "why": "We haven't seen the partner; keep scanning.", "invariant": "Still searching." }
-    ],
-    "7": { "happening": "Return the two indices.", "why": "These two values sum to the target.", "invariant": "Done." },
-    "8": { "happening": "Remember nums[{i}] = {nums[i]} at index {i}.", "why": "A future element may need it as a complement.", "invariant": "seen now includes index {i}." },
-    "9": { "happening": "No pair summed to the target.", "why": "The whole array was scanned.", "invariant": "Return empty." }
-  },
-  "byPhase": {
-    "init":   { "happening": "Set up.",   "why": "Prepare state.",       "invariant": "Setup." },
-    "loop":   { "happening": "Advance.",  "why": "Next element.",        "invariant": "Scanning." },
-    "check":  { "happening": "Compare.",  "why": "Test the condition.",  "invariant": "Deciding." },
-    "update": { "happening": "Update.",   "why": "Record progress.",     "invariant": "Changing." },
-    "return": { "happening": "Finish.",   "why": "Done.",                "invariant": "Complete." }
-  }
-}
-```
-
-> ✅ **Always provide a full `byPhase` fallback** (one entry per phase you use). `byLine` wins when
-> present; `byPhase` is the safety net so no step is ever blank.
-
-### Step 7 — Ingest (and read the validator output)
-
-```bash
-npm run ingest
-```
-
-Ingest validates **everything** and **aborts the whole run on any failure**, naming the exact
-problem. Common failures and fixes:
-
-| Error message contains | Cause | Fix |
-|---|---|---|
-| `unknown topic/pattern/difficulties slug "…"` | taxonomy slug not seeded | add it to the matching `seeds/*.json` |
-| `No Line Left Behind — line(s) no preset ever executes: …` | a branch never runs under any preset | add a preset that reaches it |
-| `narration.<field> is empty/generic` | missing/placeholder narration | write real text for that line/phase |
-| `traced result … ≠ expectedOutput …` | wrong solution or wrong expected value | fix `solution.py` or `presets.json` |
-| `cellState "…" not in vocabulary` | typo in a `state` | use a valid CellState (§4) |
-| `step cap exceeded (N)` | input too big / infinite loop | shrink the preset or raise `maxSteps` |
-| `unknown function '…' in expr` | used a non-whitelisted function | only `min, max, len, abs` are allowed |
-
-Re-run until it says `✓ Ingest complete`.
-
-### Step 8 — Verify in the app
-
-```bash
-npm run dev
-```
-Open `http://localhost:3000/problems/<slug>` and step through **each approach**:
-- The highlighted code line, the variables, the result, the narration (all four readouts), and the
-  picture all describe the **same moment** — every step.
-- No line is skipped (the validator already guaranteed it).
-- Diamonds sit on real key events with meaningful tooltips.
-- Switch approaches; (Compare mode side-by-side lands in a later release).
-
-Commit the new `seeds/problems/<slug>/` folder. Done.
-
 ---
 
-## 4. The mapping DSL — complete reference
+# (Human appendix — not part of the prompt)
 
-### Expression language
-Used in every `when` / `onlyWhen` / `derived` / `flags` / `keyEvents.when` / `phaseRules.when` and
-inside `{…}` placeholders. Supported:
-- literals: numbers, `'strings'`, `true`, `false`, `null`
-- operators: `+ - * / %`, `== != < <= > >=`, `&& || !`, `? :` (ternary), parentheses
-- indexing/members: `values[idx]`, `nums[i]`, `obj.field`
-- functions (only these): `min`, `max`, `len`, `abs`
+After the LLM returns the JSON:
+1. Save it to a file.
+2. `npm run import-problem <file>` — splits it into `seeds/problems/<slug>/` (rejects leftover
+   `REPLACE` / missing pieces).
+3. `npm run ingest` — the real validator: No-Line-Left-Behind, narration completeness, expected-output
+   match, visual/cellState validity, taxonomy resolution. Fix what it names and re-run.
+4. `npm run dev` → open `/problems/<slug>`, step through every approach: line, vars, result, all four
+   narration readouts, and the picture stay in sync; hover shows a tip on every line.
 
-### The scope each expression sees
-| Name | Meaning |
-|---|---|
-| any variable from the solution | its **real value at this step** (e.g. `i`, `lo`, `s`, `nums`, `res`) |
-| `<name>_prev` | that variable's value on the **previous** step (e.g. `mx_prev`) — for "did it change / improve" logic |
-| `idx` | the **current cell index** while evaluating `cellStateRules` (0 … len-1) |
-| `values` | the array chosen by `valuesFrom` |
-| `phase` | this step's phase string |
-| `flags` | any boolean you defined in `flags` (usable in `cellStateRules`, `readout.when`, etc.) |
-
-> ⚠️ **Name clash gotcha:** the cell index is `idx`, **not** `i` — because many solutions already use
-> a variable named `i`. Inside `cellStateRules`, write `idx == i` to mean "this cell is where pointer
-> `i` is". (`flags` are evaluated once per step *before* cells, so they cannot use `idx`.)
->
-> ⚠️ **Null-safety:** a variable not yet in scope this step reads as `null`/`undefined`; comparisons
-> against it are false. `x != null` is true only when `x` actually has a value — handy to gate rules
-> on "this var exists yet".
->
-> ⚠️ **Line events fire *before* the line runs.** On the step for `res.append(...)`, `res` is still
-> the *old* value; it updates on the next step. Phrase narration as "about to…" where relevant; the
-> glide/ghost animates the change across the two steps.
-
-### `mapping.json` fields
-| Field | What it does |
-|---|---|
-| `primitive` | `"array"` or `"bar-container"` (others need a renderer first) |
-| `valuesFrom` | variable name whose array becomes the cells |
-| `pointers` | `[{name, var}]` — a gutter marker per pointer; only drawn when the var is a valid index. Lane & color follow list order (named `i/j/lo/hi` keep fixed hues). |
-| `flags` | `{ name: expr }` — named booleans reused in any `when` |
-| `cellStateRules` | ordered `[{state, when, onlyWhen?}]`; **first match wins** per cell; end with `{ "state":"idle", "when":"true" }` |
-| `window` | `{from, to}` expressions → translucent tray (omitted if not finite) |
-| `ghosts` | `{ track: [varNames] }` → smooth glide when a tracked pointer moves |
-| `readout` | `{expr, relation?, relationColor?, when?}` → the chip above the stage; `expr`/`relation` are `{…}` templates; `relationColor` is a token key |
-| `counters` | `[{name, when?, onLines?}]` → complexity meters; `timeOps` auto-sums; `spaceUnits` defaults 1 |
-| `phaseRules` | `[{phase, lines, when?}]` → first match by line (optional guard); default `update` |
-| `keyEvents` | `[{line?, when?, label, kind?}]` → scrubber diamonds; conditions are ANDed; `kind` ∈ `match·best·result·boundary·return` |
-
-### CellState vocabulary (the only allowed `state` values)
-`idle · current · compared · frontier · visited · result · path · special · error · dimmed · left · right`
-
-### Phases
-`init · loop · check · update · move · recurse · return · done`
-
----
-
-## 5. Two complete worked examples to copy
-
-- **Array + two pointers + brute:** [`seeds/problems/4sum/`](seeds/problems/4sum/) — the gold
-  reference. Read both `approaches/sort-two-pointers/` and `approaches/brute-force/` to see how the
-  same problem maps two different algorithms.
-- **Bar-container (bespoke geometry):** the container-with-most-water mapping shows `derived.container`
-  (water-fill geometry). *(Currently still on the legacy tracer; being converted to a bundle.)*
-
----
-
-## 6. What needs an engineering task first
-
-| You can author today (data only) | Needs a one-time renderer first |
-|---|---|
-| Arrays, strings (array primitive) | Linked lists, trees / BST, tries |
-| Bar/height problems (bar-container) | Graphs, grids, heaps, hash-map view |
-| Any pattern on the above (two pointers, sliding window, binary search, …) | Recursion tree / call-stack view, DP table |
-
-If your problem needs a structure in the right column, flag it before authoring — the renderer is
-built once, then that whole family becomes data-only like the array.
-
----
-
-## 7. Authoring with Claude — a ready prompt
-
-Paste this to Claude, filling the blanks:
-
-> You are authoring a Knacktor problem bundle. Read `rules/Authoring.md` and `ADDING_PROBLEMS.md`
-> and the reference bundle `seeds/problems/4sum/`. Create `seeds/problems/<slug>/` for **LeetCode
-> #\<n> "\<title>"** with approaches: \<brute / optimal / …>. For each approach write a correct
-> `solution.py` (class Solution, entrypoint `Solution.<method>`), then `approach.json`,
-> `mapping.json`, and `narration.json` keyed to the real line numbers, plus a shared `presets.json`
-> with ≥3 examples incl. ≥1 edge case and correct `expectedOutput`. Use only the array/bar-container
-> primitives, the CellState vocabulary, and the expression DSL (cell index is `idx`, not `i`; only
-> `min/max/len/abs`). After writing, run `python tracer/run.py …` to confirm line coverage, then
-> `npm run ingest` and fix any validator errors until it passes.
-
----
-
-## 8. Quick checklist before you commit
-
-- [ ] `python tracer/run.py seeds/problems/<slug> <approach> <preset>` runs clean for each approach.
-- [ ] `npm run ingest` ends with `✓ Ingest complete` (no validator aborts).
-- [ ] Presets: ≥3, ≥1 edge case, correct `expectedOutput`; together they cover every branch.
-- [ ] Every executable line has meaningful `byLine` narration; `byPhase` fallback present.
-- [ ] `resultSpec.varName` points at the variable holding the answer.
-- [ ] `mapping.json` references only real variables; `cellStateRules` ends with `when:"true"`.
-- [ ] Stepped through every approach in `npm run dev` — code, vars, result, narration, picture in sync.
+The canonical worked reference bundle is `seeds/problems/4sum/` (both approaches) and
+`seeds/problems/container-with-most-water/` (bar-container). The canonical spec is `rules/Authoring.md`.

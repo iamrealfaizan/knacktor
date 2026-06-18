@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "ingest": "npx tsx scripts/ingest.ts"
+    "ingest": "npx tsx scripts/ingest.ts",
+    "new-problem": "npx tsx scripts/new-problem.ts",
+    "import-problem": "npx tsx scripts/import-problem.ts",
+    "drop-db": "npx tsx scripts/drop-db.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
