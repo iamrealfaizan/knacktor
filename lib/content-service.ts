@@ -39,10 +39,8 @@ function toPlain<T>(v: T): T {
 // ── Taxonomy resolution (id ↔ slug) ───────────────────────────────────────────
 // Cached per process; taxonomy is tiny and rarely changes.
 type IdSlug = { byId: Map<string, string>; bySlug: Map<string, string> };
-const _cache: Partial<Record<"difficulties" | "topics" | "patterns", IdSlug>> = {};
 
 async function idSlugMap(col: "difficulties" | "topics" | "patterns"): Promise<IdSlug> {
-  if (_cache[col]) return _cache[col]!;
   const docs = await (await db())
     .collection<{ _id: ObjectId; slug: string }>(col)
     .find({}, { projection: { slug: 1 } })
@@ -54,9 +52,7 @@ async function idSlugMap(col: "difficulties" | "topics" | "patterns"): Promise<I
     byId.set(id, d.slug);
     bySlug.set(d.slug, id);
   }
-  const m = { byId, bySlug };
-  _cache[col] = m;
-  return m;
+  return { byId, bySlug };
 }
 
 type RawProblem = {
