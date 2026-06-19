@@ -1,0 +1,84 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We start with result as an empty list.",
+      "why": "The brute force search will fill this only after it finds two indices whose values add to target.",
+      "invariant": "No pair has been accepted yet."
+    },
+    "4": {
+      "happening": "Index i moves to the next possible first number in the pair.",
+      "why": "Fixing one index lets us compare it with every later index.",
+      "invariant": "All pairs that start before i have already been checked and did not need to be kept."
+    },
+    "5": {
+      "happening": "We read nums[i], so first becomes {nums[i]}.",
+      "why": "Naming the first value makes the upcoming pair sum clear.",
+      "invariant": "i is fixed while j searches to the right."
+    },
+    "6": {
+      "happening": "Index j starts or advances to a position after i.",
+      "why": "Starting at i + 1 prevents using the same element twice and avoids repeating pairs in reverse order.",
+      "invariant": "Every checked pair has two different indices."
+    },
+    "7": {
+      "happening": "We read nums[j], so second becomes {nums[j]}.",
+      "why": "This gives us the second value for the current candidate pair.",
+      "invariant": "The current pair is exactly the two highlighted indices i and j."
+    },
+    "8": {
+      "happening": "We compute current_sum as first + second.",
+      "why": "The only test for a valid pair is whether this sum equals target.",
+      "invariant": "No answer is returned until a pair's sum is proven equal to target."
+    },
+    "9": [
+      {
+        "when": "current_sum == target",
+        "happening": "current_sum ({current_sum}) equals target ({target}), so the highlighted pair is the answer.",
+        "why": "The problem asks for indices of two numbers whose values add to target.",
+        "invariant": "The valid answer uses two distinct indices: i and j."
+      },
+      {
+        "happening": "current_sum ({current_sum}) does not equal target ({target}), so this pair is rejected.",
+        "why": "A pair is useful only if its sum exactly matches target.",
+        "invariant": "The search continues without changing any previously checked pair."
+      }
+    ],
+    "10": {
+      "happening": "We store the answer indices as result = [i, j].",
+      "why": "These are the positions of the two values that add to target.",
+      "invariant": "result now contains a valid two-index answer."
+    },
+    "11": {
+      "happening": "We return result.",
+      "why": "The problem guarantees exactly one valid answer, so there is no need to search after finding it.",
+      "invariant": "The returned indices point to two different numbers whose sum is target."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Initialize the answer holder.",
+      "why": "The algorithm needs a place to store the matching indices.",
+      "invariant": "No candidate pair has been accepted."
+    },
+    "loop": {
+      "happening": "Move through possible pair indices.",
+      "why": "Trying every pair guarantees the valid one will be found.",
+      "invariant": "The algorithm only compares pairs with two distinct indices."
+    },
+    "update": {
+      "happening": "Read values or update the stored result.",
+      "why": "Each comparison needs the values at the highlighted indices.",
+      "invariant": "The current state describes one concrete candidate pair."
+    },
+    "check": {
+      "happening": "Compare the current pair's sum with target.",
+      "why": "A pair is correct exactly when its sum equals target.",
+      "invariant": "Rejected pairs are never returned."
+    },
+    "return": {
+      "happening": "Return the final answer.",
+      "why": "A valid pair has been found.",
+      "invariant": "The returned result satisfies nums[result[0]] + nums[result[1]] == target."
+    }
+  }
+}

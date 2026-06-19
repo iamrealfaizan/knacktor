@@ -67,6 +67,21 @@ function isValidVisual(v: VisualState): boolean {
     }
     return true;
   }
+  if (v.type === "stack" || v.type === "queue") {
+    return Array.isArray(v.items);
+  }
+  if (v.type === "hashmap") {
+    return Array.isArray(v.entries);
+  }
+  if (v.type === "tree") {
+    return Array.isArray(v.nodes) && Array.isArray(v.pointers);
+  }
+  if (v.type === "grid") {
+    return Array.isArray(v.rows) && Array.isArray(v.pointers);
+  }
+  if (v.type === "graph") {
+    return Array.isArray(v.nodes) && Array.isArray(v.edges) && Array.isArray(v.pointers);
+  }
   return v.type === "linkedList" || v.type === "recursion";
 }
 

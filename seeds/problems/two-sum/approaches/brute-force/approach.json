@@ -1,0 +1,50 @@
+{
+  "id": "brute-force",
+  "name": "Check Every Pair",
+  "kind": "brute",
+  "summary": "Try each pair of indices until one pair adds up to the target.",
+  "visualizationIntent": "init: show the array and initialize an empty result list. outer-loop: place i on the first number of the candidate pair. inner-loop: place j on each later number while keeping i fixed. check: highlight nums[i] and nums[j] as the compared pair and show their sum against target. return: when the sum matches target, color both cells as result and freeze with the answer indices.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.twoSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "RESULT",
+    "render": "list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "current_sum": "compared",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Create an empty result list that will hold the two answer indices once they are found.",
+    "4": "Choose the first index i of a possible pair.",
+    "5": "Store the value at index i so the pair comparison is easy to read.",
+    "6": "Choose the second index j after i so the same element is never reused and each pair is checked once.",
+    "7": "Store the value at index j as the second number in the candidate pair.",
+    "8": "Add the two selected values to see whether this pair reaches the target.",
+    "9": "Check whether the current pair's sum equals the target.",
+    "10": "Save the two matching indices as the result.",
+    "11": "Return the matching pair of indices immediately because the problem guarantees one valid answer."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def twoSum(self, nums, target): defines a method that receives the array nums and the integer target.",
+    "3": "result = [] creates an empty Python list.",
+    "4": "for i in range(len(nums)): loops i from 0 up to the last valid index of nums.",
+    "5": "first = nums[i] reads the array value stored at index i.",
+    "6": "for j in range(i + 1, len(nums)): loops j through every index after i.",
+    "7": "second = nums[j] reads the array value stored at index j.",
+    "8": "current_sum = first + second adds the two selected numbers and stores the total.",
+    "9": "if current_sum == target: runs the indented block only when the two numbers add to target.",
+    "10": "result = [i, j] builds a two-item list containing the answer indices.",
+    "11": "return result sends the answer back and stops the method."
+  }
+}

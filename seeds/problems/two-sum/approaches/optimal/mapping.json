@@ -1,0 +1,89 @@
+{
+  "primitive": "hashmap",
+  "keysFrom": "num_map",
+  "valuesFrom": "num_map",
+  "pointers": [],
+  "flags": {
+    "foundComplement": "len(result) > 0"
+  },
+  "highlightRules": [
+    {
+      "state": "result",
+      "whenKey": "k == complement && foundComplement"
+    },
+    {
+      "state": "current",
+      "whenKey": "k == num"
+    },
+    {
+      "state": "idle",
+      "whenKey": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "i = {i}; num = {num}; need complement = {complement}"
+  },
+  "counters": [
+    {
+      "name": "lookups",
+      "onLines": [
+        8
+      ]
+    },
+    {
+      "name": "inserts",
+      "onLines": [
+        11
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        7,
+        9,
+        11
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        10
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Complement found",
+      "kind": "match"
+    },
+    {
+      "line": 10,
+      "label": "Final answer",
+      "kind": "return"
+    }
+  ]
+}

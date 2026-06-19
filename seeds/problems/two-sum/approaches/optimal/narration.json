@@ -1,0 +1,76 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We create num_map as an empty dictionary.",
+      "why": "The map will remember values we have already passed, along with their indices.",
+      "invariant": "num_map contains only numbers from earlier positions in the scan."
+    },
+    "4": {
+      "happening": "We start result as an empty list.",
+      "why": "The answer will be written here once a matching complement is found.",
+      "invariant": "No valid pair has been returned yet."
+    },
+    "5": {
+      "happening": "Index i moves to the next array position.",
+      "why": "The algorithm checks each number once from left to right.",
+      "invariant": "Before processing i, num_map contains values from indices less than i."
+    },
+    "6": {
+      "happening": "We read the current number nums[i].",
+      "why": "The current number determines what complement we need to reach target.",
+      "invariant": "The current index has not been inserted into num_map yet."
+    },
+    "7": {
+      "happening": "We compute complement as target - num.",
+      "why": "If an earlier number equals complement, then that earlier number plus the current number equals target.",
+      "invariant": "A valid pair ending at i must use the value complement from an earlier index."
+    },
+    "8": {
+      "happening": "We check whether complement ({complement}) is in the hash map.",
+      "why": "A dictionary lookup tells us in O(1) whether an earlier number can pair with the current one to reach target.",
+      "invariant": "If complement is absent, the current number is saved for later; if present, the answer is ready."
+    },
+    "9": {
+      "happening": "We build result using the saved index for complement and the current index i.",
+      "why": "The hash map gives the earlier index in constant time.",
+      "invariant": "result contains two distinct indices whose values add to target."
+    },
+    "10": {
+      "happening": "We return result.",
+      "why": "The problem guarantees one valid answer, so the scan can stop once it is found.",
+      "invariant": "The returned indices identify two numbers whose sum is target."
+    },
+    "11": {
+      "happening": "We insert the current number into num_map with its index.",
+      "why": "A later number may need this value as its complement.",
+      "invariant": "After insertion, num_map represents all processed indices up through i."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Initialize the map and result holder.",
+      "why": "The algorithm needs memory of earlier values and a place to store the final answer.",
+      "invariant": "No number has been processed yet."
+    },
+    "loop": {
+      "happening": "Advance to the next array index.",
+      "why": "Scanning once is enough when previous values are stored in a hash map.",
+      "invariant": "The map contains only values that appeared before the current index."
+    },
+    "update": {
+      "happening": "Compute needed values or update stored data.",
+      "why": "Each step either prepares a lookup, records an answer, or saves the current value for later.",
+      "invariant": "The algorithm never pairs an element with itself."
+    },
+    "check": {
+      "happening": "Look for the complement in the hash map.",
+      "why": "A dictionary lookup quickly tells us whether a matching earlier value exists.",
+      "invariant": "If the complement is present, its stored index is before i."
+    },
+    "return": {
+      "happening": "Return the final answer.",
+      "why": "The matching pair has been found.",
+      "invariant": "The returned result satisfies nums[result[0]] + nums[result[1]] == target."
+    }
+  }
+}

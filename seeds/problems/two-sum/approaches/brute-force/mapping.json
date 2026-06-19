@@ -1,0 +1,103 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "flags": {
+    "hasJ": "j != null",
+    "isMatch": "current_sum == target"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == i || idx == j",
+      "onlyWhen": "isMatch"
+    },
+    {
+      "state": "compared",
+      "when": "idx == i || idx == j",
+      "onlyWhen": "hasJ"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "target = {target}; current sum = {current_sum}"
+  },
+  "counters": [
+    {
+      "name": "pair checks",
+      "onLines": [
+        9
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4,
+        6
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        5,
+        7,
+        8,
+        10
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        11
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "when": "current_sum == target",
+      "label": "Matching pair found",
+      "kind": "match"
+    },
+    {
+      "line": 11,
+      "label": "Final answer",
+      "kind": "return"
+    }
+  ]
+}

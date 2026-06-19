@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "two-sum",
+  "number": 1,
+  "title": "Two Sum",
+  "difficulty": "easy",
+  "topics": [
+    "array",
+    "hash-map"
+  ],
+  "patterns": [
+    "hash-map"
+  ],
+  "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.\n\nExample 1:\nInput: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].\n\nExample 2:\nInput: nums = [3,2,4], target = 6\nOutput: [1,2]\n\nExample 3:\nInput: nums = [3,3], target = 6\nOutput: [0,1]\n\nConstraints:\n2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9\nOnly one valid answer exists.\n\nFollow-up: Can you come up with an algorithm that is less than O(n^2) time complexity?",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "nums",
+        "type": "int[]",
+        "label": "Array",
+        "placeholder": "2, 7, 11, 15",
+        "min": -1000000000,
+        "max": 1000000000,
+        "minLen": 2,
+        "maxLen": 24
+      },
+      {
+        "name": "target",
+        "type": "int",
+        "label": "Target",
+        "placeholder": "9",
+        "min": -1000000000,
+        "max": 1000000000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}
