@@ -51,11 +51,59 @@
 - SEO verification across discovery surfaces; accessibility verification (contrast, keyboard, reduced-motion); interaction + motion polish; custom-input boundary validation; sandbox abuse testing.
 - **Exit gate:** MVP ready for controlled release / further content expansion.
 
+## Phase 8 — Generic Renderer Library (M1.8) ⏳ Engine done, exit gate pending
+
+**Engine: ✅ Complete.** All 8 renderer families built and SimulationRules-audited.
+
+| Renderer | VisualState type | Component | Mapping DSL | Status |
+|---|---|---|---|---|
+| `HashMapRenderer` | `HashMapVisualState` | `hashmap-renderer.tsx` | `keysFrom`, `highlightRules`, `highlightKeyVar` | ✅ Built |
+| `RecursionRenderer` | `RecursionVisualState` | `recursion-renderer.tsx` (rounded-rect nodes, `<path>` edges) | `framesFrom`, `treeEdgesFrom`, `currentFrameVar` | ✅ Built |
+| `TreeRenderer` | `TreeVisualState` | `tree-renderer.tsx` | `nodesFrom`, `nodeStateRules`, `currentNodeVar` | ✅ Built |
+| `LinkedListRenderer` | `LinkedListVisualState` | `linked-list-renderer.tsx` | `nodesFrom`, `linksFrom`, `changedLinksFrom` | ✅ Built |
+| `StackRenderer` | `StackVisualState` | `stack-renderer.tsx` (88×40 cells) | `itemsFrom`, `topVar` | ✅ Built |
+| `GridRenderer` | `GridVisualState` | `grid-renderer.tsx` (28px cells, 1px gridlines) | `gridFrom`, `pointers[rowVar/colVar]` | ✅ Built |
+| `QueueRenderer` | `QueueVisualState` | `queue-renderer.tsx` (48×48, 4px gap) | `itemsFrom`, `frontVar`, `backVar` | ✅ Built |
+| `GraphRenderer` | `GraphVisualState` | `graph-renderer.tsx` (`<path>` edges, arrowheads) | `nodesFrom`, `edgesFrom`, `nodeStateRules`, `directed` | ✅ Built |
+
+`lib/trace.ts` has all 10 VisualState types. `stage.tsx` dispatches all 10 with correct per-primitive viewBox. `lib/tracer/types.ts` and `lib/tracer/mapping.ts` fully wired.
+
+**Custom component escape hatch (D17):** `components/problem/custom/<slug>-visualizer.tsx`, registered in `stage.tsx` via dynamic import. Justified only when ≥2 D17 criteria apply.
+
+- **Exit gate:** ❌ Each renderer needs ≥1 real problem end-to-end passing Gate 1 + Gate 2. Two Sum (hashmap) is the planned first.
+
+## Phase 9 — API Layer (M1.9) ✅ Done
+
+All 6 read-only routes live at `app/api/`, wrapping the Content Service (D16). Response shape: `{ data: T, error?: string }`, standard HTTP codes. Build clean.
+
+| Route | Status |
+|---|---|
+| `GET /api/problems` (filters: difficulty, topic, pattern, search) | ✅ |
+| `GET /api/problems/[slug]` | ✅ |
+| `GET /api/problems/[slug]/traces?approachId=&inputId=` | ✅ |
+| `GET /api/topics` | ✅ |
+| `GET /api/patterns` | ✅ |
+| `GET /api/difficulties` | ✅ |
+
+- **Exit gate:** ✅ Met.
+
+## Phase 10 — Problem-Addition Framework (M1.10) ⏳ Tooling done, exit gate pending
+
+All tooling built:
+- **`ADDING_PROBLEMS.md`** ✅ — fully rewritten; all 10 primitives documented with DSL quick-reference, `visualizationIntent` required field, 10-point self-validation.
+- **`tracer/template/problem.combined.json`** ✅ — updated instructions name all primitives; `visualizationIntent` field in approach template.
+- **`scripts/import-problem.ts`** ✅ — writes `visualizationIntent` to `approach.json`.
+- **`CLAUDE.md` ADD-PROBLEM WORKFLOW** ✅ — full 6-step workflow (D18) documented.
+
+- **Exit gate:** ❌ Paste a Two Sum combined JSON → `npm run import-problem` → Python tracer → `npm run ingest` → confirm `/problems/two-sum` renders correctly with the hashmap renderer.
+
 ## Deferred work (post-M1)
 - Accounts/auth, progress tracking, monetization surfaces, heavy analytics.
 - Public admin UI / CMS, content-automation tooling.
-- More primitives (hashmap, stack/queue, trees, graphs, grid, DP) — each a one-time engine task.
+- FastAPI backend (deferred per D16).
+- Additional primitives not in M1.8: DP tables, trie, heap, union-find.
 - Multi-language user-visible code tabs.
+- Custom-input sandbox (deferred per D12).
 
 ## Delivery priorities
 1. Shared engine + player fidelity (incl. simulation legibility).

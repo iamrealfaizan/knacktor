@@ -1,16 +1,14 @@
 /**
- * Idempotent seed ingest — run any time to upsert seed data into MongoDB.
+ * Idempotent seed ingest — run any time to (re)build MongoDB.
  * Usage: npm run ingest
  *
- * What it does:
- *   1. Upserts topics, patterns, problems, sheets from seeds/*.json
- *   2. Computes preset traces via the TypeScript tracers and upserts them
- *      into the `traces` collection — so the app reads from DB, not fixtures.
- *
- * Safe to re-run: all operations use upsert.
+ * D10 — relationships by _id. Collections: difficulties, topics, patterns,
+ * problems (approaches + presets EMBEDDED), traces (gzip-compressed, D11), sheets.
+ * D9  — all traces come from the Python tracer pipeline via seeds/problems/<slug>/ bundles.
  */
 import { loadEnvConfig } from "@next/env";
-import { MongoClient, type Db } from "mongodb";
+import { MongoClient, ObjectId, type Db } from "mongodb";
+import { gzipSync } from "zlib";
 import fs from "fs";
 import path from "path";
 
@@ -19,208 +17,177 @@ loadEnvConfig(process.cwd());
 const SEEDS_DIR = path.join(process.cwd(), "seeds");
 const PROBLEMS_DIR = path.join(SEEDS_DIR, "problems");
 const DB_NAME = "knacktor";
+const TRACE_VERSION = "1.0.0";
 
 interface SeedDoc {
   slug: string;
   [key: string]: unknown;
 }
 
+// ── Indexes ────────────────────────────────────────────────────────────────
 async function setupIndexes(db: Db) {
-  const problems = db.collection("problems");
-  await problems.createIndex({ slug: 1 }, { unique: true });
-  await problems.createIndex({ difficulty: 1 });
-  await problems.createIndex({ topics: 1 });
-  await problems.createIndex({ patterns: 1 });
-  await problems.createIndex({ sheets: 1 });
-  await problems.createIndex({ title: "text" }, { name: "problems_text_search" });
-
-  for (const col of ["topics", "patterns", "sheets"] as const) {
+  for (const col of ["difficulties", "topics", "patterns", "sheets"] as const) {
     await db.collection(col).createIndex({ slug: 1 }, { unique: true });
   }
-
-  // Traces: compound index for exact lookups
-  await db.collection("traces").createIndex(
-    { problemSlug: 1, approachId: 1, inputId: 1 },
-    { unique: true }
+  const problems = db.collection("problems");
+  await problems.createIndex({ slug: 1 }, { unique: true });
+  await problems.createIndex({ difficultyId: 1 });
+  await problems.createIndex({ topicIds: 1 });
+  await problems.createIndex({ patternIds: 1 });
+  await problems.createIndex({ number: 1 });
+  await problems.createIndex(
+    { title: "text", statement: "text" },
+    { name: "problems_text_search" }
   );
 
+  const traces = db.collection("traces");
+  await traces.createIndex({ problemId: 1, approachId: 1, inputId: 1 }, { unique: true });
+  await traces.createIndex({ problemSlug: 1, approachId: 1 });
   console.log("  ✓ indexes ready");
 }
 
-async function ingestFile(db: Db, collectionName: string, file: string): Promise<number> {
-  const raw = fs.readFileSync(file, "utf-8");
-  const docs: SeedDoc[] = JSON.parse(raw);
-  if (!Array.isArray(docs) || docs.length === 0) return 0;
-
+// ── Generic slug-keyed seed loader; returns slug -> _id map ──────────────────
+async function seedCollection(
+  db: Db,
+  col: string,
+  file: string
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (!fs.existsSync(file)) {
+    console.log(`  — seeds/${path.basename(file)} not found, skipping`);
+    return map;
+  }
+  const docs: SeedDoc[] = JSON.parse(fs.readFileSync(file, "utf-8"));
   const now = new Date();
-  let count = 0;
-  for (const doc of docs) {
-    const { slug, ...rest } = doc;
-    await db.collection(collectionName).updateOne(
+  for (const { slug, ...rest } of docs) {
+    await db.collection(col).updateOne(
       { slug },
+      { $set: { ...rest, slug, updatedAt: now }, $setOnInsert: { createdAt: now } },
+      { upsert: true }
+    );
+    const doc = await db.collection(col).findOne({ slug }, { projection: { _id: 1 } });
+    map.set(slug, (doc!._id as ObjectId).toHexString());
+  }
+  console.log(`  ↑ ${col}: ${docs.length}`);
+  return map;
+}
+
+function resolveIds(slugs: string[], map: Map<string, string>, kind: string): ObjectId[] {
+  return slugs.map((s) => {
+    const id = map.get(s);
+    if (!id) throw new Error(`unknown ${kind} slug "${s}" — add it to seeds/${kind}.json`);
+    return new ObjectId(id);
+  });
+}
+
+// ── Bundle path (D9) — metadata from problem.json, traces from the Python pipeline ─
+async function ingestBundle(
+  db: Db,
+  bundleDir: string,
+  maps: { diff: Map<string, string>; topic: Map<string, string>; pattern: Map<string, string> }
+): Promise<number> {
+  const { buildTrace } = await import("../lib/tracer/pipeline");
+  const { assertLineCoverage } = await import("../lib/validators/validate-trace");
+  const now = new Date();
+
+  const problem = JSON.parse(fs.readFileSync(path.join(bundleDir, "problem.json"), "utf-8"));
+  const presets = JSON.parse(fs.readFileSync(path.join(bundleDir, "presets.json"), "utf-8"));
+  const approachesDir = path.join(bundleDir, "approaches");
+  const approachIds = fs.readdirSync(approachesDir).filter((d) =>
+    fs.existsSync(path.join(approachesDir, d, "approach.json"))
+  );
+
+  // Build embedded Approach docs (source injected from solution.py).
+  const approaches = approachIds.map((id) => {
+    const meta = JSON.parse(fs.readFileSync(path.join(approachesDir, id, "approach.json"), "utf-8"));
+    const source = fs.readFileSync(path.join(approachesDir, id, "solution.py"), "utf-8");
+    return { ...meta, source };
+  });
+  // brute first, then optimal, then alternative — stable Compare default
+  const order = { brute: 0, optimal: 1, alternative: 2 } as Record<string, number>;
+  approaches.sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9));
+
+  const difficultyId = resolveIds([problem.difficulty], maps.diff, "difficulties")[0];
+  const topicIds = resolveIds(problem.topics, maps.topic, "topics");
+  const patternIds = resolveIds(problem.patterns, maps.pattern, "patterns");
+
+  await db.collection("problems").updateOne(
+    { slug: problem.slug },
+    {
+      $set: {
+        slug: problem.slug, number: problem.number, title: problem.title,
+        difficultyId, topicIds, patternIds, statement: problem.statement,
+        hasVisualization: true, isPremium: false,
+        supportsCustomInput: !!problem.supportsCustomInput,
+        supportsCompare: approaches.length >= 2,
+        recommendedApproachId: problem.recommendedApproachId,
+        approaches, presetInputs: presets, inputConstraints: problem.inputConstraints,
+        schemaVersion: "2.0", updatedAt: now,
+      },
+      $setOnInsert: { createdAt: now },
+    },
+    { upsert: true }
+  );
+  const doc = await db.collection("problems").findOne({ slug: problem.slug }, { projection: { _id: 1 } });
+  const problemId = doc!._id as ObjectId;
+  console.log(`  ↑ problems/${problem.slug} (bundle, Python tracer)`);
+
+  let traceCount = 0;
+  for (const approach of approaches) {
+    const covered = new Set<number>();
+    let executable: number[] = [];
+    for (const preset of presets) {
+      const built = buildTrace(bundleDir, approach.id, preset.id, preset.expectedOutput);
+      built.coveredLines.forEach((l) => covered.add(l));
+      executable = built.executableLines;
+      const compressed = gzipSync(Buffer.from(JSON.stringify(built.steps), "utf-8"));
+      await db.collection("traces").updateOne(
+        { problemId, approachId: approach.id, inputId: preset.id },
+        {
+          $set: {
+            problemId, problemSlug: problem.slug, approachId: approach.id, inputId: preset.id,
+            stepCount: built.steps.length, keyEventIndices: built.keyEventIndices,
+            finalResult: built.finalResult, compression: "gzip",
+            stepsCompressed: compressed, byteSize: compressed.length,
+            traceVersion: TRACE_VERSION, updatedAt: now,
+          },
+          $setOnInsert: { createdAt: now },
+        },
+        { upsert: true }
+      );
+      console.log(`    ↑ traces/${problem.slug}:${approach.id}:${preset.id} (${built.steps.length} steps, ${(compressed.length / 1024).toFixed(1)}KB gz)`);
+      traceCount++;
+    }
+    assertLineCoverage(executable, covered, `${problem.slug}:${approach.id}`);
+    console.log(`    ✓ ${approach.id}: No Line Left Behind (${executable.length} lines covered)`);
+  }
+  return traceCount;
+}
+
+// ── Sheets (entries reference problems by _id) ───────────────────────────────
+async function seedSheets(db: Db) {
+  const file = path.join(SEEDS_DIR, "sheets.json");
+  if (!fs.existsSync(file)) return;
+  const sheets: Array<{ slug: string; name?: string; description?: string; problemSlugs?: string[] }> =
+    JSON.parse(fs.readFileSync(file, "utf-8"));
+  if (!Array.isArray(sheets) || sheets.length === 0) return;
+  const now = new Date();
+  for (const sheet of sheets) {
+    const entries = [];
+    for (const [order, pslug] of (sheet.problemSlugs ?? []).entries()) {
+      const p = await db.collection("problems").findOne({ slug: pslug }, { projection: { _id: 1 } });
+      if (p) entries.push({ problemId: p._id, order });
+    }
+    await db.collection("sheets").updateOne(
+      { slug: sheet.slug },
       {
-        $set: { ...rest, slug, updatedAt: now },
+        $set: { slug: sheet.slug, name: sheet.name, description: sheet.description, entries, updatedAt: now },
         $setOnInsert: { createdAt: now },
       },
       { upsert: true }
     );
-    console.log(`  ↑ ${collectionName}/${slug}`);
-    count++;
   }
-  return count;
-}
-
-interface JsonProblemFile {
-  slug: string;
-  number: number;
-  title: string;
-  difficulty: string;
-  topics: string[];
-  patterns: string[];
-  statement: string;
-  recommendedApproachId: string;
-  supportsCompare: boolean;
-  supportsCustomInput: boolean;
-  approaches: Array<{ id: string; kind: string; [key: string]: unknown }>;
-  presetInputs: Array<{ id: string; [key: string]: unknown }>;
-  inputConstraints?: unknown;
-  traces: Array<{
-    approachId: string;
-    inputId: string;
-    finalResult: unknown;
-    keyEventIndices: number[];
-    steps: unknown[];
-  }>;
-}
-
-async function ingestJsonProblems(db: Db): Promise<number> {
-  if (!fs.existsSync(PROBLEMS_DIR)) return 0;
-
-  const files = fs.readdirSync(PROBLEMS_DIR).filter((f) => f.endsWith(".json"));
-  if (files.length === 0) return 0;
-
-  const now = new Date();
-  let count = 0;
-
-  for (const file of files) {
-    const raw = fs.readFileSync(path.join(PROBLEMS_DIR, file), "utf-8");
-    const problem: JsonProblemFile = JSON.parse(raw);
-
-    // Normalize approach kind: "baseline" → "brute"
-    const approaches = problem.approaches.map((a) => ({
-      ...a,
-      kind: a.kind === "baseline" ? "brute" : a.kind,
-    }));
-
-    // Upsert full problem document (ProblemFull) into problemsFull collection
-    const problemFull = {
-      slug: problem.slug,
-      number: problem.number,
-      title: problem.title,
-      difficulty: problem.difficulty,
-      topics: problem.topics,
-      patterns: problem.patterns,
-      statement: problem.statement,
-      recommendedApproachId: problem.recommendedApproachId,
-      supportsCompare: problem.supportsCompare,
-      supportsCustomInput: problem.supportsCustomInput,
-      approaches,
-      presetInputs: problem.presetInputs,
-      inputConstraints: problem.inputConstraints,
-      updatedAt: now,
-    };
-
-    await db.collection("problemsFull").updateOne(
-      { slug: problem.slug },
-      { $set: problemFull, $setOnInsert: { createdAt: now } },
-      { upsert: true }
-    );
-    console.log(`  ↑ problemsFull/${problem.slug}`);
-    count++;
-
-    // Upsert each embedded trace
-    for (const trace of problem.traces) {
-      const traceDoc = {
-        problemSlug: problem.slug,
-        approachId: trace.approachId,
-        inputId: trace.inputId,
-        steps: trace.steps,
-        keyEventIndices: trace.keyEventIndices,
-        finalResult: trace.finalResult,
-        traceVersion: "0.1.0",
-        updatedAt: now,
-      };
-
-      await db.collection("traces").updateOne(
-        { problemSlug: problem.slug, approachId: trace.approachId, inputId: trace.inputId },
-        { $set: traceDoc, $setOnInsert: { createdAt: now } },
-        { upsert: true }
-      );
-      console.log(`  ↑ traces/${problem.slug}:${trace.approachId}:${trace.inputId} (${trace.steps.length} steps)`);
-      count++;
-    }
-  }
-
-  return count;
-}
-
-async function ingestTraces(db: Db) {
-  // Dynamically import so tsx resolves the @/ alias via tsconfig paths
-  const { TRACERS } = await import("../lib/tracers/index");
-  const { FOURSUM_PROBLEM } = await import("../lib/fixtures/4sum");
-
-  // Register all full problem definitions here as the library grows
-  const allProblems = [FOURSUM_PROBLEM];
-
-  let count = 0;
-  const now = new Date();
-
-  for (const problem of allProblems) {
-    for (const approach of problem.approaches) {
-      const builder = TRACERS[problem.slug]?.[approach.id];
-      if (!builder) {
-        console.log(`  — no tracer for ${problem.slug}:${approach.id}, skipping`);
-        continue;
-      }
-
-      for (const preset of problem.presetInputs) {
-        let steps, finalResult;
-        try {
-          ({ steps, finalResult } = builder(preset.value));
-        } catch (err) {
-          console.error(
-            `  ✗ trace failed for ${problem.slug}:${approach.id}:${preset.id}:`,
-            err instanceof Error ? err.message : err
-          );
-          continue;
-        }
-
-        const traceDoc = {
-          problemSlug: problem.slug,
-          approachId: approach.id,
-          inputId: preset.id,
-          steps,
-          keyEventIndices: steps
-            .filter((s: { isKeyEvent?: boolean }) => s.isKeyEvent)
-            .map((s: { i: number }) => s.i),
-          finalResult,
-          traceVersion: "0.1.0",
-          updatedAt: now,
-        };
-
-        await db.collection("traces").updateOne(
-          { problemSlug: problem.slug, approachId: approach.id, inputId: preset.id },
-          { $set: traceDoc, $setOnInsert: { createdAt: now } },
-          { upsert: true }
-        );
-
-        console.log(`  ↑ traces/${problem.slug}:${approach.id}:${preset.id} (${steps.length} steps)`);
-        count++;
-      }
-    }
-  }
-
-  return count;
+  console.log(`  ↑ sheets: ${sheets.length}`);
 }
 
 async function main() {
@@ -229,42 +196,40 @@ async function main() {
     console.error("✗ MONGODB_URI not set — add it to .env.local");
     process.exit(1);
   }
-
   const client = new MongoClient(uri);
   await client.connect();
   console.log("✓ Connected to MongoDB");
-
   const db = client.db(DB_NAME);
+
   await setupIndexes(db);
 
-  const collections = ["topics", "patterns", "problems", "sheets"] as const;
-  let total = 0;
+  console.log("\nSeeding taxonomy…");
+  const diff = await seedCollection(db, "difficulties", path.join(SEEDS_DIR, "difficulties.json"));
+  const topic = await seedCollection(db, "topics", path.join(SEEDS_DIR, "topics.json"));
+  const pattern = await seedCollection(db, "patterns", path.join(SEEDS_DIR, "patterns.json"));
 
-  for (const col of collections) {
-    const file = path.join(SEEDS_DIR, `${col}.json`);
-    if (!fs.existsSync(file)) {
-      console.log(`  — seeds/${col}.json not found, skipping`);
-      continue;
-    }
-    total += await ingestFile(db, col, file);
+  // ── Bundles (D9 Python pipeline): subdirs of seeds/problems/ with problem.json
+  const bundleDirs = fs.existsSync(PROBLEMS_DIR)
+    ? fs.readdirSync(PROBLEMS_DIR).filter((d) =>
+        fs.existsSync(path.join(PROBLEMS_DIR, d, "problem.json"))
+      )
+    : [];
+  const bundleSlugs = new Set(bundleDirs);
+
+  console.log("\nIngesting bundles (Python tracer)…");
+  let traces = 0;
+  for (const dir of bundleDirs) {
+    traces += await ingestBundle(db, path.join(PROBLEMS_DIR, dir), { diff, topic, pattern });
   }
 
-  console.log("\nIngesting JSON problem files…");
-  const jsonCount = await ingestJsonProblems(db);
-  total += jsonCount;
-
-  // Setup index for problemsFull collection
-  await db.collection("problemsFull").createIndex({ slug: 1 }, { unique: true });
-
-  console.log("\nComputing preset traces (TypeScript tracers)…");
-  const traceCount = await ingestTraces(db);
-  total += traceCount;
+  console.log("\nSeeding sheets…");
+  await seedSheets(db);
 
   await client.close();
-  console.log(`\n✓ Ingest complete — ${total} document(s) upserted`);
+  console.log(`\n✓ Ingest complete — ${bundleDirs.length} bundle(s), ${traces} trace(s)`);
 }
 
 main().catch((err) => {
-  console.error("✗ Ingest failed:", err);
+  console.error("✗ Ingest failed:", err instanceof Error ? err.message : err);
   process.exit(1);
 });

@@ -5,14 +5,19 @@ import type { ArrayVisualState, CellState } from "@/lib/trace";
 const CELL = 48;
 const GAP = 8;
 const PITCH = CELL + GAP;
-const LANES = ["i", "j", "lo", "hi"] as const;
 
+// Named pointers keep recognizable hues; any other pointer gets a stable color
+// by its lane index (generic — works for i/j/k/l, l/r/mid, slow/fast, …).
 const PTR_COLOR: Record<string, string> = {
   i: "var(--kn-ptr-i)",
   j: "var(--kn-ptr-j)",
   lo: "var(--kn-ptr-lo)",
   hi: "var(--kn-ptr-hi)",
 };
+const PTR_PALETTE = [
+  "var(--kn-ptr-i)", "var(--kn-ptr-j)", "var(--kn-ptr-lo)",
+  "var(--kn-ptr-hi)", "var(--kn-special)", "var(--kn-amber)",
+];
 
 // Layer-1 cell appearance per semantic state
 function cellStyle(state: CellState): {
@@ -61,28 +66,31 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
   const x0 = -rowW / 2;
   const xOf = (k: number) => x0 + k * PITCH;
 
-  // Sum chip — derived from the four selected pointers + s
-  const s = vars.s;
-  const showSum =
-    typeof s === "number" &&
-    ["i", "j", "lo", "hi"].every((p) => pointers.some((q) => q.name === p));
+  // Stage chip — prefer the data-driven readout from the tracer; otherwise fall
+  // back to the legacy 4-pointer sum derivation (kept for non-bundle traces).
+  const readout = visual.readout;
   let sumExpr = "";
   let relation = "";
   let relColor = "var(--kn-ink-1)";
-  if (showSum) {
-    const sel = ["i", "j", "lo", "hi"].map(
-      (p) => values[pointers.find((q) => q.name === p)!.at]
-    );
-    sumExpr = `${sel.join(" + ")} = ${s}`;
-    if (s === target) {
-      relation = `= target ${target}`;
-      relColor = "var(--kn-result)";
-    } else if ((s as number) < target) {
-      relation = `< target ${target}`;
-      relColor = "var(--kn-ptr-lo)";
-    } else {
-      relation = `> target ${target}`;
-      relColor = "var(--kn-ptr-hi)";
+  let showSum = false;
+  if (readout) {
+    showSum = true;
+    sumExpr = readout.expr;
+    relation = readout.relation ?? "";
+    relColor = readout.relationColor ? `var(--kn-${readout.relationColor})` : "var(--kn-ink-1)";
+  } else {
+    const s = vars.s;
+    showSum =
+      typeof s === "number" &&
+      ["i", "j", "lo", "hi"].every((p) => pointers.some((q) => q.name === p));
+    if (showSum) {
+      const sel = ["i", "j", "lo", "hi"].map(
+        (p) => values[pointers.find((q) => q.name === p)!.at]
+      );
+      sumExpr = `${sel.join(" + ")} = ${s}`;
+      if (s === target) { relation = `= target ${target}`; relColor = "var(--kn-result)"; }
+      else if ((s as number) < target) { relation = `< target ${target}`; relColor = "var(--kn-ptr-lo)"; }
+      else { relation = `> target ${target}`; relColor = "var(--kn-ptr-hi)"; }
     }
   }
 
@@ -156,9 +164,9 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
       })}
 
       {/* Pointers (Layer 2) — gutter markers that GLIDE between cells */}
-      {pointers.map((p) => {
-        const lane = Math.max(0, LANES.indexOf(p.name as (typeof LANES)[number]));
-        const color = PTR_COLOR[p.name] ?? "var(--kn-ink-1)";
+      {pointers.map((p, pi) => {
+        const lane = pi; // lane by order of appearance — generic for any pointer set
+        const color = PTR_COLOR[p.name] ?? PTR_PALETTE[pi % PTR_PALETTE.length];
         const caretY = CELL / 2 + 30;
         const pillY = caretY + lane * 22;
         return (

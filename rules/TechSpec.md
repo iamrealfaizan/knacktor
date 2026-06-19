@@ -40,25 +40,48 @@ problems/<slug>/                 ingest pipeline            MongoDB (canonical) 
 ### 3.3 Main subsystems
 - App shell & routing
 - Content Service (single data boundary)
+- **API layer** (read-only JSON API — see §3.4)
 - Catalog & discovery layer
 - Problem-page **Engine**: player, visual-primitive renderer, playback controller
 - Python trace pipeline (preset build-time + sandboxed on-demand)
 - Content validation + ingest pipeline
 - MongoDB canonical store + search index
 
+### 3.4 API layer (D16)
+
+Read-only JSON API at `app/api/` wrapping the Content Service. All routes return `{ data: T, error?: string }` with standard HTTP status codes. No write routes — content is authored via CLI + ingest, never via API.
+
+```
+app/api/
+  problems/
+    route.ts              GET /api/problems?difficulty=&topic=&pattern=
+    [slug]/
+      route.ts            GET /api/problems/:slug
+      traces/
+        route.ts          GET /api/problems/:slug/traces?approachId=&inputId=
+  topics/
+    route.ts              GET /api/topics
+  patterns/
+    route.ts              GET /api/patterns
+  difficulties/
+    route.ts              GET /api/difficulties
+```
+
+**FastAPI deferred (D16):** A separate Python backend is not built in this phase. FastAPI migration is planned only when a mobile app or external integration requires a language-agnostic API surface. Next.js API routes are sufficient for all current consumers (the web frontend + any future admin tooling).
+
 ## 4. The Engine (built once, fed by data)
 
 ### 4.1 Components (reusable across all problems)
 - **CodePanel** — real source, per-step line highlight (auto-scroll into view), hover-line explanations, copy, approach tabs.
-- **Stage + Primitive renderers** — a library of visual primitives. Each problem **declares** which primitive(s) it uses; the renderer reads the primitive-specific `VisualState` per step. MVP primitives: **array/string + pointers/window, linked list, recursion/call-stack**.
+- **Stage + Primitive renderers** — a library of visual primitives. Each problem **declares** which primitive(s) it uses; the renderer reads the primitive-specific `VisualState` per step. Current renderers: **array, bar-container**. In-progress (M1.8): **hashmap, recursion/call-stack, tree, linkedList, stack, queue, grid, graph**.
 - **Narration** — four synchronized readouts per step: what's happening / why / line explanation / invariant.
 - **InsightRail** — live variables (flash on change), live complexity meters (ops vs budget), data-structure state, call stack.
 - **ControlDock** — transport (first/prev/play-pause/next/last), speed, draggable scrubber (step X / N), jump-to-key-event markers, input selector + custom-input entry.
 
-### 4.2 Primitive policy (D2 — "both")
+### 4.2 Primitive policy (D2 + D17 — "hybrid")
 - **Default:** problems are pure data declaring an existing primitive + per-step states. **No per-problem rendering code.**
-- **New structure:** building its primitive renderer is a **one-time Engine task**; afterwards the whole family is data-only.
-- **Escape hatch:** a problem may register **bespoke rendering** when a visual genuinely needs it. Used sparingly; must still honor the semantic color/motion grammar in [Design.md](Design.md).
+- **New structure:** building its primitive renderer is a **one-time Engine task** (M1.8); afterwards the whole family is data-only for all future problems.
+- **Escape hatch (D17):** a problem may register a **custom per-problem component** at `components/problem/custom/<slug>-visualizer.tsx` when a visual genuinely cannot be expressed through the generic DSL. Justified only when ≥2 of: (a) 2+ primitives must coordinate simultaneously, (b) spatial layout is itself the teaching point, (c) animation logic cannot be expressed via the cellState/pointer/phase/counter DSL. Custom components are registered in `stage.tsx` via dynamic import (lazy-loaded, zero initial bundle cost). Must still honor the semantic color/motion grammar in [Design.md](Design.md).
 
 ### 4.3 The simulation / animation pipeline (USP)
 Each `Step` is a **complete snapshot** (no diffs to apply), so seeking to any step is O(1) to render. The Engine derives motion by **diffing consecutive snapshots**:
@@ -111,7 +134,9 @@ The implementation formalizes `Problem`, `Approach`, `PresetInput`, `Trace`, `St
 - MVP runs without auth, progress, or paid-gating; those boundaries are reserved, not built.
 
 ## 11. Exclusions for the first build
-- Public admin panel / broad CMS workflow.
+- Public admin panel / broad CMS workflow (authoring remains CLI + ingest).
+- FastAPI Python backend (deferred per D16; Next.js API routes cover current needs).
 - Cloud progress sync.
 - Multi-language user-visible code tabs.
 - Large-scale analytics system.
+- Custom-input sandbox (deferred per D12).

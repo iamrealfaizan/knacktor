@@ -5,21 +5,127 @@ import { Plus, Minus, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrayRenderer } from "./array-renderer";
 import { BarContainerRenderer } from "./bar-container-renderer";
+import { LinkedListRenderer } from "./linked-list-renderer";
+import { RecursionRenderer } from "./recursion-renderer";
+import { StackRenderer } from "./stack-renderer";
+import { QueueRenderer } from "./queue-renderer";
+import { HashMapRenderer } from "./hashmap-renderer";
+import { TreeRenderer } from "./tree-renderer";
+import { GridRenderer } from "./grid-renderer";
+import { GraphRenderer } from "./graph-renderer";
 import type { VisualState } from "@/lib/trace";
 
-const ARRAY_LEGEND = [
-  { label: "i", color: "var(--kn-ptr-i)" },
-  { label: "j", color: "var(--kn-ptr-j)" },
-  { label: "lo", color: "var(--kn-ptr-lo)" },
-  { label: "hi", color: "var(--kn-ptr-hi)" },
-  { label: "match", color: "var(--kn-result)" },
-];
+// ── Legend definitions per visual type ─────────────────────────────────────
 
-const BAR_CONTAINER_LEGEND = [
-  { label: "lp", color: "var(--kn-ptr-lo)" },
-  { label: "rp", color: "var(--kn-ptr-hi)" },
-  { label: "best", color: "var(--kn-result)" },
-];
+const LEGENDS: Record<string, { label: string; color: string }[]> = {
+  array: [
+    { label: "i", color: "var(--kn-ptr-i)" },
+    { label: "j", color: "var(--kn-ptr-j)" },
+    { label: "lo", color: "var(--kn-ptr-lo)" },
+    { label: "hi", color: "var(--kn-ptr-hi)" },
+    { label: "match", color: "var(--kn-result)" },
+  ],
+  "bar-container": [
+    { label: "lp", color: "var(--kn-ptr-lo)" },
+    { label: "rp", color: "var(--kn-ptr-hi)" },
+    { label: "best", color: "var(--kn-result)" },
+  ],
+  linkedList: [
+    { label: "curr", color: "var(--kn-current)" },
+    { label: "prev", color: "var(--kn-ptr-lo)" },
+    { label: "result", color: "var(--kn-result)" },
+  ],
+  recursion: [
+    { label: "active", color: "var(--kn-current)" },
+    { label: "returned", color: "var(--kn-result)" },
+    { label: "pending", color: "var(--kn-ptr-lo)" },
+  ],
+  stack: [
+    { label: "top", color: "var(--kn-ptr-i)" },
+    { label: "result", color: "var(--kn-result)" },
+  ],
+  queue: [
+    { label: "front", color: "var(--kn-ptr-lo)" },
+    { label: "rear", color: "var(--kn-ptr-hi)" },
+  ],
+  hashmap: [
+    { label: "key", color: "var(--kn-special)" },
+    { label: "value", color: "var(--kn-result)" },
+  ],
+  tree: [
+    { label: "current", color: "var(--kn-current)" },
+    { label: "visited", color: "var(--kn-compared)" },
+    { label: "path", color: "var(--kn-gold)" },
+    { label: "result", color: "var(--kn-result)" },
+  ],
+  grid: [
+    { label: "curr", color: "var(--kn-current)" },
+    { label: "frontier", color: "var(--kn-amber)" },
+    { label: "visited", color: "var(--kn-surface-1)" },
+    { label: "path", color: "var(--kn-gold)" },
+  ],
+  graph: [
+    { label: "current", color: "var(--kn-current)" },
+    { label: "frontier", color: "var(--kn-amber)" },
+    { label: "visited", color: "var(--kn-compared)" },
+    { label: "path", color: "var(--kn-gold)" },
+  ],
+};
+
+// ── viewBox sizing per type ──────────────────────────────────────────────────
+
+function getViewBox(visual: VisualState): { x: number; y: number; w: number; h: number } {
+  switch (visual.type) {
+    case "array": {
+      const n = visual.values.length;
+      const vbW = Math.max(n * 56 + 200, 520);
+      return { x: -vbW / 2, y: -160, w: vbW, h: 380 };
+    }
+    case "bar-container": {
+      const n = visual.values.length;
+      const vbW = Math.max(n * 56 + 200, 520);
+      return { x: -vbW / 2, y: -220, w: vbW, h: 340 };
+    }
+    case "linkedList": {
+      const n = visual.nodes.length;
+      const vbW = Math.max(n * 124 + 200, 600);
+      return { x: -vbW / 2, y: -140, w: vbW, h: 360 };
+    }
+    case "recursion": {
+      return { x: -440, y: -260, w: 880, h: 520 };
+    }
+    case "stack": {
+      const n = visual.items.length;
+      const vbH = Math.max(n * 48 + 120, 360);
+      return { x: -200, y: -vbH / 2, w: 400, h: vbH };
+    }
+    case "queue": {
+      const n = visual.items.length;
+      const vbW = Math.max(n * 60 + 200, 500);
+      return { x: -vbW / 2, y: -140, w: vbW, h: 280 };
+    }
+    case "hashmap": {
+      const n = visual.entries.length;
+      const vbH = Math.max(n * 44 + 100, 300);
+      return { x: -200, y: -vbH / 2, w: 450, h: vbH };
+    }
+    case "tree": {
+      return { x: -360, y: -260, w: 720, h: 520 };
+    }
+    case "grid": {
+      const rows = visual.rows.length;
+      const cols = rows > 0 ? visual.rows[0].length : 0;
+      const vbW = Math.max(cols * 32 + 100, 360);
+      const vbH = Math.max(rows * 32 + 100, 300);
+      return { x: -vbW / 2, y: -vbH / 2, w: vbW, h: vbH };
+    }
+    case "graph": {
+      return { x: -380, y: -280, w: 760, h: 560 };
+    }
+    default:
+      return { x: -260, y: -180, w: 520, h: 360 };
+  }
+}
 
 export function Stage({
   visual,
@@ -54,9 +160,8 @@ export function Stage({
   function onUp() { drag.current = null; }
   function reset() { setScale(1); setPan({ x: 0, y: 0 }); }
 
-  const n = (visual.type === "array" || visual.type === "bar-container") ? visual.values.length : 6;
-  const vbW = Math.max(n * 56 + 200, 520);
-  const legend = visual.type === "bar-container" ? BAR_CONTAINER_LEGEND : ARRAY_LEGEND;
+  const vb = getViewBox(visual);
+  const legend = LEGENDS[visual.type] ?? [];
 
   return (
     <div
@@ -78,27 +183,56 @@ export function Stage({
       </span>
 
       {/* legend */}
-      <div className="absolute top-2.5 right-3 z-10 flex gap-3 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5 text-[11px]">
-        {legend.map((l) => (
-          <span key={l.label} className="flex items-center gap-1.5 text-kn-ink-1">
-            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: l.color }} />
-            {l.label}
-          </span>
-        ))}
-      </div>
+      {legend.length > 0 && (
+        <div className="absolute top-2.5 right-3 z-10 flex gap-3 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5 text-[11px]">
+          {legend.map((l) => (
+            <span key={l.label} className="flex items-center gap-1.5 text-kn-ink-1">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ background: l.color }} />
+              {l.label}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* SVG canvas */}
       <svg
         className="w-full h-full"
-        viewBox={`${-vbW / 2} ${visual.type === "bar-container" ? -220 : -160} ${vbW} ${visual.type === "bar-container" ? 340 : 380}`}
+        viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
         preserveAspectRatio="xMidYMid meet"
       >
-        <g transform={`translate(${pan.x} ${pan.y}) scale(${scale})`} style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}>
+        <g
+          transform={`translate(${pan.x} ${pan.y}) scale(${scale})`}
+          style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}
+        >
           {visual.type === "array" && (
             <ArrayRenderer visual={visual} vars={vars} target={target} />
           )}
           {visual.type === "bar-container" && (
             <BarContainerRenderer visual={visual} />
+          )}
+          {visual.type === "linkedList" && (
+            <LinkedListRenderer visual={visual} />
+          )}
+          {visual.type === "recursion" && (
+            <RecursionRenderer visual={visual} />
+          )}
+          {visual.type === "stack" && (
+            <StackRenderer visual={visual} />
+          )}
+          {visual.type === "queue" && (
+            <QueueRenderer visual={visual} />
+          )}
+          {visual.type === "hashmap" && (
+            <HashMapRenderer visual={visual} />
+          )}
+          {visual.type === "tree" && (
+            <TreeRenderer visual={visual} />
+          )}
+          {visual.type === "grid" && (
+            <GridRenderer visual={visual} />
+          )}
+          {visual.type === "graph" && (
+            <GraphRenderer visual={visual} />
           )}
         </g>
       </svg>

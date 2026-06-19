@@ -1,0 +1,14 @@
+{
+  "byLine": {
+    "6": { "happening": "Start the running total at 0.", "why": "We accumulate the answer as we scan.", "invariant": "result holds the sum so far." },
+    "7": { "happening": "Look at the next element {x}.", "why": "Every element contributes to the total.", "invariant": "We visit each element once." },
+    "8": { "happening": "Add {x} → running total {result}.", "why": "Accumulate this element into the result.", "invariant": "result is the sum of all visited elements." },
+    "9": { "happening": "Return the final total {result}.", "why": "All elements have been visited.", "invariant": "The scan is complete." }
+  },
+  "byPhase": {
+    "init": { "happening": "Set up the scan.", "why": "Prepare the accumulator.", "invariant": "Setup." },
+    "loop": { "happening": "Advance the scan.", "why": "Move to the next element.", "invariant": "Scanning." },
+    "update": { "happening": "Update the total.", "why": "Accumulate.", "invariant": "Growing." },
+    "return": { "happening": "Return the result.", "why": "Done.", "invariant": "Complete." }
+  }
+}

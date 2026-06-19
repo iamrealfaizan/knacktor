@@ -1,0 +1,5 @@
+[
+  { "id": "example-1", "label": "LeetCode Example 1", "value": { "height": [1, 8, 6, 2, 5, 4, 8, 3, 7] }, "isEdgeCase": false, "expectedOutput": 49 },
+  { "id": "example-2", "label": "Minimum length", "value": { "height": [1, 1] }, "isEdgeCase": true, "expectedOutput": 1 },
+  { "id": "edge-flat", "label": "All equal heights", "value": { "height": [4, 4, 4, 4] }, "isEdgeCase": true, "expectedOutput": 12 }
+]

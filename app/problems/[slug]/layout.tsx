@@ -5,5 +5,7 @@ export default function ProblemLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="h-screen overflow-hidden">{children}</div>;
+  // Desktop = canonical no-scroll loop. Below lg the content column scrolls
+  // (D14); the controller stays pinned by the engine's flex layout.
+  return <div className="h-screen lg:overflow-hidden overflow-hidden">{children}</div>;
 }

@@ -1,37 +1,56 @@
 # Schema & Content Contracts — Knacktor
 
-> **Status:** v1.0 — collections + content contracts.
-> **Model:** **DB-canonical, file-seeded.** Problems are authored as structured files, validated, traced, and **ingested into MongoDB**, which is the served source of truth. Contracts are **versioned**.
-> **Companions:** [TechSpec.md](TechSpec.md) (how it's served), [PRD.md](PRD.md) (why), [dsaPRD.md](dsaPRD.md) §14 (seed contract this expands).
+> **Status:** v2.0 — `_id`-relational collections + hybrid-tracer contracts (D9–D14).
+> **Model:** **DB-canonical, file-seeded.** Problems are authored as structured files, **traced by the Python tracer** (D9), validated, and **ingested into MongoDB**, which is the served source of truth. Contracts are **versioned**.
+> **Companions:** [TechSpec.md](TechSpec.md) (how it's served), [Authoring.md](Authoring.md) (the authoring bundle + mapping/narration DSL), [PRD.md](PRD.md) (why).
 
-## 1. MongoDB collections (canonical)
+## 1. MongoDB collections (canonical — `_id` relationships, D10)
+
+Cross-collection references use native Mongo **`ObjectId`** (serialized to hex strings by the
+Content Service boundary). **`slug` is kept only for routing**; it is never a foreign key.
+**Approaches and presets are embedded** in the problem document (1:1 ownership; never queried
+independently).
 
 | Collection | Purpose (MVP) | Key fields |
 |---|---|---|
-| `problems` | Canonical problem documents served by slug. | `slug` (unique), `title`, `difficulty`, `topic`, `patterns[]`, `statement`, `constraints[]`, `tags[]`, `glossary[]`, `supportsCustomInput`, `presetInputs[]`, `approaches[]`, `recommendedApproachId`, `schemaVersion` |
-| `traces` | Precomputed preset traces (one per approach+input). | `problemSlug`, `approachId`, `inputId`, `steps[]`, `keyEventIndices[]`, `finalResult`, `traceVersion` |
-| `topics` | Topic-page content. | `slug`, `name`, `summary`, `whenToUse`, `problemRefs[]` |
-| `patterns` | Pattern-page content. | `slug`, `name`, `summary`, `signals[]`, `invariants[]`, `problemRefs[]` |
-| `sheets` | Interview-sheet definitions. | `slug`, `title`, `summary`, `entries[]` |
-| `content_index` | Search/discovery mirror. | `type`, `slug`, `title`, `difficulty`, `topic`, `patterns[]`, `tags[]`, `searchText` |
+| `difficulties` | Difficulty entity (replaces the inline enum). | `_id`, `slug` (unique: `easy`\|`medium`\|`hard`), `name`, `rank`, `color` (token key, not hex) |
+| `topics` | Topic-page content. | `_id`, `slug` (unique), `name`, `description` |
+| `patterns` | Pattern-page content. | `_id`, `slug` (unique), `name`, `description`, `mustKnow` |
+| `problems` | Canonical problem documents (merges old `problems` + `problemsFull`). | `_id`, `slug` (unique), `number`, `title`, `difficultyId`→`difficulties`, `topicIds[]`→`topics`, `patternIds[]`→`patterns`, `statement`, `hasVisualization`, `isPremium`, `supportsCustomInput`, `supportsCompare`, `recommendedApproachId`, `approaches[]` (embedded), `presetInputs[]` (embedded), `inputConstraints`, `sourceContentHash`, `schemaVersion` |
+| `traces` | Precomputed preset traces (gzip-compressed, D11). | `_id`, `problemId`→`problems`, `problemSlug` (denormalized), `approachId`, `inputId`, `traceVersion`, `stepCount`, `keyEventIndices[]`, `finalResult`, `compression`, `stepsCompressed?` (`BinData`), `gridfsId?`, `byteSize` |
+| `sheets` | Interview-sheet definitions. | `_id`, `slug` (unique), `name`, `description`, `entries[]` (`{ problemId→problems, order, reason? }`) |
 
-**Indexes (MVP):** unique `problems.slug`, `topics.slug`, `patterns.slug`, `sheets.slug`; compound `traces.{problemSlug, approachId, inputId}`; text/compound index on `content_index.searchText` + filter fields.
+**Indexes:** unique `slug` on `difficulties`/`topics`/`patterns`/`problems`/`sheets`; on `problems`:
+`difficultyId`, multikey `topicIds`/`patternIds`, `number`, text on `title`+`statement`; on `traces`:
+unique compound `{problemId, approachId, inputId}` + non-unique `{problemSlug, approachId}` (hot read
+path); `sheets.entries.problemId`.
 
+**Dropped:** `content_index` (the `problems` text index covers MVP search).
 **Reserved future collections (not built in MVP):** `users`, `progress`, `subscriptions`, `analytics_events`, `notes`.
+
+**Slug↔`_id` coexistence:** authoring bundles reference topics/patterns/difficulty **by slug**
+(human-friendly). Ingest resolves slug→`_id` and stores only the `_id` (an unresolved slug is a
+loud failure). Routes resolve by the entity's own `slug`, then resolve its `_id` refs for display.
 
 ## 2. Canonical content contracts
 
 ### 2.1 `Problem`
-Required: `schemaVersion`, `id`, `slug`, `title`, `difficulty` (`Easy`|`Medium`|`Hard`), `topic`, `patterns[]`, `statement` (markdown), `constraints[]`, `tags[]`, `glossary[]` (`{term, definition}`), `supportsCustomInput` (bool), `presetInputs[]`, `approaches[]`, `recommendedApproachId`.
+Required: `schemaVersion`, `_id`, `slug`, `number`, `title`, `difficultyId` (→`difficulties`), `topicIds[]` (→`topics`), `patternIds[]` (→`patterns`), `statement` (markdown), `supportsCustomInput` (bool), `supportsCompare` (bool), `presetInputs[]`, `approaches[]`, `recommendedApproachId`, `inputConstraints`, `sourceContentHash`. Read-time the service may attach resolved views (`difficulty`, `topics[]`, `patterns[]`).
 
 ### 2.2 `Approach`
-Required: `id`, `name`, `kind` (`brute`|`optimal`|`alternative`), `summary`, `complexity.time`, `complexity.space`, `complexityBudget` (`{label, fn}` for the live meter), `language` (`python`), `source` (real code), `lineExplanations` (`lineNo → text`), `primaryPrimitive` (which visual primitive the stage uses), `auxStructures[]` (drives the DS-state panel), `traceRefsByInput` (`inputId → trace ref`).
+Required: `id` (stable local string, not a Mongo ref), `name`, `kind` (`brute`|`optimal`|`alternative`), `summary`, `complexity.time`, `complexity.space`, `language` (`python`), `source` (real code, executed verbatim by the tracer), `entrypoint` (function the tracer calls, e.g. `Solution.maxArea`), `lineExplanations` (`lineNo → text`, narration panel), `syntaxExplanations?` (`lineNo → text`, hover tooltip), `primaryPrimitive` (which visual primitive the stage uses), `auxStructures[]`.
+- `visualizationIntent?` — **human-readable description of what the visualization should show at each phase.** Used by Claude Code to validate the mapping.json and catch mismatches during the add-problem workflow (D18). Not rendered to users. Example: `"init: show the array with lp at 0 and rp at end. loop: highlight the two pointers, show water fill between them. update: show new max when area improves."`.
+- `resultSpec?` — **how the RESULT panel renders** (data-driven, replaces 4Sum hardcoding): `{ varName, label, suffix?, render: "scalar"|"list"|"tuple-list"|"boolean"|"string", emptyText? }`.
+- `varColors?` — optional `varName → token-key` pin so rail variable colors match the stage pointer lanes.
+- Per-approach authored artifacts (ingested, not stored on the doc verbatim): `mappingSpec` (visual-mapping DSL) and `narrationSpec` (narration templates). See [Authoring.md](Authoring.md).
 
 ### 2.3 `PresetInput`
-Required: `id`, `label`, `value` (problem-specific shape), `isEdgeCase` (bool).
+Required: `id`, `label`, `value` (problem-specific shape), `isEdgeCase` (bool), `expectedOutput` (validated against the traced `finalResult`). **≥3 presets per approach, incl. ≥1 edge case** (sourced from LeetCode / equivalent), enforced at ingest (D13).
 
 ### 2.4 `Trace`
-Required: `approachId`, `inputId`, `steps[]`, `keyEventIndices[]`, `finalResult`, `traceVersion`. Traces are **deterministic** for a given (approach, input).
+Required: `problemId` (→`problems`), `problemSlug` (denormalized), `approachId`, `inputId`, `steps[]`, `keyEventIndices[]`, `finalResult`, `traceVersion`. Traces are **deterministic** for a given (approach, input) and are **produced ONLY by the Python tracer** (D9) — never hand-authored.
+
+**Storage (D11):** persisted one doc per `(problemId, approachId, inputId)`; `steps[]` are gzip-compressed into a `stepsCompressed` `BinData` field (with `compression`, `stepCount`, `byteSize`), or offloaded to GridFS (`gridfsId`) when compressed size exceeds ~12 MB. The Content Service decompresses at its boundary and returns the plain `Trace` shape — player and renderer are unchanged.
 
 ### 2.5 `Step` — the core unit (one frame of the simulation)
 Each step is a **complete snapshot** so the player can seek anywhere instantly. The only diff-style fields exist purely to drive motion.
@@ -51,7 +70,10 @@ Required:
 Optional:
 - `op` — terse operation readout (e.g. `p += 1`).
 - `isKeyEvent` — flags a highlight moment (also surfaced via `keyEventIndices`).
+- `keyEvent` — `{ label, kind? }` semantic descriptor for the scrubber diamond (`kind` ∈ `match`|`best`|`result`|`boundary`|`return`); drives the diamond tooltip + tint. Present whenever `isKeyEvent` is set.
 - `callStack[]` — `CallFrame[]` for the recursion/call-stack view.
+- `capturedVars` — the raw Python locals snapshot from the tracer (source of truth; `vars` is the curated display view, defaulting to `capturedVars`).
+- `lineNo` — the real executed source line (makes No-Line-Left-Behind checkable; `codeKey` = `lineNo` for single lines).
 
 **Simulation legibility fields (how the USP is driven):**
 - **Variable birth** — a name in `vars[i]` but not `vars[i-1]` → the Engine renders its chip entering, empty.
@@ -82,26 +104,94 @@ A discriminated union keyed by `type`. **MVP variants:** `array`, `linkedList`, 
   "treeEdges":[ {"from":"f0","to":"f1"} ] }
 ```
 
-New primitives (hashmap, stack/queue, tree, graph, grid, DP, …) add a variant here when first built (D2). Each new variant follows the same rule: states from [Design.md](Design.md)'s vocabulary; relocations carry ghost/changed fields.
+**Stage readout (replaces the hardcoded 4Sum sum chip / container area chip).** The `array` and
+`bar-container` variants may carry `readout?: { expr, relation?, relationColor? }` — the chip text is
+**computed by the tracer** from the real captured state (`relationColor` is a token key, never a
+hex). The renderer just draws whatever `readout` is present; it knows nothing about specific
+variable names. The `bar-container` variant keeps its `container` geometry object for the water fill.
+
+**M1.8 renderer variants (being built in priority order):**
+
+```jsonc
+// hashmap — key-value bucket grid
+{ "type": "hashmap",
+  "entries": [{ "key": "two", "value": 1, "state": "current" }],
+  "highlightedKeys": ["two"] }
+
+// stack — vertical LIFO container
+{ "type": "stack",
+  "items": [{ "value": "(", "state": "idle" }, { "value": "[", "state": "current" }],
+  "topIndex": 1 }
+
+// queue — horizontal FIFO container
+{ "type": "queue",
+  "items": [{ "value": 1, "state": "idle" }],
+  "frontIndex": 0, "backIndex": 0 }
+
+// tree — binary tree node/edge graph
+{ "type": "tree",
+  "nodes": [{ "id": "n1", "value": 4, "state": "current" }],
+  "edges": [{ "from": "n1", "to": "n2", "label": "left" }],
+  "pointers": [{ "name": "root", "at": "n1" }] }
+
+// linkedList — nodes with directional arrows (already typed, needs renderer)
+{ "type": "linkedList",
+  "nodes": [{ "id": "n1", "value": 1, "state": "current" }],
+  "links": [{ "from": "n1", "to": "n2" }],
+  "pointers": [{ "name": "curr", "at": "n1" }],
+  "changedLinks": [{ "from": "n1", "to": "n2" }] }
+
+// grid — 2D matrix (matrix traversal problems)
+{ "type": "grid",
+  "rows": [[{ "value": 1, "state": "visited" }, { "value": 0, "state": "idle" }]],
+  "pointers": [{ "name": "r", "row": 0, "col": 0 }] }
+
+// graph — nodes + edges (BFS/DFS/Dijkstra)
+{ "type": "graph",
+  "nodes": [{ "id": "A", "value": "A", "state": "visited" }],
+  "edges": [{ "from": "A", "to": "B", "weight": 4, "directed": true }],
+  "pointers": [{ "name": "curr", "at": "A" }] }
+
+// recursion / call stack (already typed, needs renderer)
+{ "type": "recursion",
+  "frames": [{ "id": "f0", "label": "solve(0,5)", "returnValue": null, "isCurrent": true }],
+  "treeEdges": [{ "from": "f0", "to": "f1" }] }
+
+// custom (escape hatch — D17)
+{ "type": "custom", "componentKey": "two-sum", ...any-shape... }
+```
+
+New primitives add a variant here when first built (D2). Each new variant follows the same rule: states from [Design.md](Design.md)'s vocabulary; relocations carry ghost/changed fields. `stage.tsx` dispatches via a table (`type → renderer`); an unregistered `type` renders a token-styled "Renderer not implemented" placeholder (loud, not an empty stage).
 
 ## 3. Discovery content contracts
 - **`Topic`** — `slug`, `name`, `summary`, `whenToUse`, `problemRefs[]`.
 - **`Pattern`** — `slug`, `name`, `summary`, `signals[]`, `invariants[]`, `problemRefs[]`.
 - **`InterviewSheet`** — `slug`, `title`, `summary`, `entries[]`; each entry `{ problemRef, order, reason }`.
 
-## 4. Authoring file → DB ingest mapping
+## 4. Authoring file → DB ingest mapping (D9/D13 — see [Authoring.md](Authoring.md) for the full template)
+Per-problem bundle at `seeds/problems/<slug>/`:
+
 | Authoring file | Becomes |
 |---|---|
-| `problems/<slug>/meta.yaml` | `Problem` metadata fields |
-| `problems/<slug>/solution.py` (+ annotations) | `Approach.source`, `lineExplanations`, `codeKey` map; executed by the tracer |
-| `problems/<slug>/narration.md` | `Step.narration.*` keyed by `codeKey`/phase |
-| `problems/<slug>/presets.yaml` | `PresetInput[]`; tracer runs each → `traces` docs |
+| `problem.json` | `Problem` metadata + statement + refs **by slug** + flags + `inputConstraints` |
+| `presets.json` | `PresetInput[]` (≥3/approach, ≥1 edge, each with `expectedOutput`); tracer runs each → `traces` docs |
+| `approaches/<id>/solution.py` | `Approach.source` (executed verbatim; line numbers are load-bearing) |
+| `approaches/<id>/approach.json` | `Approach` metadata, `lineExplanations`, `syntaxExplanations`, `resultSpec`, `varColors?` |
+| `approaches/<id>/mapping.json` | `VisualMappingSpec` → each step's `visual` (`VisualState`) |
+| `approaches/<id>/narration.json` | `Step.narration.*` templates keyed by line/phase |
+| `approaches/<id>/mapping.py` (optional) | custom-primitive escape hatch `(capturedVars, ctx) → VisualState` |
 
-Ingest is **idempotent** (upsert by slug), validates against these contracts, and fails loudly on contract violations.
+The **Python tracer** executes `solution.py` per preset, emits the step skeleton (every line + real
+var snapshot + counters), applies the mapping + narration specs, and outputs the `Trace`. This
+**replaces** the old TS tracers (`lib/tracers/*`, the `TRACERS` registry) and any hand-written
+`steps[]`. Ingest is **idempotent** (upsert by slug, skips unchanged bundles via `sourceContentHash`),
+**validator-first**, and **aborts the whole run on any contract violation** (D13).
 
-## 5. Relationships
-- A topic references many problems; a pattern references many problems; a sheet references ordered problems.
-- A problem owns one or more approaches; an approach owns traces by preset input.
+## 5. Relationships (D10 — by `_id`)
+- `problems.difficultyId/topicIds[]/patternIds[]` reference `difficulties`/`topics`/`patterns` by `_id`.
+- `sheets.entries[].problemId` references `problems` by `_id` (ordered membership).
+- `traces.problemId` references `problems` by `_id` (+ denormalized `problemSlug` for the hot read path).
+- A problem **owns** its approaches & presets (embedded); each (approach, input) owns one trace doc.
 
 ## 6. Contract rules
 - `slug` is the route-facing identity; no page depends on raw file paths as identifiers.

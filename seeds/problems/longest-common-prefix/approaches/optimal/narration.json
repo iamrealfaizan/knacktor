@@ -1,0 +1,123 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Use the first string as the initial candidate prefix.",
+      "why": "The longest possible common prefix cannot be longer than the first string.",
+      "invariant": "prefix can shrink, but it never grows."
+    },
+    "4": {
+      "happening": "Move to string index {i}.",
+      "why": "The candidate prefix must be valid for every string.",
+      "invariant": "prefix is valid for all previously checked strings."
+    },
+    "5": {
+      "happening": "Load the current string.",
+      "why": "This string must start with the candidate prefix.",
+      "invariant": "s is the string currently being validated."
+    },
+    "6": [
+      {
+        "when": "starts_ok == false",
+        "happening": "The current string did not start with the previous candidate prefix.",
+        "why": "A mismatch means the candidate is too long or ends with an invalid character.",
+        "invariant": "The true answer must be shorter than the failed candidate."
+      },
+      {
+        "happening": "Check whether the current string starts with the candidate prefix.",
+        "why": "If it starts correctly, this string accepts the candidate.",
+        "invariant": "starts_ok records whether the candidate works for this string."
+      }
+    ],
+    "7": [
+      {
+        "when": "len(prefix) > 0 && starts_ok == false",
+        "happening": "The candidate still fails, so the loop will shrink it.",
+        "why": "Removing characters from the end is the only way to make a too-long prefix valid.",
+        "invariant": "prefix is still a prefix of the first string."
+      },
+      {
+        "happening": "The candidate no longer needs shrinking for this string.",
+        "why": "Either it matches the current string start or it is already empty.",
+        "invariant": "The loop stops with a valid or empty prefix."
+      }
+    ],
+    "8": {
+      "happening": "Remove the last character from the candidate prefix.",
+      "why": "The previous candidate failed for the current string.",
+      "invariant": "The shortened prefix remains a prefix of the first string."
+    },
+    "9": [
+      {
+        "when": "starts_ok == false",
+        "happening": "The previous shortened candidate still did not match.",
+        "why": "The algorithm may need to remove another character.",
+        "invariant": "starts_ok will be refreshed for the current prefix."
+      },
+      {
+        "happening": "Recheck the shortened prefix against the current string.",
+        "why": "After shrinking, the candidate may now match the start of this string.",
+        "invariant": "starts_ok reflects the newest candidate prefix."
+      }
+    ],
+    "10": [
+      {
+        "when": "prefix == ''",
+        "happening": "The prefix has become empty.",
+        "why": "No non-empty candidate survived the comparisons.",
+        "invariant": "The answer must be an empty string."
+      },
+      {
+        "happening": "The prefix is still non-empty.",
+        "why": "There may still be a valid common prefix.",
+        "invariant": "The candidate remains worth checking against later strings."
+      }
+    ],
+    "11": {
+      "happening": "Store the empty string as the result.",
+      "why": "No common prefix remains after shrinking.",
+      "invariant": "result is now final."
+    },
+    "12": {
+      "happening": "Return the empty result immediately.",
+      "why": "Once the common prefix is empty, later strings cannot restore it.",
+      "invariant": "The algorithm is complete."
+    },
+    "13": {
+      "happening": "Store the surviving prefix as the result.",
+      "why": "Every string has accepted this candidate after any needed shrinking.",
+      "invariant": "result contains the longest common prefix."
+    },
+    "14": {
+      "happening": "Return the final prefix.",
+      "why": "All strings have been checked.",
+      "invariant": "The returned string is common to every input string."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Initialize the candidate prefix.",
+      "why": "The algorithm starts from the largest possible prefix.",
+      "invariant": "The candidate can only shrink."
+    },
+    "loop": {
+      "happening": "Advance or repeat through validation.",
+      "why": "Each string must accept the current candidate.",
+      "invariant": "Previously checked strings remain satisfied."
+    },
+    "check": {
+      "happening": "Check whether the candidate is valid.",
+      "why": "A failed check tells the algorithm to shrink the candidate.",
+      "invariant": "The candidate never grows after a failure."
+    },
+    "update": {
+      "happening": "Update the candidate or result.",
+      "why": "The stored state changes only after a comparison outcome.",
+      "invariant": "The candidate remains a prefix of the first string."
+    },
+    "return": {
+      "happening": "Return the answer.",
+      "why": "The longest common prefix is known.",
+      "invariant": "The function is complete."
+    }
+  }
+}

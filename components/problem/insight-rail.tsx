@@ -5,23 +5,36 @@ import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { Step } from "@/lib/trace";
+import type { Step, ResultSpec } from "@/lib/trace";
 
-const VAR_COLOR: Record<string, string> = {
-  i:    "var(--kn-ptr-i)",
-  j:    "var(--kn-ptr-j)",
-  lo:   "var(--kn-ptr-lo)",
-  hi:   "var(--kn-ptr-hi)",
-  s:    "var(--kn-current)",
-  lp:   "var(--kn-ptr-lo)",
-  rp:   "var(--kn-ptr-hi)",
-  mx:   "var(--kn-result)",
-};
-const SCALAR_ORDER = [
-  "target", "n",
-  "i", "j", "lo", "hi", "s",
-  "lp", "rp", "mx", "width", "h", "area",
+// Stable categorical palette built from existing design tokens (no inline hexes).
+// A variable's color is its index in the per-trace ordered registry, so it stays
+// constant for the whole run and never leaves a variable uncolored.
+const PALETTE = [
+  "var(--kn-ptr-i)",
+  "var(--kn-ptr-j)",
+  "var(--kn-ptr-lo)",
+  "var(--kn-ptr-hi)",
+  "var(--kn-special)",
+  "var(--kn-result)",
+  "var(--kn-amber)",
+  "var(--kn-compared)",
+  "var(--kn-current)",
 ];
+
+function isPrimitive(v: unknown): boolean {
+  return (
+    v === null ||
+    v === undefined ||
+    typeof v === "number" ||
+    typeof v === "string" ||
+    typeof v === "boolean"
+  );
+}
+
+function fmt(v: unknown): string {
+  return v === null || v === undefined ? "∅" : String(v);
+}
 
 export function InsightRail({
   step,
@@ -31,6 +44,9 @@ export function InsightRail({
   slug,
   collapsed,
   onToggleCollapse,
+  varOrder,
+  varColors,
+  resultSpec,
 }: {
   step: Step;
   prevVars: Record<string, unknown>;
@@ -39,6 +55,12 @@ export function InsightRail({
   slug: string;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  /** per-trace ordered variable registry (first-seen order across all steps) */
+  varOrder?: string[];
+  /** optional varName -> token-key pin (e.g. { lp: "ptr-lo" }) */
+  varColors?: Record<string, string>;
+  /** data-driven RESULT panel spec for the active approach */
+  resultSpec?: ResultSpec;
 }) {
   if (collapsed) {
     return (
@@ -53,9 +75,23 @@ export function InsightRail({
     );
   }
 
-  const results = (step.vars.res as unknown[]) ?? [];
+  // Ordered, generic variable list: prefer the per-trace registry, fall back to
+  // this step's own keys. Only scalar (primitive) vars render as chips — arrays /
+  // objects belong to the RESULT panel or the stage, not the scalar row.
+  const order = varOrder ?? Object.keys(step.vars);
+  const seen = new Set<string>();
+  const visibleVars = order.filter((name) => {
+    if (seen.has(name)) return false;
+    seen.add(name);
+    return name in step.vars && isPrimitive(step.vars[name]);
+  });
+  const colorFor = (name: string): string => {
+    const pin = varColors?.[name];
+    if (pin) return `var(--kn-${pin})`;
+    const i = visibleVars.indexOf(name);
+    return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
+  };
 
-  // Infer n from vars, falling back to the visual array length
   return (
     <div className="h-full flex flex-col bg-kn-surface-0 overflow-y-auto cs-scroll">
       {/* header */}
@@ -69,10 +105,13 @@ export function InsightRail({
       {/* Variables */}
       <Section title="VARIABLES" suffix="· flash on change">
         <div className="flex gap-1.5 flex-wrap">
-          {SCALAR_ORDER.filter((name) => name in step.vars).map((name) => {
+          {visibleVars.length === 0 && (
+            <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
+          )}
+          {visibleVars.map((name) => {
             const changed = step.changedVars.includes(name);
             const born = !(name in prevVars); // creation pop-in vs population flash
-            const color = VAR_COLOR[name] ?? "var(--kn-border-0)";
+            const color = colorFor(name);
             const val = step.vars[name];
             return (
               <span
@@ -84,7 +123,7 @@ export function InsightRail({
                 style={{ borderColor: color, borderWidth: 1.5 }}
               >
                 {name}
-                <b style={{ color }}>{val === null || val === undefined ? "∅" : String(val)}</b>
+                <b style={{ color }}>{fmt(val)}</b>
               </span>
             );
           })}
@@ -112,23 +151,10 @@ export function InsightRail({
         </div>
       </Section>
 
-      {/* Result set — only shown for problems that track a `res` array (e.g., 4Sum) */}
-      {"res" in step.vars && (
-        <Section title="RESULT SET" suffix="· quadruplets found">
-          <div className="flex gap-1.5 flex-wrap">
-            {results.map((q, k) => (
-              <span
-                key={k}
-                className="kn-anim-pop-in px-2 py-1 rounded-lg font-mono text-[12px] font-semibold text-kn-ink-0"
-                style={{ border: "1.5px solid var(--kn-result)", background: "var(--kn-result-subtle)" }}
-              >
-                [{(q as number[]).join(",")}]
-              </span>
-            ))}
-            {results.length === 0 && (
-              <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
-            )}
-          </div>
+      {/* Result panel — data-driven via the approach's resultSpec */}
+      {resultSpec && (
+        <Section title={resultSpec.label} suffix={resultSpec.suffix}>
+          <ResultView value={step.vars[resultSpec.varName]} spec={resultSpec} />
         </Section>
       )}
 
@@ -155,6 +181,41 @@ export function InsightRail({
       <Section title="NOTES" suffix="· local" grow>
         <NotesArea slug={slug} />
       </Section>
+    </div>
+  );
+}
+
+function ResultView({ value, spec }: { value: unknown; spec: ResultSpec }) {
+  const empty = (
+    <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">
+      {spec.emptyText ?? "…"}
+    </span>
+  );
+  const chip = (key: string | number, text: string) => (
+    <span
+      key={key}
+      className="kn-anim-pop-in px-2 py-1 rounded-lg font-mono text-[12px] font-semibold text-kn-ink-0"
+      style={{ border: "1.5px solid var(--kn-result)", background: "var(--kn-result-subtle)" }}
+    >
+      {text}
+    </span>
+  );
+
+  if (spec.render === "scalar" || spec.render === "string" || spec.render === "boolean") {
+    if (value === null || value === undefined) return <div className="flex gap-1.5 flex-wrap">{empty}</div>;
+    return <div className="flex gap-1.5 flex-wrap">{chip("v", String(value))}</div>;
+  }
+
+  const arr = Array.isArray(value) ? value : [];
+  if (arr.length === 0) return <div className="flex gap-1.5 flex-wrap">{empty}</div>;
+
+  return (
+    <div className="flex gap-1.5 flex-wrap">
+      {arr.map((item, k) =>
+        spec.render === "tuple-list"
+          ? chip(k, `[${(item as unknown[]).join(",")}]`)
+          : chip(k, String(item))
+      )}
     </div>
   );
 }

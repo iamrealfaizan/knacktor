@@ -1,0 +1,28 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "x", "var": "x" }
+  ],
+  "flags": {},
+  "cellStateRules": [
+    { "state": "current", "when": "values[idx] == x" },
+    { "state": "idle", "when": "true" }
+  ],
+  "readout": {
+    "when": "result != null && phase != 'return'",
+    "expr": "running total = {result}"
+  },
+  "counters": [
+    { "name": "ops", "onLines": [8] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [6] },
+    { "phase": "loop", "lines": [7] },
+    { "phase": "update", "lines": [8] },
+    { "phase": "return", "lines": [9] }
+  ],
+  "keyEvents": [
+    { "line": 9, "label": "Final answer", "kind": "return" }
+  ]
+}

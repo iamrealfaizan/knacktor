@@ -16,11 +16,16 @@ export default async function ProblemPage({ params }: Props) {
   const problem = await getProblemFull(params.slug);
   if (!problem) notFound();
 
-  const presetTraces = await getPresetTraces(
-    params.slug,
-    problem.recommendedApproachId
+  // Load precomputed traces for EVERY approach (so approach-switching and Compare
+  // mode read real, DB-stored Python traces — never a client-side recompute).
+  const approachTraces: Record<string, Awaited<ReturnType<typeof getPresetTraces>>> = {};
+  await Promise.all(
+    problem.approaches.map(async (a) => {
+      approachTraces[a.id] = await getPresetTraces(params.slug, a.id);
+    })
   );
-  if (Object.keys(presetTraces).length === 0) notFound();
+  const recommended = approachTraces[problem.recommendedApproachId] ?? {};
+  if (Object.keys(recommended).length === 0) notFound();
 
-  return <ProblemEngine problem={problem} presetTraces={presetTraces} />;
+  return <ProblemEngine problem={problem} approachTraces={approachTraces} />;
 }

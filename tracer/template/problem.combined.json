@@ -1,0 +1,105 @@
+{
+  "_instructions": [
+    "This is ONE combined file describing an entire Knacktor problem. Fill every field, then bring it back to the repo and run: npm run import-problem <thisFile.json>",
+    "Keys starting with _ are notes for you and are ignored by the importer — you may delete them.",
+    "ADDING_PROBLEMS.md is the FULL authoring prompt — obey every rule in it and run its §10 self-validation before you output. Fill EVERY line: lineExplanations + syntaxExplanations + narration.byLine for every code line, phaseRules for every executable line.",
+    "Supported primitives: array | bar-container | hashmap | stack | queue | tree | linkedList | grid | graph | recursion. See ADDING_PROBLEMS.md §DSL for the mapping fields each one uses.",
+    "Expression DSL: + - * / %, comparisons, && || !, ternary, indexing, min/max/len/abs. The cell index in cellStateRules is 'idx' (array/stack/queue) or 'r'/'c' (grid) or 'node_id' (tree/graph). A var's previous-step value is '<name>_prev'.",
+    "'solution' is the REAL Python source as a string with \\n line breaks. Line numbers are load-bearing — all mapping/narration/explanation keys reference them.",
+    "Presets: >=3, >=1 with isEdgeCase true, every preset has the correct expectedOutput, and together they execute every branch of every approach.",
+    "visualizationIntent is REQUIRED in every approach — describe what the learner sees at each phase (init, loop-body, match, return). This is how the animation is validated against the algorithm."
+  ],
+
+  "schemaVersion": "2.0",
+  "slug": "REPLACE-url-slug",
+  "number": 0,
+  "title": "REPLACE problem title",
+  "difficulty": "easy",
+  "topics": ["array"],
+  "patterns": ["two-pointers"],
+  "statement": "REPLACE with the FULL exact problem statement. Use \\n for line breaks.",
+  "supportsCustomInput": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      { "name": "nums", "type": "int[]", "label": "Array", "placeholder": "1, 2, 3", "min": -1000, "max": 1000, "minLen": 1, "maxLen": 24 }
+    ],
+    "maxSteps": 2000
+  },
+
+  "presets": [
+    { "id": "example-1", "label": "Example 1", "value": { "nums": [1, 2, 3] }, "isEdgeCase": false, "expectedOutput": "REPLACE" },
+    { "id": "example-2", "label": "Example 2", "value": { "nums": [3, 2, 1] }, "isEdgeCase": false, "expectedOutput": "REPLACE" },
+    { "id": "edge-1", "label": "Edge case", "value": { "nums": [1] }, "isEdgeCase": true, "expectedOutput": "REPLACE" }
+  ],
+
+  "approaches": [
+    {
+      "id": "optimal",
+      "name": "REPLACE approach name",
+      "kind": "optimal",
+      "summary": "REPLACE one-line strategy.",
+      "visualizationIntent": "REPLACE — describe phase-by-phase what the learner sees. Example: 'init: empty array shown; loop: current element highlighted current, visited cells go grey; match: both indices turn result-green and animation pauses; return: freeze frame with final answer chip.'",
+      "complexity": { "time": "O(n)", "space": "O(1)" },
+      "language": "python",
+      "entrypoint": "Solution.solve",
+      "primaryPrimitive": "array",
+      "auxStructures": [],
+      "resultSpec": { "varName": "result", "label": "RESULT", "render": "scalar" },
+      "varColors": { "x": "ptr-i" },
+
+      "solution": "class Solution:\n    def solve(self, nums):\n        result = 0\n        for x in nums:\n            result += x\n        return result\n",
+
+      "lineExplanations": {
+        "3": "REPLACE — what this line does in the algorithm.",
+        "4": "REPLACE",
+        "5": "REPLACE",
+        "6": "REPLACE"
+      },
+      "syntaxExplanations": {
+        "1": "class Solution: the wrapper class.",
+        "2": "def declares the method; self is the object, nums is the input.",
+        "3": "REPLACE — beginner syntax for this line.",
+        "4": "REPLACE",
+        "5": "REPLACE",
+        "6": "REPLACE"
+      },
+
+      "mapping": {
+        "primitive": "array",
+        "valuesFrom": "nums",
+        "pointers": [{ "name": "x", "var": "x" }],
+        "flags": {},
+        "cellStateRules": [
+          { "state": "current", "when": "idx == x" },
+          { "state": "visited", "when": "idx < x" },
+          { "state": "idle", "when": "true" }
+        ],
+        "readout": { "when": "phase != 'return'", "expr": "running total = {result}" },
+        "counters": [{ "name": "ops", "onLines": [5] }],
+        "phaseRules": [
+          { "phase": "init", "lines": [3] },
+          { "phase": "loop", "lines": [4] },
+          { "phase": "update", "lines": [5] },
+          { "phase": "return", "lines": [6] }
+        ],
+        "keyEvents": [{ "line": 6, "label": "Final answer", "kind": "return" }]
+      },
+
+      "narration": {
+        "byLine": {
+          "3": { "happening": "REPLACE with {placeholders}.", "why": "REPLACE", "invariant": "REPLACE" },
+          "4": { "happening": "REPLACE", "why": "REPLACE", "invariant": "REPLACE" },
+          "5": { "happening": "REPLACE", "why": "REPLACE", "invariant": "REPLACE" },
+          "6": { "happening": "REPLACE", "why": "REPLACE", "invariant": "REPLACE" }
+        },
+        "byPhase": {
+          "init": { "happening": "Set up.", "why": "Prepare state.", "invariant": "Setup." },
+          "loop": { "happening": "Advance.", "why": "Next element.", "invariant": "Scanning." },
+          "update": { "happening": "Update.", "why": "Record progress.", "invariant": "Changing." },
+          "return": { "happening": "Return the result.", "why": "Done.", "invariant": "Complete." }
+        }
+      }
+    }
+  ]
+}

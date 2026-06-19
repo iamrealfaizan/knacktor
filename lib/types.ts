@@ -1,20 +1,45 @@
-// Core domain types — mirrors Schema.md contracts.
+// Core domain types — mirrors Schema.md contracts (v2.0, _id relationships per D10).
 // All fields with dates are ISO strings (serialized at the content-service boundary).
+//
+// RELATIONSHIP MODEL (D10): the DB stores cross-collection references by Mongo _id
+// (`difficultyId`, `topicIds[]`, `patternIds[]`, `sheets.entries[].problemId`). `slug`
+// is kept only for routing. The Content Service RESOLVES those _id refs back to slug
+// display-fields on read (`difficulty`, `topics[]`, `patterns[]`) so pages stay simple.
 
-export type Difficulty = "easy" | "medium" | "hard";
+export type DifficultySlug = "easy" | "medium" | "hard";
+// Back-compat alias — older code imported `Difficulty` as the slug union.
+export type Difficulty = DifficultySlug;
+
+/** Difficulty entity (its own collection, D10). */
+export interface DifficultyDoc {
+  _id?: string;
+  slug: DifficultySlug;
+  name: string;
+  /** ordering: easy=1, medium=2, hard=3 */
+  rank: number;
+  /** design-token key (e.g. "kn-result"), never a hex */
+  color: string;
+}
 
 export interface Problem {
   _id?: string;
   slug: string;
   number: number;
   title: string;
-  difficulty: Difficulty;
-  /** Many-to-many: topic slugs this problem belongs to */
+
+  // ── _id relationships (canonical in the DB) ──
+  difficultyId?: string;
+  topicIds?: string[];
+  patternIds?: string[];
+
+  // ── Resolved display fields (attached by the Content Service on read) ──
+  /** difficulty slug, resolved from difficultyId */
+  difficulty: DifficultySlug;
+  /** topic slugs, resolved from topicIds */
   topics: string[];
-  /** Many-to-many: pattern slugs this problem demonstrates */
+  /** pattern slugs, resolved from patternIds */
   patterns: string[];
-  /** Sheet slugs this problem is included in */
-  sheets: string[];
+
   hasVisualization: boolean;
   isPremium: boolean;
   createdAt?: string;
@@ -40,18 +65,25 @@ export interface Pattern {
   updatedAt?: string;
 }
 
+/** Ordered sheet membership (replaces problemSlugs, D10). */
+export interface SheetEntry {
+  problemId: string;
+  order: number;
+  reason?: string;
+}
+
 export interface Sheet {
   _id?: string;
   slug: string;
   name: string;
   description?: string;
-  problemSlugs: string[];
+  entries: SheetEntry[];
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface ProblemFilters {
-  difficulty?: Difficulty;
+  difficulty?: DifficultySlug;
   topicSlug?: string;
   patternSlug?: string;
   sheetSlug?: string;

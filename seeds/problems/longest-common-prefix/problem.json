@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "longest-common-prefix",
+  "number": 14,
+  "title": "Longest Common Prefix",
+  "difficulty": "easy",
+  "topics": [
+    "array",
+    "string"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "Write a function to find the longest common prefix string amongst an array of strings.\n\nIf there is no common prefix, return an empty string \"\".\n\nExample 1:\nInput: strs = [\"flower\",\"flow\",\"flight\"]\nOutput: \"fl\"\n\nExample 2:\nInput: strs = [\"dog\",\"racecar\",\"car\"]\nOutput: \"\"\nExplanation: There is no common prefix among the input strings.\n\nConstraints:\n1 <= strs.length <= 200\n0 <= strs[i].length <= 200\nstrs[i] consists of only lowercase English letters if it is non-empty.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "strs",
+        "type": "int[]",
+        "label": "Strings",
+        "placeholder": "flower, flow, flight",
+        "min": 0,
+        "max": 0,
+        "minLen": 1,
+        "maxLen": 24
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

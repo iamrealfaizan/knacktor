@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "REPLACE-with-url-slug",
+  "number": 0,
+  "title": "REPLACE with the problem title",
+  "difficulty": "easy",
+  "topics": ["array"],
+  "patterns": ["two-pointers"],
+  "statement": "REPLACE with the FULL exact problem statement (newlines are preserved).",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      { "name": "nums", "type": "int[]", "label": "Array", "placeholder": "1, 2, 3", "min": -1000, "max": 1000, "minLen": 1, "maxLen": 24 }
+    ],
+    "maxSteps": 2000
+  }
+}

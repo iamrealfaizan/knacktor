@@ -1,0 +1,37 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force",
+  "kind": "brute",
+  "summary": "Try every pair of lines and keep the largest area — O(n²).",
+  "complexity": { "time": "O(n²)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.maxArea",
+  "primaryPrimitive": "bar-container",
+  "auxStructures": [],
+  "resultSpec": { "varName": "mx", "label": "BEST AREA", "suffix": "· max water", "render": "scalar" },
+  "varColors": { "i": "ptr-lo", "j": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Get n, the number of vertical lines.",
+    "4": "Track the maximum area found so far.",
+    "5": "Outer loop: choose the left line i.",
+    "6": "Inner loop: choose a right line j to the right of i.",
+    "7": "Water height is limited by the shorter of lines i and j.",
+    "8": "Width is the distance between i and j.",
+    "9": "Area = height × width for this pair.",
+    "10": "Keep the larger of the current best and this area.",
+    "11": "Return the largest area found over all pairs."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class.",
+    "2": "def declares maxArea; self is the object, height is the input list.",
+    "3": "len(height) counts the lines; stored in n.",
+    "4": "Assigns mx = 0, the running best area.",
+    "5": "for i in range(n) loops i over 0 … n-1.",
+    "6": "Nested loop: j starts at i+1 so each pair is tried once.",
+    "7": "min(a, b) returns the shorter of the two heights.",
+    "8": "Subtraction gives the width j - i.",
+    "9": "* multiplies height by width to get the area.",
+    "10": "max(a, b) keeps the larger of mx and area.",
+    "11": "return hands back the best area."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "optimal",
+  "name": "REPLACE approach name",
+  "kind": "optimal",
+  "summary": "One-line description of the strategy.",
+  "complexity": { "time": "O(n)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.solve",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": { "varName": "result", "label": "RESULT", "render": "scalar" },
+  "varColors": { "x": "ptr-i" },
+  "lineExplanations": {
+    "6": "Initialize the running result.",
+    "7": "Iterate over each element.",
+    "8": "Accumulate into the result.",
+    "9": "Return the answer."
+  },
+  "syntaxExplanations": {
+    "7": "for…in iterates over the list elements."
+  }
+}

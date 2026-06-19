@@ -1,0 +1,38 @@
+{
+  "byLine": {
+    "3": { "happening": "Sort nums ascending → {nums}.", "why": "Sorting lets two pointers converge correctly from both ends.", "invariant": "From here on, nums is non-decreasing." },
+    "4": { "happening": "Count the elements: n = {n}.", "why": "We need the array length to bound the loops.", "invariant": "n is fixed at {n}." },
+    "5": { "happening": "Start an empty result list res.", "why": "It collects every quadruplet that sums to the target.", "invariant": "res holds all answers found so far." },
+    "6": { "happening": "Fix the first index i = {i} (value {nums[i]}).", "why": "Every quadruplet contains exactly one first element.", "invariant": "i scans the array left to right." },
+    "7": { "happening": "Fix the second index j = {j} (value {nums[j]}).", "why": "With i and j fixed, two pointers find the remaining pair.", "invariant": "j always stays to the right of i." },
+    "8": { "happening": "Place the left pointer lo = {lo}.", "why": "lo starts just after j.", "invariant": "lo is the low end of the search window." },
+    "9": { "happening": "Place the right pointer hi = {hi}.", "why": "hi starts at the last element.", "invariant": "The search window is [lo, hi]." },
+    "10": [
+      { "when": "lo < hi", "happening": "lo ({lo}) < hi ({hi}) — keep searching this window.", "why": "There are still pairs to check between the two pointers.", "invariant": "Answers found so far: {len(res)}." },
+      { "happening": "lo ({lo}) is no longer < hi ({hi}) — close this window.", "why": "The window is empty; advance to the next j.", "invariant": "Every pair for this i, j has been checked." }
+    ],
+    "11": { "happening": "Sum the four: {nums[i]} + {nums[j]} + {nums[lo]} + {nums[hi]} = {s}.", "why": "Compare this sum against the target to decide the next move.", "invariant": "s is the current quadruplet's sum." },
+    "12": [
+      { "when": "s == target", "happening": "s ({s}) == target ({target}) — a match!", "why": "These four numbers are a valid quadruplet.", "invariant": "Equality means we record this answer." },
+      { "happening": "s ({s}) ≠ target ({target}).", "why": "Not a match — decide which pointer to move.", "invariant": "We will narrow the window next." }
+    ],
+    "13": { "happening": "Record the quadruplet [{nums[i]}, {nums[j]}, {nums[lo]}, {nums[hi]}].", "why": "It sums exactly to the target.", "invariant": "Adding it to the result set." },
+    "14": { "happening": "Advance lo right (currently {lo}).", "why": "After a match, shrink from the left to seek new pairs.", "invariant": "lo only increases." },
+    "15": { "happening": "Retreat hi left (currently {hi}).", "why": "After a match, also shrink from the right.", "invariant": "hi only decreases." },
+    "16": [
+      { "when": "s < target", "happening": "s ({s}) < target ({target}) — too small.", "why": "Move lo right to increase the sum.", "invariant": "Only lo moves." },
+      { "happening": "s ({s}) is not less than target ({target}) — too big.", "why": "Move hi left to decrease the sum.", "invariant": "Only hi moves." }
+    ],
+    "17": { "happening": "Sum too small → advance lo right (currently {lo}).", "why": "A larger left value raises the sum toward the target.", "invariant": "lo only increases." },
+    "19": { "happening": "Sum too big → retreat hi left (currently {hi}).", "why": "A smaller right value lowers the sum toward the target.", "invariant": "hi only decreases." },
+    "20": { "happening": "Return {len(res)} quadruplet(s).", "why": "Every valid combination has been found.", "invariant": "The search is complete." }
+  },
+  "byPhase": {
+    "init": { "happening": "Initialize the search.", "why": "Set up the variables the algorithm needs.", "invariant": "Setup in progress." },
+    "loop": { "happening": "Continue the scan.", "why": "Move through the candidate pairs.", "invariant": "Search ongoing." },
+    "check": { "happening": "Evaluate the current sum.", "why": "Compare against the target.", "invariant": "Deciding the next move." },
+    "update": { "happening": "Update the state.", "why": "Record progress.", "invariant": "State changing." },
+    "move": { "happening": "Move a pointer.", "why": "Narrow the window.", "invariant": "Window shrinking." },
+    "return": { "happening": "Return the result.", "why": "The algorithm is done.", "invariant": "Complete." }
+  }
+}

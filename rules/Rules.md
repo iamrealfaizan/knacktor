@@ -34,6 +34,12 @@
 - Exactly **one `current`** element is spotlighted at a time; ≤ 6 simultaneous semantic colors; never rely on hue alone.
 - Code line, narration, and animation must describe the same step at all times.
 
+## 4.1 Simulation fidelity (D15 — TWO mandatory gates)
+- **A problem is accepted only after passing BOTH gates. Passing `npm run ingest` is necessary but NOT sufficient.**
+  - **Gate 1 — Ingest (mechanical).** No-Line-Left-Behind, narration completeness, expected-output match, DSL/visual validity. Proves the trace is *structurally* sound — **not** that it teaches the algorithm.
+  - **Gate 2 — Fidelity review (semantic, human/Claude-judged).** The animation must faithfully represent the algorithm's **actual operations and state**: the visual's **unit of work must match the algorithm's unit of work** (compare characters → show characters; compare elements → show elements; shrink a window → show the window shrink). Pointers, cell-states, and readouts must correspond to what the code is genuinely doing at each step. Motion must *explain the real operation*, never decorate. See [FidelityReview.md](FidelityReview.md) for the criteria.
+- **If the available primitives cannot represent the algorithm's true unit of work, the problem is DEFERRED** until the right renderer is built (a one-time engine task). **Never ship a structurally-valid but misleading visual** (e.g. drawing whole strings as cells when the algorithm compares characters column-by-column). A wrong-but-passing simulation is worse than no simulation — it breaks the learner's trust, which is the product.
+
 ## 5. Taxonomy
 - Canonical discovery axes: `difficulty`, `topic`, `pattern`. Difficulty = `Easy` / `Medium` / `Hard`.
 - Topic pages and pattern pages are separate concepts on separate routes.

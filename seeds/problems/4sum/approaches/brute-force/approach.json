@@ -1,0 +1,41 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force",
+  "kind": "brute",
+  "summary": "Check every combination of four indices with four nested loops — O(n⁴).",
+  "complexity": { "time": "O(n⁴)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.fourSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": { "varName": "res", "label": "RESULT SET", "suffix": "· quadruplets found", "render": "tuple-list" },
+  "varColors": { "i": "ptr-i", "j": "ptr-j", "k": "ptr-lo", "l": "ptr-hi" },
+  "lineExplanations": {
+    "3": "Sort so each recorded quadruplet is in a canonical (non-duplicating) order.",
+    "4": "len(nums) gives the number of elements, n.",
+    "5": "Create an empty list to collect the answer quadruplets.",
+    "6": "First loop: choose the first index.",
+    "7": "Second loop: choose the second index, right of the first.",
+    "8": "Third loop: choose the third index, right of the second.",
+    "9": "Fourth loop: choose the fourth index, right of the third.",
+    "10": "Add the four chosen values to form the candidate sum.",
+    "11": "If the sum equals the target, this quadruplet is an answer.",
+    "12": "Append the four values to the results.",
+    "13": "Return every quadruplet that summed to the target."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class for your solution.",
+    "2": "def declares the method; self is the object, nums and target are inputs.",
+    "3": "nums.sort() reorders the list in place, ascending.",
+    "4": "len(nums) gives the count; stored in n.",
+    "5": "[] is a new empty list for answers.",
+    "6": "for i in range(n) loops i over 0 … n-1.",
+    "7": "Nested loop: j starts at i+1 so j is always right of i.",
+    "8": "Nested loop: k starts at j+1.",
+    "9": "Innermost loop: l starts at k+1 — four distinct indices.",
+    "10": "Adds the four indexed values into s.",
+    "11": "if runs its block only when the condition is true.",
+    "12": ".append(...) adds the 4-element list to res.",
+    "13": "return hands back the list of quadruplets."
+  }
+}
