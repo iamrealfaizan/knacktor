@@ -3,7 +3,7 @@
 > **Role:** living **roadmap + decision log** (both). The AI agent and team update this to keep the whole picture in mind. Major planning decisions are recorded **here only** (single source, no duplication).
 
 ## Current status
-- Project state: **RE-ARCHITECTURE IN PROGRESS (2026-06).** M1.1–M1.4 shipped but the engine was hardcoded to 4Sum, Compare mode was a dead flag, custom input used the wrong approach, and traces were hand-built (drift). We paused feature work to fix the foundation for **sync, trust, and scale** — see decisions **D9–D14** and the re-architecture plan.
+- Project state: **RENDERER EXPANSION + CONTENT SCALING (2026-06).** Re-architecture (D9–D15) is complete. New phase: building the generic renderer library (M1.8), adding the API layer (M1.9), and extending the problem-addition framework (M1.10) to support all data-structure types. Database stays MongoDB (no PostgreSQL migration). FastAPI backend deferred. See D16–D18.
 - Canonical build docs: finalized (PRD, TechSpec, AppFlow, Design, Schema, Implementation, Rules, Security, **SimulationRules**, **Authoring**, **CompareAndResponsive**).
 - Simulation rulebook: [SimulationRules.md](SimulationRules.md) — canonical for all simulation visuals/motion (full DS + pattern taxonomy).
 - Visual reference baseline: [`4Sum Visualizer.html`](4Sum%20Visualizer.html) (**final, locked**). [dsaPRD.md](dsaPRD.md) Part II is **archived** (superseded by SimulationRules).
@@ -27,6 +27,12 @@
 - **D12 — Custom input deferred.** Commented out behind build-time flag `CUSTOM_INPUT_ENABLED`; wrong-approach bug fixed in the disabled path. *Supersedes D4* — sandbox runtime (Pyodide vs server) decided in a later milestone.
 - **D13 — Authoring template + loud validation.** Fixed per-problem bundle (Authoring.md). Validator-first ingest checks: No-Line-Left-Behind, narration completeness, ≥3 examples/approach incl. an edge case, expected-output match, visual-state validity, `_id` reference resolution — **aborts the whole ingest on any violation, nothing partial written.**
 - **D14 — Mobile.** Desktop = canonical no-scroll 5-panel layout. Below `lg` (1024px): vertical stack top bar → code → simulation → narration → insight → controller (pinned to bottom). See [CompareAndResponsive.md](CompareAndResponsive.md).
+- **D15 — Simulation-fidelity gate.** Two mandatory gates: **(1) ingest** (mechanical correctness) and **(2) fidelity review** (semantic — does the animation truly represent the algorithm's operations/unit of work?). Ingest passing is **necessary but not sufficient**; every problem also passes a human/Claude fidelity review before acceptance. If the primitives can't represent the algorithm's unit of work, defer the problem until the renderer exists — never ship a misleading visual. *(Prompted by Longest Common Prefix passing ingest while its array-of-strings view failed to show the character-column comparison.)* See [FidelityReview.md](FidelityReview.md).
+
+### Phase 2 decisions (D16–D18, 2026-06)
+- **D16 — API layer: Next.js API routes now, FastAPI deferred.** A read-only JSON API at `app/api/` wraps the Content Service. Response shape: `{ data, error? }`, standard HTTP codes. No write routes. FastAPI migration deferred until a mobile app or external integration requires it.
+- **D17 — Visualization strategy: Hybrid (generic-first + custom escape hatch).** Generic renderers (array, bar-container + 8 new: hashmap, linkedList, tree, stack, queue, grid, graph, recursion) are the default — problems are pure data, O(1) bundle growth per problem. Custom per-problem component (`components/problem/custom/<slug>-visualizer.tsx`) only when ≥2 of: (a) 2+ primitives must coordinate simultaneously, (b) spatial layout is itself the teaching point, (c) animation cannot be expressed via the DSL. Decision rule enforced in CLAUDE.md § VISUALIZATION DECISION RULE.
+- **D18 — Problem-addition workflow.** When a filled template is pasted: agent parses+splits, analyzes viz needs (D17 rule), runs tracer, builds custom component if needed (one checkpoint before writing custom code), ingests, confirms at `/problems/<slug>`. Full flow in CLAUDE.md § ADD-PROBLEM WORKFLOW. Gate 2 (FidelityReview.md) still required.
 
 ### Standing decisions (from planning)
 - Full platform; first milestone = engine + **1–2** pilot problems.
@@ -46,11 +52,15 @@
 | `M1.1` | Platform foundation (Next.js + design tokens + route skeletons) | ✅ Done |
 | `M1.2` | Content schema + ingest pipeline | ✅ Done |
 | `M1.3` | Discovery surfaces (problems, topics, patterns pages) | ✅ Done |
-| `M1.4` | Problem-page engine + simulation player | ✅ Done (being generalized in M1.5R) |
-| `M1.5R` | **Re-architecture** (D9–D14): hybrid Python tracer ✅, `_id` DB ✅, generic engine (rail/player/dock/statement/mobile) ✅, authoring template + trace validation ✅; Compare dual-lane ❌; renderer families (linked list/tree/…) ❌ | ⏳ In progress |
+| `M1.4` | Problem-page engine + simulation player | ✅ Done |
+| `M1.5R` | **Re-architecture** (D9–D14): hybrid Python tracer ✅, `_id` DB ✅, generic engine ✅, authoring template + trace validation ✅; Compare dual-lane ❌ | ⏳ In progress |
 | `M1.5` | Custom-input runtime sandbox (deferred per D12) | ⏸ Deferred |
-| `M1.6` | Pilot problems — `4Sum` ✅ + `Container` ✅ both on the Python tracer (bundles); `Reverse Linked List` ❌ (needs linked-list renderer) | ✅ 2 of 2 pilots |
+| `M1.6` | Pilot problems — `4Sum` ✅ + `Container` ✅ on Python tracer | ✅ Done |
 | `M1.7` | Hardening (SEO / a11y / motion / sandbox abuse) | ❌ Not started |
+| `M1.8` | **Generic renderer library** — hashmap, recursion/call-stack, tree, linkedList, stack, queue, grid, graph (in priority order). Each: new VisualState type + renderer component + Stage dispatch + mapping DSL extension + ADDING_PROBLEMS.md update | ❌ Not started |
+| `M1.9` | **API layer** — read-only Next.js API routes at `app/api/` wrapping Content Service. Routes: `/problems`, `/problems/[slug]`, `/problems/[slug]/traces`, `/topics`, `/patterns`, `/difficulties` | ❌ Not started |
+| `M1.10` | **Problem-addition framework** — extended ADDING_PROBLEMS.md (all primitives + visualizationIntent), add-problem workflow in CLAUDE.md, `visualizationIntent` field in approach.json | ❌ Not started |
+| `M2` | Content scale — 50 problems in DB, all passing Gate 2 | ❌ Future |
 
 ## What is built (as of last audit)
 
@@ -91,16 +101,17 @@
 - `supportsCustomInput: true` on ProblemFull; schema ready
 - **Missing**: Python tracer, sandboxed execution engine, API route for custom-input trace generation
 
-### M1.6 — Pilot problems ⏳ (1 of 2)
-- **4Sum** ✅ — `lib/fixtures/4sum.ts`: 118+ steps, full pointer/cell/window/sum-chip states, narration, complexity counters, key events; presets: Example 1
-- **Reverse Linked List** ❌ — not started; also needs linked-list renderer
+### M1.6 — Pilot problems ✅ (2 of 2, on the Python tracer)
+- **4Sum** ✅ — `seeds/problems/4sum/` bundle, both approaches (sort-two-pointers + brute-force), traced by the Python pipeline; per-line narration + explanations; 3 presets.
+- **Container With Most Water** ✅ — `seeds/problems/container-with-most-water/` bundle, both approaches (two-pointers + brute-force), bar-container primitive; 3 presets.
+- **Reverse Linked List** ❌ — not started; needs the linked-list renderer (one-time engine task).
 
 ## Done in M1.5R so far
 1. **WS1** ✅ D9–D14 + Authoring.md + CompareAndResponsive.md.
 2. **WS2–3** ✅ `_id` DB (+ `difficulties`), gzip trace storage, content-service id→slug + decompression.
 3. **WS4** ✅ **Hybrid Python tracer pipeline** — `tracer/run.py` (sys.settrace capture), `lib/tracer/*` (safe expr DSL, mapping, narration, pipeline, python bridge), `lib/validators/validate-trace.ts`. 4Sum re-authored as the gold bundle (`seeds/problems/4sum/`, both approaches), traced + validated + reseeded. Author template at `tracer/template/`.
 4. **WS6a** ✅ generic insight rail, player/seekbar/diamonds/speed, statement Sheet, mobile, custom-input flag + bug fix, generic array pointer lanes + data-driven readout.
-5. **Docs + tooling** ✅ [ADDING_PROBLEMS.md](../ADDING_PROBLEMS.md) — step-by-step guide + full DSL reference + Definition-of-Done checklist + capabilities/limits + Claude prompt. Two authoring flows: `npm run new-problem <slug>` (in-repo scaffold) and **single combined JSON** (`tracer/template/problem.combined.json`) filled by any chatbot → `npm run import-problem <file.json>` splits it into the bundle → `npm run ingest` validates. `npm run drop-db` helper. **`npm run build` passes clean.**
+5. **Docs + tooling** ✅ [ADDING_PROBLEMS.md](../ADDING_PROBLEMS.md) is now a **self-contained LLM authoring prompt** (embeds seeded slugs, the DSL grammar + forbidden list, all caveats, a 10-point self-validation). Team flow: paste the prompt + `tracer/template/problem.combined.json` + the LeetCode problem into any LLM → save the returned combined JSON → `npm run import-problem <file.json>` → `npm run ingest` (the real gate). Also `npm run new-problem <slug>` (in-repo scaffold) and `npm run drop-db`. **`npm run build` passes clean.**
 6. **Both pilots migrated to bundles** ✅ — 4Sum + Container fully on the Python tracer; engine loads all approaches' DB traces (`approachTraces`), legacy `TRACERS` removed from the engine; per-line `syntaxExplanations`/`lineExplanations` filled for every line.
 
 ## Immediate next tasks
@@ -121,7 +132,16 @@
 
 ## Deferred items
 - Auth, progress, subscriptions, monetization, analytics expansion.
-- Admin/CMS UI, content-automation tooling.
-- Additional primitives (hashmap, stack/queue, trees, graphs, grid, DP).
+- Admin/CMS UI (web-based). CLI + ingest workflow remains the authoring tool for now.
+- FastAPI backend (deferred per D16; Next.js API routes cover MVP needs).
+- Custom input sandbox (deferred per D12; Pyodide vs server-side sandbox to be decided).
 - Multi-language user-visible code tabs.
 - Sheets population (currently empty seed).
+- Additional primitives not in M1.8 scope (DP tables, trie, heap, union-find).
+
+## Scale notes (for reference)
+- MongoDB Atlas M10 ($57/mo) needed at 50+ problems with full traces.
+- Vercel Pro ($20/mo) needed at launch for serverless timeout + edge caching.
+- Redis/Upstash (~$0–$10/mo) for `getProblems()` caching at 200+ problems.
+- MongoDB Atlas M20 ($115/mo) sufficient through 1,000 problems (~9,000 trace docs, ~1.8 GB compressed).
+- Stack stays identical (Next.js + MongoDB) through 1,000 problems — no new services required.

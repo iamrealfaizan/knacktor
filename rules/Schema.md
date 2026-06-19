@@ -39,6 +39,7 @@ Required: `schemaVersion`, `_id`, `slug`, `number`, `title`, `difficultyId` (→
 
 ### 2.2 `Approach`
 Required: `id` (stable local string, not a Mongo ref), `name`, `kind` (`brute`|`optimal`|`alternative`), `summary`, `complexity.time`, `complexity.space`, `language` (`python`), `source` (real code, executed verbatim by the tracer), `entrypoint` (function the tracer calls, e.g. `Solution.maxArea`), `lineExplanations` (`lineNo → text`, narration panel), `syntaxExplanations?` (`lineNo → text`, hover tooltip), `primaryPrimitive` (which visual primitive the stage uses), `auxStructures[]`.
+- `visualizationIntent?` — **human-readable description of what the visualization should show at each phase.** Used by Claude Code to validate the mapping.json and catch mismatches during the add-problem workflow (D18). Not rendered to users. Example: `"init: show the array with lp at 0 and rp at end. loop: highlight the two pointers, show water fill between them. update: show new max when area improves."`.
 - `resultSpec?` — **how the RESULT panel renders** (data-driven, replaces 4Sum hardcoding): `{ varName, label, suffix?, render: "scalar"|"list"|"tuple-list"|"boolean"|"string", emptyText? }`.
 - `varColors?` — optional `varName → token-key` pin so rail variable colors match the stage pointer lanes.
 - Per-approach authored artifacts (ingested, not stored on the doc verbatim): `mappingSpec` (visual-mapping DSL) and `narrationSpec` (narration templates). See [Authoring.md](Authoring.md).
@@ -109,7 +110,58 @@ A discriminated union keyed by `type`. **MVP variants:** `array`, `linkedList`, 
 hex). The renderer just draws whatever `readout` is present; it knows nothing about specific
 variable names. The `bar-container` variant keeps its `container` geometry object for the water fill.
 
-New primitives (hashmap, stack/queue, tree, graph, grid, DP, …) add a variant here when first built (D2). Each new variant follows the same rule: states from [Design.md](Design.md)'s vocabulary; relocations carry ghost/changed fields. `stage.tsx` dispatches via a table (`type → renderer`); an unregistered `type` renders a token-styled "Renderer not implemented" placeholder (loud, not an empty stage).
+**M1.8 renderer variants (being built in priority order):**
+
+```jsonc
+// hashmap — key-value bucket grid
+{ "type": "hashmap",
+  "entries": [{ "key": "two", "value": 1, "state": "current" }],
+  "highlightedKeys": ["two"] }
+
+// stack — vertical LIFO container
+{ "type": "stack",
+  "items": [{ "value": "(", "state": "idle" }, { "value": "[", "state": "current" }],
+  "topIndex": 1 }
+
+// queue — horizontal FIFO container
+{ "type": "queue",
+  "items": [{ "value": 1, "state": "idle" }],
+  "frontIndex": 0, "backIndex": 0 }
+
+// tree — binary tree node/edge graph
+{ "type": "tree",
+  "nodes": [{ "id": "n1", "value": 4, "state": "current" }],
+  "edges": [{ "from": "n1", "to": "n2", "label": "left" }],
+  "pointers": [{ "name": "root", "at": "n1" }] }
+
+// linkedList — nodes with directional arrows (already typed, needs renderer)
+{ "type": "linkedList",
+  "nodes": [{ "id": "n1", "value": 1, "state": "current" }],
+  "links": [{ "from": "n1", "to": "n2" }],
+  "pointers": [{ "name": "curr", "at": "n1" }],
+  "changedLinks": [{ "from": "n1", "to": "n2" }] }
+
+// grid — 2D matrix (matrix traversal problems)
+{ "type": "grid",
+  "rows": [[{ "value": 1, "state": "visited" }, { "value": 0, "state": "idle" }]],
+  "pointers": [{ "name": "r", "row": 0, "col": 0 }] }
+
+// graph — nodes + edges (BFS/DFS/Dijkstra)
+{ "type": "graph",
+  "nodes": [{ "id": "A", "value": "A", "state": "visited" }],
+  "edges": [{ "from": "A", "to": "B", "weight": 4, "directed": true }],
+  "pointers": [{ "name": "curr", "at": "A" }] }
+
+// recursion / call stack (already typed, needs renderer)
+{ "type": "recursion",
+  "frames": [{ "id": "f0", "label": "solve(0,5)", "returnValue": null, "isCurrent": true }],
+  "treeEdges": [{ "from": "f0", "to": "f1" }] }
+
+// custom (escape hatch — D17)
+{ "type": "custom", "componentKey": "two-sum", ...any-shape... }
+```
+
+New primitives add a variant here when first built (D2). Each new variant follows the same rule: states from [Design.md](Design.md)'s vocabulary; relocations carry ghost/changed fields. `stage.tsx` dispatches via a table (`type → renderer`); an unregistered `type` renders a token-styled "Renderer not implemented" placeholder (loud, not an empty stage).
 
 ## 3. Discovery content contracts
 - **`Topic`** — `slug`, `name`, `summary`, `whenToUse`, `problemRefs[]`.

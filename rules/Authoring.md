@@ -124,6 +124,11 @@ fails naming the uncovered line. Add a preset that covers it.
   "syntaxExplanations": {                    // hover tooltip in the code panel (beginner syntax)
     "3": "lp is shorthand for 'left pointer'."
   },
+  "visualizationIntent": "init: show the bar-container with lp at index 0, rp at last index. loop: highlight lp and rp bars as walls, show water fill between them. update: flash bars green when a new max area is found. return: show the final best area.",
+                                            // Human-readable intent for what should be shown
+                                            // at each phase. Used by Claude during add-problem
+                                            // workflow (D18) to validate mapping.json.
+                                            // Not rendered to users.
   "resultSpec": {                            // drives the RESULT panel generically
     "varName": "mx", "label": "BEST AREA", "suffix": "· max water", "render": "scalar"
   },
@@ -191,16 +196,41 @@ drift from the code.
 - `cellStateRules` are ordered and first-match-wins; `state` must be in the canonical `CellState`
   vocabulary ([SimulationRules.md](SimulationRules.md) §A-2.3).
 
-### 6.2 Escape hatch (`primitive: "custom"`)
-When a problem genuinely needs bespoke rendering, set `"primitive": "custom"` and provide
-`mapping.py`:
+### 6.2 Available primitives (M1.8 renderer library)
+`primitive` may be any of these values. Each maps to a generic renderer component built in M1.8:
+
+| `primitive` | Renderer | Use for |
+|---|---|---|
+| `array` | ArrayRenderer | Arrays, strings, any 1-D index-walking algorithm |
+| `bar-container` | BarContainerRenderer | Height/area problems with water fill |
+| `hashmap` | HashMapRenderer | Hash map / set problems (Two Sum, Group Anagrams) |
+| `recursion` | RecursionRenderer | Recursive algorithms + call stack visualization |
+| `tree` | TreeRenderer | Binary tree, BST, traversal problems |
+| `linkedList` | LinkedListRenderer | Linked list traversal, reversal, cycle detection |
+| `stack` | StackRenderer | Stack-based algorithms (valid parentheses, monotonic stack) |
+| `queue` | QueueRenderer | BFS, sliding window queue variants |
+| `grid` | GridRenderer | 2D matrix problems (islands, paths, flood fill) |
+| `graph` | GraphRenderer | Graph traversal (DFS, BFS, Dijkstra, topological sort) |
+| `custom` | custom per-problem component (see §6.3) | Problems where no generic renderer suffices |
+
+See [Schema.md](Schema.md) §2.6 for the VisualState shapes for each type.
+
+### 6.3 Custom component escape hatch (`primitive: "custom"`, D17)
+When a problem genuinely needs bespoke rendering and ≥2 of these criteria apply: (a) 2+ primitives must coordinate simultaneously, (b) spatial layout is itself the teaching point, (c) animation logic cannot be expressed via the DSL — set `"primitive": "custom"`.
+
+For `mapping.json` approach, provide `mapping.py` as the custom mapper:
 ```python
 def map_step(captured_vars, ctx):
     # ctx: { "i_step", "phase", "prev_vars", "values_of"(name) }
-    return { "type": "array", "values": [...], "cellStates": {...}, "pointers": [...] }
+    return { "type": "custom", "componentKey": "my-slug", ...any-shape... }
 ```
-The returned object is validated identically (discriminated union + `CellState` vocabulary). Use the
-hatch sparingly (D2) and still honor the color/motion grammar.
+
+Claude Code also generates `components/problem/custom/<slug>-visualizer.tsx` — a React component registered via dynamic import in `stage.tsx`. The component must:
+- Accept `{ visual: CustomVisualState, step: Step }` props
+- Include a top-of-file comment explaining why generic rendering was insufficient
+- Honor the semantic color/motion grammar from [Design.md](Design.md)
+
+The returned `VisualState` is still validated for `CellState` vocabulary compliance. Use the hatch sparingly (D2/D17) — generic renderers are always preferred for scale.
 
 ## 7. `approaches/<id>/narration.json`
 

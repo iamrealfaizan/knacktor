@@ -51,11 +51,51 @@
 - SEO verification across discovery surfaces; accessibility verification (contrast, keyboard, reduced-motion); interaction + motion polish; custom-input boundary validation; sandbox abuse testing.
 - **Exit gate:** MVP ready for controlled release / further content expansion.
 
+## Phase 8 — Generic Renderer Library (M1.8)
+
+Build the eight remaining renderer families in priority order (each unlocks a category of problems). For each renderer: define the VisualState type in `lib/trace.ts`, add mapping DSL support in `lib/tracer/mapping.ts`, build the SVG renderer component in `components/problem/`, register in `stage.tsx`, update `ADDING_PROBLEMS.md` with DSL docs for the new type.
+
+| Priority | Renderer | VisualState type | Rationale |
+|---|---|---|---|
+| 1 | `HashMapRenderer` | `HashMapVisualState` | Unlocks ~30% of medium problems (Two Sum, Group Anagrams, etc.) |
+| 2 | `RecursionRenderer` | `RecursionVisualState` (typed, unrendered) | Unlocks all recursive/DP problems |
+| 3 | `TreeRenderer` | `TreeVisualState` | Unlocks all binary tree problems |
+| 4 | `LinkedListRenderer` | `LinkedListVisualState` (typed, unrendered) | Reverse LL, Cycle Detection |
+| 5 | `StackRenderer` | `StackVisualState` | Monotonic stack, valid parentheses |
+| 6 | `GridRenderer` | `GridVisualState` | Matrix problems (islands, paths) |
+| 7 | `QueueRenderer` | `QueueVisualState` | BFS problems |
+| 8 | `GraphRenderer` | `GraphVisualState` | DFS/BFS on graphs, Dijkstra |
+
+**Custom component escape hatch (D17):** When a problem's visualization cannot be expressed through any generic renderer, a custom component lives at `components/problem/custom/<slug>-visualizer.tsx`. Registered in `stage.tsx` via dynamic import (lazy-loaded). Must accept `{ visual, step }` props and honor SimulationRules color/motion grammar. Justified only when ≥2 of the D17 criteria apply.
+
+- **Exit gate:** each renderer can visualize at least one real problem end-to-end passing both Gate 1 and Gate 2.
+
+## Phase 9 — API Layer (M1.9)
+
+Add read-only JSON API routes at `app/api/` wrapping the Content Service (D16). Response shape: `{ data: T, error?: string }`, standard HTTP codes.
+
+Routes: `GET /api/problems`, `GET /api/problems/[slug]`, `GET /api/problems/[slug]/traces`, `GET /api/topics`, `GET /api/patterns`, `GET /api/difficulties`.
+
+- **Exit gate:** all routes return correct data; no auth required for public content; no write routes exist.
+
+## Phase 10 — Problem-Addition Framework (M1.10)
+
+Extend and finalize the problem-addition tooling so any filled template can be ingested by the agent without friction (D18):
+
+- **`ADDING_PROBLEMS.md` major revision:** extend §3 to document all M1.8 primitive types with mapping DSL examples. Add `visualizationIntent` field to the template. Add full context section explaining what this system is and what the output drives. Keep the 10-point self-validation checklist.
+- **`approach.json` template:** add `visualizationIntent` field (human-readable intent, not rendered to users).
+- **CLAUDE.md ADD-PROBLEM WORKFLOW:** finalize and verify the 6-step workflow is accurate after M1.8 and M1.9 are complete.
+- **`tracer/template/`:** update the combined template (`problem.combined.json`) to include `visualizationIntent` and examples for new primitives.
+
+- **Exit gate:** paste a Two Sum template (HashMap primitive) → agent analyzes, runs tracer, ingests, problem appears at `/problems/two-sum` correctly.
+
 ## Deferred work (post-M1)
 - Accounts/auth, progress tracking, monetization surfaces, heavy analytics.
 - Public admin UI / CMS, content-automation tooling.
-- More primitives (hashmap, stack/queue, trees, graphs, grid, DP) — each a one-time engine task.
+- FastAPI backend (deferred per D16).
+- Additional primitives not in M1.8: DP tables, trie, heap, union-find.
 - Multi-language user-visible code tabs.
+- Custom-input sandbox (deferred per D12).
 
 ## Delivery priorities
 1. Shared engine + player fidelity (incl. simulation legibility).
