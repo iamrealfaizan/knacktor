@@ -99,12 +99,16 @@ export function buildTrace(
 
   // Per-trace validation — throws (aborts ingest) on any contract breach.
   // (No-Line-Left-Behind is asserted at the approach level by the caller.)
+  const narrationByLineKeys = new Set(
+    Object.keys(narration.byLine ?? {}).map(Number)
+  );
   validateTrace({
     steps,
     executableLines: skeleton.executableLines,
     finalResult: skeleton.finalResult,
     expectedOutput,
     label: `${path.basename(bundleDir)}:${approachId}:${presetId}`,
+    narrationByLineKeys,
   });
 
   return {

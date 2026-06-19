@@ -70,7 +70,8 @@
 
 **Custom component escape hatch (D17):** `components/problem/custom/<slug>-visualizer.tsx`, registered in `stage.tsx` via dynamic import. Justified only when ≥2 D17 criteria apply.
 
-- **Exit gate:** ❌ Each renderer needs ≥1 real problem end-to-end passing Gate 1 + Gate 2. Two Sum (hashmap) is the planned first.
+- **Exit gate:** 2/8 renderer exits met — hashmap ✅ (Two Sum, Gate 1 ✅), linkedList ✅ (Reverse Linked List, Gate 1 ✅). Gate 2 still required for both. 6 remaining renderers need a real problem each.
+  - **`mapLinkedList` flat-array support** ✅ — updated in `mapping.ts` to accept either flat arrays (`nodes=[val,...]`, `links=[nextIdx,...]`, `changedLinks=[nodeId,...]`) or structured `{id,value}`/`{from,to}` objects, since Python solutions naturally produce the flat format.
 
 ## Phase 9 — API Layer (M1.9) ✅ Done
 
@@ -95,7 +96,7 @@ All tooling built:
 - **`scripts/import-problem.ts`** ✅ — writes `visualizationIntent` to `approach.json`.
 - **`CLAUDE.md` ADD-PROBLEM WORKFLOW** ✅ — full 6-step workflow (D18) documented.
 
-- **Exit gate:** ❌ Paste a Two Sum combined JSON → `npm run import-problem` → Python tracer → `npm run ingest` → confirm `/problems/two-sum` renders correctly with the hashmap renderer.
+- **Exit gate:** ✅ Met — Two Sum (hashmap) and Reverse Linked List (linkedList) both completed the full workflow: combined JSON → `npm run import-problem` → Python tracer → `npm run ingest` → Gate 1 ✅. Gate 2 (fidelity review) still required for each.
 
 ## Deferred work (post-M1)
 - Accounts/auth, progress tracking, monetization surfaces, heavy analytics.

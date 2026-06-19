@@ -1,0 +1,203 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "The returned values start as an empty list.",
+      "why": "The linked list will be reversed first, then read out into this list.",
+      "invariant": "result contains only values already visited in the final reversed traversal."
+    },
+    "4": {
+      "happening": "The input values are copied into node storage.",
+      "why": "Each index now represents one linked-list node in the visualization.",
+      "invariant": "Node values do not change during reversal."
+    },
+    "5": {
+      "happening": "The list has {n} nodes.",
+      "why": "The number of nodes determines how many next pointers are needed.",
+      "invariant": "The algorithm never creates or deletes nodes."
+    },
+    "6": {
+      "happening": "All next pointers start as -1.",
+      "why": "-1 is the no-node sentinel, which is correct for the tail and safe for empty lists.",
+      "invariant": "Every link is either -1 or a valid node ID."
+    },
+    "7": {
+      "happening": "i starts at 0.",
+      "why": "The original forward links are built from the first node to the last.",
+      "invariant": "All links before i have already been assigned."
+    },
+    "8": [
+      {
+        "when": "i < n - 1",
+        "happening": "Node {i} is not the last node.",
+        "why": "It should point to the node immediately after it.",
+        "invariant": "The original linked list is being reconstructed one next pointer at a time."
+      },
+      {
+        "happening": "The original forward links are complete.",
+        "why": "The tail keeps -1, so there is no more link to build.",
+        "invariant": "The visual linked list now matches the input order."
+      }
+    ],
+    "9": {
+      "happening": "Node {i} is linked to node {i + 1}.",
+      "why": "This creates the original next arrow.",
+      "invariant": "Prepared nodes point to their original next nodes."
+    },
+    "10": {
+      "happening": "i moves forward.",
+      "why": "The next node's original link can now be prepared.",
+      "invariant": "No reversed links have been made yet."
+    },
+    "11": {
+      "happening": "previous starts at -1.",
+      "why": "Before the head is processed, the reversed part is empty.",
+      "invariant": "previous points to the head of the already reversed part."
+    },
+    "12": {
+      "happening": "current starts at node 0.",
+      "why": "The reversal begins at the original head.",
+      "invariant": "current points to the next node that still needs its link reversed."
+    },
+    "13": [
+      {
+        "when": "n == 0",
+        "happening": "The list is empty.",
+        "why": "There is no node 0, so the reversal loop must not run.",
+        "invariant": "An empty linked list reverses to an empty linked list."
+      },
+      {
+        "happening": "The list is non-empty.",
+        "why": "Node 0 is a valid first node to process.",
+        "invariant": "current can safely begin at the original head."
+      }
+    ],
+    "14": {
+      "happening": "current becomes -1.",
+      "why": "This marks that there is no node to process.",
+      "invariant": "The reversal loop will skip empty input safely."
+    },
+    "15": {
+      "happening": "nxt starts as -1.",
+      "why": "nxt will temporarily remember the original next node before each link is changed.",
+      "invariant": "nxt is only a saved pointer; it does not change the list by itself."
+    },
+    "16": {
+      "happening": "No link is marked as changed yet.",
+      "why": "The reversal has not rewritten any next pointer.",
+      "invariant": "All original links are still intact."
+    },
+    "17": [
+      {
+        "when": "current != -1",
+        "happening": "current is node {current}, so one more link must be reversed.",
+        "why": "Each loop iteration reverses exactly one node's next pointer.",
+        "invariant": "previous heads the reversed prefix; current heads the unreversed suffix."
+      },
+      {
+        "happening": "current is -1, so every node has been processed.",
+        "why": "There is no unreversed suffix left.",
+        "invariant": "previous now points to the new head of the fully reversed list."
+      }
+    ],
+    "18": {
+      "happening": "The original next pointer of current is saved in nxt.",
+      "why": "Once current.next is overwritten, this saved pointer is the only way to continue forward.",
+      "invariant": "nxt points to the remaining unreversed suffix."
+    },
+    "19": {
+      "happening": "Node {current} is marked as the link that will change.",
+      "why": "The animation can now emphasize the exact arrow being reversed.",
+      "invariant": "Only current's next pointer is about to be rewritten."
+    },
+    "20": {
+      "happening": "current.next is about to point back to previous.",
+      "why": "This is the core reversal step: the arrow is flipped from forward to backward.",
+      "invariant": "After this update, current becomes part of the reversed prefix."
+    },
+    "21": {
+      "happening": "previous moves to current.",
+      "why": "current is now the first node of the reversed prefix.",
+      "invariant": "previous always points to the head of the reversed portion."
+    },
+    "22": {
+      "happening": "current moves to nxt.",
+      "why": "The algorithm continues with the next original node.",
+      "invariant": "The unreversed suffix begins at current."
+    },
+    "23": {
+      "happening": "Changed-link highlighting is cleared.",
+      "why": "The pointer-reversal loop is done, so no more arrows are being rewritten.",
+      "invariant": "The links now form the reversed list."
+    },
+    "24": {
+      "happening": "current is set to previous, the new head.",
+      "why": "The final traversal should start at the head of the reversed list.",
+      "invariant": "previous holds the new head after all reversals."
+    },
+    "25": [
+      {
+        "when": "current != -1",
+        "happening": "current points to node {current} in the reversed list.",
+        "why": "Its value is the next output value.",
+        "invariant": "result contains the reversed values already read."
+      },
+      {
+        "happening": "current reached -1.",
+        "why": "The final traversal has passed the tail.",
+        "invariant": "result now contains the complete reversed list."
+      }
+    ],
+    "26": {
+      "happening": "The value at node {current} is read.",
+      "why": "The final answer is represented as a list of node values.",
+      "invariant": "The linked structure is no longer changing."
+    },
+    "27": {
+      "happening": "Value {value} is appended to result.",
+      "why": "This records one more node from the reversed list.",
+      "invariant": "The output order follows the reversed next pointers."
+    },
+    "28": {
+      "happening": "current follows the reversed next pointer.",
+      "why": "This moves the readout traversal toward the tail.",
+      "invariant": "Every visited node contributes exactly one value."
+    },
+    "29": {
+      "happening": "The algorithm returns {result}.",
+      "why": "All node links have been reversed and all values have been read.",
+      "invariant": "The returned list is the original list in reverse order."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set up the linked-list representation and pointer variables.",
+      "why": "The algorithm needs current, previous, and next pointers to reverse links safely.",
+      "invariant": "No node value changes."
+    },
+    "loop": {
+      "happening": "Check whether another node needs processing.",
+      "why": "The loop stops when current reaches the no-node sentinel.",
+      "invariant": "previous is the reversed prefix and current is the unreversed suffix."
+    },
+    "update": {
+      "happening": "Rewrite or record the current step's state.",
+      "why": "Reversal happens by changing one next pointer at a time.",
+      "invariant": "Processed nodes point backward correctly."
+    },
+    "move": {
+      "happening": "Move one of the traversal pointers.",
+      "why": "Saving nxt, then advancing previous and current, keeps the remaining list reachable.",
+      "invariant": "No unprocessed node is lost."
+    },
+    "check": {
+      "happening": "Handle the empty-list case.",
+      "why": "An empty list has no head node to process.",
+      "invariant": "current is valid or safely set to -1."
+    },
+    "return": {
+      "happening": "Return the reversed values.",
+      "why": "The reversed linked list has been fully traversed.",
+      "invariant": "The output contains every original value exactly once."
+    }
+  }
+}

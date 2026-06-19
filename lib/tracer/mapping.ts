@@ -328,22 +328,61 @@ function mapLinkedList(spec: VisualMappingSpec, scope: Scope) {
   const rawLinks   = spec.linksFrom        ? scope[spec.linksFrom]        : [];
   const rawChanged = spec.changedLinksFrom ? scope[spec.changedLinksFrom] : [];
 
-  type RawNode = { id: string; value: number | string; state?: CellState };
-  type RawLink = { from: string; to: string };
+  const nodesArr   = Array.isArray(rawNodes)   ? rawNodes   : [];
+  const linksArr   = Array.isArray(rawLinks)   ? rawLinks   : [];
+  const changedArr = Array.isArray(rawChanged) ? rawChanged : [];
 
-  const nodes = (Array.isArray(rawNodes) ? rawNodes : []).map((n: RawNode) => {
-    const nodeState = resolveNodeState(String(n.id), spec.nodeStateRules, scope);
-    return {
-      id: String(n.id),
-      value: n.value,
-      state: nodeState !== "idle" ? nodeState : n.state,
-    };
-  });
+  // Two supported formats:
+  //   Flat  (array-based LL): nodes=[val0,val1,...], links=[next0,next1,...] (-1=no next),
+  //                           changedLinks=[nodeId,...] (IDs whose link just changed)
+  //   Structured:             nodes=[{id,value},...], links=[{from,to},...],
+  //                           changedLinks=[{from,to},...]
+  // Detection: if the first element is a primitive (not an object), it's the flat format.
+  const flatNodes   = nodesArr.length   === 0 || typeof nodesArr[0]   !== "object" || nodesArr[0]   === null;
+  const flatLinks   = linksArr.length   === 0 || typeof linksArr[0]   !== "object" || linksArr[0]   === null;
+  const flatChanged = changedArr.length === 0 || typeof changedArr[0] !== "object" || changedArr[0] === null;
 
-  const links = (Array.isArray(rawLinks) ? rawLinks : []) as RawLink[];
-  const changedLinks = Array.isArray(rawChanged) && rawChanged.length
-    ? (rawChanged as RawLink[])
-    : undefined;
+  const nodes = flatNodes
+    ? nodesArr.map((value: unknown, idx: number) => ({
+        id:    String(idx),
+        value: value as number | string,
+        state: resolveNodeState(String(idx), spec.nodeStateRules, scope),
+      }))
+    : (nodesArr as Array<{ id: string | number; value: number | string; state?: CellState }>).map((n) => {
+        const rs = resolveNodeState(String(n.id), spec.nodeStateRules, scope);
+        return {
+          id:    String(n.id),
+          value: n.value,
+          state: (rs !== "idle" ? rs : (n.state ?? "idle")) as CellState,
+        };
+      });
+
+  const links: { from: string; to: string }[] = flatLinks
+    ? (linksArr as number[]).flatMap((next, fromIdx) =>
+        next !== -1 ? [{ from: String(fromIdx), to: String(next) }] : []
+      )
+    : (linksArr as Array<{ from: string | number; to: string | number }>).map((lk) => ({
+        from: String(lk.from),
+        to:   String(lk.to),
+      }));
+
+  let changedLinks: { from: string; to: string }[] | undefined;
+  if (changedArr.length > 0) {
+    if (flatChanged && flatLinks) {
+      // Each entry is a node ID whose outgoing link just changed; look up current target.
+      changedLinks = (changedArr as number[])
+        .filter((nodeId) => isNum(nodeId) && nodeId >= 0)
+        .map((nodeId) => ({
+          from: String(nodeId),
+          to:   String((linksArr as number[])[nodeId] ?? -1),
+        }));
+    } else {
+      changedLinks = (changedArr as Array<{ from: string | number; to: string | number }>).map((lk) => ({
+        from: String(lk.from),
+        to:   String(lk.to),
+      }));
+    }
+  }
 
   const pointers = (spec.pointers ?? [])
     .filter((p) => p.var)

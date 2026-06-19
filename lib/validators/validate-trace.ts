@@ -18,6 +18,8 @@ export interface ValidateTraceArgs {
   finalResult: unknown;
   expectedOutput: unknown;
   label: string;
+  /** Keys from narration.byLine — every executed line must have a specific entry. */
+  narrationByLineKeys: Set<number>;
 }
 
 function fail(label: string, msg: string): never {
@@ -105,6 +107,20 @@ export function validateTrace(args: ValidateTraceArgs): void {
     }
     if (!isValidVisual(s.visual)) {
       fail(label, `step ${s.i} (line ${s.codeKey}): invalid VisualState`);
+    }
+  }
+
+  // Narration byLine coverage: every executed line must have a specific byLine entry.
+  // Falling back to the generic byPhase description means the learner sees a phase-level
+  // summary instead of a step-specific explanation — a silent authoring gap.
+  const executedCodes = new Set(steps.map((s) => s.codeKey));
+  for (const code of executedCodes) {
+    if (!narrationByLineKeys.has(code)) {
+      fail(
+        label,
+        `line ${code} is executed but has no byLine entry in narration.json ` +
+          `(falls back to generic byPhase). Add a specific { happening, why, invariant } entry for line ${code}.`
+      );
     }
   }
 

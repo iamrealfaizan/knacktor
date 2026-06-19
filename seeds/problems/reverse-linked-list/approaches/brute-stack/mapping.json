@@ -1,0 +1,133 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "nodes",
+  "linksFrom": "links",
+  "pointers": [
+    {
+      "name": "current",
+      "var": "current"
+    },
+    {
+      "name": "tail",
+      "var": "tail"
+    },
+    {
+      "name": "node",
+      "var": "node"
+    },
+    {
+      "name": "new head",
+      "var": "new_head"
+    }
+  ],
+  "flags": {
+    "hasCurrent": "current != -1",
+    "hasTail": "tail != -1",
+    "hasNode": "node != -1"
+  },
+  "changedLinksFrom": "changed_links",
+  "readout": {
+    "when": "stack != null && phase != 'return'",
+    "expr": "stack size = {len(stack)}, new_head = {new_head}, tail = {tail}"
+  },
+  "counters": [
+    {
+      "name": "stack pushes",
+      "onLines": [
+        17
+      ]
+    },
+    {
+      "name": "link rewrites",
+      "onLines": [
+        29,
+        32
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        12,
+        15,
+        19,
+        20,
+        21,
+        33,
+        34
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        8,
+        16,
+        22,
+        35
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9,
+        17,
+        25,
+        26,
+        28,
+        29,
+        30,
+        31,
+        32,
+        37
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        10,
+        18,
+        23,
+        36,
+        38
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        13,
+        14,
+        24
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        39
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 25,
+      "label": "First popped node becomes the new head",
+      "kind": "result"
+    },
+    {
+      "line": 29,
+      "label": "Attach popped node after tail",
+      "kind": "boundary"
+    },
+    {
+      "line": 39,
+      "label": "Return reversed list",
+      "kind": "return"
+    }
+  ]
+}
