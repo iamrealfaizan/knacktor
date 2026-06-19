@@ -52,7 +52,7 @@ export interface ArrayVisualState {
 
 export interface LinkedListVisualState {
   type: "linkedList";
-  nodes: { id: string; value: number | string }[];
+  nodes: { id: string; value: number | string; state?: CellState }[];
   links: { from: string; to: string }[];
   pointers: { name: string; at: string | null }[];
   changedLinks?: { from: string; to: string }[];
@@ -87,11 +87,105 @@ export interface BarContainerVisualState {
   readout?: StageReadout;
 }
 
+// ── Stack (B-5) ──────────────────────────────────────────────────────────────
+export interface StackVisualState {
+  type: "stack";
+  /** items[0] = bottom, items[length-1] = top (TOS) */
+  items: { value: number | string; state: CellState }[];
+  label?: string;
+}
+
+// ── Queue / Deque (B-6) ──────────────────────────────────────────────────────
+export interface QueueVisualState {
+  type: "queue";
+  /** items[0] = front, items[length-1] = rear */
+  items: { value: number | string; state: CellState }[];
+  label?: string;
+}
+
+// ── Hash Map / Hash Set (B-3) ────────────────────────────────────────────────
+export interface HashMapEntry {
+  key: string | number;
+  value: unknown;
+  state: CellState;
+}
+export interface HashMapVisualState {
+  type: "hashmap";
+  entries: HashMapEntry[];
+  /** key chip currently flying / being looked up */
+  highlightedKey?: string | number;
+  label?: string;
+}
+
+// ── Binary Tree (B-8) ────────────────────────────────────────────────────────
+export interface TreeNode {
+  id: string;
+  value: number | string;
+  state: CellState;
+  /** id of left child (null = no child) */
+  left?: string | null;
+  /** id of right child (null = no child) */
+  right?: string | null;
+}
+export interface TreeVisualState {
+  type: "tree";
+  nodes: TreeNode[];
+  pointers: { name: string; at: string | null }[];
+  /** id of the node currently carrying the traversal cursor ring */
+  currentId?: string | null;
+}
+
+// ── 2D Grid / Matrix (B-11) ──────────────────────────────────────────────────
+export interface GridCell {
+  value: number | string;
+  state: CellState;
+}
+export interface GridPointer {
+  name: string;
+  row: number;
+  col: number;
+}
+export interface GridVisualState {
+  type: "grid";
+  rows: GridCell[][];
+  pointers: GridPointer[];
+}
+
+// ── Graph (B-10) ─────────────────────────────────────────────────────────────
+export type GraphEdgeState = "idle" | "tree" | "relaxing" | "path" | "rejected";
+export interface GraphNode {
+  id: string;
+  label: string;
+  state: CellState;
+  /** pre-computed SVG layout position (−1 to 1 normalised, renderer scales) */
+  x: number;
+  y: number;
+}
+export interface GraphEdge {
+  from: string;
+  to: string;
+  weight?: number;
+  directed?: boolean;
+  state: GraphEdgeState;
+}
+export interface GraphVisualState {
+  type: "graph";
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  pointers: { name: string; at: string | null }[];
+}
+
 export type VisualState =
   | ArrayVisualState
   | LinkedListVisualState
   | RecursionVisualState
-  | BarContainerVisualState;
+  | BarContainerVisualState
+  | StackVisualState
+  | QueueVisualState
+  | HashMapVisualState
+  | TreeVisualState
+  | GridVisualState
+  | GraphVisualState;
 
 // ── Step (Schema §2.5) — one per executed source line (D8) ──────────────────
 export type StepPhase =
