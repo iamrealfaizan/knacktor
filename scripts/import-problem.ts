@@ -105,6 +105,7 @@ for (const a of approaches) {
     name: a.name,
     kind: a.kind,
     summary: a.summary,
+    visualizationIntent: a.visualizationIntent ?? "",
     complexity: a.complexity,
     language: a.language ?? "python",
     entrypoint: a.entrypoint,

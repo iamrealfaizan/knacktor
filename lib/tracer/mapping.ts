@@ -10,8 +10,22 @@ import type {
   CounterRule,
   KeyEventRule,
   PhaseRule,
+  NodeStateRule,
 } from "./types";
-import type { VisualState, CellState, StepPhase, KeyEvent } from "@/lib/trace";
+import type {
+  VisualState,
+  CellState,
+  StepPhase,
+  KeyEvent,
+  HashMapEntry,
+  TreeNode,
+  GraphNode,
+  GraphEdge,
+  GraphEdgeState,
+  GridCell,
+  GridPointer,
+  CallFrame,
+} from "@/lib/trace";
 
 const CELL_STATES = new Set<CellState>([
   "idle", "current", "compared", "frontier", "visited", "result",
@@ -107,6 +121,16 @@ export function mapVisual(
   scope: Scope,
   prevVars: Record<string, unknown>
 ): VisualState {
+  // ── Early dispatch for non-array primitives ─────────────────────────────
+  if (spec.primitive === "stack")    return mapStack(spec, scope);
+  if (spec.primitive === "queue")    return mapQueue(spec, scope);
+  if (spec.primitive === "hashmap")  return mapHashmap(spec, scope);
+  if (spec.primitive === "tree")     return mapTree(spec, scope);
+  if (spec.primitive === "linkedList") return mapLinkedList(spec, scope);
+  if (spec.primitive === "grid")     return mapGrid(spec, scope);
+  if (spec.primitive === "graph")    return mapGraph(spec, scope);
+  if (spec.primitive === "recursion") return mapRecursion(spec, scope);
+
   const valuesRaw = spec.valuesFrom ? scope[spec.valuesFrom] : undefined;
   const values = (Array.isArray(valuesRaw) ? valuesRaw : []) as (number | string)[];
   const n = values.length;
@@ -114,6 +138,7 @@ export function mapVisual(
   // pointers
   const pointers: { name: string; at: number }[] = [];
   for (const p of spec.pointers ?? []) {
+    if (!p.var) continue;
     const at = scope[p.var];
     if (isNum(at) && at >= 0 && at < n) pointers.push({ name: p.name, at });
   }
@@ -197,4 +222,223 @@ export function mapVisual(
 
 function num(v: unknown): number {
   return isNum(v) ? v : 0;
+}
+
+// ── Per-primitive mapping helpers ─────────────────────────────────────────────
+
+/** Coerce a JSON key (always string after parse) to number if it looks numeric. */
+function coerceKey(k: string): string | number {
+  const n = Number(k);
+  return Number.isFinite(n) && String(n) === k ? n : k;
+}
+
+/** Apply NodeStateRules to a node id; returns first matching state or "idle". */
+function resolveNodeState(
+  id: string,
+  rules: NodeStateRule[] | undefined,
+  scope: Scope
+): CellState {
+  for (const rule of rules ?? []) {
+    if (evalBool(rule.when, { ...scope, node_id: id })) return rule.state;
+  }
+  return "idle";
+}
+
+function mapStack(spec: VisualMappingSpec, scope: Scope) {
+  const raw = spec.itemsFrom ? scope[spec.itemsFrom] : [];
+  const items = (Array.isArray(raw) ? raw : []) as (number | string)[];
+  return {
+    type: "stack" as const,
+    items: items.map((value, idx) => ({
+      value,
+      state: firstMatchingCell(spec, { ...scope, idx, values: items }),
+    })),
+    label: spec.itemsFrom,
+  };
+}
+
+function mapQueue(spec: VisualMappingSpec, scope: Scope) {
+  const raw = spec.itemsFrom ? scope[spec.itemsFrom] : [];
+  const items = (Array.isArray(raw) ? raw : []) as (number | string)[];
+  return {
+    type: "queue" as const,
+    items: items.map((value, idx) => ({
+      value,
+      state: firstMatchingCell(spec, { ...scope, idx, values: items }),
+    })),
+    label: spec.itemsFrom,
+  };
+}
+
+function mapHashmap(spec: VisualMappingSpec, scope: Scope) {
+  const mapVar = spec.keysFrom ? scope[spec.keysFrom] : undefined;
+  const entries: HashMapEntry[] = [];
+
+  if (mapVar && typeof mapVar === "object" && !Array.isArray(mapVar)) {
+    for (const [rawKey, value] of Object.entries(mapVar as Record<string, unknown>)) {
+      const k = coerceKey(rawKey);
+      let state: CellState = "idle";
+      for (const rule of spec.highlightRules ?? []) {
+        if (evalBool(rule.whenKey, { ...scope, k })) { state = rule.state; break; }
+      }
+      entries.push({ key: k, value, state });
+    }
+  }
+
+  const highlightedKey = spec.highlightKeyVar
+    ? (scope[spec.highlightKeyVar] as string | number | undefined)
+    : undefined;
+
+  return {
+    type: "hashmap" as const,
+    entries,
+    highlightedKey,
+    label: spec.keysFrom,
+  };
+}
+
+function mapTree(spec: VisualMappingSpec, scope: Scope) {
+  const rawNodes = spec.nodesFrom ? scope[spec.nodesFrom] : [];
+  const nodes: TreeNode[] = (Array.isArray(rawNodes) ? rawNodes : []).map(
+    (n: Record<string, unknown>) => ({
+      id: String(n.id),
+      value: n.value as number | string,
+      state: resolveNodeState(String(n.id), spec.nodeStateRules, scope),
+      left:  n.left  != null ? String(n.left)  : null,
+      right: n.right != null ? String(n.right) : null,
+    })
+  );
+
+  const pointers = (spec.pointers ?? [])
+    .filter((p) => p.var)
+    .map((p) => ({
+      name: p.name,
+      at: scope[p.var!] != null ? String(scope[p.var!]) : null,
+    }));
+
+  const currentId = spec.currentNodeVar
+    ? (scope[spec.currentNodeVar] != null ? String(scope[spec.currentNodeVar]) : null)
+    : null;
+
+  return { type: "tree" as const, nodes, pointers, currentId };
+}
+
+function mapLinkedList(spec: VisualMappingSpec, scope: Scope) {
+  const rawNodes   = spec.nodesFrom        ? scope[spec.nodesFrom]        : [];
+  const rawLinks   = spec.linksFrom        ? scope[spec.linksFrom]        : [];
+  const rawChanged = spec.changedLinksFrom ? scope[spec.changedLinksFrom] : [];
+
+  type RawNode = { id: string; value: number | string; state?: CellState };
+  type RawLink = { from: string; to: string };
+
+  const nodes = (Array.isArray(rawNodes) ? rawNodes : []).map((n: RawNode) => {
+    const nodeState = resolveNodeState(String(n.id), spec.nodeStateRules, scope);
+    return {
+      id: String(n.id),
+      value: n.value,
+      state: nodeState !== "idle" ? nodeState : n.state,
+    };
+  });
+
+  const links = (Array.isArray(rawLinks) ? rawLinks : []) as RawLink[];
+  const changedLinks = Array.isArray(rawChanged) && rawChanged.length
+    ? (rawChanged as RawLink[])
+    : undefined;
+
+  const pointers = (spec.pointers ?? [])
+    .filter((p) => p.var)
+    .map((p) => ({
+      name: p.name,
+      at: scope[p.var!] != null ? String(scope[p.var!]) : null,
+    }));
+
+  return { type: "linkedList" as const, nodes, links, pointers, changedLinks };
+}
+
+function mapGrid(spec: VisualMappingSpec, scope: Scope) {
+  const rawGrid = spec.gridFrom ? scope[spec.gridFrom] : [];
+  const grid2d  = Array.isArray(rawGrid) ? (rawGrid as unknown[][]) : [];
+
+  const rows: GridCell[][] = grid2d.map((row, r) =>
+    (Array.isArray(row) ? row : []).map((val, c) => ({
+      value: val as number | string,
+      state: firstMatchingCell(spec, { ...scope, r, c }),
+    }))
+  );
+
+  const pointers: GridPointer[] = (spec.pointers ?? [])
+    .filter((p) => p.rowVar && p.colVar)
+    .map((p) => ({
+      name: p.name,
+      row: num(scope[p.rowVar!]),
+      col: num(scope[p.colVar!]),
+    }));
+
+  return { type: "grid" as const, rows, pointers };
+}
+
+function mapGraph(spec: VisualMappingSpec, scope: Scope) {
+  const rawNodes = spec.nodesFrom ? scope[spec.nodesFrom] : [];
+  const rawEdges = spec.edgesFrom ? scope[spec.edgesFrom] : [];
+
+  const nodes: GraphNode[] = (Array.isArray(rawNodes) ? rawNodes : []).map(
+    (n: Record<string, unknown>) => ({
+      id:    String(n.id),
+      label: n.label != null ? String(n.label) : String(n.id),
+      state: resolveNodeState(String(n.id), spec.nodeStateRules, scope),
+      x: isNum(n.x) ? (n.x as number) : 0,
+      y: isNum(n.y) ? (n.y as number) : 0,
+    })
+  );
+
+  const edges: GraphEdge[] = (Array.isArray(rawEdges) ? rawEdges : []).map(
+    (e: Record<string, unknown>) => ({
+      from:     String(e.from),
+      to:       String(e.to),
+      weight:   isNum(e.weight) ? (e.weight as number) : undefined,
+      directed: e.directed != null ? Boolean(e.directed) : Boolean(spec.directed),
+      state:    ((e.state ?? "idle") as GraphEdgeState),
+    })
+  );
+
+  const pointers = (spec.pointers ?? [])
+    .filter((p) => p.var)
+    .map((p) => ({
+      name: p.name,
+      at: scope[p.var!] != null ? String(scope[p.var!]) : null,
+    }));
+
+  return { type: "graph" as const, nodes, edges, pointers };
+}
+
+function mapRecursion(spec: VisualMappingSpec, scope: Scope) {
+  const rawFrames = spec.framesFrom    ? scope[spec.framesFrom]    : [];
+  const rawEdges  = spec.treeEdgesFrom ? scope[spec.treeEdgesFrom] : [];
+  const currentId = spec.currentFrameVar ? scope[spec.currentFrameVar] : undefined;
+
+  const frames: CallFrame[] = (Array.isArray(rawFrames) ? rawFrames : []).map(
+    (f: Record<string, unknown>) => ({
+      id:          String(f.id),
+      label:       String(f.label),
+      returnValue: f.returnValue ?? null,
+      isCurrent:   f.id === currentId || Boolean(f.isCurrent),
+    })
+  );
+
+  const treeEdges = (Array.isArray(rawEdges) ? rawEdges : []).map(
+    (e: Record<string, unknown>) => ({ from: String(e.from), to: String(e.to) })
+  );
+
+  return { type: "recursion" as const, frames, treeEdges };
+}
+
+/** Evaluate cellStateRules in order; returns first matching state or "idle". */
+function firstMatchingCell(spec: VisualMappingSpec, cellScope: Scope): CellState {
+  for (const rule of spec.cellStateRules ?? []) {
+    if (!CELL_STATES.has(rule.state)) continue;
+    if (evalBool(rule.when, cellScope) && (!rule.onlyWhen || evalBool(rule.onlyWhen, cellScope))) {
+      return rule.state;
+    }
+  }
+  return "idle";
 }

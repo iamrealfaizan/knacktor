@@ -51,43 +51,51 @@
 - SEO verification across discovery surfaces; accessibility verification (contrast, keyboard, reduced-motion); interaction + motion polish; custom-input boundary validation; sandbox abuse testing.
 - **Exit gate:** MVP ready for controlled release / further content expansion.
 
-## Phase 8 — Generic Renderer Library (M1.8)
+## Phase 8 — Generic Renderer Library (M1.8) ⏳ Engine done, exit gate pending
 
-Build the eight remaining renderer families in priority order (each unlocks a category of problems). For each renderer: define the VisualState type in `lib/trace.ts`, add mapping DSL support in `lib/tracer/mapping.ts`, build the SVG renderer component in `components/problem/`, register in `stage.tsx`, update `ADDING_PROBLEMS.md` with DSL docs for the new type.
+**Engine: ✅ Complete.** All 8 renderer families built and SimulationRules-audited.
 
-| Priority | Renderer | VisualState type | Rationale |
-|---|---|---|---|
-| 1 | `HashMapRenderer` | `HashMapVisualState` | Unlocks ~30% of medium problems (Two Sum, Group Anagrams, etc.) |
-| 2 | `RecursionRenderer` | `RecursionVisualState` (typed, unrendered) | Unlocks all recursive/DP problems |
-| 3 | `TreeRenderer` | `TreeVisualState` | Unlocks all binary tree problems |
-| 4 | `LinkedListRenderer` | `LinkedListVisualState` (typed, unrendered) | Reverse LL, Cycle Detection |
-| 5 | `StackRenderer` | `StackVisualState` | Monotonic stack, valid parentheses |
-| 6 | `GridRenderer` | `GridVisualState` | Matrix problems (islands, paths) |
-| 7 | `QueueRenderer` | `QueueVisualState` | BFS problems |
-| 8 | `GraphRenderer` | `GraphVisualState` | DFS/BFS on graphs, Dijkstra |
+| Renderer | VisualState type | Component | Mapping DSL | Status |
+|---|---|---|---|---|
+| `HashMapRenderer` | `HashMapVisualState` | `hashmap-renderer.tsx` | `keysFrom`, `highlightRules`, `highlightKeyVar` | ✅ Built |
+| `RecursionRenderer` | `RecursionVisualState` | `recursion-renderer.tsx` (rounded-rect nodes, `<path>` edges) | `framesFrom`, `treeEdgesFrom`, `currentFrameVar` | ✅ Built |
+| `TreeRenderer` | `TreeVisualState` | `tree-renderer.tsx` | `nodesFrom`, `nodeStateRules`, `currentNodeVar` | ✅ Built |
+| `LinkedListRenderer` | `LinkedListVisualState` | `linked-list-renderer.tsx` | `nodesFrom`, `linksFrom`, `changedLinksFrom` | ✅ Built |
+| `StackRenderer` | `StackVisualState` | `stack-renderer.tsx` (88×40 cells) | `itemsFrom`, `topVar` | ✅ Built |
+| `GridRenderer` | `GridVisualState` | `grid-renderer.tsx` (28px cells, 1px gridlines) | `gridFrom`, `pointers[rowVar/colVar]` | ✅ Built |
+| `QueueRenderer` | `QueueVisualState` | `queue-renderer.tsx` (48×48, 4px gap) | `itemsFrom`, `frontVar`, `backVar` | ✅ Built |
+| `GraphRenderer` | `GraphVisualState` | `graph-renderer.tsx` (`<path>` edges, arrowheads) | `nodesFrom`, `edgesFrom`, `nodeStateRules`, `directed` | ✅ Built |
 
-**Custom component escape hatch (D17):** When a problem's visualization cannot be expressed through any generic renderer, a custom component lives at `components/problem/custom/<slug>-visualizer.tsx`. Registered in `stage.tsx` via dynamic import (lazy-loaded). Must accept `{ visual, step }` props and honor SimulationRules color/motion grammar. Justified only when ≥2 of the D17 criteria apply.
+`lib/trace.ts` has all 10 VisualState types. `stage.tsx` dispatches all 10 with correct per-primitive viewBox. `lib/tracer/types.ts` and `lib/tracer/mapping.ts` fully wired.
 
-- **Exit gate:** each renderer can visualize at least one real problem end-to-end passing both Gate 1 and Gate 2.
+**Custom component escape hatch (D17):** `components/problem/custom/<slug>-visualizer.tsx`, registered in `stage.tsx` via dynamic import. Justified only when ≥2 D17 criteria apply.
 
-## Phase 9 — API Layer (M1.9)
+- **Exit gate:** ❌ Each renderer needs ≥1 real problem end-to-end passing Gate 1 + Gate 2. Two Sum (hashmap) is the planned first.
 
-Add read-only JSON API routes at `app/api/` wrapping the Content Service (D16). Response shape: `{ data: T, error?: string }`, standard HTTP codes.
+## Phase 9 — API Layer (M1.9) ✅ Done
 
-Routes: `GET /api/problems`, `GET /api/problems/[slug]`, `GET /api/problems/[slug]/traces`, `GET /api/topics`, `GET /api/patterns`, `GET /api/difficulties`.
+All 6 read-only routes live at `app/api/`, wrapping the Content Service (D16). Response shape: `{ data: T, error?: string }`, standard HTTP codes. Build clean.
 
-- **Exit gate:** all routes return correct data; no auth required for public content; no write routes exist.
+| Route | Status |
+|---|---|
+| `GET /api/problems` (filters: difficulty, topic, pattern, search) | ✅ |
+| `GET /api/problems/[slug]` | ✅ |
+| `GET /api/problems/[slug]/traces?approachId=&inputId=` | ✅ |
+| `GET /api/topics` | ✅ |
+| `GET /api/patterns` | ✅ |
+| `GET /api/difficulties` | ✅ |
 
-## Phase 10 — Problem-Addition Framework (M1.10)
+- **Exit gate:** ✅ Met.
 
-Extend and finalize the problem-addition tooling so any filled template can be ingested by the agent without friction (D18):
+## Phase 10 — Problem-Addition Framework (M1.10) ⏳ Tooling done, exit gate pending
 
-- **`ADDING_PROBLEMS.md` major revision:** extend §3 to document all M1.8 primitive types with mapping DSL examples. Add `visualizationIntent` field to the template. Add full context section explaining what this system is and what the output drives. Keep the 10-point self-validation checklist.
-- **`approach.json` template:** add `visualizationIntent` field (human-readable intent, not rendered to users).
-- **CLAUDE.md ADD-PROBLEM WORKFLOW:** finalize and verify the 6-step workflow is accurate after M1.8 and M1.9 are complete.
-- **`tracer/template/`:** update the combined template (`problem.combined.json`) to include `visualizationIntent` and examples for new primitives.
+All tooling built:
+- **`ADDING_PROBLEMS.md`** ✅ — fully rewritten; all 10 primitives documented with DSL quick-reference, `visualizationIntent` required field, 10-point self-validation.
+- **`tracer/template/problem.combined.json`** ✅ — updated instructions name all primitives; `visualizationIntent` field in approach template.
+- **`scripts/import-problem.ts`** ✅ — writes `visualizationIntent` to `approach.json`.
+- **`CLAUDE.md` ADD-PROBLEM WORKFLOW** ✅ — full 6-step workflow (D18) documented.
 
-- **Exit gate:** paste a Two Sum template (HashMap primitive) → agent analyzes, runs tracer, ingests, problem appears at `/problems/two-sum` correctly.
+- **Exit gate:** ❌ Paste a Two Sum combined JSON → `npm run import-problem` → Python tracer → `npm run ingest` → confirm `/problems/two-sum` renders correctly with the hashmap renderer.
 
 ## Deferred work (post-M1)
 - Accounts/auth, progress tracking, monetization surfaces, heavy analytics.

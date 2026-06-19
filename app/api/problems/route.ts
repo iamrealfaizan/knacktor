@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getProblems } from "@/lib/content-service";
 import type { ProblemFilters, DifficultySlug } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;

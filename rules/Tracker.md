@@ -3,7 +3,7 @@
 > **Role:** living **roadmap + decision log** (both). The AI agent and team update this to keep the whole picture in mind. Major planning decisions are recorded **here only** (single source, no duplication).
 
 ## Current status
-- Project state: **RENDERER EXPANSION + CONTENT SCALING (2026-06).** Re-architecture (D9–D15) is complete. New phase: building the generic renderer library (M1.8), adding the API layer (M1.9), and extending the problem-addition framework (M1.10) to support all data-structure types. Database stays MongoDB (no PostgreSQL migration). FastAPI backend deferred. See D16–D18.
+- Project state: **RENDERER EXPANSION + CONTENT SCALING (2026-06).** Re-architecture (D9–D15) is complete. The full generic renderer library (M1.8 engine), API layer (M1.9), and problem-addition framework (M1.10) are all substantially built. M1.8 exit gate (≥1 real problem per renderer passing Gate 1 + Gate 2) and M1.5R Compare dual-lane UI are the remaining blockers. Next priority: author Two Sum (validates hashmap renderer end-to-end), then wire Compare dual-lane. FastAPI backend deferred. See D16–D18.
 - Canonical build docs: finalized (PRD, TechSpec, AppFlow, Design, Schema, Implementation, Rules, Security, **SimulationRules**, **Authoring**, **CompareAndResponsive**).
 - Simulation rulebook: [SimulationRules.md](SimulationRules.md) — canonical for all simulation visuals/motion (full DS + pattern taxonomy).
 - Visual reference baseline: [`4Sum Visualizer.html`](4Sum%20Visualizer.html) (**final, locked**). [dsaPRD.md](dsaPRD.md) Part II is **archived** (superseded by SimulationRules).
@@ -57,9 +57,9 @@
 | `M1.5` | Custom-input runtime sandbox (deferred per D12) | ⏸ Deferred |
 | `M1.6` | Pilot problems — `4Sum` ✅ + `Container` ✅ on Python tracer | ✅ Done |
 | `M1.7` | Hardening (SEO / a11y / motion / sandbox abuse) | ❌ Not started |
-| `M1.8` | **Generic renderer library** — hashmap, recursion/call-stack, tree, linkedList, stack, queue, grid, graph (in priority order). Each: new VisualState type + renderer component + Stage dispatch + mapping DSL extension + ADDING_PROBLEMS.md update | ❌ Not started |
-| `M1.9` | **API layer** — read-only Next.js API routes at `app/api/` wrapping Content Service. Routes: `/problems`, `/problems/[slug]`, `/problems/[slug]/traces`, `/topics`, `/patterns`, `/difficulties` | ❌ Not started |
-| `M1.10` | **Problem-addition framework** — extended ADDING_PROBLEMS.md (all primitives + visualizationIntent), add-problem workflow in CLAUDE.md, `visualizationIntent` field in approach.json | ❌ Not started |
+| `M1.8` | **Generic renderer library** — all 8 renderer components ✅, all VisualState types ✅, stage.tsx dispatch ✅, SimulationRules audit ✅, mapping DSL (`types.ts` + `mapping.ts`) ✅; **exit gate** (≥1 real problem per renderer, Gate 1 + Gate 2) ❌ | ⏳ Engine done, exit gate pending |
+| `M1.9` | **API layer** — all 6 routes live at `app/api/`, clean build ✅ | ✅ Done |
+| `M1.10` | **Problem-addition framework** — ADDING_PROBLEMS.md ✅, `visualizationIntent` in template + import script ✅, CLAUDE.md workflow ✅; exit gate (Two Sum end-to-end run) ❌ | ⏳ Tooling done, exit gate pending |
 | `M2` | Content scale — 50 problems in DB, all passing Gate 2 | ❌ Future |
 
 ## What is built (as of last audit)
@@ -114,11 +114,18 @@
 5. **Docs + tooling** ✅ [ADDING_PROBLEMS.md](../ADDING_PROBLEMS.md) is now a **self-contained LLM authoring prompt** (embeds seeded slugs, the DSL grammar + forbidden list, all caveats, a 10-point self-validation). Team flow: paste the prompt + `tracer/template/problem.combined.json` + the LeetCode problem into any LLM → save the returned combined JSON → `npm run import-problem <file.json>` → `npm run ingest` (the real gate). Also `npm run new-problem <slug>` (in-repo scaffold) and `npm run drop-db`. **`npm run build` passes clean.**
 6. **Both pilots migrated to bundles** ✅ — 4Sum + Container fully on the Python tracer; engine loads all approaches' DB traces (`approachTraces`), legacy `TRACERS` removed from the engine; per-line `syntaxExplanations`/`lineExplanations` filled for every line.
 
+## Done in M1.8 / M1.9 / M1.10 (2026-06)
+7. **Dead code cleanup** ✅ — `lib/tracers/4sum.ts`, `lib/tracers/container-with-most-water.ts`, `lib/tracers/index.ts`, `lib/fixtures/4sum.ts` deleted. `scripts/ingest.ts` stripped of `ingestProblem`, `ProblemSource`, `TRACERS`, `FOURSUM_PROBLEM`, and the legacy sources loop.
+8. **M1.8 renderer components** ✅ — All 8 new SVG renderers built and SimulationRules-audited: `hashmap-renderer.tsx`, `recursion-renderer.tsx` (rounded-rect nodes, `<path>` edges), `tree-renderer.tsx`, `linked-list-renderer.tsx`, `stack-renderer.tsx` (88×40 cells), `queue-renderer.tsx` (48×48, 4px gap), `grid-renderer.tsx` (28px cells, 1px gridlines), `graph-renderer.tsx` (`<path>` edges, arrowhead markers). All VisualState types added to `lib/trace.ts`. `stage.tsx` rewritten to dispatch all 10 types with correct viewBox per primitive.
+9. **M1.8 tracer-side wiring** ✅ — `lib/tracer/types.ts`: `VisualMappingSpec.primitive` extended to all 10 types; new `HighlightRule` and `NodeStateRule` interfaces; 18 new optional DSL fields (`keysFrom`, `highlightRules`, `highlightKeyVar`, `itemsFrom`, `nodesFrom`, `edgesFrom`, `nodeStateRules`, `directed`, `linksFrom`, `changedLinksFrom`, `gridFrom`, `framesFrom`, `treeEdgesFrom`, `currentFrameVar`, `currentNodeVar`, extended `pointers` with `rowVar`/`colVar`). `lib/tracer/mapping.ts`: `mapVisual()` dispatches all 8 new primitives via dedicated helper functions; `coerceKey`, `resolveNodeState`, `firstMatchingCell` shared helpers.
+10. **M1.9 API layer** ✅ — 6 read-only routes at `app/api/`: `/problems` (filters: difficulty, topic, pattern, search), `/problems/[slug]`, `/problems/[slug]/traces` (approachId required; inputId optional), `/topics`, `/patterns`, `/difficulties`. All return `{ data, error? }`. Build clean, all routes dynamic.
+11. **M1.10 problem-addition framework** ✅ — `ADDING_PROBLEMS.md` fully rewritten: all 10 primitives documented with DSL quick-reference, `visualizationIntent` required field, 10-point self-validation. `tracer/template/problem.combined.json` updated: instructions mention all primitives, `visualizationIntent` field in approach template. `scripts/import-problem.ts` now writes `visualizationIntent` to `approach.json`. `CLAUDE.md` has the full ADD-PROBLEM WORKFLOW (D18).
+
 ## Immediate next tasks
-1. **Delete dead legacy code** — both pilots are bundles and the engine now reads DB traces for all approaches via `approachTraces` (page loads them per approach; `TRACERS`/`validateCustomInput` removed from the engine). Now removable: `lib/tracers/*`, `lib/fixtures/4sum.ts`, the `TRACERS` registry, and `ingestProblem`/`ProblemSource`/the fixture imports + legacy block in `scripts/ingest.ts`.
-2. **Compare mode dual-lane UI** (WS6b) — both pilots now have `supportsCompare:true` + 2 Python-traced approaches, ready to wire.
-3. **`validate-problem.ts`** (bundle shape / reference / ≥3-preset checks) to complete D13.
-4. New structure renderers (linked list, tree, …) as each new problem needs one.
+1. **Author Two Sum** (hashmap) — validates the entire M1.8 + M1.10 pipeline end-to-end; satisfies M1.8 exit gate for the most common primitive. Fills the combined template → `npm run import-problem` → Python tracer → `npm run ingest` → Gate 2 review at `/problems/two-sum`.
+2. **Author Reverse Linked List** — satisfies M1.8 exit gate for the linkedList renderer; natural third pilot problem.
+3. **Compare mode dual-lane UI** (M1.5R WS6b) — both pilots have `supportsCompare: true` + 2 Python-traced approaches ready; only `problem-engine.tsx` wiring remains.
+4. **M1.7 Hardening** — SEO, a11y, reduced-motion, sandbox abuse testing. Nothing started.
 
 ## Open questions
 - **Custom-input sandbox tech** (deferred per D12): pyodide (WASM, in-browser, no server cost) vs. sandboxed subprocess API route. Decide when re-enabling custom input.

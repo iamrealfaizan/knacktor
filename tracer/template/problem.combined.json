@@ -2,10 +2,12 @@
   "_instructions": [
     "This is ONE combined file describing an entire Knacktor problem. Fill every field, then bring it back to the repo and run: npm run import-problem <thisFile.json>",
     "Keys starting with _ are notes for you and are ignored by the importer — you may delete them.",
-    "ADDING_PROBLEMS.md is the full authoring PROMPT — obey every rule in it and run its §10 self-validation before you output. Fill EVERY line: each approach needs a lineExplanations AND a syntaxExplanations AND a narration.byLine entry for every code line, and a phaseRules mapping for every executable line.",
-    "Only the 'array' and 'bar-container' primitives exist. The expression DSL allows + - * / %, comparisons, && || !, ternary, indexing, and only the functions min, max, len, abs. The cell index in cellStateRules is 'idx' (NOT the solution's i). A var's previous-step value is '<name>_prev'.",
-    "'solution' is the REAL Python source as a string with \\n line breaks. Line numbers are load-bearing — lineExplanations / syntaxExplanations / mapping / narration all key off them. Keep one class Solution with the entrypoint method.",
-    "Presets: >=3, >=1 with isEdgeCase true, every preset has the correct expectedOutput, and together they execute every branch of every approach."
+    "ADDING_PROBLEMS.md is the FULL authoring prompt — obey every rule in it and run its §10 self-validation before you output. Fill EVERY line: lineExplanations + syntaxExplanations + narration.byLine for every code line, phaseRules for every executable line.",
+    "Supported primitives: array | bar-container | hashmap | stack | queue | tree | linkedList | grid | graph | recursion. See ADDING_PROBLEMS.md §DSL for the mapping fields each one uses.",
+    "Expression DSL: + - * / %, comparisons, && || !, ternary, indexing, min/max/len/abs. The cell index in cellStateRules is 'idx' (array/stack/queue) or 'r'/'c' (grid) or 'node_id' (tree/graph). A var's previous-step value is '<name>_prev'.",
+    "'solution' is the REAL Python source as a string with \\n line breaks. Line numbers are load-bearing — all mapping/narration/explanation keys reference them.",
+    "Presets: >=3, >=1 with isEdgeCase true, every preset has the correct expectedOutput, and together they execute every branch of every approach.",
+    "visualizationIntent is REQUIRED in every approach — describe what the learner sees at each phase (init, loop-body, match, return). This is how the animation is validated against the algorithm."
   ],
 
   "schemaVersion": "2.0",
@@ -37,6 +39,7 @@
       "name": "REPLACE approach name",
       "kind": "optimal",
       "summary": "REPLACE one-line strategy.",
+      "visualizationIntent": "REPLACE — describe phase-by-phase what the learner sees. Example: 'init: empty array shown; loop: current element highlighted current, visited cells go grey; match: both indices turn result-green and animation pauses; return: freeze frame with final answer chip.'",
       "complexity": { "time": "O(n)", "space": "O(1)" },
       "language": "python",
       "entrypoint": "Solution.solve",

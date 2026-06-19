@@ -28,6 +28,18 @@ export interface CellStateRule {
   onlyWhen?: string;
 }
 
+/** Per-hashmap-entry state rule; scope includes `k` = the entry key (string | number). */
+export interface HighlightRule {
+  state: CellState;
+  whenKey: string;
+}
+
+/** Per-tree-or-graph-node state rule; scope includes `node_id` = the node's id string. */
+export interface NodeStateRule {
+  state: CellState;
+  when: string;
+}
+
 export interface DerivedContainer {
   left: string;
   right: string;
@@ -68,10 +80,28 @@ export interface PhaseRule {
 }
 
 export interface VisualMappingSpec {
-  primitive: "array" | "bar-container" | "linkedList" | "recursion" | "custom";
+  primitive:
+    | "array"
+    | "bar-container"
+    | "hashmap"
+    | "stack"
+    | "queue"
+    | "tree"
+    | "linkedList"
+    | "grid"
+    | "graph"
+    | "recursion"
+    | "custom";
+
+  // ── Array / bar-container ─────────────────────────────────────────────────
   /** var name whose value becomes visual.values */
   valuesFrom?: string;
-  pointers?: { name: string; var: string }[];
+  pointers?: {
+    name: string;
+    var?: string;      // array / linkedList / tree / graph: var holding index or node-id
+    rowVar?: string;   // grid only: var holding the row index
+    colVar?: string;   // grid only: var holding the col index
+  }[];
   cellStateRules?: CellStateRule[];
   derived?: { container?: DerivedContainer };
   window?: { from: string; to: string };
@@ -83,6 +113,58 @@ export interface VisualMappingSpec {
   keyEvents?: KeyEventRule[];
   /** which captured vars to surface in the rail (default: all primitives) */
   showVars?: string[];
+
+  // ── Hash map (B-3) ────────────────────────────────────────────────────────
+  /** var name of the Python dict to visualize */
+  keysFrom?: string;
+  /** per-entry state rules; evaluated with `k` = entry key in scope */
+  highlightRules?: HighlightRule[];
+  /** var name of the key being looked up (shows the flying chip) */
+  highlightKeyVar?: string;
+
+  // ── Stack (B-5) / Queue (B-6) ─────────────────────────────────────────────
+  /** var name of the list used as stack or queue */
+  itemsFrom?: string;
+  /** stack: var holding the top index (optional, display only) */
+  topVar?: string;
+  /** queue: var holding the front index (optional, display only) */
+  frontVar?: string;
+  /** queue: var holding the back index (optional, display only) */
+  backVar?: string;
+
+  // ── Tree (B-8) / Graph (B-10) — shared ───────────────────────────────────
+  /** var name of the nodes list: [{id, value, left?, right?, x?, y?, ...}] */
+  nodesFrom?: string;
+  /** var name of the edges list: [{from, to, weight?, directed?, state?}] */
+  edgesFrom?: string;
+  /** per-node state rules; evaluated with `node_id` = node's id in scope */
+  nodeStateRules?: NodeStateRule[];
+
+  // ── Graph (B-10) ─────────────────────────────────────────────────────────
+  /** default directed-ness for edges that omit the `directed` field */
+  directed?: boolean;
+
+  // ── Linked List (B-9) ────────────────────────────────────────────────────
+  /** var name of the links list: [{from, to}] */
+  linksFrom?: string;
+  /** var name of the changed-links list (drives animated pointer re-wiring) */
+  changedLinksFrom?: string;
+
+  // ── Grid / Matrix (B-11) ─────────────────────────────────────────────────
+  /** var name of the 2-D list (rows of rows) to visualize */
+  gridFrom?: string;
+
+  // ── Recursion (B-13/B-14) ────────────────────────────────────────────────
+  /** var name of the call-frames list: [{id, label, returnValue?, isCurrent?}] */
+  framesFrom?: string;
+  /** var name of the recursion tree-edges list: [{from, to}] */
+  treeEdgesFrom?: string;
+  /** var name of the currently-executing frame id */
+  currentFrameVar?: string;
+
+  // ── Tree cursor ring ──────────────────────────────────────────────────────
+  /** var name holding the current node id (drives the cursor ring) */
+  currentNodeVar?: string;
 }
 
 // ── Narration spec (narration.json) ────────────────────────────────────────────
