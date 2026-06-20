@@ -6,6 +6,7 @@
 // Covers: BFS traversal, sliding window max (monotonic deque), level-order processing.
 
 import type { QueueVisualState, CellState } from "@/lib/trace";
+import { fitTextSize } from "./renderer-utils";
 
 const CELL = 48;    // per SimulationRules A-3: "Queue cell (horizontal) | 48×48"
 const GAP = 4;      // per SimulationRules A-3: "Queue cell | 4px gap"
@@ -112,7 +113,7 @@ export function QueueRenderer({ visual }: { visual: QueueVisualState }) {
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="var(--font-mono)"
-              fontSize={17}
+              fontSize={fitTextSize(item.value, CELL, 17)}
               fontWeight={600}
               fill="var(--kn-ink-0)"
             >

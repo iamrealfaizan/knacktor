@@ -7,6 +7,7 @@
 import { evalExpr, evalBool, type Scope } from "./expr";
 import type {
   VisualMappingSpec,
+  AuxMappingSpec,
   CounterRule,
   KeyEventRule,
   PhaseRule,
@@ -14,6 +15,8 @@ import type {
 } from "./types";
 import type {
   VisualState,
+  LeafVisualState,
+  CombinedVisualState,
   CellState,
   StepPhase,
   KeyEvent,
@@ -115,21 +118,41 @@ export function fillTemplate(tmpl: string, scope: Scope): string {
   });
 }
 
-/** Build the VisualState for this step from the mapping spec + scope. */
+/**
+ * Build the VisualState for this step from the mapping spec + scope.
+ * Returns a CombinedVisualState when auxMappings are present (D19).
+ */
 export function mapVisual(
   spec: VisualMappingSpec,
   scope: Scope,
   prevVars: Record<string, unknown>
 ): VisualState {
+  if (spec.auxMappings?.length) {
+    const primary = mapLeaf(spec, scope, prevVars);
+    const aux = spec.auxMappings.map((a) => ({
+      label: a.label,
+      visual: mapAux(a, scope),
+    }));
+    return { type: "combined", primary, aux } as CombinedVisualState;
+  }
+  return mapLeaf(spec, scope, prevVars);
+}
+
+/** Map the primary primitive to a LeafVisualState (no combined nesting). */
+function mapLeaf(
+  spec: VisualMappingSpec,
+  scope: Scope,
+  prevVars: Record<string, unknown>
+): LeafVisualState {
   // ── Early dispatch for non-array primitives ─────────────────────────────
-  if (spec.primitive === "stack")    return mapStack(spec, scope);
-  if (spec.primitive === "queue")    return mapQueue(spec, scope);
-  if (spec.primitive === "hashmap")  return mapHashmap(spec, scope);
-  if (spec.primitive === "tree")     return mapTree(spec, scope);
+  if (spec.primitive === "stack")      return mapStack(spec, scope);
+  if (spec.primitive === "queue")      return mapQueue(spec, scope);
+  if (spec.primitive === "hashmap")    return mapHashmap(spec, scope);
+  if (spec.primitive === "tree")       return mapTree(spec, scope);
   if (spec.primitive === "linkedList") return mapLinkedList(spec, scope);
-  if (spec.primitive === "grid")     return mapGrid(spec, scope);
-  if (spec.primitive === "graph")    return mapGraph(spec, scope);
-  if (spec.primitive === "recursion") return mapRecursion(spec, scope);
+  if (spec.primitive === "grid")       return mapGrid(spec, scope);
+  if (spec.primitive === "graph")      return mapGraph(spec, scope);
+  if (spec.primitive === "recursion")  return mapRecursion(spec, scope);
 
   const valuesRaw = spec.valuesFrom ? scope[spec.valuesFrom] : undefined;
   const values = (Array.isArray(valuesRaw) ? valuesRaw : []) as (number | string)[];
@@ -218,6 +241,26 @@ export function mapVisual(
     ghosts: ghosts.length ? ghosts : undefined,
     readout,
   };
+}
+
+/**
+ * Map one AuxMappingSpec to a LeafVisualState.
+ * Casts to VisualMappingSpec since all per-primitive fields are structurally identical;
+ * pipeline-level fields (phaseRules, counters, keyEvents, flags, readout) are absent
+ * but the helpers only touch primitive-specific fields.
+ */
+function mapAux(aux: AuxMappingSpec, scope: Scope): LeafVisualState {
+  const spec = aux as unknown as VisualMappingSpec;
+  if (aux.primitive === "stack")      return mapStack(spec, scope);
+  if (aux.primitive === "queue")      return mapQueue(spec, scope);
+  if (aux.primitive === "hashmap")    return mapHashmap(spec, scope);
+  if (aux.primitive === "tree")       return mapTree(spec, scope);
+  if (aux.primitive === "linkedList") return mapLinkedList(spec, scope);
+  if (aux.primitive === "grid")       return mapGrid(spec, scope);
+  if (aux.primitive === "graph")      return mapGraph(spec, scope);
+  if (aux.primitive === "recursion")  return mapRecursion(spec, scope);
+  // array / bar-container (no ghosts/readout for aux)
+  return mapLeaf(spec, scope, {});
 }
 
 function num(v: unknown): number {
@@ -328,22 +371,61 @@ function mapLinkedList(spec: VisualMappingSpec, scope: Scope) {
   const rawLinks   = spec.linksFrom        ? scope[spec.linksFrom]        : [];
   const rawChanged = spec.changedLinksFrom ? scope[spec.changedLinksFrom] : [];
 
-  type RawNode = { id: string; value: number | string; state?: CellState };
-  type RawLink = { from: string; to: string };
+  const nodesArr   = Array.isArray(rawNodes)   ? rawNodes   : [];
+  const linksArr   = Array.isArray(rawLinks)   ? rawLinks   : [];
+  const changedArr = Array.isArray(rawChanged) ? rawChanged : [];
 
-  const nodes = (Array.isArray(rawNodes) ? rawNodes : []).map((n: RawNode) => {
-    const nodeState = resolveNodeState(String(n.id), spec.nodeStateRules, scope);
-    return {
-      id: String(n.id),
-      value: n.value,
-      state: nodeState !== "idle" ? nodeState : n.state,
-    };
-  });
+  // Two supported formats:
+  //   Flat  (array-based LL): nodes=[val0,val1,...], links=[next0,next1,...] (-1=no next),
+  //                           changedLinks=[nodeId,...] (IDs whose link just changed)
+  //   Structured:             nodes=[{id,value},...], links=[{from,to},...],
+  //                           changedLinks=[{from,to},...]
+  // Detection: if the first element is a primitive (not an object), it's the flat format.
+  const flatNodes   = nodesArr.length   === 0 || typeof nodesArr[0]   !== "object" || nodesArr[0]   === null;
+  const flatLinks   = linksArr.length   === 0 || typeof linksArr[0]   !== "object" || linksArr[0]   === null;
+  const flatChanged = changedArr.length === 0 || typeof changedArr[0] !== "object" || changedArr[0] === null;
 
-  const links = (Array.isArray(rawLinks) ? rawLinks : []) as RawLink[];
-  const changedLinks = Array.isArray(rawChanged) && rawChanged.length
-    ? (rawChanged as RawLink[])
-    : undefined;
+  const nodes = flatNodes
+    ? nodesArr.map((value: unknown, idx: number) => ({
+        id:    String(idx),
+        value: value as number | string,
+        state: resolveNodeState(String(idx), spec.nodeStateRules, scope),
+      }))
+    : (nodesArr as Array<{ id: string | number; value: number | string; state?: CellState }>).map((n) => {
+        const rs = resolveNodeState(String(n.id), spec.nodeStateRules, scope);
+        return {
+          id:    String(n.id),
+          value: n.value,
+          state: (rs !== "idle" ? rs : (n.state ?? "idle")) as CellState,
+        };
+      });
+
+  const links: { from: string; to: string }[] = flatLinks
+    ? (linksArr as number[]).flatMap((next, fromIdx) =>
+        next !== -1 ? [{ from: String(fromIdx), to: String(next) }] : []
+      )
+    : (linksArr as Array<{ from: string | number; to: string | number }>).map((lk) => ({
+        from: String(lk.from),
+        to:   String(lk.to),
+      }));
+
+  let changedLinks: { from: string; to: string }[] | undefined;
+  if (changedArr.length > 0) {
+    if (flatChanged && flatLinks) {
+      // Each entry is a node ID whose outgoing link just changed; look up current target.
+      changedLinks = (changedArr as number[])
+        .filter((nodeId) => isNum(nodeId) && nodeId >= 0)
+        .map((nodeId) => ({
+          from: String(nodeId),
+          to:   String((linksArr as number[])[nodeId] ?? -1),
+        }));
+    } else {
+      changedLinks = (changedArr as Array<{ from: string | number; to: string | number }>).map((lk) => ({
+        from: String(lk.from),
+        to:   String(lk.to),
+      }));
+    }
+  }
 
   const pointers = (spec.pointers ?? [])
     .filter((p) => p.var)

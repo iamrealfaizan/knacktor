@@ -1,6 +1,7 @@
 "use client";
 
 import type { ArrayVisualState, CellState } from "@/lib/trace";
+import { fitTextSize } from "./renderer-utils";
 
 const CELL = 48;
 const GAP = 8;
@@ -143,7 +144,7 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="var(--font-mono)"
-              fontSize={18}
+              fontSize={fitTextSize(v, CELL)}
               fontWeight={600}
               fill="var(--kn-ink-0)"
             >

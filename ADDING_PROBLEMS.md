@@ -181,6 +181,14 @@ Examples:
   "changedLinksFrom": "changed_links" }
 ```
 
+- **`auxMappings`** *(array, optional)* — Secondary structures to render alongside the primary in the stage. Each entry has:
+  - `label` (string) — displayed as a divider header, e.g. `"Stack"`, `"Queue"`
+  - `primitive` — same values as the top-level `primitive` field
+  - Same primitive-specific fields as the primary (`itemsFrom`, `cellStateRules`, etc.)
+  - Pipeline fields (`phaseRules`, `counters`, `keyEvents`, `readout`, `flags`) belong to the primary only — omit them here
+  - Layout is auto-decided: horizontal primary + vertical aux → side-by-side; all other combos → stacked below
+  - Empty aux containers always render (so the learner sees them waiting from step 1)
+
 **`grid`** mapping fields:
 ```jsonc
 { "primitive": "grid", "gridFrom": "grid",
@@ -304,6 +312,21 @@ Fields:
 - `counters`: `[{ "name", "onLines"?: [n], "when"?: expr }]` — increment per matching step.
 - `phaseRules`: `[{ "phase", "lines": [n], "when"?: expr }]` — first match by line.
   `phase` ∈ `init, loop, check, update, move, recurse, return, done`.
+
+  **Phase meanings — use the right one or the UI labels the wrong moment:**
+
+  | Phase | Meaning | Lines that belong here |
+  |---|---|---|
+  | `init` | One-time setup that runs **before the first loop**. If a line appears after any `while`/`for` in your solution, it is NOT `init`. | Variable declarations, copy-input, initialize sentinels — all before the first loop header |
+  | `loop` | The loop header itself (every iteration, including the final false check). | `while …:`, `for … in …:` |
+  | `check` | A branch condition that doesn't change state. | `if …:` lines, condition-only evaluations |
+  | `update` | Any state change — including **cleanup or reset lines between two loops** (e.g. `changed_links = []`). | Assignments, `.append`, link rewrites, counter increments |
+  | `move` | Advancing a traversal pointer — including **setting the start of a second pass** (e.g. `current = new_head`). | `i += 1`, `current = nxt`, `current = previous`, `head = head.next` |
+  | `recurse` | A recursive call. | The line containing the self-call |
+  | `return` | The `return` statement. | `return result` |
+  | `done` | Post-loop teardown not covered by the above. | Rarely used |
+
+  🔴 **The most common phase bug:** labelling post-loop cleanup or second-pass setup as `"init"`. If you wrote `"init"` for any line whose line number is greater than the first loop header in the file, stop and reclassify it (`"update"` for resets, `"move"` for pointer advances).
 - `keyEvents`: `[{ "line"?: n, "when"?: expr, "label", "kind"? }]` — conditions are ANDed; provide at
   least one of `line`/`when`; `kind` ∈ `match, best, result, boundary, return`. Mark only meaningful
   moments (a match / new-best + the return), not every step.
@@ -401,6 +424,19 @@ Mentally simulate ingest. Do NOT output until ALL of these hold:
     confirm each pivotal step's `visual` actually *shows* that operation (the compared elements, the
     pointer move, the node traversal, the stack push/pop). A reviewer will run the same check
     ([rules/FidelityReview.md]) and reject mismatches — do not try to approximate.
+13. 🔴 **Phase boundary check:** For every approach, list all lines tagged `"init"` and all lines
+    tagged `"loop"`. If ANY `"init"` line number is greater than the SMALLEST `"loop"` line number,
+    you have a misclassification — reclassify now:
+    - A line that **resets shared state** between two loops (e.g. `changed_links = []`) → `"update"`
+    - A line that **sets the traversal start** for a second pass (e.g. `current = new_head`) → `"move"`
+    - A line that **initialises variables** needed only for the next loop → `"update"` or `"move"` as appropriate
+    `"init"` is only for lines that run **once, unconditionally, before any loop ever starts**.
+14. 🔴 **byLine completeness check:** ingest will now FAIL if any executed line has no `byLine`
+    entry in `narration.json`. For each approach, compare `narration.byLine` keys against
+    `executableLines` (every line that has bytecode, per `dis.findlinestarts`). A missing key means
+    that step falls back to the generic `byPhase` summary — not acceptable. Note: bare `else:` lines
+    have no bytecode and do NOT need a `byLine` entry; the first statement inside the else block does.
+15. **Aux structures**: If the algorithm uses a secondary structure (stack, queue, hashmap, result array), add an `auxMappings` entry — do not represent it only via a `readout` text chip.
 
 Then output the single ```json block. Nothing else.
 

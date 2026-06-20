@@ -1,21 +1,34 @@
 {
   "primitive": "array",
-  "valuesFrom": "strs",
+  "valuesFrom": "nums",
   "pointers": [
     {
       "name": "i",
       "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
     }
   ],
-  "flags": {},
+  "flags": {
+    "hasJ": "j != null",
+    "isMatch": "current_sum == target"
+  },
   "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == i || idx == j",
+      "onlyWhen": "isMatch"
+    },
+    {
+      "state": "compared",
+      "when": "idx == i || idx == j",
+      "onlyWhen": "hasJ"
+    },
     {
       "state": "current",
       "when": "idx == i"
-    },
-    {
-      "state": "special",
-      "when": "idx == 0"
     },
     {
       "state": "visited",
@@ -28,20 +41,13 @@
   ],
   "readout": {
     "when": "phase != 'return'",
-    "expr": "candidate prefix = {prefix}"
+    "expr": "target = {target}; current sum = {current_sum}"
   },
   "counters": [
     {
-      "name": "prefix checks",
+      "name": "pair checks",
       "onLines": [
-        6,
         9
-      ]
-    },
-    {
-      "name": "shrinks",
-      "onLines": [
-        8
       ]
     }
   ],
@@ -56,48 +62,41 @@
       "phase": "loop",
       "lines": [
         4,
-        7
-      ]
-    },
-    {
-      "phase": "check",
-      "lines": [
-        5,
-        6,
-        10
+        6
       ]
     },
     {
       "phase": "update",
       "lines": [
+        5,
+        7,
         8,
-        9,
-        11,
-        13
+        10
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9
       ]
     },
     {
       "phase": "return",
       "lines": [
-        12,
-        14
+        11
       ]
     }
   ],
   "keyEvents": [
     {
-      "line": 8,
-      "label": "Candidate shrinks",
-      "kind": "boundary"
+      "line": 9,
+      "when": "current_sum == target",
+      "label": "Matching pair found",
+      "kind": "match"
     },
     {
-      "line": 12,
-      "label": "No common prefix",
-      "kind": "return"
-    },
-    {
-      "line": 14,
-      "label": "Final prefix returned",
+      "line": 11,
+      "label": "Final answer",
       "kind": "return"
     }
   ]

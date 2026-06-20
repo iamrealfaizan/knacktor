@@ -1,0 +1,53 @@
+{
+  "id": "optimal",
+  "name": "Hash Map of Seen Values",
+  "kind": "optimal",
+  "summary": "Scan once, storing each seen value's index, and look up the complement needed for the current number.",
+  "visualizationIntent": "init: show an empty hash map and an empty result list. loop: visit each number from left to right and treat it as the current value. check: compute complement and look for it in the hash map of earlier values. update: if complement is absent, insert the current value with its index into the map. return: when complement is present, highlight the complement entry and return the stored index with the current index.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.twoSum",
+  "primaryPrimitive": "hashmap",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "result",
+    "label": "RESULT",
+    "render": "list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "num": "current",
+    "complement": "result",
+    "num_map": "special",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Create an empty hash map that will store each previously seen number and its index.",
+    "4": "Create an empty result list that will be filled when the matching pair is found.",
+    "5": "Move through the array one index at a time.",
+    "6": "Read the current number at index i.",
+    "7": "Compute the value needed from an earlier index to reach the target with the current number.",
+    "8": "Check whether that needed complement has already been seen in the hash map.",
+    "9": "Build the result from the stored index of the complement and the current index i.",
+    "10": "Return the answer immediately after finding the matching pair.",
+    "11": "Store the current number and its index so a future number can pair with it."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def twoSum(self, nums, target): defines a method that receives the array nums and the integer target.",
+    "3": "num_map = {} creates an empty Python dictionary.",
+    "4": "result = [] creates an empty Python list.",
+    "5": "for i in range(len(nums)): loops i over every valid index in nums.",
+    "6": "num = nums[i] reads the current array value.",
+    "7": "complement = target - num subtracts the current number from target to find the needed partner value.",
+    "8": "if complement in num_map: checks whether the dictionary already has complement as a key.",
+    "9": "result = [num_map[complement], i] builds a list using the saved complement index and the current index.",
+    "10": "return result sends the answer back and stops the method.",
+    "11": "num_map[num] = i stores or updates a dictionary entry whose key is num and whose value is i."
+  }
+}

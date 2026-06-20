@@ -175,7 +175,8 @@ export interface GraphVisualState {
   pointers: { name: string; at: string | null }[];
 }
 
-export type VisualState =
+/** All single-primitive states — no nesting. Used as the element type inside CombinedVisualState. */
+export type LeafVisualState =
   | ArrayVisualState
   | LinkedListVisualState
   | RecursionVisualState
@@ -186,6 +187,15 @@ export type VisualState =
   | TreeVisualState
   | GridVisualState
   | GraphVisualState;
+
+/** Two or more primitives shown simultaneously in one stage (D19). */
+export interface CombinedVisualState {
+  type: "combined";
+  primary: LeafVisualState;
+  aux: { label: string; visual: LeafVisualState }[];
+}
+
+export type VisualState = LeafVisualState | CombinedVisualState;
 
 // ── Step (Schema §2.5) — one per executed source line (D8) ──────────────────
 export type StepPhase =

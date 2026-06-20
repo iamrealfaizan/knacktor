@@ -6,6 +6,7 @@
 // Covers: monotonic stack, valid parentheses, expression eval, histogram, backtracking.
 
 import type { StackVisualState, CellState } from "@/lib/trace";
+import { fitTextSize } from "./renderer-utils";
 
 const CELL_W = 88;    // per SimulationRules A-3: "Stack cell (vertical) | 88×40"
 const CELL_H = 40;
@@ -133,7 +134,7 @@ export function StackRenderer({ visual }: { visual: StackVisualState }) {
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fontFamily="var(--font-mono)"
-                fontSize={16}
+                fontSize={fitTextSize(item.value, CELL_W, 16)}
                 fontWeight={isTOS ? 700 : 500}
                 fill="var(--kn-ink-0)"
               >

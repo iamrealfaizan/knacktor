@@ -79,6 +79,53 @@ export interface PhaseRule {
   when?: string;
 }
 
+/**
+ * Spec for one auxiliary structure shown alongside the primary in the stage (D19).
+ * Omits pipeline-level fields (phaseRules, counters, keyEvents, flags, readout)
+ * since those only apply to the primary.
+ */
+export interface AuxMappingSpec {
+  primitive: "array" | "bar-container" | "hashmap" | "stack" | "queue" | "linkedList" | "tree" | "grid" | "graph" | "recursion";
+  /** Human-readable label shown as a divider above the aux visual, e.g. "Stack" */
+  label: string;
+
+  // array / bar-container
+  valuesFrom?: string;
+  pointers?: { name: string; var?: string; rowVar?: string; colVar?: string }[];
+  cellStateRules?: CellStateRule[];
+  window?: { from: string; to: string };
+
+  // hashmap
+  keysFrom?: string;
+  highlightRules?: HighlightRule[];
+  highlightKeyVar?: string;
+
+  // stack / queue
+  itemsFrom?: string;
+  topVar?: string;
+  frontVar?: string;
+  backVar?: string;
+
+  // tree / graph
+  nodesFrom?: string;
+  edgesFrom?: string;
+  nodeStateRules?: NodeStateRule[];
+  directed?: boolean;
+
+  // linkedList
+  linksFrom?: string;
+  changedLinksFrom?: string;
+
+  // grid
+  gridFrom?: string;
+
+  // recursion
+  framesFrom?: string;
+  treeEdgesFrom?: string;
+  currentFrameVar?: string;
+  currentNodeVar?: string;
+}
+
 export interface VisualMappingSpec {
   primitive:
     | "array"
@@ -165,6 +212,10 @@ export interface VisualMappingSpec {
   // ── Tree cursor ring ──────────────────────────────────────────────────────
   /** var name holding the current node id (drives the cursor ring) */
   currentNodeVar?: string;
+
+  // ── Multi-structure (D19) ─────────────────────────────────────────────────
+  /** Secondary structures to render alongside the primary in the stage. */
+  auxMappings?: AuxMappingSpec[];
 }
 
 // ── Narration spec (narration.json) ────────────────────────────────────────────

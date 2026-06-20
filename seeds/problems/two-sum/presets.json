@@ -1,0 +1,72 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "nums": [
+        2,
+        7,
+        11,
+        15
+      ],
+      "target": 9
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "nums": [
+        3,
+        2,
+        4
+      ],
+      "target": 6
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "edge-duplicates",
+    "label": "Duplicate values",
+    "value": {
+      "nums": [
+        3,
+        3
+      ],
+      "target": 6
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "edge-negative-values",
+    "label": "Negative values",
+    "value": {
+      "nums": [
+        -1,
+        -2,
+        -3,
+        -4,
+        -5
+      ],
+      "target": -8
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      2,
+      4
+    ]
+  }
+]

@@ -1,0 +1,60 @@
+[
+  {
+    "id": "example-1",
+    "label": "Five-node list",
+    "value": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      5,
+      4,
+      3,
+      2,
+      1
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Two-node list",
+    "value": {
+      "head": [
+        1,
+        2
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      2,
+      1
+    ]
+  },
+  {
+    "id": "edge-empty",
+    "label": "Empty list",
+    "value": {
+      "head": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "edge-single",
+    "label": "Single node",
+    "value": {
+      "head": [
+        7
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      7
+    ]
+  }
+]

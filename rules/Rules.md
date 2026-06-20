@@ -45,6 +45,12 @@
 - Topic pages and pattern pages are separate concepts on separate routes.
 - Interview sheets are classic prep-style collections, **not** progress systems in MVP.
 
+## 5.1 Renderer choice — mandatory user confirmation (scaling rule)
+- **Every new problem addition must pause at the renderer-selection step and present a full renderer analysis to the user before proceeding.** This is non-negotiable, even when an existing renderer is the obvious fit.
+- The analysis must cover: (a) recommended renderer + unit-of-work match, (b) exactly how the DSL wires up to the algorithm's state (concrete field-level mapping, pivotal step walkthrough), (c) whether the D17 custom-escape-hatch criteria apply (≥2 of 3), (d) any fidelity risk or DSL limitation.
+- The agent must wait for explicit user confirmation of the renderer choice before running the tracer or ingesting.
+- **Rationale:** the renderer decision is the highest-leverage call in problem authoring — a wrong choice passes Gate 1 but fails Gate 2, wasting the full trace + narration effort. Confirming with the user upfront costs 30 seconds and prevents hours of rework.
+
 ## 6. Content authoring
 - No MVP problem is publishable without a **full teaching package** (statement, metadata, ≥1 traced Python approach, line explanations, narration, presets, validated visual behavior).
 - Traces are generated from **executed code** as the primary source of truth; preset traces are precomputed and versioned.
