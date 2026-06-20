@@ -1,0 +1,75 @@
+{
+  "primitive": "array",
+  "valuesFrom": "combined",
+  "pointers": [],
+  "flags": {},
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "current",
+      "when": "idx == len(combined) - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "combined length = {len(combined)}"
+  },
+  "counters": [
+    {
+      "name": "appends",
+      "onLines": [
+        5,
+        7
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4,
+        6
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        5,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        10
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 8,
+      "label": "Sorted!",
+      "kind": "best"
+    },
+    {
+      "line": 10,
+      "label": "Final merged list",
+      "kind": "return"
+    }
+  ]
+}

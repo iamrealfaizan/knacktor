@@ -36,6 +36,23 @@ const KIND_CLASS: Record<string, string> = {
   return: "bg-kn-current border-kn-current-border",
 };
 
+function formatInputPairs(value: unknown): string {
+  if (!value || typeof value !== "object") return String(value ?? "");
+  return Object.entries(value as Record<string, unknown>)
+    .map(([k, v]) => {
+      if (Array.isArray(v)) {
+        const items = v as unknown[];
+        const display =
+          items.length > 10
+            ? `[${items.slice(0, 10).join(", ")}, …]`
+            : `[${items.join(", ")}]`;
+        return `${k} = ${display}`;
+      }
+      return `${k} = ${v}`;
+    })
+    .join("  ·  ");
+}
+
 export function ControlDock({
   player,
   keyEventIndices,
@@ -331,10 +348,15 @@ export function ControlDock({
         </div>
       </div>
 
-      {/* Key event caption */}
-      <div className="flex items-center gap-1.5 text-[11px] text-kn-ink-2">
-        <span className="w-2 h-2 bg-kn-amber border border-kn-amber-bd inline-block" style={{ transform: "rotate(45deg)" }} />
-        diamonds mark key moments — hover for details · drag the bar to scrub
+      {/* Input display + key event caption */}
+      <div className="flex items-center justify-between text-[11px] text-kn-ink-2 min-w-0">
+        <span className="font-mono truncate min-w-0 mr-4">
+          {formatInputPairs(presets.find((p) => p.id === activeInputId)?.value)}
+        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-2 h-2 bg-kn-amber border border-kn-amber-bd inline-block" style={{ transform: "rotate(45deg)" }} />
+          diamonds mark key moments — hover for details · drag the bar to scrub
+        </div>
       </div>
     </footer>
   );

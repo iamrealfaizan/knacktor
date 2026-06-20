@@ -1,0 +1,173 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "About to copy list1 into l1_rem — a working array we'll shrink as we consume nodes.",
+      "why": "Copying lets us pop from the front to track what remains visible in the list1 chain.",
+      "invariant": "list1 and list2 are unmodified; l1_rem is about to be initialized."
+    },
+    "4": {
+      "happening": "About to copy list2 into l2_rem.",
+      "why": "Same pattern: a shrinking array tracks list2's remaining nodes.",
+      "invariant": "l1_rem is ready; l2_rem is about to be initialized."
+    },
+    "5": {
+      "happening": "About to create result = [] — the growing merged output.",
+      "why": "result will accumulate nodes in sorted order as we splice them in.",
+      "invariant": "l1_rem and l2_rem are ready; result is about to be created."
+    },
+    "6": {
+      "happening": "About to set splice_source = None — will record which list each node comes from.",
+      "why": "The visualizer uses splice_source to animate the node flying from list1 or list2 into result.",
+      "invariant": "All working arrays are ready."
+    },
+    "7": {
+      "happening": "About to set splice_val = None — will hold the value just spliced for the animation label.",
+      "why": "Storing splice_val separately lets the visualizer label the flying node correctly.",
+      "invariant": "Initialization complete. l1_rem = {l1_rem}, l2_rem = {l2_rem}, result = []."
+    },
+    "8": [
+      {
+        "when": "len(l1_rem) > 0 && len(l2_rem) > 0",
+        "happening": "Both lists still have nodes — entering the comparison loop.",
+        "why": "As long as both lists have remaining nodes, we must choose the smaller front to splice next.",
+        "invariant": "result is sorted so far. l1_rem has {len(l1_rem)} nodes, l2_rem has {len(l2_rem)} nodes."
+      },
+      {
+        "happening": "At least one list is exhausted — exiting the main loop.",
+        "why": "Once either list is empty there is nothing left to compare; we drain the other.",
+        "invariant": "result has {len(result)} nodes in sorted order."
+      }
+    ],
+    "9": [
+      {
+        "when": "l1_rem[0] <= l2_rem[0]",
+        "happening": "l1_rem[0] = {l1_rem[0]} ≤ l2_rem[0] = {l2_rem[0]} — list1's front wins (or ties).",
+        "why": "The smaller (or equal) front is always safe to append — it can't be out-of-order with anything remaining.",
+        "invariant": "result is sorted; the next node to splice comes from list1."
+      },
+      {
+        "happening": "l1_rem[0] = {l1_rem[0]} > l2_rem[0] = {l2_rem[0]} — list2's front is smaller.",
+        "why": "The else branch fires when list2 wins the comparison.",
+        "invariant": "result is sorted; the next node to splice comes from list2."
+      }
+    ],
+    "10": {
+      "happening": "About to record splice_source = 'list1' — the animation will fly a node from the list1 chain.",
+      "why": "Labelling the source before the splice keeps visualizer state one step ahead.",
+      "invariant": "l1_rem[0] = {l1_rem[0]} is about to be spliced."
+    },
+    "11": {
+      "happening": "About to peek splice_val = l1_rem[0] = {l1_rem[0]} for the animation label.",
+      "why": "Storing the value before pop ensures the label survives the structural change.",
+      "invariant": "splice_source = 'list1'; splice_val is about to be set to {l1_rem[0]}."
+    },
+    "12": {
+      "happening": "About to splice {splice_val} from list1 — popping it from l1_rem and appending to result.",
+      "why": "This is the core merge step: the smaller node leaves its source chain and joins the result.",
+      "invariant": "result will have {len(result)} + 1 nodes; l1_rem will shrink by one."
+    },
+    "14": {
+      "happening": "About to record splice_source = 'list2' — the animation will fly a node from the list2 chain.",
+      "why": "list2's front was smaller; it becomes the next node in the result.",
+      "invariant": "l2_rem[0] = {l2_rem[0]} is about to be spliced."
+    },
+    "15": {
+      "happening": "About to peek splice_val = l2_rem[0] = {l2_rem[0]}.",
+      "why": "Same pattern: preserve the value before the pop so the label is available for the animation.",
+      "invariant": "splice_source = 'list2'; splice_val is about to be set to {l2_rem[0]}."
+    },
+    "16": {
+      "happening": "About to splice {splice_val} from list2 — popping it from l2_rem and appending to result.",
+      "why": "list2's front is smaller; splicing it maintains sorted order in result.",
+      "invariant": "result will have {len(result)} + 1 nodes; l2_rem will shrink by one."
+    },
+    "17": [
+      {
+        "when": "len(l1_rem) > 0",
+        "happening": "List2 is exhausted — list1 still has {len(l1_rem)} remaining nodes to drain.",
+        "why": "Since list2 is empty, all remaining list1 nodes are already in sorted order relative to result.",
+        "invariant": "result has {len(result)} nodes; l1_rem = {l1_rem} will be appended one-by-one."
+      },
+      {
+        "happening": "List1 is also empty — nothing left to drain from list1.",
+        "why": "Both lists were consumed in the main loop; fall through to check list2.",
+        "invariant": "result has {len(result)} nodes in sorted order."
+      }
+    ],
+    "18": {
+      "happening": "About to record splice_source = 'list1' for the drain animation.",
+      "why": "Each drain step animates the same way as a regular splice — the node flies from list1 to result.",
+      "invariant": "l1_rem[0] = {l1_rem[0]} is about to be drained."
+    },
+    "19": {
+      "happening": "About to peek splice_val = l1_rem[0] = {l1_rem[0]}.",
+      "why": "Preserve the value before popping so the animation label is correct.",
+      "invariant": "splice_val about to be set; l1_rem has {len(l1_rem)} nodes remaining."
+    },
+    "20": {
+      "happening": "About to drain {splice_val} from list1 into result.",
+      "why": "List2 is gone; each remaining list1 node belongs at the end of the sorted result.",
+      "invariant": "result will have {len(result)} + 1 nodes after this step."
+    },
+    "21": [
+      {
+        "when": "len(l2_rem) > 0",
+        "happening": "List1 is exhausted — list2 still has {len(l2_rem)} remaining nodes to drain.",
+        "why": "Since list1 is empty, all remaining list2 nodes are already in sorted order relative to result.",
+        "invariant": "result has {len(result)} nodes; l2_rem = {l2_rem} will be appended one-by-one."
+      },
+      {
+        "happening": "List2 is also empty — nothing left to drain from list2.",
+        "why": "Both lists were fully consumed; the merge is complete.",
+        "invariant": "result has {len(result)} nodes — the complete merged sequence."
+      }
+    ],
+    "22": {
+      "happening": "About to record splice_source = 'list2' for the drain animation.",
+      "why": "Same animation as a regular splice — the node flies from list2 into result.",
+      "invariant": "l2_rem[0] = {l2_rem[0]} is about to be drained."
+    },
+    "23": {
+      "happening": "About to peek splice_val = l2_rem[0] = {l2_rem[0]}.",
+      "why": "Preserve the value before popping for the animation label.",
+      "invariant": "splice_val about to be set; l2_rem has {len(l2_rem)} nodes remaining."
+    },
+    "24": {
+      "happening": "About to drain {splice_val} from list2 into result.",
+      "why": "List1 is gone; each remaining list2 node belongs at the end of the sorted result.",
+      "invariant": "result will have {len(result)} + 1 nodes after this step."
+    },
+    "25": {
+      "happening": "Returning result — the fully merged sorted list of {len(result)} nodes.",
+      "why": "Both source lists are exhausted; result contains all nodes in non-decreasing order.",
+      "invariant": "result = {result} — correct sorted merge of the two input lists."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the working arrays for the three visual chains.",
+      "why": "l1_rem and l2_rem will shrink as we consume nodes; result grows as we splice.",
+      "invariant": "Input lists are unmodified; all working state is initialized."
+    },
+    "loop": {
+      "happening": "Checking whether there are nodes remaining to compare or drain.",
+      "why": "The loop condition determines which phase of the merge we are in.",
+      "invariant": "result is sorted so far."
+    },
+    "check": {
+      "happening": "Comparing the front values of list1 and list2.",
+      "why": "The smaller front is always safe to append — it cannot be out-of-order with anything remaining.",
+      "invariant": "The result chain is sorted up to its current length."
+    },
+    "update": {
+      "happening": "Splicing the smaller node from its source list into result.",
+      "why": "The core merge operation: the winning node leaves its chain and joins the result.",
+      "invariant": "result grows by one node and remains sorted."
+    },
+    "return": {
+      "happening": "Returning the merged sorted list.",
+      "why": "Both source lists are exhausted; result contains the complete sorted merge.",
+      "invariant": "result has all input nodes in non-decreasing order."
+    }
+  }
+}

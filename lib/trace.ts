@@ -175,6 +175,14 @@ export interface GraphVisualState {
   pointers: { name: string; at: string | null }[];
 }
 
+/** Bespoke per-problem HTML visualization (D17). Not rendered inside the SVG canvas. */
+export interface CustomVisualState {
+  type: "custom";
+  /** Matches the filename slug in components/problem/custom/<componentKey>-visualizer.tsx */
+  componentKey: string;
+  [key: string]: unknown;
+}
+
 /** All single-primitive states — no nesting. Used as the element type inside CombinedVisualState. */
 export type LeafVisualState =
   | ArrayVisualState
@@ -186,7 +194,8 @@ export type LeafVisualState =
   | HashMapVisualState
   | TreeVisualState
   | GridVisualState
-  | GraphVisualState;
+  | GraphVisualState
+  | CustomVisualState;
 
 /** Two or more primitives shown simultaneously in one stage (D19). */
 export interface CombinedVisualState {

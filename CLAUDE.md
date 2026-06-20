@@ -140,7 +140,36 @@ If custom IS recommended: describe the bespoke component's layout, what it shows
 **D. Risk / fidelity call-out**
 Flag any step where the visual might mislead (e.g. a renderer that shows the right data but obscures the real operation). If there is any doubt about Gate 2 fidelity, say so now — it is cheaper to reconsider the renderer here than after tracing.
 
-**E. Explicit question to the user**
+**E. ASCII mockup + walk-through (required — do not skip)**
+Draw the stage at exactly 3 moments using actual values from preset `example-1`:
+1. **Init** — what does the learner see when the animation first loads?
+2. **One key algorithmic step** — the "unit of work": the comparison, the swap, the splice, the push/pop.
+3. **Return** — what does the finished result look like?
+
+For each moment, write one sentence: *"The learner sees ___ and understands ___."*
+
+Example format:
+```
+Init:    list1: [1]→[2]→[4]   list2: [1]→[3]→[4]   result: [∅]
+         Learner sees: two separate source chains and an empty result.
+
+Step 3:  list1: [2]→[4]   list2: [1]→[3]→[4]   result: [∅]→[1]
+         Learner sees: [1] has left list1 and arrived in result; list1 shrank.
+
+Return:  list1: []   list2: []   result: [∅]→[1]→[1]→[2]→[3]→[4]→[4]
+         Learner sees: both source chains empty, result is the complete sorted merge.
+```
+
+**F. Variable population verification (required — do not skip)**
+For EACH variable referenced in the proposed `mapping.json` (`nodesFrom`, `linksFrom`, `valuesFrom`, `pointers`, `customVars` entries, `cellStateRules` expressions), state:
+- (a) which line of `solution.py` first **writes** it (not just initializes as empty)
+- (b) what value it holds at step 5 of `example-1`
+
+If any variable is initialized as `[]` or `None` and only populated later, explicitly note which steps show an empty/null structure and whether that is the intended learner experience.
+
+**Example answer:** "`nodes = []` initialized at line 5, first populated at line 8 (loop body). Steps 1–4 (init phase) show an empty linkedList chain. This is intentional — the learner watches nodes being added."
+
+**G. Explicit question to the user**
 End with: *"Proceed with [renderer name] for [approach name]? Or would you like a different renderer or a custom visualization?"* — then **wait for the user's answer** before moving to Step 3.
 
 **Step 3 — Run tracer + build trace** (run automatically after user confirms renderer)

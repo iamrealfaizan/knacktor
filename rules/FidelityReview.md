@@ -93,6 +93,32 @@ Findings:
 (If DEFER) Needed renderer: <name> — <why the current primitives can't represent the unit of work>
 ```
 
+## Per-Renderer Structural Checks
+
+After the 10 generic criteria above, run the renderer-specific check for the primitive used:
+
+### linkedList
+- [ ] `nodesFrom` variable has one entry per visible node at **every step** (not just init or return)
+- [ ] `linksFrom` has n−1 edges for n nodes at every step (null terminator is shown, not absent)
+- [ ] The algorithm's unit of work (advance pointer, splice node, reverse link) is visible as a
+  structural or state change — not just narration
+- [ ] If the algorithm works across multiple distinct chains simultaneously, confirm a single flat
+  chain doesn't obscure which chain each node belongs to — if so, **DEFER** to a custom renderer
+
+### array / bar-container
+- [ ] `valuesFrom` holds the complete element set at every step
+- [ ] Pointers sit at the index the code variable holds at that exact line (not the following step)
+- [ ] If two pointers cross or meet, both flash `compared` at that step
+
+### custom
+- [ ] All `customVars` produce non-null values by step 3 of example-1
+- [ ] Component tested against all presets (not just example-1), including edge cases
+- [ ] Spatial layout directly teaches the insight stated in the approach `summary`
+- [ ] Cross-structure animations (node-fly, arc-glide) are tested at the step they first trigger
+- [ ] D17 criteria are documented in the component's top-of-file comment (why generic was insufficient)
+
+---
+
 ## Standing consequence
 
 Any problem already in the DB that fails this gate must be **removed or rebuilt** before launch — a

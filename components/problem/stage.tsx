@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { Plus, Minus, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrayRenderer } from "./array-renderer";
@@ -13,7 +14,17 @@ import { HashMapRenderer } from "./hashmap-renderer";
 import { TreeRenderer } from "./tree-renderer";
 import { GridRenderer } from "./grid-renderer";
 import { GraphRenderer } from "./graph-renderer";
-import type { VisualState, LeafVisualState, CombinedVisualState } from "@/lib/trace";
+import type { VisualState, LeafVisualState, CombinedVisualState, CustomVisualState } from "@/lib/trace";
+
+// ── Custom renderer registry (D17) ───────────────────────────────────────────
+// Register each custom per-problem component here. Dynamic import keeps them
+// out of the main bundle. Custom renderers are HTML-based and bypass the SVG canvas.
+const CUSTOM_RENDERERS: Record<string, React.ComponentType<{ visual: CustomVisualState }>> = {
+  "merge-two-sorted-lists": dynamic(
+    () => import("./custom/merge-two-sorted-lists-visualizer"),
+    { loading: () => null }
+  ) as React.ComponentType<{ visual: CustomVisualState }>,
+};
 
 // ── Legend definitions per visual type ─────────────────────────────────────
 
@@ -286,6 +297,32 @@ export function Stage({
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+
+  // ── Custom HTML renderer bypass (D17) — skips SVG canvas entirely ─────────
+  if (visual.type === "custom") {
+    const cvis = visual as CustomVisualState;
+    const CustomComp = CUSTOM_RENDERERS[cvis.componentKey];
+    return (
+      <div
+        className="relative flex-1 min-h-0 overflow-hidden"
+        style={{
+          background: "var(--kn-stage)",
+          backgroundImage: "radial-gradient(var(--kn-dot) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      >
+        <span className="absolute top-3 left-3 z-10 font-mono text-[9.5px] font-bold tracking-widest text-kn-ink-2 pointer-events-none uppercase">
+          {caption}
+        </span>
+        <div className="w-full h-full flex items-center justify-center p-8">
+          {CustomComp
+            ? <CustomComp visual={cvis} />
+            : <span className="text-kn-ink-2 text-sm font-mono">Renderer not found: {cvis.componentKey}</span>
+          }
+        </div>
+      </div>
+    );
+  }
 
   function onWheel(e: React.WheelEvent) {
     const next = Math.max(0.5, Math.min(2.6, scale - e.deltaY * 0.0012));

@@ -408,6 +408,25 @@ its OLD value; the new value appears on the NEXT step. Phrase narration as "abou
 
 ---
 
+## §X. Simulation Reasoning (complete this before writing any mapping.json)
+
+For each approach, verify before writing mapping.json:
+
+- [ ] I have traced example-1 mentally, step by step, from init to return.
+- [ ] For every variable I reference in mapping.json, I can state:
+  - (a) which line of solution.py writes it (not just declares it)
+  - (b) what value it holds at step 5 of example-1
+  - (c) whether it is empty/None at any step the learner will see
+- [ ] If any referenced variable is empty at init (nodes=[], links=[]), I have confirmed
+  the mapping only reads it AFTER it is populated (using `when:` expressions).
+- [ ] I have drawn an ASCII diagram showing init, one key step, and return — with actual
+  example-1 values — and written one sentence per moment: "The learner sees ___ and understands ___."
+- [ ] The algorithm's "unit of work" is: _____. My mapping makes exactly this visible.
+- [ ] If using linkedList: my nodes array has one entry per visible node at EVERY step,
+  not just the return step. My links array has one entry per edge at every step.
+
+---
+
 ## 10. MANDATORY SELF-VALIDATION — do this before you output
 
 Mentally simulate ingest. Do NOT output until ALL of these hold:
@@ -448,6 +467,11 @@ Mentally simulate ingest. Do NOT output until ALL of these hold:
     that step falls back to the generic `byPhase` summary — not acceptable. Note: bare `else:` lines
     have no bytecode and do NOT need a `byLine` entry; the first statement inside the else block does.
 15. **Aux structures**: If the algorithm uses a secondary structure (stack, queue, hashmap, result array), add an `auxMappings` entry — do not represent it only via a `readout` text chip.
+16. **Preset label naming:** Every standard preset has `id: "example-1"` / `"example-2"` (etc.) and `label: "Example 1"` / `"Example 2"` — never `"LeetCode Example 1"`, `"Test Case 1"`, or `"Basic case"`. Every edge-case preset has `id: "edge-<descriptor>"` (kebab-case) and a 2–4 word Title Case `label` that describes what makes it interesting (e.g. `"All duplicates"`, `"Single element"`, `"Negative values"`). Never `"Edge case 1"` or `"Edge 1"`.
+17. **Simulation variable population** — every var referenced in mapping.json is written
+    (not just initialized empty) before the steps where it is read. If `nodes = []` is
+    initialized on line 3 and populated on line 20, any linkedList mapping reading `nodes`
+    between lines 3–20 will show an empty chain. Check this for each preset.
 
 Then output the single ```json block. Nothing else.
 
