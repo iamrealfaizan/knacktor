@@ -100,10 +100,13 @@ Shared across approaches — the tracer runs each approach against every preset.
 ```
 
 Rules:
-- **≥3 presets** total; **≥1 with `isEdgeCase: true`** (empty, single element, all-equal, no-solution, min/max, duplicates — whatever stresses the algorithm)
+- **≥3 presets** total; **≥1 with `isEdgeCase: true`** (the most instructive stress case for this algorithm — not a low-effort filler)
+- **Source from LeetCode directly first.** Use the problem's own Example 1, Example 2, etc. verbatim. If LeetCode provides fewer than 3, extend with inputs of equivalent quality that a skilled interviewer would use.
+- **Each preset must teach something different.** Before writing a preset ask: "what does the learner see in this simulation that they couldn't see in any other preset?" If the answer is "nothing new", replace it. A preset that exists only to satisfy the ≥3 count without exposing a distinct algorithm behavior is worse than nothing — it wastes the learner's time and dilutes quality.
+- 🔴 **Do NOT invent low-effort fillers** such as `[1]`, `[1,2]`, `[]` unless those are genuinely the most instructive edge cases for *this specific* algorithm.
 - `value` keys MUST exactly match the method parameter names in `solution.py`
 - `expectedOutput` deep-compared to the traced `finalResult` — a mismatch aborts ingest (means the solution or the expected value is wrong)
-- **Coverage:** the presets **together** must execute every line of every approach. For each branch, include at least one preset that takes the `if` and one that takes the `else`. Include a "found"/success case and a "not found"/empty case. Mentally trace each preset against each solution and confirm every line runs in at least one preset.
+- **Coverage:** the presets **together** must execute every line of every approach. For each branch, include at least one preset that takes the `if` and one that takes the `else`. Include a "found"/success case and a "not found"/empty case.
 - `expectedOutput` for list answers is compared order-insensitively; for ordered answers keep the natural order.
 
 ---

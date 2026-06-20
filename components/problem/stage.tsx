@@ -205,20 +205,29 @@ function computeCombinedLayout(
     };
   }
 
-  // Stacked: center everything at x=0, stack top-to-bottom
+  // Stacked: center everything at x=0, stack top-to-bottom.
+  // Use per-type content bounds (not full viewbox bounds) to avoid large dead-space gaps.
   const primaryCx = pvb.x + pvb.w / 2;
   const maxW = Math.max(pvb.w, ...avbs.map((v) => v.w));
 
-  let curY = pvb.y + pvb.h; // bottom of previous element in combined space
+  // Content bottom: where actual rendered content ends (not viewbox bottom).
+  const CONTENT_BOTTOM: Partial<Record<string, number>> = {
+    linkedList: 100, array: 80, stack: 80, queue: 44,
+  };
+  // Content top: where actual rendered content starts inside the aux viewbox.
+  const CONTENT_TOP: Partial<Record<string, number>> = {
+    array: -36, linkedList: -70, stack: -24, queue: -24,
+  };
+
+  let curY = CONTENT_BOTTOM[primary.type] ?? (pvb.y + pvb.h);
   const auxOffsets: AuxOffset[] = [];
 
   for (let i = 0; i < aux.length; i++) {
     const avb = avbs[i];
     const auxCx = avb.x + avb.w / 2;
+    const contentTop = CONTENT_TOP[aux[i].visual.type] ?? avb.y;
     const dividerCoord = curY + DIVIDER_H / 2;
-    // Place aux so its TOP (avb.y) is at curY + DIVIDER_H in combined space:
-    // avb.y + ty = curY + DIVIDER_H  →  ty = curY + DIVIDER_H - avb.y
-    const ty = curY + DIVIDER_H - avb.y;
+    const ty = curY + DIVIDER_H - contentTop;
     auxOffsets.push({
       tx: -auxCx,
       ty,
@@ -227,7 +236,7 @@ function computeCombinedLayout(
       labelY: dividerCoord - 6,
       label: aux[i].label,
     });
-    curY = curY + DIVIDER_H + avb.h;
+    curY = ty + avb.y + avb.h;
   }
 
   return {

@@ -1,28 +1,27 @@
 {
-  "schemaVersion": "2.0",
+  "schemaVersion": "1.0",
   "slug": "reverse-linked-list",
   "number": 206,
   "title": "Reverse Linked List",
   "difficulty": "easy",
   "topics": [
-    "linked-list",
-    "stack"
+    "linked-list"
   ],
   "patterns": [
     "in-place-reversal"
   ],
-  "statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nExample 1:\nInput: head = [1,2,3,4,5]\nOutput: [5,4,3,2,1]\n\nExample 2:\nInput: head = [1,2]\nOutput: [2,1]\n\nExample 3:\nInput: head = []\nOutput: []\n\nConstraints:\nThe number of nodes in the list is in the range [0, 5000].\n-5000 <= Node.val <= 5000\n\nFollow up: A linked list can be reversed either iteratively or recursively. Could you implement both?",
+  "statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nExample 1:\nInput: head = [1,2,3,4,5]\nOutput: [5,4,3,2,1]\n\nExample 2:\nInput: head = [1,2]\nOutput: [2,1]\n\nExample 3:\nInput: head = []\nOutput: []\n\nConstraints:\n- The number of nodes in the list is in the range [0, 5000].\n- -5000 <= Node.val <= 5000\n\nFollow up: A linked list can be reversed either iteratively or recursively.",
   "hasVisualization": true,
   "isPremium": false,
   "supportsCustomInput": true,
   "supportsCompare": true,
-  "recommendedApproachId": "optimal",
+  "recommendedApproachId": "optimal-iterative",
   "inputConstraints": {
     "fields": [
       {
         "name": "head",
         "type": "int[]",
-        "label": "Linked List Values",
+        "label": "Linked List",
         "placeholder": "1, 2, 3, 4, 5",
         "min": -5000,
         "max": 5000,

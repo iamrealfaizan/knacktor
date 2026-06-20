@@ -1,0 +1,60 @@
+{
+  "id": "optimal-iterative",
+  "name": "Optimal: Iterative Pointer Reversal",
+  "kind": "optimal",
+  "summary": "Walk the list once, reversing each 'next' pointer in-place with three variables (previous, current, nxt) — O(1) extra space.",
+  "visualizationIntent": "check: empty-list guard fires and early-return path highlighted. init: head_links built (sequential arrows), previous = None (pointer invisible), current at index 0. loop: current node is the focus; nxt saved. update-flip: head_links updated and changed_links fires — the arrow from current flips backward to previous (key visual moment). update-advance-prev: previous label slides to current node. move-advance-curr: current label slides to nxt. return: result shown as fully reversed sequence.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.reverseList",
+  "primaryPrimitive": "linkedList",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "NEW HEAD",
+    "render": "list"
+  },
+  "varColors": {
+    "current": "ptr-i",
+    "previous": "ptr-j"
+  },
+  "lineExplanations": {
+    "3": "Guard: if head is empty return immediately — nothing to reverse.",
+    "4": "Set result = [] so the early return below has a value.",
+    "5": "Return the empty list for the empty-input case.",
+    "6": "Build head_links: the sequential next-pointer array — node i points to i+1; the last node points to -1 (null). The renderer needs this to draw the initial forward arrows.",
+    "7": "previous starts as None — after reversal, the original head's 'next' pointer must point nowhere (null).",
+    "8": "current starts at 0 — the index of the original head node.",
+    "9": "Initialise changed_links to an empty list; it will record each arrow flip for the renderer.",
+    "10": "Loop header: keep processing while current is a valid node index.",
+    "11": "Save the forward index (current + 1) as nxt before we flip the arrow — without this save we'd lose our place.",
+    "12": "Update head_links: node current now points backward to previous (-1 when previous is None). This records the new link state for the renderer.",
+    "13": "Tell the renderer which arrow just changed: node current now points at previous.",
+    "14": "Advance previous to current — previous trails one step behind current.",
+    "15": "Advance current to nxt — moving forward through the original list.",
+    "16": "Build result by reversing head — materialises the final answer sequence.",
+    "17": "Return the reversed list."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the wrapper class the platform calls.",
+    "2": "def reverseList(self, head): — head is a Python list of integers, one per node value.",
+    "3": "if not head: — True when head is [] (an empty list).",
+    "4": "result = [] — creates the return value for the empty-input case.",
+    "5": "return result — exits early; the rest of the function never runs.",
+    "6": "head_links = list(range(1, len(head))) + [-1] — builds [1,2,...,n-1,-1]: node 0→1→2→...→(n-1)→null.",
+    "7": "previous = None — None represents 'no node'; the reversed list's tail will point here (null terminator).",
+    "8": "current = 0 — integer index starting at the first node.",
+    "9": "changed_links = [] — a list of {'from':…,'to':…} dicts the visualizer reads to animate arrow flips.",
+    "10": "while current < len(head): — len(head) is the node count; loop ends when current equals it (all nodes processed).",
+    "11": "nxt = current + 1 — saves the next index BEFORE we overwrite the pointer; avoids losing our place in the list.",
+    "12": "-1 if previous is None else previous — Python ternary: use -1 (null sentinel) when previous has no node yet, otherwise use the index.",
+    "13": "changed_links = [{'from': current, 'to': previous}] — one-element list telling the renderer to animate node current's arrow flipping to point at previous.",
+    "14": "previous = current — slides the 'previous' marker forward by one position.",
+    "15": "current = nxt — slides the 'current' marker forward using the saved nxt value.",
+    "16": "result = list(reversed(head)) — reversed() returns a reverse iterator; list() converts it to a list.",
+    "17": "return result — hands the reversed list back to the caller."
+  }
+}

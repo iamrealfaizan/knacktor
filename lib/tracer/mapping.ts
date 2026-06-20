@@ -282,7 +282,7 @@ function resolveNodeState(
   scope: Scope
 ): CellState {
   for (const rule of rules ?? []) {
-    if (evalBool(rule.when, { ...scope, node_id: id })) return rule.state;
+    if (evalBool(rule.when, { ...scope, node_id: id, node_idx: Number(id) })) return rule.state;
   }
   return "idle";
 }

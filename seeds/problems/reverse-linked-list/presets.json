@@ -1,7 +1,7 @@
 [
   {
     "id": "example-1",
-    "label": "Five-node list",
+    "label": "Example 1: Five nodes",
     "value": {
       "head": [
         1,
@@ -22,7 +22,7 @@
   },
   {
     "id": "example-2",
-    "label": "Two-node list",
+    "label": "Example 2: Two nodes",
     "value": {
       "head": [
         1,
@@ -37,7 +37,7 @@
   },
   {
     "id": "edge-empty",
-    "label": "Empty list",
+    "label": "Edge: Empty list",
     "value": {
       "head": []
     },
@@ -46,15 +46,15 @@
   },
   {
     "id": "edge-single",
-    "label": "Single node",
+    "label": "Edge: Single node",
     "value": {
       "head": [
-        7
+        42
       ]
     },
     "isEdgeCase": true,
     "expectedOutput": [
-      7
+      42
     ]
   }
 ]

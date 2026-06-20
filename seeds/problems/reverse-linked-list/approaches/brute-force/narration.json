@@ -1,0 +1,127 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Checking whether head is empty.",
+      "why": "An empty list has nothing to reverse — detecting this now avoids unnecessary work.",
+      "invariant": "No values have been collected yet."
+    },
+    "4": {
+      "happening": "Assigning result = [] for the empty-input path.",
+      "why": "We need a variable to return; the reverse of an empty list is an empty list.",
+      "invariant": "result = [] ready to return."
+    },
+    "5": {
+      "happening": "Returning [] — the reversed empty list.",
+      "why": "No nodes exist, so the answer is trivially an empty list.",
+      "invariant": "result is correct for the empty case."
+    },
+    "6": {
+      "happening": "Building head_links = {head_links} — the sequential link array.",
+      "why": "The linked list renderer needs explicit next-pointers to draw arrows between nodes. Node i points to i+1; the last node points to -1 (null).",
+      "invariant": "head_links mirrors the original forward chain; no values collected yet."
+    },
+    "7": {
+      "happening": "Creating values = [] to store node values in forward order.",
+      "why": "We need to remember every value before we can reverse them.",
+      "invariant": "values is empty; no values have been collected yet."
+    },
+    "8": {
+      "happening": "Setting pos = 0 — pointing at the first node.",
+      "why": "pos is our walking index; we start at the beginning of the list.",
+      "invariant": "pos = 0; values is empty."
+    },
+    "9": [
+      {
+        "when": "pos < len(head)",
+        "happening": "pos ({pos}) < {len(head)} — still more nodes to visit. Entering the collection loop.",
+        "why": "We visit every node in forward order to collect all values.",
+        "invariant": "values holds the first {len(values)} node values; head[0..{pos}-1] collected."
+      },
+      {
+        "happening": "pos ({pos}) >= {len(head)} — all {len(head)} nodes visited. Exiting the collection loop.",
+        "why": "Every node's value has been saved into values.",
+        "invariant": "values = {values} — all node values collected in forward order."
+      }
+    ],
+    "10": {
+      "happening": "Appending head[{pos}] = {head[pos]} to values.",
+      "why": "Saving this node's value so we can reverse it later.",
+      "invariant": "values now holds {len(values)} values."
+    },
+    "11": {
+      "happening": "Advancing pos from {pos} to {pos+1}.",
+      "why": "Moving to the next node — like following a next-pointer in a real linked list.",
+      "invariant": "All nodes before index {pos+1} have been collected."
+    },
+    "12": {
+      "happening": "Initialising result = [] — the list that will hold reversed values.",
+      "why": "We need a new container to build the answer; values holds the forward order.",
+      "invariant": "result is empty; values = {values} is complete."
+    },
+    "13": {
+      "happening": "Setting i = {len(values)-1} — the index of the last element in values.",
+      "why": "Reading back-to-front produces the reverse; we start at the rightmost element.",
+      "invariant": "i points at the last (rightmost) element of values."
+    },
+    "14": [
+      {
+        "when": "i >= 0",
+        "happening": "i ({i}) >= 0 — still elements to reverse. Entering the reversal loop.",
+        "why": "We keep reading from the back of values until we've read every element.",
+        "invariant": "result holds the reverse of values[{i}+1..end]; {len(result)} elements reversed so far."
+      },
+      {
+        "happening": "i ({i}) < 0 — all elements reversed. Exiting the reversal loop.",
+        "why": "Every element has been appended to result in reverse order.",
+        "invariant": "result = {result} — fully reversed."
+      }
+    ],
+    "15": {
+      "happening": "Appending values[{i}] = {values[i]} to result.",
+      "why": "Reading from the back of values reverses the order into result.",
+      "invariant": "result now contains {len(result)} reversed values."
+    },
+    "16": {
+      "happening": "Decrementing i from {i} to {i-1}.",
+      "why": "Moving one step left — the next element to read is one index closer to the front.",
+      "invariant": "Everything in values[{i}..end] has been added to result."
+    },
+    "17": {
+      "happening": "Returning result = {result}.",
+      "why": "result now contains all node values in reversed order — that is the answer.",
+      "invariant": "result is the complete reverse of the input."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the link array, values collector, and pos index.",
+      "why": "We need explicit next-pointers for the renderer, a storage container for values, and a walking index.",
+      "invariant": "Nothing collected yet."
+    },
+    "check": {
+      "happening": "Checking whether the list is empty.",
+      "why": "An empty input requires no work.",
+      "invariant": "No processing done yet."
+    },
+    "loop": {
+      "happening": "Checking the loop condition.",
+      "why": "Deciding whether there are more elements to process.",
+      "invariant": "All previous elements have been handled."
+    },
+    "update": {
+      "happening": "Recording or writing a value.",
+      "why": "Storing the current element's contribution to the result.",
+      "invariant": "One more element accounted for."
+    },
+    "move": {
+      "happening": "Advancing the index.",
+      "why": "Moving to the next element.",
+      "invariant": "All prior elements processed."
+    },
+    "return": {
+      "happening": "Returning the reversed list.",
+      "why": "All values have been collected and reversed; the answer is ready.",
+      "invariant": "The list is fully reversed."
+    }
+  }
+}
