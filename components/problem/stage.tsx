@@ -13,7 +13,7 @@ import { HashMapRenderer } from "./hashmap-renderer";
 import { TreeRenderer } from "./tree-renderer";
 import { GridRenderer } from "./grid-renderer";
 import { GraphRenderer } from "./graph-renderer";
-import type { VisualState } from "@/lib/trace";
+import type { VisualState, LeafVisualState, CombinedVisualState } from "@/lib/trace";
 
 // ── Legend definitions per visual type ─────────────────────────────────────
 
@@ -72,9 +72,9 @@ const LEGENDS: Record<string, { label: string; color: string }[]> = {
   ],
 };
 
-// ── viewBox sizing per type ──────────────────────────────────────────────────
+// ── viewBox sizing per leaf type ─────────────────────────────────────────────
 
-function getViewBox(visual: VisualState): { x: number; y: number; w: number; h: number } {
+function getLeafViewBox(visual: LeafVisualState): { x: number; y: number; w: number; h: number } {
   switch (visual.type) {
     case "array": {
       const n = visual.values.length;
@@ -127,6 +127,142 @@ function getViewBox(visual: VisualState): { x: number; y: number; w: number; h: 
   }
 }
 
+// ── Multi-structure layout (D19) ──────────────────────────────────────────────
+
+const DIVIDER_H = 28;
+const SIDE_GAP = 40;
+
+function isHorizontalPrimitive(type: string): boolean {
+  return ["array", "bar-container", "linkedList", "queue"].includes(type);
+}
+
+function isVerticalPrimitive(type: string): boolean {
+  return ["stack", "hashmap", "recursion"].includes(type);
+}
+
+interface AuxOffset {
+  tx: number;
+  ty: number;
+  /** y-coord of horizontal divider line (stacked) or x-coord of vertical divider line (side-by-side) */
+  dividerCoord: number;
+  labelX: number;
+  labelY: number;
+  label: string;
+}
+
+interface CombinedLayout {
+  viewBox: { x: number; y: number; w: number; h: number };
+  mode: "side-by-side" | "stacked";
+  primaryTx: number;
+  primaryTy: number;
+  auxOffsets: AuxOffset[];
+}
+
+function computeCombinedLayout(
+  primary: LeafVisualState,
+  aux: { label: string; visual: LeafVisualState }[]
+): CombinedLayout {
+  const pvb = getLeafViewBox(primary);
+  const avbs = aux.map((a) => getLeafViewBox(a.visual));
+
+  const sideBySide =
+    isHorizontalPrimitive(primary.type) &&
+    aux.length === 1 &&
+    isVerticalPrimitive(aux[0].visual.type);
+
+  if (sideBySide) {
+    const avb = avbs[0];
+    const halfW = (pvb.w + SIDE_GAP + avb.w) / 2;
+    const maxH = Math.max(pvb.h, avb.h);
+
+    // Center each component vertically at combined y=0
+    const primaryTy = -(pvb.y + pvb.h / 2);
+    const auxTy = -(avb.y + avb.h / 2);
+
+    // Place primary left-aligned, aux right-aligned, combined centered at x=0
+    const primaryTx = -halfW - pvb.x;
+    const auxTx = -halfW + pvb.w + SIDE_GAP - avb.x;
+
+    const dividerX = -halfW + pvb.w + SIDE_GAP / 2;
+    // Label centered over aux area, near the top of the combined viewBox
+    const auxAreaCenterX = -halfW + pvb.w + SIDE_GAP + avb.w / 2;
+
+    return {
+      viewBox: { x: -halfW, y: -maxH / 2, w: halfW * 2, h: maxH },
+      mode: "side-by-side",
+      primaryTx,
+      primaryTy,
+      auxOffsets: [
+        {
+          tx: auxTx,
+          ty: auxTy,
+          dividerCoord: dividerX,
+          labelX: auxAreaCenterX,
+          labelY: -maxH / 2 + 14,
+          label: aux[0].label,
+        },
+      ],
+    };
+  }
+
+  // Stacked: center everything at x=0, stack top-to-bottom
+  const primaryCx = pvb.x + pvb.w / 2;
+  const maxW = Math.max(pvb.w, ...avbs.map((v) => v.w));
+
+  let curY = pvb.y + pvb.h; // bottom of previous element in combined space
+  const auxOffsets: AuxOffset[] = [];
+
+  for (let i = 0; i < aux.length; i++) {
+    const avb = avbs[i];
+    const auxCx = avb.x + avb.w / 2;
+    const dividerCoord = curY + DIVIDER_H / 2;
+    // Place aux so its TOP (avb.y) is at curY + DIVIDER_H in combined space:
+    // avb.y + ty = curY + DIVIDER_H  →  ty = curY + DIVIDER_H - avb.y
+    const ty = curY + DIVIDER_H - avb.y;
+    auxOffsets.push({
+      tx: -auxCx,
+      ty,
+      dividerCoord,
+      labelX: -maxW / 2 + 12,
+      labelY: dividerCoord - 6,
+      label: aux[i].label,
+    });
+    curY = curY + DIVIDER_H + avb.h;
+  }
+
+  return {
+    viewBox: { x: -maxW / 2, y: pvb.y, w: maxW, h: curY - pvb.y },
+    mode: "stacked",
+    primaryTx: -primaryCx,
+    primaryTy: 0,
+    auxOffsets,
+  };
+}
+
+// ── Render a single leaf primitive (SVG elements) ─────────────────────────────
+
+function LeafRenderer({
+  visual,
+  vars,
+  target,
+}: {
+  visual: LeafVisualState;
+  vars: Record<string, unknown>;
+  target: number;
+}) {
+  if (visual.type === "array")        return <ArrayRenderer visual={visual} vars={vars} target={target} />;
+  if (visual.type === "bar-container") return <BarContainerRenderer visual={visual} />;
+  if (visual.type === "linkedList")   return <LinkedListRenderer visual={visual} />;
+  if (visual.type === "recursion")    return <RecursionRenderer visual={visual} />;
+  if (visual.type === "stack")        return <StackRenderer visual={visual} />;
+  if (visual.type === "queue")        return <QueueRenderer visual={visual} />;
+  if (visual.type === "hashmap")      return <HashMapRenderer visual={visual} />;
+  if (visual.type === "tree")         return <TreeRenderer visual={visual} />;
+  if (visual.type === "grid")         return <GridRenderer visual={visual} />;
+  if (visual.type === "graph")        return <GraphRenderer visual={visual} />;
+  return null;
+}
+
 export function Stage({
   visual,
   vars,
@@ -160,8 +296,22 @@ export function Stage({
   function onUp() { drag.current = null; }
   function reset() { setScale(1); setPan({ x: 0, y: 0 }); }
 
-  const vb = getViewBox(visual);
-  const legend = LEGENDS[visual.type] ?? [];
+  const isCombined = visual.type === "combined";
+  const combinedLayout = isCombined
+    ? computeCombinedLayout(
+        (visual as CombinedVisualState).primary,
+        (visual as CombinedVisualState).aux
+      )
+    : null;
+
+  const vb = isCombined
+    ? combinedLayout!.viewBox
+    : getLeafViewBox(visual as LeafVisualState);
+
+  const legendType = isCombined
+    ? (visual as CombinedVisualState).primary.type
+    : visual.type;
+  const legend = LEGENDS[legendType] ?? [];
 
   return (
     <div
@@ -204,35 +354,80 @@ export function Stage({
           transform={`translate(${pan.x} ${pan.y}) scale(${scale})`}
           style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}
         >
-          {visual.type === "array" && (
-            <ArrayRenderer visual={visual} vars={vars} target={target} />
-          )}
-          {visual.type === "bar-container" && (
-            <BarContainerRenderer visual={visual} />
-          )}
-          {visual.type === "linkedList" && (
-            <LinkedListRenderer visual={visual} />
-          )}
-          {visual.type === "recursion" && (
-            <RecursionRenderer visual={visual} />
-          )}
-          {visual.type === "stack" && (
-            <StackRenderer visual={visual} />
-          )}
-          {visual.type === "queue" && (
-            <QueueRenderer visual={visual} />
-          )}
-          {visual.type === "hashmap" && (
-            <HashMapRenderer visual={visual} />
-          )}
-          {visual.type === "tree" && (
-            <TreeRenderer visual={visual} />
-          )}
-          {visual.type === "grid" && (
-            <GridRenderer visual={visual} />
-          )}
-          {visual.type === "graph" && (
-            <GraphRenderer visual={visual} />
+          {isCombined ? (
+            <>
+              {/* Primary */}
+              <g transform={`translate(${combinedLayout!.primaryTx} ${combinedLayout!.primaryTy})`}>
+                <LeafRenderer
+                  visual={(visual as CombinedVisualState).primary}
+                  vars={vars}
+                  target={target}
+                />
+              </g>
+
+              {/* Each aux structure with divider */}
+              {(visual as CombinedVisualState).aux.map((a, i) => {
+                const off = combinedLayout!.auxOffsets[i];
+                const lyt = combinedLayout!;
+                return (
+                  <g key={i}>
+                    {lyt.mode === "stacked" && (
+                      <>
+                        <line
+                          x1={lyt.viewBox.x}
+                          y1={off.dividerCoord}
+                          x2={lyt.viewBox.x + lyt.viewBox.w}
+                          y2={off.dividerCoord}
+                          stroke="var(--kn-border-0)"
+                          strokeWidth={1}
+                        />
+                        <text
+                          x={off.labelX}
+                          y={off.labelY}
+                          fill="var(--kn-ink-2)"
+                          fontSize={10}
+                          fontFamily="JetBrains Mono, monospace"
+                          fontWeight="700"
+                          letterSpacing="0.1em"
+                          textAnchor="start"
+                        >
+                          {off.label.toUpperCase()}
+                        </text>
+                      </>
+                    )}
+                    {lyt.mode === "side-by-side" && (
+                      <>
+                        <line
+                          x1={off.dividerCoord}
+                          y1={lyt.viewBox.y}
+                          x2={off.dividerCoord}
+                          y2={lyt.viewBox.y + lyt.viewBox.h}
+                          stroke="var(--kn-border-0)"
+                          strokeWidth={1}
+                        />
+                        <text
+                          x={off.labelX}
+                          y={off.labelY}
+                          fill="var(--kn-ink-2)"
+                          fontSize={10}
+                          fontFamily="JetBrains Mono, monospace"
+                          fontWeight="700"
+                          letterSpacing="0.1em"
+                          textAnchor="middle"
+                        >
+                          {off.label.toUpperCase()}
+                        </text>
+                      </>
+                    )}
+                    <g transform={`translate(${off.tx} ${off.ty})`}>
+                      <LeafRenderer visual={a.visual} vars={vars} target={target} />
+                    </g>
+                  </g>
+                );
+              })}
+            </>
+          ) : (
+            <LeafRenderer visual={visual as LeafVisualState} vars={vars} target={target} />
           )}
         </g>
       </svg>

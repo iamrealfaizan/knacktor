@@ -3,7 +3,7 @@
  * Any failure THROWS, aborting the whole ingest so a broken problem can never
  * reach the database / the learner.
  */
-import type { Step, CellState, VisualState } from "@/lib/trace";
+import type { Step, CellState, VisualState, LeafVisualState } from "@/lib/trace";
 
 const CELL_STATES = new Set<CellState>([
   "idle", "current", "compared", "frontier", "visited", "result",
@@ -60,7 +60,7 @@ function resultsEqual(a: unknown, b: unknown): boolean {
   return canon(a) === canon(b);
 }
 
-function isValidVisual(v: VisualState): boolean {
+function isValidLeaf(v: LeafVisualState): boolean {
   if (!v || typeof v !== "object") return false;
   if (v.type === "array" || v.type === "bar-container") {
     if (!Array.isArray(v.values)) return false;
@@ -87,8 +87,22 @@ function isValidVisual(v: VisualState): boolean {
   return v.type === "linkedList" || v.type === "recursion";
 }
 
+function isValidVisual(v: VisualState): boolean {
+  if (!v || typeof v !== "object") return false;
+  if (v.type === "combined") {
+    if (!isValidLeaf(v.primary as LeafVisualState)) return false;
+    if (!Array.isArray(v.aux) || v.aux.length === 0) return false;
+    for (const a of v.aux) {
+      if (typeof a.label !== "string" || !a.label.trim()) return false;
+      if (!isValidLeaf(a.visual as LeafVisualState)) return false;
+    }
+    return true;
+  }
+  return isValidLeaf(v as LeafVisualState);
+}
+
 export function validateTrace(args: ValidateTraceArgs): void {
-  const { steps, executableLines, finalResult, expectedOutput, label } = args;
+  const { steps, executableLines, finalResult, expectedOutput, label, narrationByLineKeys } = args;
 
   if (steps.length === 0) fail(label, "no steps produced");
 

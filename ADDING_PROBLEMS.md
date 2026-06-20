@@ -181,6 +181,14 @@ Examples:
   "changedLinksFrom": "changed_links" }
 ```
 
+- **`auxMappings`** *(array, optional)* — Secondary structures to render alongside the primary in the stage. Each entry has:
+  - `label` (string) — displayed as a divider header, e.g. `"Stack"`, `"Queue"`
+  - `primitive` — same values as the top-level `primitive` field
+  - Same primitive-specific fields as the primary (`itemsFrom`, `cellStateRules`, etc.)
+  - Pipeline fields (`phaseRules`, `counters`, `keyEvents`, `readout`, `flags`) belong to the primary only — omit them here
+  - Layout is auto-decided: horizontal primary + vertical aux → side-by-side; all other combos → stacked below
+  - Empty aux containers always render (so the learner sees them waiting from step 1)
+
 **`grid`** mapping fields:
 ```jsonc
 { "primitive": "grid", "gridFrom": "grid",
@@ -428,6 +436,7 @@ Mentally simulate ingest. Do NOT output until ALL of these hold:
     `executableLines` (every line that has bytecode, per `dis.findlinestarts`). A missing key means
     that step falls back to the generic `byPhase` summary — not acceptable. Note: bare `else:` lines
     have no bytecode and do NOT need a `byLine` entry; the first statement inside the else block does.
+15. **Aux structures**: If the algorithm uses a secondary structure (stack, queue, hashmap, result array), add an `auxMappings` entry — do not represent it only via a `readout` text chip.
 
 Then output the single ```json block. Nothing else.
 

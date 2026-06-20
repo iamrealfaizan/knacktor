@@ -37,11 +37,38 @@ When the user pastes a filled problem template and says "add this problem":
 - Parse the JSON; check all required fields against the schema in `rules/Authoring.md`
 - Run `npm run import-problem <file>` to split into `seeds/problems/<slug>/`
 
-**Step 2 — Analyze visualization needs** (automated → pause for custom-component decisions only)
-- Read `primaryPrimitive` and `visualizationIntent` from each approach
-- Apply the **Visualization Decision Rule** below (D17) to determine: existing renderer OR custom component
-- For existing renderers: proceed automatically
-- For custom component path: show the user what you're about to build and why, then proceed
+**Step 2 — Analyze visualization needs** (ALWAYS PAUSE — mandatory user confirmation before proceeding)
+
+For **every** approach, produce a structured renderer analysis and stop. Do NOT proceed to Step 3 until the user explicitly confirms.
+
+The analysis must cover all of the following for each approach:
+
+**A. Recommended renderer**
+- State which renderer you recommend (`array`, `bar-container`, `hashmap`, `linkedList`, `tree`, `stack`, `queue`, `grid`, `graph`, `recursion`, or `custom`).
+- Name the algorithm's **unit of work** (the smallest thing the algorithm repeatedly does).
+- Confirm the recommended renderer's unit of work matches.
+
+**B. Why the existing renderer CAN work** (if recommending one)
+- Describe concretely how the DSL fields (`valuesFrom`, `pointers`, `cellStateRules`, `auxMappings`, etc.) map to the algorithm's state at each phase.
+- Walk through 1–2 pivotal steps (e.g. "when i advances, the pointer pill glides right; when a match is found, the cell flips to `result` state").
+- Note any tricky DSL limitations and how to work around them (e.g. no `in` operator — use a flag; slices forbidden — rephrase the condition).
+
+**C. Why a custom renderer might be needed** (even if not recommending one)
+- State explicitly whether ≥2 of the D17 escape-hatch criteria apply:
+  1. 2+ primitives must coordinate simultaneously
+  2. Spatial layout is itself the teaching point
+  3. Animation logic cannot be expressed via the DSL
+- If custom IS recommended: describe the bespoke component's layout, what it shows, and why none of the generic renderers could honestly represent the unit of work.
+
+**D. Risk / fidelity call-out**
+- Flag any step where the visual might mislead (e.g. a renderer that shows the right data but obscures the real operation).
+- If there is any doubt about Gate 2 fidelity, say so now — it is cheaper to reconsider the renderer here than after tracing.
+
+**E. Explicit question to the user**
+End with:
+> "Proceed with [renderer name] for [approach name]? Or would you like a different renderer or a custom visualization?"
+
+Wait for the user's answer before moving to Step 3.
 
 **Step 3 — Run tracer + build trace** (run automatically)
 - Run Python tracer for each (approach, preset) pair via `npm run ingest` or tracer directly

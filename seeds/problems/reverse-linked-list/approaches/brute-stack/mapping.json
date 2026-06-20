@@ -26,10 +26,17 @@
     "hasNode": "node != -1"
   },
   "changedLinksFrom": "changed_links",
-  "readout": {
-    "when": "stack != null && phase != 'return'",
-    "expr": "stack size = {len(stack)}, new_head = {new_head}, tail = {tail}"
-  },
+  "auxMappings": [
+    {
+      "label": "Stack",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        { "state": "current", "when": "idx == len(stack) - 1" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ],
   "counters": [
     {
       "name": "stack pushes",
@@ -59,9 +66,7 @@
         15,
         19,
         20,
-        21,
-        33,
-        34
+        21
       ]
     },
     {
@@ -85,6 +90,7 @@
         30,
         31,
         32,
+        33,
         37
       ]
     },
@@ -94,6 +100,7 @@
         10,
         18,
         23,
+        34,
         36,
         38
       ]

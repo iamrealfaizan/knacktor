@@ -7,6 +7,7 @@
 import { evalExpr, evalBool, type Scope } from "./expr";
 import type {
   VisualMappingSpec,
+  AuxMappingSpec,
   CounterRule,
   KeyEventRule,
   PhaseRule,
@@ -14,6 +15,8 @@ import type {
 } from "./types";
 import type {
   VisualState,
+  LeafVisualState,
+  CombinedVisualState,
   CellState,
   StepPhase,
   KeyEvent,
@@ -115,21 +118,41 @@ export function fillTemplate(tmpl: string, scope: Scope): string {
   });
 }
 
-/** Build the VisualState for this step from the mapping spec + scope. */
+/**
+ * Build the VisualState for this step from the mapping spec + scope.
+ * Returns a CombinedVisualState when auxMappings are present (D19).
+ */
 export function mapVisual(
   spec: VisualMappingSpec,
   scope: Scope,
   prevVars: Record<string, unknown>
 ): VisualState {
+  if (spec.auxMappings?.length) {
+    const primary = mapLeaf(spec, scope, prevVars);
+    const aux = spec.auxMappings.map((a) => ({
+      label: a.label,
+      visual: mapAux(a, scope),
+    }));
+    return { type: "combined", primary, aux } as CombinedVisualState;
+  }
+  return mapLeaf(spec, scope, prevVars);
+}
+
+/** Map the primary primitive to a LeafVisualState (no combined nesting). */
+function mapLeaf(
+  spec: VisualMappingSpec,
+  scope: Scope,
+  prevVars: Record<string, unknown>
+): LeafVisualState {
   // ── Early dispatch for non-array primitives ─────────────────────────────
-  if (spec.primitive === "stack")    return mapStack(spec, scope);
-  if (spec.primitive === "queue")    return mapQueue(spec, scope);
-  if (spec.primitive === "hashmap")  return mapHashmap(spec, scope);
-  if (spec.primitive === "tree")     return mapTree(spec, scope);
+  if (spec.primitive === "stack")      return mapStack(spec, scope);
+  if (spec.primitive === "queue")      return mapQueue(spec, scope);
+  if (spec.primitive === "hashmap")    return mapHashmap(spec, scope);
+  if (spec.primitive === "tree")       return mapTree(spec, scope);
   if (spec.primitive === "linkedList") return mapLinkedList(spec, scope);
-  if (spec.primitive === "grid")     return mapGrid(spec, scope);
-  if (spec.primitive === "graph")    return mapGraph(spec, scope);
-  if (spec.primitive === "recursion") return mapRecursion(spec, scope);
+  if (spec.primitive === "grid")       return mapGrid(spec, scope);
+  if (spec.primitive === "graph")      return mapGraph(spec, scope);
+  if (spec.primitive === "recursion")  return mapRecursion(spec, scope);
 
   const valuesRaw = spec.valuesFrom ? scope[spec.valuesFrom] : undefined;
   const values = (Array.isArray(valuesRaw) ? valuesRaw : []) as (number | string)[];
@@ -218,6 +241,26 @@ export function mapVisual(
     ghosts: ghosts.length ? ghosts : undefined,
     readout,
   };
+}
+
+/**
+ * Map one AuxMappingSpec to a LeafVisualState.
+ * Casts to VisualMappingSpec since all per-primitive fields are structurally identical;
+ * pipeline-level fields (phaseRules, counters, keyEvents, flags, readout) are absent
+ * but the helpers only touch primitive-specific fields.
+ */
+function mapAux(aux: AuxMappingSpec, scope: Scope): LeafVisualState {
+  const spec = aux as unknown as VisualMappingSpec;
+  if (aux.primitive === "stack")      return mapStack(spec, scope);
+  if (aux.primitive === "queue")      return mapQueue(spec, scope);
+  if (aux.primitive === "hashmap")    return mapHashmap(spec, scope);
+  if (aux.primitive === "tree")       return mapTree(spec, scope);
+  if (aux.primitive === "linkedList") return mapLinkedList(spec, scope);
+  if (aux.primitive === "grid")       return mapGrid(spec, scope);
+  if (aux.primitive === "graph")      return mapGraph(spec, scope);
+  if (aux.primitive === "recursion")  return mapRecursion(spec, scope);
+  // array / bar-container (no ghosts/readout for aux)
+  return mapLeaf(spec, scope, {});
 }
 
 function num(v: unknown): number {
