@@ -1,0 +1,43 @@
+{
+  "id": "brute-collect-and-sort",
+  "name": "Collect and Sort",
+  "kind": "brute",
+  "summary": "Dump all values from both lists into one array, sort it, and return.",
+  "visualizationIntent": "init: show combined array being built element by element. loop: current element highlighted as it is appended. update: combined array grows visibly after each append. return: freeze on the final sorted result.",
+  "complexity": {
+    "time": "O((n+m) log(n+m))",
+    "space": "O(n+m)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.mergeTwoLists",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "MERGED",
+    "render": "list"
+  },
+  "varColors": {},
+  "lineExplanations": {
+    "3": "Create an empty list that will hold all values from both inputs.",
+    "4": "Iterate over every element in the first sorted list.",
+    "5": "Add the current element from list1 into the combined array.",
+    "6": "Iterate over every element in the second sorted list.",
+    "7": "Add the current element from list2 into the combined array.",
+    "8": "Sort the combined array in-place — this is the O((n+m) log(n+m)) step.",
+    "9": "Assign the sorted array to result so the visualizer can display it.",
+    "10": "Return the merged sorted list."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: a wrapper class required by LeetCode and Knacktor.",
+    "2": "def mergeTwoLists(self, list1, list2): declares the method with two input lists.",
+    "3": "combined = [] creates a new empty list literal.",
+    "4": "for v in list1: iterates over each element v in list1 one at a time.",
+    "5": "combined.append(v) adds element v to the end of the combined list.",
+    "6": "for v in list2: iterates over each element v in list2 one at a time.",
+    "7": "combined.append(v) adds element v from list2 to the end of combined.",
+    "8": "combined.sort() sorts the list in-place (modifies combined directly, returns None).",
+    "9": "result = combined gives the sorted list a name the visualizer tracks.",
+    "10": "return result sends the merged sorted list back to the caller."
+  }
+}

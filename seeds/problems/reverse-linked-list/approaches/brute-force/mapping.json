@@ -1,0 +1,135 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "head",
+  "linksFrom": "head_links",
+  "pointers": [
+    {
+      "name": "pos",
+      "var": "pos"
+    }
+  ],
+  "nodeStateRules": [
+    { "state": "current", "when": "node_idx == pos" },
+    { "state": "visited", "when": "node_idx < pos" },
+    { "state": "idle",    "when": "true" }
+  ],
+  "changedLinksFrom": "changed_links",
+  "auxMappings": [
+    {
+      "label": "Values",
+      "primitive": "array",
+      "valuesFrom": "values",
+      "pointers": [
+        { "name": "i", "var": "i" }
+      ],
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == i"
+        },
+        {
+          "state": "visited",
+          "when": "idx > i"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "check",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "init",
+      "lines": [
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        11
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        12,
+        13
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        14
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        15
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 10,
+      "label": "Value collected",
+      "kind": "match"
+    },
+    {
+      "line": 15,
+      "label": "Value reversed into result",
+      "kind": "result"
+    },
+    {
+      "line": 17,
+      "label": "Reversed list returned",
+      "kind": "return"
+    }
+  ]
+}

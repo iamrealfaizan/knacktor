@@ -66,31 +66,7 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
 
   return (
     <>
-      {/* Arrows between nodes */}
-      {nodes.map((nd, i) => {
-        const toId = linkMap[nd.id];
-        if (toId === undefined || toId === null) return null;
-        const j = idxOf[toId];
-        if (j === undefined) return null;
-        const x1 = xOf(i) + NODE_W; // right edge of source pointer box
-        const x2 = xOf(j);          // left edge of target node
-        const midX = (x1 + x2) / 2;
-        const arrowY = 0;
-        return (
-          <g key={`arrow-${nd.id}`} style={{ transition: "opacity 0.25s ease" }}>
-            <path
-              d={`M ${x1} ${arrowY} L ${x2 - 8} ${arrowY}`}
-              stroke="var(--kn-ink-2)"
-              strokeWidth={1.5}
-              fill="none"
-              markerEnd="url(#ll-arrow)"
-            />
-          </g>
-        );
-        void midX;
-      })}
-
-      {/* Arrow marker def */}
+      {/* Marker defs */}
       <defs>
         <marker id="ll-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
           <path d="M 0 0 L 6 3 L 0 6 Z" fill="var(--kn-ink-2)" />
@@ -100,27 +76,7 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         </marker>
       </defs>
 
-      {/* Re-drawn arrows for changedLinks */}
-      {(visual.changedLinks ?? []).map((lk) => {
-        const fi = idxOf[lk.from];
-        const ti = idxOf[lk.to];
-        if (fi === undefined || ti === undefined) return null;
-        const x1 = xOf(fi) + NODE_W;
-        const x2 = xOf(ti);
-        return (
-          <path
-            key={`changed-arrow-${lk.from}-${lk.to}`}
-            d={`M ${x1} 0 L ${x2 - 8} 0`}
-            stroke="var(--kn-result)"
-            strokeWidth={2}
-            fill="none"
-            markerEnd="url(#ll-arrow-changed)"
-            style={{ transition: "all 0.3s ease" }}
-          />
-        );
-      })}
-
-      {/* Nodes */}
+      {/* Nodes — rendered before arrows so backward arrows appear on top */}
       {nodes.map((nd, i) => {
         const s = nodeStyle(nd.state ?? "idle");
         const nx = xOf(i);
@@ -186,6 +142,52 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         );
       })}
 
+      {/* Base link arrows — rendered after nodes so backward arrows show on top */}
+      {nodes.map((nd, i) => {
+        const toId = linkMap[nd.id];
+        if (toId === undefined || toId === null) return null;
+        const j = idxOf[toId];
+        if (j === undefined) return null;
+        const isBackward = j < i;
+        const pathD = isBackward
+          ? `M ${xOf(i) + NODE_W} 0 L ${xOf(j) + NODE_W + 8} 0`
+          : `M ${xOf(i) + NODE_W} 0 L ${xOf(j) - 8} 0`;
+        return (
+          <path
+            key={`arrow-${nd.id}`}
+            d={pathD}
+            stroke="var(--kn-ink-2)"
+            strokeWidth={1.5}
+            fill="none"
+            markerEnd="url(#ll-arrow)"
+            style={{ transition: "opacity 0.25s ease" }}
+          />
+        );
+      })}
+
+      {/* changedLinks — green overlay, same horizontal style, on top of everything */}
+      {(visual.changedLinks ?? []).map((lk) => {
+        const fi = idxOf[lk.from];
+        if (fi === undefined) return null;
+        const ti = idxOf[lk.to];
+        if (ti === undefined) return null;
+        const isBackward = ti < fi;
+        const pathD = isBackward
+          ? `M ${xOf(fi) + NODE_W} 0 L ${xOf(ti) + NODE_W + 8} 0`
+          : `M ${xOf(fi) + NODE_W} 0 L ${xOf(ti) - 8} 0`;
+        return (
+          <path
+            key={`changed-arrow-${lk.from}-${lk.to}`}
+            d={pathD}
+            stroke="var(--kn-result)"
+            strokeWidth={2.5}
+            fill="none"
+            markerEnd="url(#ll-arrow-changed)"
+            style={{ transition: "all 0.3s ease" }}
+          />
+        );
+      })}
+
       {/* Head / tail pills above chain */}
       {nodes.length > 0 && (
         <HeadPill x={xOf(0) + NODE_W / 4} />
@@ -201,6 +203,7 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         const color = PTR_COLOR[p.name] ?? PTR_PALETTE[pi % PTR_PALETTE.length];
         const cx = xOf(idx) + NODE_W / 2;
         const laneY = NODE_H / 2 + 28 + pi * 22;
+        const pillW = Math.max(28, p.name.length * 6.5 + 12);
         return (
           <g
             key={p.name}
@@ -209,7 +212,7 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
           >
             <line x1={0} y1={NODE_H / 2 + 4} x2={0} y2={laneY} stroke={color} strokeWidth={1} opacity={0.5} />
             <path d={`M 0 ${NODE_H / 2 + 2} L -5 ${NODE_H / 2 + 10} L 5 ${NODE_H / 2 + 10} Z`} fill={color} />
-            <rect x={-14} y={laneY} width={28} height={18} rx={9} fill={color} />
+            <rect x={-pillW / 2} y={laneY} width={pillW} height={18} rx={9} fill={color} />
             <text
               x={0} y={laneY + 10}
               textAnchor="middle" dominantBaseline="middle"

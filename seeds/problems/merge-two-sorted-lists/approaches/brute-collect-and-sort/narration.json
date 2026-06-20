@@ -1,0 +1,66 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Initializing combined = [] — an empty list that will collect every value from both input lists.",
+      "why": "We need a single container to hold all values before sorting them together.",
+      "invariant": "combined is empty; no values have been gathered yet."
+    },
+    "4": {
+      "happening": "Starting the first loop — iterating over list1 to copy its values into combined.",
+      "why": "We must get all values from list1 into our shared container.",
+      "invariant": "combined contains the values from list1 seen so far."
+    },
+    "5": {
+      "happening": "Appending v = {v} from list1 to combined.",
+      "why": "We gather every list1 value; the order does not matter yet because we will sort later.",
+      "invariant": "combined grows by one; all values appended so far are from list1."
+    },
+    "6": {
+      "happening": "Starting the second loop — iterating over list2 to copy its values into combined.",
+      "why": "Now that list1 is fully copied, we add list2 values the same way.",
+      "invariant": "combined already holds all list1 values; list2 values are being appended."
+    },
+    "7": {
+      "happening": "Appending v = {v} from list2 to combined.",
+      "why": "Adding list2 values one at a time; sorted order still does not matter here.",
+      "invariant": "combined grows by one; it now holds some prefix of list2 plus all of list1."
+    },
+    "8": {
+      "happening": "Sorting combined in-place — this is the O((n+m) log(n+m)) step.",
+      "why": "The two original lists were individually sorted, but combined as a whole is not. Sorting now produces the merged sorted order.",
+      "invariant": "After this line, combined is fully sorted in non-decreasing order."
+    },
+    "9": {
+      "happening": "Assigning combined to result so the answer is stored in a named variable.",
+      "why": "The visualizer and resultSpec track result specifically.",
+      "invariant": "result is the sorted merged list — the final answer."
+    },
+    "10": {
+      "happening": "Returning result — the merged sorted list.",
+      "why": "The problem asks us to return the head of the merged list; here result is the complete merged sequence.",
+      "invariant": "result contains all n+m values in non-decreasing order."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the combined container.",
+      "why": "We need a fresh list to hold all values.",
+      "invariant": "combined is empty."
+    },
+    "loop": {
+      "happening": "Moving to the next element.",
+      "why": "Iterating over one of the input lists.",
+      "invariant": "Values are being collected."
+    },
+    "update": {
+      "happening": "Modifying the combined list.",
+      "why": "Either appending a value or sorting all collected values.",
+      "invariant": "combined is growing or being sorted."
+    },
+    "return": {
+      "happening": "Returning the merged sorted result.",
+      "why": "Both lists are fully merged and sorted.",
+      "invariant": "result holds the complete sorted sequence."
+    }
+  }
+}

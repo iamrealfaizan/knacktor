@@ -140,6 +140,14 @@ export interface VisualMappingSpec {
     | "recursion"
     | "custom";
 
+  // ── Custom renderer (D17) ─────────────────────────────────────────────────
+  /** Required when primitive === "custom". Matches the file slug in
+   *  components/problem/custom/<componentKey>-visualizer.tsx */
+  componentKey?: string;
+  /** Maps output keys to captured Python variable names.
+   *  { "list1Rem": "l1_rem" } → visual.list1Rem = scope["l1_rem"] */
+  customVars?: Record<string, string>;
+
   // ── Array / bar-container ─────────────────────────────────────────────────
   /** var name whose value becomes visual.values */
   valuesFrom?: string;

@@ -17,6 +17,7 @@ import type {
   VisualState,
   LeafVisualState,
   CombinedVisualState,
+  CustomVisualState,
   CellState,
   StepPhase,
   KeyEvent,
@@ -144,6 +145,19 @@ function mapLeaf(
   scope: Scope,
   prevVars: Record<string, unknown>
 ): LeafVisualState {
+  // ── Custom renderer passthrough (D17) ───────────────────────────────────
+  if (spec.primitive === "custom") {
+    const payload: Record<string, unknown> = {};
+    for (const [outKey, varName] of Object.entries(spec.customVars ?? {})) {
+      payload[outKey] = scope[varName] ?? null;
+    }
+    return {
+      type: "custom",
+      componentKey: spec.componentKey ?? "unknown",
+      ...payload,
+    } as CustomVisualState;
+  }
+
   // ── Early dispatch for non-array primitives ─────────────────────────────
   if (spec.primitive === "stack")      return mapStack(spec, scope);
   if (spec.primitive === "queue")      return mapQueue(spec, scope);
@@ -282,7 +296,7 @@ function resolveNodeState(
   scope: Scope
 ): CellState {
   for (const rule of rules ?? []) {
-    if (evalBool(rule.when, { ...scope, node_id: id })) return rule.state;
+    if (evalBool(rule.when, { ...scope, node_id: id, node_idx: Number(id) })) return rule.state;
   }
   return "idle";
 }

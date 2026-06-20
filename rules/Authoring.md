@@ -76,6 +76,13 @@ Shared across approaches (the tracer runs each approach against every preset). *
 `expectedOutput` is deep-compared to the traced `finalResult` — a mismatch aborts ingest (it means
 the solution or the expected value is wrong). This is how the template self-validates correctness.
 
+**Label and ID naming convention (enforced for all problems):**
+- LeetCode examples → `id: "example-1"`, `"example-2"`, … and `label: "Example 1"`, `"Example 2"`, …
+  Never: `"LeetCode Example 1"`, `"Test Case 1"`, `"Basic case"`, `"Example One"`.
+- Edge cases → `id: "edge-<descriptor>"` (kebab-case, e.g. `edge-all-duplicates`) and `label` is a 2–4 word descriptive title in Title Case that describes what makes it interesting (e.g. `"All duplicates"`, `"Single element"`, `"Negative values"`, `"Sorted descending"`).
+  Never: `"Edge case 1"`, `"Edge 1"`, `"My test"`.
+- The `label` is shown live in the UI as the current input's identity — make it informative at a glance.
+
 ## 4. `approaches/<id>/solution.py`
 
 The real solution, executed verbatim. **Line numbers are load-bearing** — `lineExplanations`,

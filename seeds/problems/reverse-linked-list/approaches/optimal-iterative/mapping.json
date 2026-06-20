@@ -1,0 +1,96 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "head",
+  "linksFrom": "head_links",
+  "pointers": [
+    {
+      "name": "previous",
+      "var": "previous"
+    },
+    {
+      "name": "current",
+      "var": "current"
+    }
+  ],
+  "nodeStateRules": [
+    { "state": "current",  "when": "node_idx == current" },
+    { "state": "visited",  "when": "node_idx < current" },
+    { "state": "idle",     "when": "true" }
+  ],
+  "changedLinksFrom": "changed_links",
+  "flags": {},
+  "phaseRules": [
+    {
+      "phase": "check",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "init",
+      "lines": [
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        15
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 13,
+      "label": "Arrow reversed!",
+      "kind": "match"
+    },
+    {
+      "line": 17,
+      "label": "Reversed list returned",
+      "kind": "return"
+    }
+  ]
+}

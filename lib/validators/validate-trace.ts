@@ -84,6 +84,9 @@ function isValidLeaf(v: LeafVisualState): boolean {
   if (v.type === "graph") {
     return Array.isArray(v.nodes) && Array.isArray(v.edges) && Array.isArray(v.pointers);
   }
+  if (v.type === "custom") {
+    return typeof (v as { componentKey?: unknown }).componentKey === "string";
+  }
   return v.type === "linkedList" || v.type === "recursion";
 }
 

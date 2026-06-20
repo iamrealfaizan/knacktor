@@ -1,0 +1,119 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Checking whether head is an empty list.",
+      "why": "An empty list has nothing to reverse — we detect this first to avoid entering the loop needlessly.",
+      "invariant": "No nodes processed yet."
+    },
+    "4": {
+      "happening": "Assigning result = [] for the empty-input path.",
+      "why": "We need a value to return; reversing an empty list gives an empty list.",
+      "invariant": "result = [] prepared."
+    },
+    "5": {
+      "happening": "Returning [] — the reversed empty list.",
+      "why": "No reversal is needed; the answer is trivially empty.",
+      "invariant": "Correct result for an empty input."
+    },
+    "6": {
+      "happening": "Building head_links = {head_links} — the initial sequential link array.",
+      "why": "The renderer needs explicit next-pointers to draw arrows. We build them once here so they can be mutated step by step as we reverse the list.",
+      "invariant": "head_links = {head_links}; all arrows point forward."
+    },
+    "7": {
+      "happening": "Setting previous = None.",
+      "why": "After reversal, the original head node becomes the tail — its 'next' pointer must point to None (no next node).",
+      "invariant": "previous = None; no arrows flipped yet."
+    },
+    "8": {
+      "happening": "Setting current = 0 — the index of the head node.",
+      "why": "We begin at the first node and walk forward through every node exactly once.",
+      "invariant": "current = 0; previous = None."
+    },
+    "9": {
+      "happening": "Resetting changed_links = [] before entering the loop.",
+      "why": "changed_links records which arrow to flip each step; starting fresh ensures no stale arrow from a previous run.",
+      "invariant": "Setup complete; ready to reverse."
+    },
+    "10": [
+      {
+        "when": "current < len(head)",
+        "happening": "current ({current}) < {len(head)} — still more nodes to reverse. Entering the loop body.",
+        "why": "We visit every node exactly once to flip its arrow.",
+        "invariant": "All nodes before index {current} have had their arrows reversed."
+      },
+      {
+        "happening": "current ({current}) >= {len(head)} — all nodes processed. Exiting the loop.",
+        "why": "Every arrow now points backward; previous is the new head.",
+        "invariant": "All arrows reversed; previous = {previous} is the new head index."
+      }
+    ],
+    "11": {
+      "happening": "Saving nxt = {current} + 1 = {nxt}.",
+      "why": "Once we flip current's arrow to point backward, we'd lose track of the next node without this save.",
+      "invariant": "nxt safely holds the index of the next node to process."
+    },
+    "12": {
+      "happening": "Updating head_links[{current}] to point at {previous} — recording the reversed link.",
+      "why": "head_links must always reflect the true current link state so the renderer shows the right arrows each step.",
+      "invariant": "head_links[{current}] now points backward."
+    },
+    "13": {
+      "happening": "Flipping node {current}'s arrow to point at previous ({previous}) — the core reversal step!",
+      "why": "This is the algorithm's entire job: redirect the forward arrow into a backward arrow. The renderer animates this transition.",
+      "invariant": "Node {current} now points at previous instead of forward."
+    },
+    "14": {
+      "happening": "Sliding previous forward: previous = {current}.",
+      "why": "On the next iteration, the following node must point back to the current node.",
+      "invariant": "previous always trails one step behind current."
+    },
+    "15": {
+      "happening": "Sliding current forward: current = {nxt}.",
+      "why": "We advance to the next unprocessed node using the saved nxt value.",
+      "invariant": "current has moved forward; previous is one step behind it."
+    },
+    "16": {
+      "happening": "Building result = {result} by reversing head.",
+      "why": "Materialises the reversed value sequence for the result readout — the visual answer.",
+      "invariant": "result is the complete reversed list."
+    },
+    "17": {
+      "happening": "Returning result = {result}.",
+      "why": "All arrows have been flipped; the reversal is done.",
+      "invariant": "The linked list is fully reversed; result holds the answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up head_links, previous, current, and changed_links.",
+      "why": "head_links gives the renderer the initial forward arrows; previous, current, and changed_links drive the reversal loop.",
+      "invariant": "No arrows flipped yet."
+    },
+    "check": {
+      "happening": "Checking the empty-list edge case.",
+      "why": "An empty input needs no work.",
+      "invariant": "No processing done."
+    },
+    "update": {
+      "happening": "Updating state — saving nxt, flipping head_links, recording changed_links, or advancing previous.",
+      "why": "Each update makes the reversal one arrow closer to complete.",
+      "invariant": "All nodes before current are reversed."
+    },
+    "loop": {
+      "happening": "Checking the loop condition.",
+      "why": "Deciding whether there are more arrows to flip.",
+      "invariant": "All nodes before current index have been reversed."
+    },
+    "move": {
+      "happening": "Advancing current to the next node.",
+      "why": "Moving forward through the original list order.",
+      "invariant": "previous is exactly one step behind current."
+    },
+    "return": {
+      "happening": "Returning the reversed list.",
+      "why": "The reversal is complete.",
+      "invariant": "All arrows point backward; the answer is ready."
+    }
+  }
+}

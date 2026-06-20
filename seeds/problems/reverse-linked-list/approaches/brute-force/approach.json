@@ -1,0 +1,59 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force: Store Values",
+  "kind": "brute",
+  "summary": "Collect all node values into an array, then read them back in reverse into a result list — reverses values without touching pointers, at the cost of O(n) extra space.",
+  "visualizationIntent": "check: empty list guard highlighted. init: head_links built (sequential arrows shown on the linked list), values array shown empty, pos at index 0. loop-collect: current node highlighted via pos pointer, value appended to values aux array which grows. move-collect: pos advances to next node. loop-reverse: i pointer on values aux array moves from back to front; each value appended to result. return: result shown as the reversed sequence.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.reverseList",
+  "primaryPrimitive": "linkedList",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "REVERSED",
+    "render": "list"
+  },
+  "varColors": {
+    "pos": "ptr-i"
+  },
+  "lineExplanations": {
+    "3": "Edge-case guard: if head is empty, there is nothing to reverse.",
+    "4": "Initialise result as an empty list to return for the empty-input case.",
+    "5": "Return immediately — no reversal needed for an empty list.",
+    "6": "Build head_links: the sequential next-pointer array for the linked list — node i points to i+1; the last node points to -1 (null).",
+    "7": "Create an empty array called values that will store every node's value in forward order.",
+    "8": "Set pos to 0 — the index of the first node in head.",
+    "9": "First loop header: iterate while pos is within bounds of the list.",
+    "10": "Append head[pos] to values — collecting node values left-to-right.",
+    "11": "Advance pos by 1 — move to the next node.",
+    "12": "Initialise the result list that will hold the reversed values.",
+    "13": "Set i to the last valid index of values — we will read from right to left.",
+    "14": "Second loop header: iterate while i is a valid index (>= 0).",
+    "15": "Append values[i] to result — reading from back to front reverses the order.",
+    "16": "Decrement i — move one step left toward the front of values.",
+    "17": "Return the fully reversed result list."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the container class the Knacktor platform expects.",
+    "2": "def reverseList(self, head): — head is a Python list of integers, one per node.",
+    "3": "if not head: — 'not head' is True when head is an empty list [].",
+    "4": "result = [] — creates an empty Python list using the [] literal.",
+    "5": "return result — exits the function early, skipping all reversal logic.",
+    "6": "head_links = list(range(1, len(head))) + [-1] — range(1, n) gives [1,2,...,n-1]; appending -1 makes the last node point to null.",
+    "7": "values = [] — an empty list that will grow as we collect node values.",
+    "8": "pos = 0 — an integer index; 0 means the first position (Python is 0-indexed).",
+    "9": "while pos < len(head): — len(head) gives the number of elements; loop runs n times.",
+    "10": "values.append(head[pos]) — .append() adds one element to the end of the list.",
+    "11": "pos = pos + 1 — increments the index; same as pos += 1.",
+    "12": "result = [] — a second fresh list; will hold our answer.",
+    "13": "i = len(values) - 1 — len(values) - 1 is the last valid index in a 0-indexed list.",
+    "14": "while i >= 0: — loop runs from index len-1 down to 0 (inclusive).",
+    "15": "result.append(values[i]) — reads the element at index i and adds it to result.",
+    "16": "i = i - 1 — decrements i; same as i -= 1.",
+    "17": "return result — hands the reversed list back to the caller."
+  }
+}
