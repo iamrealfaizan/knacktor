@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "remove-linked-list-elements",
+  "number": 203,
+  "title": "Remove Linked List Elements",
+  "difficulty": "easy",
+  "topics": [
+    "linked-list"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "Given the head of a linked list and an integer val, remove all the nodes of the linked list that have Node.val == val, and return the new head.\n\nExample 1:\nInput: head = [1,2,6,3,4,5,6], val = 6\nOutput: [1,2,3,4,5]\n\nExample 2:\nInput: head = [], val = 1\nOutput: []\n\nExample 3:\nInput: head = [7,7,7,7], val = 7\nOutput: []\n\nConstraints:\n- The number of nodes in the list is in the range [0, 10^4].\n- 1 <= Node.val <= 50\n- 0 <= val <= 50",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal-iterative",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "head",
+        "type": "int[]",
+        "label": "Linked List (as array)",
+        "placeholder": "1, 2, 6, 3, 4, 5, 6",
+        "min": 1,
+        "max": 50,
+        "minLen": 0,
+        "maxLen": 20
+      },
+      {
+        "name": "val",
+        "type": "int",
+        "label": "Value to Remove",
+        "placeholder": "6",
+        "min": 0,
+        "max": 50
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

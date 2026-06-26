@@ -130,7 +130,40 @@ def main():
             sys.exit(1)
         target_code = target.__code__
 
-    exec_lines = sorted(executable_lines(target_code, set()))
+    # Collect code objects for the entrypoint class (e.g. Solution) and all nested
+    # code objects (comprehensions, nested functions). Helper classes defined in the
+    # same file (e.g. ListNode) are intentionally excluded — they are implementation
+    # scaffolding, not the algorithm, and should not appear as trace steps.
+    target_class = cls_name if "." in entry else None
+
+    def _collect_codes(code_obj, acc):
+        acc.append(code_obj)
+        for const in code_obj.co_consts:
+            if isinstance(const, type(code_obj)):
+                _collect_codes(const, acc)
+
+    allowed_codes = []
+    if target_class:
+        cls_obj = ns.get(target_class)
+        if cls_obj:
+            for attr_val in vars(cls_obj).values():
+                func = None
+                if callable(attr_val) and hasattr(attr_val, '__code__'):
+                    func = attr_val
+                elif isinstance(attr_val, (staticmethod, classmethod)):
+                    func = attr_val.__func__
+                if func is not None:
+                    _collect_codes(func.__code__, allowed_codes)
+    if not allowed_codes:
+        _collect_codes(target_code, allowed_codes)
+
+    allowed_code_id_set = {id(c) for c in allowed_codes}
+    exec_lines = sorted({
+        line
+        for code_obj in allowed_codes
+        for _, line in dis.findlinestarts(code_obj)
+        if line is not None and line != code_obj.co_firstlineno
+    })
 
     steps = []
     call_stack = []  # list of {label}
@@ -142,6 +175,10 @@ def main():
     def trace(frame, event, arg):
         # Only trace frames defined in the solution file.
         if frame.f_code.co_filename != sol_file:
+            return None
+        # Skip helper class frames (e.g. ListNode.__init__) — trace only the
+        # entrypoint class (Solution) and its nested code objects.
+        if id(frame.f_code) not in allowed_code_id_set:
             return None
         if event == "call":
             call_stack.append({"label": make_label(frame)})
