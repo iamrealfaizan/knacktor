@@ -313,3 +313,28 @@ export function evalBool(src: string, scope: Scope): boolean {
 export function checkExpr(src: string): void {
   compile(src);
 }
+
+/**
+ * Collect the free identifier names an expression reads from scope (the variables
+ * it depends on). Excludes the builtin functions min/max/len/abs (they appear only
+ * as `call` names) and the literals true/false/null (which parse to bool/null nodes,
+ * not ids). Member props (the `b` in `a.b`) are NOT identifiers — only the base var.
+ * Throws on syntax error; the DSL linter catches that to report bad grammar.
+ */
+export function referencedIdents(src: string): Set<string> {
+  const out = new Set<string>();
+  const walk = (n: Node): void => {
+    switch (n.t) {
+      case "id": out.add(n.name); break;
+      case "member": walk(n.obj); break;
+      case "index": walk(n.obj); walk(n.index); break;
+      case "call": n.args.forEach(walk); break;
+      case "unary": walk(n.arg); break;
+      case "bin": walk(n.l); walk(n.r); break;
+      case "ternary": walk(n.c); walk(n.a); walk(n.b); break;
+      // num | str | bool | null: no identifiers
+    }
+  };
+  walk(compile(src));
+  return out;
+}

@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "ingest": "npx tsx scripts/ingest.ts",
+    "trace-approach": "npx tsx scripts/trace-approach.ts",
+    "lint-dsl": "npx tsx scripts/lint-dsl.ts",
+    "dry-run": "npx tsx scripts/dry-run-approach.ts",
     "new-problem": "npx tsx scripts/new-problem.ts",
     "import-problem": "npx tsx scripts/import-problem.ts",
     "drop-db": "npx tsx scripts/drop-db.ts"
