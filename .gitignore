@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# staged problem authoring — in-progress work (final bundle lands in seeds/problems/)
+/authoring/

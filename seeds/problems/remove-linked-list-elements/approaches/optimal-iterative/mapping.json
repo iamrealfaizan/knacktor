@@ -1,0 +1,107 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "nodes",
+  "linksFrom": "links",
+  "changedLinksFrom": "changed_links",
+  "pointers": [
+    {
+      "name": "current",
+      "var": "curr_id"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        25
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        37,
+        38,
+        39,
+        40,
+        41
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        33,
+        34,
+        35,
+        36
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        42,
+        43
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 29,
+      "label": "Node removed",
+      "kind": "match"
+    },
+    {
+      "line": 42,
+      "label": "Result returned",
+      "kind": "return"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "removing val = {val}"
+  },
+  "flags": {},
+  "counters": [
+    {
+      "name": "nodes removed",
+      "onLines": [
+        29
+      ]
+    }
+  ]
+}

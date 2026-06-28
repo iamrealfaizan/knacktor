@@ -86,8 +86,7 @@ async function ingestBundle(
   bundleDir: string,
   maps: { diff: Map<string, string>; topic: Map<string, string>; pattern: Map<string, string> }
 ): Promise<number> {
-  const { buildTrace } = await import("../lib/tracer/pipeline");
-  const { assertLineCoverage } = await import("../lib/validators/validate-trace");
+  const { dryRunApproach } = await import("../lib/validators/dry-run");
   const now = new Date();
 
   const problem = JSON.parse(fs.readFileSync(path.join(bundleDir, "problem.json"), "utf-8"));
@@ -134,18 +133,16 @@ async function ingestBundle(
 
   let traceCount = 0;
   for (const approach of approaches) {
-    const covered = new Set<number>();
-    let executable: number[] = [];
-    for (const preset of presets) {
-      const built = buildTrace(bundleDir, approach.id, preset.id, preset.expectedOutput);
-      built.coveredLines.forEach((l) => covered.add(l));
-      executable = built.executableLines;
+    // Gate C: trace + validate every preset of this approach (No-Line-Left-Behind
+    // asserted over the union). Throws on any breach — same path as `npm run dry-run`.
+    const result = dryRunApproach(bundleDir, approach.id, presets);
+    for (const { presetId, built } of result.builts) {
       const compressed = gzipSync(Buffer.from(JSON.stringify(built.steps), "utf-8"));
       await db.collection("traces").updateOne(
-        { problemId, approachId: approach.id, inputId: preset.id },
+        { problemId, approachId: approach.id, inputId: presetId },
         {
           $set: {
-            problemId, problemSlug: problem.slug, approachId: approach.id, inputId: preset.id,
+            problemId, problemSlug: problem.slug, approachId: approach.id, inputId: presetId,
             stepCount: built.steps.length, keyEventIndices: built.keyEventIndices,
             finalResult: built.finalResult, compression: "gzip",
             stepsCompressed: compressed, byteSize: compressed.length,
@@ -155,11 +152,10 @@ async function ingestBundle(
         },
         { upsert: true }
       );
-      console.log(`    ↑ traces/${problem.slug}:${approach.id}:${preset.id} (${built.steps.length} steps, ${(compressed.length / 1024).toFixed(1)}KB gz)`);
+      console.log(`    ↑ traces/${problem.slug}:${approach.id}:${presetId} (${built.steps.length} steps, ${(compressed.length / 1024).toFixed(1)}KB gz)`);
       traceCount++;
     }
-    assertLineCoverage(executable, covered, `${problem.slug}:${approach.id}`);
-    console.log(`    ✓ ${approach.id}: No Line Left Behind (${executable.length} lines covered)`);
+    console.log(`    ✓ ${approach.id}: No Line Left Behind (${result.executableLines.length} lines covered)`);
   }
   return traceCount;
 }
