@@ -28,9 +28,9 @@ dates to absolute when noting them.
   "number": 1,
   "stage": "S4b",                         // current problem-level stage
   "humanGates": {
-    "frozenCode": { "optimal": "approved" },   // pending | approved | rejected, per approach
-    "primitive":  { "optimal": "approved" },
-    "final":      "pending"
+    "frozenCode": { "optimal": "approved" },   // Gate 1 — pending | approved | rejected, per approach
+    "primitive":  { "optimal": "approved" },   // Gate 2 (light primitive pre-check)
+    "preview":    "pending"                    // Gate 3 — review-sheet GREEN | revise | defer
   },
   "approaches": {
     "optimal": {
@@ -40,7 +40,7 @@ dates to absolute when noting them.
       "entrypoint": "Solution.twoSum",
       "executableLines": [3,4,5,6,7,8,9,10,11], // from S2 trace; frozen
       "primitive": "hashmap",
-      "gates": { "trace": "pass", "lint": "pass", "dryRun": "pending" }
+      "gates": { "trace": "pass", "lint": "pass", "dryRun": "pass", "liveness": "pass" }
     }
   },
   "presetsTracedAt": "<sha256 of presets.json + all solution.py>",  // invalidate trace cache on change

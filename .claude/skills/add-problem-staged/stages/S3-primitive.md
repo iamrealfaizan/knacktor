@@ -33,19 +33,18 @@ honestly fits, DEFER (record `{unsupported, neededRenderer}`).
 - `varColors` tokens only: `ptr-i, ptr-j, ptr-lo, ptr-hi, special, result, amber, compared, current, error, gold`.
 - `visualizationIntent` is not shown to users — it's the contract S4b's mapping is checked against.
 
-## 🟦 Human Gate 2 — produce this packet, then STOP and wait
+## 🟦 Human Gate 2 — LIGHT pre-check, then STOP and wait
 
-Present, using REAL `example-1` traced values:
-1. **Unit of work** — one sentence.
-2. **Recommended primitive** + why its cells == that unit of work (cite the `rules/FidelityReview.md` table).
-3. **DSL-wiring walkthrough** — how `valuesFrom`/`pointers`/`cellStateRules`/`auxMappings` map to the traced
-   state at 1–2 pivotal steps, naming real vars (e.g. "at step 5, `i`=1, `complement`=2; pointer `i` on
-   cell 1; matched entry flips to `result`"). Note DSL limits and the workaround (no `in` → flag; no slice).
-4. **D17 escape-hatch check** — does `custom` apply? (≥2 of: 2+ primitives must coordinate; spatial layout
-   IS the teaching point; animation logic inexpressible in the DSL.)
-5. **ASCII mockup** at init / one key step / return, one sentence each: "the learner sees ___ and understands ___."
-6. **Fidelity risk** — any step the visual might mislead.
-7. Ask: **"Proceed with `<primitive>` for `<approach>`? Different primitive, or DEFER (needs renderer X)?"**
+This is a quick sanity check, NOT the full fidelity review — the human sees the REAL rendered animation at
+Gate 3 (S5), so keep this short. Catching a wrong primitive here just avoids authoring a whole mapping on
+it. Present (a few lines):
+
+1. **Unit of work** — one sentence (the smallest thing the algorithm repeatedly does).
+2. **Recommended primitive** + a one-line why-its-cells-match (cite the `rules/FidelityReview.md` table).
+3. **DEFER / custom flag** — if no primitive can honestly show the unit of work, or ≥2 D17 criteria apply
+   (2+ primitives coordinate / spatial layout IS the teaching point / logic inexpressible in the DSL), say so.
+4. Ask: **"Proceed with `<primitive>` for `<approach>`? Different primitive, or DEFER (needs renderer X)?"**
 
 On approval: `humanGates.primitive.<id> = "approved"`, approach `stage = "S4a"`. On DEFER: set
-`state.deferred` and STOP — author after the renderer exists.
+`state.deferred` and STOP — author after the renderer exists. (The substantive fidelity judgment — ASCII
+became real SVG frames — happens at Gate 3 on the actual preview.)

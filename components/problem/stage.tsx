@@ -85,7 +85,7 @@ const LEGENDS: Record<string, { label: string; color: string }[]> = {
 
 // ── viewBox sizing per leaf type ─────────────────────────────────────────────
 
-function getLeafViewBox(visual: LeafVisualState): { x: number; y: number; w: number; h: number } {
+export function getLeafViewBox(visual: LeafVisualState): { x: number; y: number; w: number; h: number } {
   switch (visual.type) {
     case "array": {
       const n = visual.values.length;
@@ -169,7 +169,7 @@ interface CombinedLayout {
   auxOffsets: AuxOffset[];
 }
 
-function computeCombinedLayout(
+export function computeCombinedLayout(
   primary: LeafVisualState,
   aux: { label: string; visual: LeafVisualState }[]
 ): CombinedLayout {
@@ -261,7 +261,7 @@ function computeCombinedLayout(
 
 // ── Render a single leaf primitive (SVG elements) ─────────────────────────────
 
-function LeafRenderer({
+export function LeafRenderer({
   visual,
   vars,
   target,
