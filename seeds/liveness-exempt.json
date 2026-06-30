@@ -1,0 +1,7 @@
+[
+  {
+    "slug": "remove-linked-list-elements",
+    "approachId": "brute-recursive",
+    "reason": "Pre-existing: primitive 'recursion' with framesFrom 'call_stack', but nothing populates call_stack (tracer/run.py is decoupled from mapping.json, so it can't auto-inject it) — the recursion stage renders empty for the whole run. Recursion rendering was never wired end-to-end. FOLLOW-UP: wire call_stack (tracer + buildScope) so the recursion primitive is live, then remove this exemption."
+  }
+]

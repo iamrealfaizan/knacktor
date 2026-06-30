@@ -41,11 +41,16 @@ function main(): number {
     const result = dryRunApproach(bundleDir, approachId, presets);
     console.log(`\n━━━ ${approachId} ━━━  ✓ validated (no DB write)`);
     for (const { presetId, built } of result.builts) {
+      const lv = result.liveness.find((r) => r.presetId === presetId);
+      const liveTag = lv
+        ? ` · liveness ${lv.livenessScore}/100${lv.evaluated ? "" : " (short, not gated)"}`
+        : "";
       console.log(
-        `  ▸ ${presetId}: ${built.steps.length} steps · ${built.keyEventIndices.length} key event(s) · finalResult = ${JSON.stringify(built.finalResult)}`
+        `  ▸ ${presetId}: ${built.steps.length} steps · ${built.keyEventIndices.length} key event(s) · finalResult = ${JSON.stringify(built.finalResult)}${liveTag}`
       );
     }
     console.log(`  ✓ No Line Left Behind — ${result.executableLines.length} executable lines covered`);
+    console.log(`  ✓ Liveness — animation passes the fidelity gate`);
   }
   console.log(`\n✓ dry-run passed for ${approachIds.length} approach(es)`);
   return 0;
