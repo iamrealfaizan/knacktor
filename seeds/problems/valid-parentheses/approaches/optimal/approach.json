@@ -1,0 +1,61 @@
+{
+  "id": "optimal",
+  "name": "Matching Stack",
+  "kind": "optimal",
+  "summary": "Push each opening bracket; on a closer, pop the top and check it is the matching opener.",
+  "visualizationIntent": "init: empty stack, ready to scan the string left to right. loop: read the current character c. check: if c is a closing bracket, look at the stack — an empty stack means no opener to match (invalid), otherwise pop the top opener into 'top' and compare it to the opener that c requires (pairs[c]); a mismatch is invalid. update: if c is an opening bracket, push it onto the stack (it must be matched later). return: after the whole string is scanned, a stack that is empty means every opener was matched -> valid (true), a non-empty stack means unmatched openers remain -> invalid (false).",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.isValid",
+  "primaryPrimitive": "stack",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "VALID?",
+    "suffix": "· is the string balanced",
+    "render": "boolean"
+  },
+  "varColors": {
+    "c": "current",
+    "top": "compared",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Start with an empty stack that will hold opening brackets still waiting to be closed.",
+    "4": "Build a lookup mapping each closing bracket to the opening bracket that must match it.",
+    "5": "Scan the string one character at a time, left to right.",
+    "6": "Check whether the current character is a closing bracket (the closers are the keys of pairs).",
+    "7": "It is a closer, so check whether the stack is empty — if so there is no opener to match.",
+    "8": "The stack was empty, so this closer has no partner: mark the string invalid.",
+    "9": "Return False right away — one unmatched closer makes the whole string invalid.",
+    "10": "Pop the most recently opened bracket off the top of the stack to match against this closer.",
+    "11": "Compare the popped opener with the opener this closer actually requires.",
+    "12": "They differ, so the brackets are mismatched: mark the string invalid.",
+    "13": "Return False right away — a single mismatch makes the whole string invalid.",
+    "15": "The character is an opening bracket, so push it onto the stack to be matched later.",
+    "16": "After the whole string is scanned, the string is valid only if the stack is empty.",
+    "17": "Return the final verdict: True if every opener was matched, False otherwise."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: is the class wrapper the platform expects around the method.",
+    "2": "def isValid(self, s: str) -> bool: defines the method; it receives the string s and returns a boolean.",
+    "3": "stack = [] creates an empty Python list used as a stack (.append pushes, .pop removes the last item).",
+    "4": "{ ')': '(', ... } is a dict literal mapping each closing character to its matching opening character.",
+    "5": "for c in s: loops over the string, binding c to each character in turn.",
+    "6": "if c in pairs: is a membership test — True when c is one of the dict's keys (the closing brackets).",
+    "7": "if not stack: uses that an empty list is falsy, so 'not stack' is True exactly when the stack is empty.",
+    "8": "result = False assigns the boolean False to result.",
+    "9": "return result hands the value back to the caller and exits the function immediately.",
+    "10": "stack.pop() removes and returns the last item of the list — the top of the stack.",
+    "11": "!= tests inequality; pairs[c] looks up the opener that the closing bracket c requires.",
+    "12": "result = False assigns the boolean False to result.",
+    "13": "return result exits the function immediately with the current verdict.",
+    "14": "else: introduces the branch taken when the 'if c in pairs' test was False (c is an opener).",
+    "15": "stack.append(c) adds c to the end of the list — pushing it onto the stack.",
+    "16": "not stack is True when the stack is empty; the result is assigned to result.",
+    "17": "return result returns the final boolean verdict."
+  }
+}

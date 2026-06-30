@@ -1,0 +1,47 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "()"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "([])"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "s": "([)]"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-unmatched-close",
+    "label": "Unmatched Closer",
+    "value": {
+      "s": "]"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-leftover-open",
+    "label": "Leftover Openers",
+    "value": {
+      "s": "((("
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  }
+]

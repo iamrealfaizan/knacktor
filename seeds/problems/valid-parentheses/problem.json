@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "valid-parentheses",
+  "number": 20,
+  "title": "Valid Parentheses",
+  "difficulty": "easy",
+  "topics": [
+    "string",
+    "stack"
+  ],
+  "patterns": [
+    "balanced-brackets"
+  ],
+  "statement": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n\n- Open brackets must be closed by the same type of brackets.\n- Open brackets must be closed in the correct order.\n- Every close bracket has a corresponding open bracket of the same type.\n\nExample 1:\nInput: s = \"()\"\nOutput: true\n\nExample 2:\nInput: s = \"()[]{}\"\nOutput: true\n\nExample 3:\nInput: s = \"(]\"\nOutput: false\n\nExample 4:\nInput: s = \"([])\"\nOutput: true\n\nExample 5:\nInput: s = \"([)]\"\nOutput: false\n\nConstraints:\n1 <= s.length <= 10^4\ns consists of parentheses only '()[]{}'.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "string",
+        "label": "String",
+        "placeholder": "()[]{}",
+        "minLen": 1,
+        "maxLen": 10000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}
