@@ -1,0 +1,101 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We start with an empty stack — it will hold opening brackets that are still waiting to be closed.",
+      "why": "A stack hands back the most recently opened bracket in O(1), which is exactly what a closer needs to check.",
+      "invariant": "The stack holds, bottom to top, every opener seen so far that has not yet been matched."
+    },
+    "4": {
+      "happening": "We build a lookup from each closing bracket to the opening bracket it must match.",
+      "why": "An O(1) lookup lets us check any closer against its required opener instantly.",
+      "invariant": "pairs[closer] is the one opener that legally closes that closer."
+    },
+    "5": {
+      "happening": "We read the next character '{c}' of the string.",
+      "why": "Validity is decided by scanning left to right and reacting to each bracket in order.",
+      "invariant": "Every character before '{c}' has already been fully processed."
+    },
+    "6": {
+      "happening": "We check whether '{c}' is a closing bracket — closers are the keys of the pairs map.",
+      "why": "Openers and closers are handled differently: openers are stored, closers must be matched.",
+      "invariant": "Each character is either an opener (to push) or a closer (to match)."
+    },
+    "7": {
+      "happening": "'{c}' is a closer, so we check whether the stack is empty.",
+      "why": "A closing bracket with no opener waiting on the stack can never be valid.",
+      "invariant": "If the stack is empty here, there is nothing for '{c}' to close."
+    },
+    "8": {
+      "happening": "The stack was empty, so this closer has no partner — the string is invalid.",
+      "why": "A closer with nothing to close breaks the rule that every closer has a matching opener.",
+      "invariant": "result is now False and is about to be returned."
+    },
+    "9": {
+      "happening": "We return False immediately — there is no need to scan the rest of the string.",
+      "why": "A single unmatched closer is enough to make the whole string invalid.",
+      "invariant": "The function exits with the verdict False."
+    },
+    "10": {
+      "happening": "We pop the top of the stack — the most recently opened bracket — to match it against '{c}'.",
+      "why": "Brackets must close in last-opened-first-closed (LIFO) order, so the top is the only legal partner.",
+      "invariant": "After the pop, top holds the opener that '{c}' is expected to close."
+    },
+    "11": {
+      "happening": "We compare the popped opener '{top}' with the opener that '{c}' requires ('{pairs[c]}').",
+      "why": "They must be the same type, otherwise the brackets are crossed or mismatched.",
+      "invariant": "A match keeps the string potentially valid; a mismatch ends it."
+    },
+    "12": {
+      "happening": "The popped opener does not match '{c}', so the brackets are mismatched — the string is invalid.",
+      "why": "Open brackets must be closed by the same type, in the correct order.",
+      "invariant": "result is now False and is about to be returned."
+    },
+    "13": {
+      "happening": "We return False immediately.",
+      "why": "A single mismatch makes the entire string invalid.",
+      "invariant": "The function exits with the verdict False."
+    },
+    "15": {
+      "happening": "'{c}' is an opening bracket, so we push it onto the stack.",
+      "why": "It has to be matched later by a closer of the same type, so we remember it.",
+      "invariant": "The top of the stack is always the most recently opened, still-unmatched bracket."
+    },
+    "16": {
+      "happening": "The whole string has been scanned; the answer is True only if the stack is now empty.",
+      "why": "Any openers still on the stack were never closed, which makes the string invalid.",
+      "invariant": "An empty stack here means every opener found its matching closer."
+    },
+    "17": {
+      "happening": "We return the final verdict: {result}.",
+      "why": "The string is valid exactly when no opener was left unmatched on the stack.",
+      "invariant": "The function exits with True (valid) or False (invalid)."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "We set up the empty stack and the closer-to-opener lookup map.",
+      "why": "The stack tracks unmatched openers; the map lets us check any closer in O(1).",
+      "invariant": "Nothing has been scanned yet — the stack is empty."
+    },
+    "loop": {
+      "happening": "We scan the next character of the string.",
+      "why": "Validity is decided character by character, left to right.",
+      "invariant": "Everything to the left of the current character is already processed."
+    },
+    "check": {
+      "happening": "We decide how to handle the current bracket and, for a closer, test it against the stack's top.",
+      "why": "Openers and closers follow different rules, and a closer must match the most recent opener.",
+      "invariant": "The stack's top is the only bracket a closer is allowed to match."
+    },
+    "update": {
+      "happening": "We update the stack — pushing an opener, or popping the top to match a closer.",
+      "why": "The stack must always reflect the openers that are still waiting to be closed.",
+      "invariant": "The top of the stack is the most recently opened, unmatched bracket."
+    },
+    "return": {
+      "happening": "We produce the validity verdict for the string.",
+      "why": "The string is valid only if every opener was matched and none are left on the stack.",
+      "invariant": "An empty stack with no mismatch seen means the string is valid."
+    }
+  }
+}

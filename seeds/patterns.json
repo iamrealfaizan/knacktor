@@ -16,6 +16,7 @@
   { "slug": "dynamic-programming","name": "0/1 Knapsack DP",         "mustKnow": true,  "description": "Classic include/exclude DP; generalises to subset-sum, partition, and coin-change." },
   { "slug": "prefix-sum",         "name": "Prefix Sum",              "mustKnow": false, "description": "Precompute cumulative sums for O(1) range queries." },
   { "slug": "monotonic-stack",    "name": "Monotonic Stack",         "mustKnow": false, "description": "Stack kept in sorted order to find next greater/smaller element in O(n)." },
+  { "slug": "balanced-brackets",  "name": "Balanced Brackets",       "mustKnow": true,  "description": "Push openers onto a stack and pop to match each closer; the LIFO order enforces correct nesting." },
   { "slug": "sorting",            "name": "Sorting",                 "mustKnow": false, "description": "Applying a sort to simplify a problem (e.g. 4Sum, meeting rooms)." },
   { "slug": "hash-map",           "name": "Hash Map / Counting",     "mustKnow": false, "description": "Frequency counting and complement lookup to reduce O(n²) to O(n)." },
   { "slug": "kadane",             "name": "Kadane's Algorithm",      "mustKnow": false, "description": "Maximum subarray sum in O(n) using local vs global max tracking." },

@@ -1,0 +1,100 @@
+{
+  "primitive": "stack",
+  "itemsFrom": "stack",
+  "cellStateRules": [
+    {
+      "state": "compared",
+      "when": "idx == len(values) - 1 && phase == 'check'"
+    },
+    {
+      "state": "current",
+      "when": "idx == len(values) - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "counters": [
+    {
+      "name": "pushes",
+      "onLines": [
+        15
+      ]
+    },
+    {
+      "name": "pops",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6,
+        7,
+        11
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10,
+        15
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8,
+        9,
+        12,
+        13,
+        16,
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 15,
+      "label": "Push opener",
+      "kind": "match"
+    },
+    {
+      "line": 10,
+      "label": "Pop & match top",
+      "kind": "match"
+    },
+    {
+      "line": 8,
+      "label": "Empty stack — invalid",
+      "kind": "boundary"
+    },
+    {
+      "line": 12,
+      "label": "Bracket mismatch — invalid",
+      "kind": "boundary"
+    },
+    {
+      "line": 17,
+      "label": "Final verdict",
+      "kind": "return"
+    }
+  ]
+}
