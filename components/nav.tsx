@@ -15,6 +15,9 @@ const NAV_LINKS = [
 export function Nav() {
   const pathname = usePathname();
 
+  // The landing page (/) renders its own marketing header (LandingHeader).
+  if (pathname === "/") return null;
+
   // The problem-detail page has its own TopBar (no-scroll flagship layout).
   const isProblemDetail = /^\/problems\/[^/]+$/.test(pathname);
   if (isProblemDetail) return null;
