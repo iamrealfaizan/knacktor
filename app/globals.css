@@ -53,6 +53,8 @@
     --kn-error-border:     #E0A898;
     --kn-current-subtle:   #F9EDEA;
     --kn-current-border:   #E4B5A8;
+    --kn-special-subtle:   #F1EAFA;
+    --kn-special-border:   #D3C2EC;
 
     /* ── Problem-page / stage tokens (from 4Sum prototype) ───────── */
     --kn-stage:        #F7F4ED;            /* animation stage well        */
@@ -133,6 +135,8 @@
     --kn-error-border:     #6E392A;
     --kn-current-subtle:   rgba(224,135,99,.14);
     --kn-current-border:   #6E4A38;
+    --kn-special-subtle:   rgba(180,147,230,.16);
+    --kn-special-border:   #4A3A66;
     /* stage */
     --kn-stage:        #1C1B14;
     --kn-inset:        #1B1A13;
@@ -225,5 +229,69 @@
   .kn-anim-pop-in,
   .kn-anim-write-pop {
     animation: none;
+  }
+}
+
+/* ── Landing / marketing animations (token-driven) ───────────────── */
+/* Applied via inline `animation` in components/landing/*; all motion is
+   neutralized under prefers-reduced-motion by the .kn-landing guard below. */
+@keyframes kn-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+@keyframes kn-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--kn-accent-soft); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes kn-win {
+  0%, 12%   { left: 0%; }
+  44%, 56%  { left: 33.33%; }
+  88%, 100% { left: 66.66%; }
+}
+@keyframes kn-travel-dot {
+  0%, 8%    { transform: translateX(0); opacity: 1; }
+  92%, 100% { transform: translateX(184px); opacity: 1; }
+}
+@keyframes kn-push {
+  0%        { transform: translateY(-26px); opacity: 0; }
+  18%, 72%  { transform: translateY(0); opacity: 1; }
+  90%, 100% { transform: translateY(-26px); opacity: 0; }
+}
+@keyframes kn-glow {
+  0%, 100% { background: var(--kn-surface-0); border-color: var(--kn-border-0); color: var(--kn-ink-0); transform: scale(1); }
+  50%      { background: var(--kn-current); border-color: var(--kn-current); color: var(--kn-surface-0); transform: scale(1.12); }
+}
+@keyframes kn-edge {
+  0%   { stroke-dashoffset: 34; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes kn-swap-r {
+  0%, 28%  { transform: translateX(0); }
+  50%, 78% { transform: translateX(36px); }
+  100%     { transform: translateX(0); }
+}
+@keyframes kn-swap-l {
+  0%, 28%  { transform: translateX(0); }
+  50%, 78% { transform: translateX(-36px); }
+  100%     { transform: translateX(0); }
+}
+@keyframes kn-blink {
+  0%, 100% { opacity: .25; }
+  50%      { opacity: 1; }
+}
+@keyframes kn-rise {
+  0%   { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Accessibility: a learner who prefers reduced motion gets a fully static
+   landing (the hero also starts paused via matchMedia in hero.tsx). */
+@media (prefers-reduced-motion: reduce) {
+  .kn-landing *,
+  .kn-landing *::before,
+  .kn-landing *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

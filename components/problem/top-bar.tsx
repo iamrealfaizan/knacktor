@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Moon, Sun, Code2, ChevronDown, Check, FileText, X } from "lucide-react";
+import { Moon, Sun, Code2, ChevronDown, Check, FileText, X, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,6 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Sheet,
   SheetTrigger,
@@ -143,9 +149,30 @@ export function TopBar({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <span className="ml-1.5 text-[13px] text-kn-ink-2 hidden lg:inline truncate">
-        {activeApproach?.summary}
-      </span>
+      {/* Strategy — full approach summary in a popover (replaces the old clipped inline line) */}
+      {activeApproach?.summary && (
+        <Popover>
+          <PopoverTrigger className="inline-flex items-center gap-1.5 h-7 px-2.5 font-mono text-[11px] font-semibold rounded-md border border-kn-border-0 bg-kn-inset text-kn-ink-1 shrink-0 hover:bg-kn-surface-1 transition-colors outline-none">
+            <Lightbulb className="h-3.5 w-3.5" /> Strategy
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-80 max-w-[min(20rem,calc(100vw-2rem))]">
+            <PopoverTitle>Strategy · {approachLabel(activeApproach)}</PopoverTitle>
+            <p className="mt-1.5 text-[13.5px] leading-relaxed text-kn-ink-1">
+              {activeApproach.summary}
+            </p>
+            {activeApproach.complexity && (
+              <div className="mt-3 flex gap-2 font-mono text-[11px]">
+                <span className="rounded-md border border-kn-border-0 bg-kn-inset px-2 py-1 text-kn-ink-2">
+                  Time <span className="font-bold text-kn-ink-0">{activeApproach.complexity.time}</span>
+                </span>
+                <span className="rounded-md border border-kn-border-0 bg-kn-inset px-2 py-1 text-kn-ink-2">
+                  Space <span className="font-bold text-kn-ink-0">{activeApproach.complexity.space}</span>
+                </span>
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
+      )}
 
       <div className="ml-auto flex items-center gap-3">
         {/* Mode segmented control */}

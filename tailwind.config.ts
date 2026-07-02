@@ -76,6 +76,8 @@ const config: Config = {
           "error-border": "var(--kn-error-border)",
           "current-subtle": "var(--kn-current-subtle)",
           "current-border": "var(--kn-current-border)",
+          "special-subtle": "var(--kn-special-subtle)",
+          "special-border": "var(--kn-special-border)",
           // problem-page / stage
           stage: "var(--kn-stage)",
           inset: "var(--kn-inset)",
