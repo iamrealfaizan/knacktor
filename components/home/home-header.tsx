@@ -1,21 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Flame } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Search, Flame, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { NAV_LINKS, STREAK_DAYS, USER } from "./home-data";
+import { NAV_LINKS, STREAK_DAYS } from "./home-data";
 
-export function HomeHeader() {
+export interface HeaderUser {
+  name: string;
+  username: string;
+  email: string;
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const first = parts[0][0] ?? "";
+  const second = parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "";
+  return (first + second).toUpperCase();
+}
+
+export function HomeHeader({ user }: { user: HeaderUser }) {
   return (
     <header className="sticky top-0 z-50 flex items-center gap-5 h-[60px] px-5 sm:px-6 border-b border-kn-border-0 bg-kn-bg/85 backdrop-blur-xl">
       <Logo variant="dashboard" href="/home" />
@@ -62,18 +78,38 @@ export function HomeHeader() {
 
         <ThemeToggle />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger render={<span tabIndex={0} />}>
-              <Avatar className="size-9 bg-kn-compared">
-                <AvatarFallback className="bg-kn-compared text-sm font-bold text-white">
-                  {USER.initials}
-                </AvatarFallback>
-              </Avatar>
-            </TooltipTrigger>
-            <TooltipContent>{USER.name}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button
+                type="button"
+                aria-label="Account menu"
+                className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-kn-current"
+              />
+            }
+          >
+            <Avatar className="size-9 bg-kn-compared">
+              <AvatarFallback className="bg-kn-compared text-sm font-bold text-white">
+                {getInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[220px]">
+            <div className="px-2 py-1.5">
+              <div className="text-sm font-semibold text-kn-ink-0">{user.name}</div>
+              <div className="font-mono text-xs text-kn-ink-2">@{user.username}</div>
+              <div className="font-mono text-xs text-kn-ink-2">{user.email}</div>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => signOut({ redirectTo: "/" })}
+            >
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

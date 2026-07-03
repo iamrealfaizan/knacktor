@@ -3,12 +3,6 @@
 import Link from "next/link";
 import { Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { NAV_LINKS } from "@/lib/site";
@@ -45,21 +39,17 @@ export function LandingHeader() {
 
         <ThemeToggle />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger render={<span tabIndex={0} className="hidden sm:inline-flex" />}>
-              <Button variant="ghost" size="sm" disabled className="text-kn-ink-1">
-                Sign in
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Accounts coming soon</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="hidden sm:inline-flex text-kn-ink-1"
+          render={<Link href="/login">Sign in</Link>}
+        />
 
         <Button
           render={
-            <Link href="/problems">
-              Start exploring
+            <Link href="/signup">
+              Get started
               <ArrowRight className="h-4 w-4" />
             </Link>
           }

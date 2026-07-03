@@ -4,23 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  DIFFICULTY_STYLE,
-  PROBLEMS,
-  RESULT_COUNT,
-  SORT_OPTIONS,
-  STATUS_STYLE,
-} from "./home-data";
+import type { Problem } from "./home-data";
+import { DIFFICULTY_STYLE, SORT_OPTIONS, STATUS_STYLE } from "./home-data";
 
 const GRID = "grid grid-cols-[44px_52px_1fr_96px] gap-3.5 items-center";
 
-export function ProblemTable() {
+export function ProblemTable({ problems }: { problems: Problem[] }) {
   return (
     <section>
       {/* toolbar (search + sort are visual only for now) */}
       <div className="flex items-center gap-3.5 mb-3.5">
         <div className="text-sm text-kn-ink-1 whitespace-nowrap">
-          <b className="text-kn-ink-0 font-bold">{RESULT_COUNT}</b> problems
+          <b className="text-kn-ink-0 font-bold">{problems.length}</b> problems
         </div>
         <div className="flex-1 flex items-center gap-2 h-[38px] px-3 border border-kn-border-0 rounded-lg bg-kn-surface-0">
           <Search className="h-4 w-4 text-kn-ink-2 shrink-0" />
@@ -70,7 +65,7 @@ export function ProblemTable() {
           <span className="text-right">LEVEL</span>
         </div>
 
-        {PROBLEMS.map((p) => {
+        {problems.map((p) => {
           const s = STATUS_STYLE[p.status];
           const d = DIFFICULTY_STYLE[p.diff];
           const StatusIcon = s.icon;

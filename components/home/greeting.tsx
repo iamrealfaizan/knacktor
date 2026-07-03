@@ -1,6 +1,7 @@
-import { USER, WEEKLY_GOAL_REMAINING } from "./home-data";
+import { WEEKLY_GOAL_REMAINING } from "./home-data";
 
-export function Greeting() {
+export function Greeting({ name }: { name: string }) {
+  const firstName = name.split(" ")[0];
   return (
     <div className="flex flex-wrap items-end justify-between gap-3 mb-[18px]">
       <div>
@@ -8,7 +9,7 @@ export function Greeting() {
           WELCOME BACK
         </div>
         <h1 className="mt-1.5 text-[30px] font-extrabold leading-[1.1] tracking-[-0.02em] text-kn-ink-0">
-          Good to see you, {USER.name} <span aria-hidden>👋</span>
+          Good to see you, {firstName} <span aria-hidden>👋</span>
         </h1>
       </div>
       <div className="text-sm text-kn-ink-1">

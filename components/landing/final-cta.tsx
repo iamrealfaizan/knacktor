@@ -15,16 +15,16 @@ export function FinalCta() {
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/problems"
+            href="/signup"
             className="inline-flex items-center gap-2 font-semibold text-white bg-kn-current px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity"
           >
-            <Play className="h-4 w-4" /> Try a sample problem
+            <Play className="h-4 w-4" /> Get started free
           </Link>
           <Link
-            href="/problems"
+            href="/login"
             className="inline-flex items-center font-semibold text-kn-surface-0 border border-kn-surface-1 px-6 py-3.5 rounded-xl hover:bg-kn-surface-0 hover:text-kn-ink-0 transition-colors"
           >
-            Browse the catalog
+            Sign in
           </Link>
         </div>
       </div>

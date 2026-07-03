@@ -11,18 +11,26 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { FilterOption } from "./home-data";
-import {
-  DIFFICULTY_FILTERS,
-  PATTERN_FILTERS,
-  SHEET_FILTERS,
-  STATUS_FILTERS,
-  TOPIC_FILTERS,
-} from "./home-data";
 
 /**
  * Sidebar sections collapse/expand for real (local state); the filter options
- * inside are visual placeholders — client filtering arrives with real data.
+ * (real DB-derived counts, built in app/home/page.tsx) are visual placeholders —
+ * client filtering arrives with a UserProgress backend.
  */
+
+export interface SheetFilter {
+  label: string;
+  icon: string;
+  count: number;
+}
+
+export interface BrowseFilters {
+  status: FilterOption[];
+  difficulty: FilterOption[];
+  topics: FilterOption[];
+  patterns: FilterOption[];
+  sheets: SheetFilter[];
+}
 
 function Section({
   title,
@@ -92,12 +100,12 @@ function OptionRow({ opt }: { opt: FilterOption }) {
   );
 }
 
-export function BrowseSidebar() {
+export function BrowseSidebar({ filters }: { filters: BrowseFilters }) {
   return (
     <aside className="sticky top-[76px] flex flex-col border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden">
       <Section title="STATUS" summary="All" defaultOpen>
         <div className="flex flex-col gap-1.5 pr-1">
-          {STATUS_FILTERS.map((o) => (
+          {filters.status.map((o) => (
             <OptionRow key={o.label} opt={o} />
           ))}
         </div>
@@ -105,7 +113,7 @@ export function BrowseSidebar() {
 
       <Section title="DIFFICULTY" summary="All" defaultOpen>
         <div className="flex flex-col gap-1.5 pr-1">
-          {DIFFICULTY_FILTERS.map((o) => (
+          {filters.difficulty.map((o) => (
             <OptionRow key={o.label} opt={o} />
           ))}
         </div>
@@ -113,7 +121,7 @@ export function BrowseSidebar() {
 
       <Section title="TOPICS" summary="All" defaultOpen>
         <div className="flex flex-col gap-1 pr-1">
-          {TOPIC_FILTERS.map((o) => (
+          {filters.topics.map((o) => (
             <OptionRow key={o.label} opt={o} />
           ))}
         </div>
@@ -121,7 +129,7 @@ export function BrowseSidebar() {
 
       <Section title="PATTERNS" summary="All">
         <div className="flex flex-wrap gap-1.5 pr-1">
-          {PATTERN_FILTERS.map((o) => (
+          {filters.patterns.map((o) => (
             <Button
               key={o.label}
               type="button"
@@ -141,7 +149,7 @@ export function BrowseSidebar() {
 
       <Section title="STUDY SHEETS" summary="None">
         <div className="flex flex-col gap-1.5 pr-1">
-          {SHEET_FILTERS.map((o) => (
+          {filters.sheets.map((o) => (
             <Button
               key={o.label}
               type="button"
