@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { NAV_LINKS, SITE_STATS } from "@/lib/site";
 import {
   Code2,
   Boxes,
@@ -84,10 +85,10 @@ export interface DiscoveryEntry {
   tone: Tone;
 }
 export const DISCOVERY: DiscoveryEntry[] = [
-  { icon: Layers, title: "All problems", body: "Browse the full catalog, filter by tag and difficulty.", cta: "Browse", count: "480", href: "/problems", tone: "current" },
-  { icon: Shapes, title: "Topics", body: "Arrays, trees, graphs, DP and more — by structure.", cta: "Explore", count: "24", href: "/topics", tone: "compared" },
-  { icon: Workflow, title: "Patterns", body: "Two pointers, sliding window, backtracking…", cta: "Learn", count: "18", href: "/patterns", tone: "special" },
-  { icon: ListChecks, title: "Sheets", body: "Curated interview tracks, goal by goal.", cta: "Start", count: "9", href: "/sheets", tone: "result" },
+  { icon: Layers, title: "All problems", body: "Browse the full catalog, filter by tag and difficulty.", cta: "Browse", count: String(SITE_STATS.problems), href: "/problems", tone: "current" },
+  { icon: Shapes, title: "Topics", body: "Arrays, trees, graphs, DP and more — by structure.", cta: "Explore", count: String(SITE_STATS.topics), href: "/topics", tone: "compared" },
+  { icon: Workflow, title: "Patterns", body: "Two pointers, sliding window, backtracking…", cta: "Learn", count: String(SITE_STATS.patterns), href: "/patterns", tone: "special" },
+  { icon: ListChecks, title: "Sheets", body: "Curated interview tracks, goal by goal.", cta: "Start", count: String(SITE_STATS.sheets), href: "/sheets", tone: "result" },
 ];
 
 export type Difficulty = "Easy" | "Medium" | "Hard";
@@ -118,12 +119,8 @@ export interface FooterColumn {
 export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     heading: "Learn",
-    links: [
-      { label: "All problems", href: "/problems" },
-      { label: "Topics", href: "/topics" },
-      { label: "Patterns", href: "/patterns" },
-      { label: "Interview sheets", href: "/sheets" },
-    ],
+    // Derived from the canonical nav list — never a fifth copy of the routes.
+    links: NAV_LINKS.map(({ label, href }) => ({ label, href })),
   },
   {
     heading: "Product",
@@ -145,9 +142,3 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   },
 ];
 
-export const NAV_LINKS = [
-  { label: "Problems", href: "/problems" },
-  { label: "Topics", href: "/topics" },
-  { label: "Patterns", href: "/patterns" },
-  { label: "Sheets", href: "/sheets" },
-] as const;

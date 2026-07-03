@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTrace, getPresetTraces } from "@/lib/content-service";
+import { CACHE_HEADERS } from "@/lib/api-cache";
 
 // GET /api/problems/:slug/traces?approachId=<id>&inputId=<id>
 //
@@ -33,11 +34,11 @@ export async function GET(
           { status: 404 }
         );
       }
-      return NextResponse.json({ data });
+      return NextResponse.json({ data }, { headers: CACHE_HEADERS });
     } else {
       // All preset traces for this approach
       const data = await getPresetTraces(slug, approachId);
-      return NextResponse.json({ data });
+      return NextResponse.json({ data }, { headers: CACHE_HEADERS });
     }
   } catch (err) {
     console.error(`[GET /api/problems/${slug}/traces]`, err);

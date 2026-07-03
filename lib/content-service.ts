@@ -11,7 +11,11 @@
  * this layer decompresses them at the boundary so the player/renderer see the
  * plain Trace shape.
  */
-import { gunzipSync } from "zlib";
+import { gunzip as gunzipCb } from "zlib";
+import { promisify } from "util";
+
+// Async gunzip — never block the request thread on trace decompression.
+const gunzip = promisify(gunzipCb);
 import { GridFSBucket, ObjectId, type Db } from "mongodb";
 import clientPromise from "./mongodb";
 import type {
@@ -37,10 +41,16 @@ function toPlain<T>(v: T): T {
 }
 
 // ── Taxonomy resolution (id ↔ slug) ───────────────────────────────────────────
-// Cached per process; taxonomy is tiny and rarely changes.
+// Cached per process with a TTL. Taxonomy is tiny and only changes at ingest,
+// but WITHOUT this cache resolveProblem() fired 3 queries per problem —
+// ~3N Mongo round-trips per list render (the "slow on Vercel" N+1).
 type IdSlug = { byId: Map<string, string>; bySlug: Map<string, string> };
+type TaxCol = "difficulties" | "topics" | "patterns";
 
-async function idSlugMap(col: "difficulties" | "topics" | "patterns"): Promise<IdSlug> {
+const TAXONOMY_TTL_MS = 5 * 60 * 1000;
+const taxonomyCache = new Map<TaxCol, { at: number; promise: Promise<IdSlug> }>();
+
+async function fetchIdSlugMap(col: TaxCol): Promise<IdSlug> {
   const docs = await (await db())
     .collection<{ _id: ObjectId; slug: string }>(col)
     .find({}, { projection: { slug: 1 } })
@@ -53,6 +63,17 @@ async function idSlugMap(col: "difficulties" | "topics" | "patterns"): Promise<I
     bySlug.set(d.slug, id);
   }
   return { byId, bySlug };
+}
+
+function idSlugMap(col: TaxCol): Promise<IdSlug> {
+  const hit = taxonomyCache.get(col);
+  if (hit && Date.now() - hit.at < TAXONOMY_TTL_MS) return hit.promise;
+  const promise = fetchIdSlugMap(col).catch((err) => {
+    taxonomyCache.delete(col); // don't cache failures
+    throw err;
+  });
+  taxonomyCache.set(col, { at: Date.now(), promise });
+  return promise;
 }
 
 type RawProblem = {
@@ -179,10 +200,10 @@ async function hydrateTrace(conn: Db, doc: RawTrace): Promise<Trace> {
         .on("end", () => resolve())
         .on("error", reject);
     });
-    steps = JSON.parse(gunzipSync(Buffer.concat(chunks)).toString("utf-8"));
+    steps = JSON.parse((await gunzip(Buffer.concat(chunks))).toString("utf-8"));
   } else {
     const buf = bufferOf(doc.stepsCompressed);
-    steps = buf ? JSON.parse(gunzipSync(buf).toString("utf-8")) : [];
+    steps = buf ? JSON.parse((await gunzip(buf)).toString("utf-8")) : [];
   }
   return toPlain({
     problemId: asId(doc.problemId),
@@ -324,4 +345,54 @@ export async function getSheets(): Promise<Sheet[]> {
 export async function getSheetBySlug(slug: string): Promise<Sheet | null> {
   const doc = await (await db()).collection<Sheet>("sheets").findOne({ slug });
   return toPlain(doc);
+}
+
+// ── Counts (aggregations — never fetch full problem lists just to count) ──────
+
+/** problem count per topic slug, via $unwind/$group (one round-trip). */
+export async function getProblemCountsByTopic(): Promise<Record<string, number>> {
+  return taxonomyProblemCounts("topicIds", "topics");
+}
+
+/** problem count per pattern slug, via $unwind/$group (one round-trip). */
+export async function getProblemCountsByPattern(): Promise<Record<string, number>> {
+  return taxonomyProblemCounts("patternIds", "patterns");
+}
+
+async function taxonomyProblemCounts(
+  field: "topicIds" | "patternIds",
+  col: "topics" | "patterns"
+): Promise<Record<string, number>> {
+  const conn = await db();
+  const rows = await conn
+    .collection("problems")
+    .aggregate<{ _id: ObjectId; count: number }>([
+      { $unwind: `$${field}` },
+      { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+    ])
+    .toArray();
+  const map = await idSlugMap(col);
+  const out: Record<string, number> = {};
+  for (const r of rows) {
+    const slug = map.byId.get(r._id.toHexString());
+    if (slug) out[slug] = r.count;
+  }
+  return out;
+}
+
+/** Catalog-wide counts for headers/marketing surfaces (single cheap round-trips). */
+export async function getSiteStats(): Promise<{
+  problems: number;
+  topics: number;
+  patterns: number;
+  sheets: number;
+}> {
+  const conn = await db();
+  const [problems, topics, patterns, sheets] = await Promise.all([
+    conn.collection("problems").estimatedDocumentCount(),
+    conn.collection("topics").estimatedDocumentCount(),
+    conn.collection("patterns").estimatedDocumentCount(),
+    conn.collection("sheets").estimatedDocumentCount(),
+  ]);
+  return { problems, topics, patterns, sheets };
 }

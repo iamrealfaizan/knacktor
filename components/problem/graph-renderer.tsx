@@ -7,7 +7,11 @@
 // Covers: DFS/BFS on graphs, Dijkstra, Bellman-Ford, Prim, Kruskal, topological sort,
 //          cycle detection, bipartite check, union-find.
 
-import type { GraphVisualState, GraphNode, CellState, GraphEdgeState } from "@/lib/trace";
+import type { GraphVisualState, GraphNode, GraphEdgeState } from "@/lib/trace";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
+import { PointerPill, ptrColor } from "./shared/pointer-pill";
+import { edgeEndpoints } from "./shared/edge-path";
 
 const NODE_R = 22;
 
@@ -28,47 +32,7 @@ function edgeStyle(state: GraphEdgeState): { stroke: string; strokeWidth: number
   }
 }
 
-// Node color per CellState
-function nodeStyle(state: CellState): { fill: string; stroke: string; textFill: string; strokeWidth: number } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", textFill: "var(--kn-current)", strokeWidth: 2.5 };
-    case "frontier":
-      return { fill: "var(--kn-amber-subtle)", stroke: "var(--kn-amber)", textFill: "var(--kn-ink-0)", strokeWidth: 2 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-compared)", textFill: "var(--kn-ink-1)", strokeWidth: 2 };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-compared)", textFill: "var(--kn-ink-0)", strokeWidth: 2 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", textFill: "var(--kn-result)", strokeWidth: 2.5 };
-    case "path":
-      return { fill: "var(--kn-amber-subtle)", stroke: "var(--kn-gold)", textFill: "var(--kn-ink-0)", strokeWidth: 2.5 };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-special)", textFill: "var(--kn-special)", strokeWidth: 2.5 };
-    case "error":
-      return { fill: "var(--kn-error-subtle)", stroke: "var(--kn-error)", textFill: "var(--kn-error)", strokeWidth: 2 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-0)", textFill: "var(--kn-ink-2)", strokeWidth: 1.5 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", textFill: "var(--kn-ink-0)", strokeWidth: 1.5 };
-  }
-}
-
-// Arrowhead endpoint — offset to node boundary
-function arrowEndpoints(
-  x1: number, y1: number, x2: number, y2: number
-): { sx: number; sy: number; ex: number; ey: number } {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  return {
-    sx: x1 + (dx / dist) * NODE_R,
-    sy: y1 + (dy / dist) * NODE_R,
-    ex: x2 - (dx / dist) * (NODE_R + 6), // +6 for arrowhead clearance
-    ey: y2 - (dy / dist) * (NODE_R + 6),
-  };
-}
+// Node colors come from the shared cellStateStyle map (see shared/cell-state.ts).
 
 // Auto-layout: if no x/y provided, use circular layout
 function applyLayout(nodes: GraphNode[]): GraphNode[] {
@@ -171,21 +135,27 @@ export function GraphRenderer({ visual }: { visual: GraphVisualState }) {
           );
         }
 
-        const { sx, sy, ex, ey } = arrowEndpoints(from.x, from.y, to.x, to.y);
+        const { sx, sy, ex, ey } = edgeEndpoints(from.x, from.y, to.x, to.y, NODE_R, NODE_R + 6);
         const midX = (from.x + to.x) / 2;
         const midY = (from.y + to.y) / 2;
+        const state = edge.state ?? "idle";
+        // B-10: traversal edges DRAW IN — keying by state remounts the path when
+        // an edge activates (idle→tree/relaxing/path), re-firing the animation.
+        const drawsIn = state === "tree" || state === "relaxing" || state === "path";
 
         return (
           <g key={ei} style={{ transition: "opacity 0.2s ease" }}>
-            {/* <path> per SimulationRules A-1 + B-10: edges must be <path> for stroke-dashoffset draw-in */}
             <path
+              key={`e-${ei}-${state}`}
               d={`M ${sx} ${sy} L ${ex} ${ey}`}
+              pathLength={drawsIn ? 1 : undefined}
+              className={drawsIn ? "kn-anim-draw-in" : undefined}
               stroke={es.stroke}
               strokeWidth={es.strokeWidth}
               opacity={es.opacity}
               fill="none"
-              strokeDasharray={es.dash}
-              markerEnd={edge.directed && hasDirected ? `url(#arrow-${edge.state ?? "idle"})` : undefined}
+              strokeDasharray={drawsIn ? undefined : es.dash}
+              markerEnd={edge.directed && hasDirected ? `url(#arrow-${state})` : undefined}
               style={{ transition: "stroke 0.2s ease, stroke-width 0.2s ease" }}
             />
             {/* Weight label */}
@@ -222,12 +192,12 @@ export function GraphRenderer({ visual }: { visual: GraphVisualState }) {
 
       {/* Nodes */}
       {nodes.map((node) => {
-        const ns = nodeStyle(node.state ?? "idle");
+        const ns = cellStateStyle(node.state);
         return (
           <g
             key={node.id}
             transform={`translate(${node.x}, ${node.y})`}
-            style={{ transition: "transform 0.35s cubic-bezier(.34,1.2,.4,1)" }}
+            style={{ transition: MOTION.glide }}
           >
             <circle
               cx={0}
@@ -236,7 +206,9 @@ export function GraphRenderer({ visual }: { visual: GraphVisualState }) {
               fill={ns.fill}
               stroke={ns.stroke}
               strokeWidth={ns.strokeWidth}
-              style={{ transition: "fill 0.18s ease, stroke 0.18s ease" }}
+              strokeDasharray={ns.dashed ? "5 4" : undefined}
+              className={ns.pulse ? "kn-anim-cell-pulse" : undefined}
+              style={{ transition: MOTION.flash }}
             />
             <text
               x={0}
@@ -254,36 +226,19 @@ export function GraphRenderer({ visual }: { visual: GraphVisualState }) {
         );
       })}
 
-      {/* Pointer labels */}
+      {/* Pointer pills below their nodes — shared pill, real identity hues */}
       {pointers.map((p, pi) => {
         if (!p.at || !nodeMap[p.at]) return null;
         const n = nodeMap[p.at];
         return (
-          <g
-            key={p.name}
-            transform={`translate(${n.x}, ${n.y})`}
-            style={{ transition: "transform 0.28s cubic-bezier(.34,1.2,.4,1)" }}
-          >
-            <rect
-              x={-18}
-              y={NODE_R + 6 + pi * 22}
-              width={36}
-              height={18}
-              rx={9}
-              fill="var(--kn-ptr-i)"
+          <g key={p.name} transform={`translate(${n.x}, ${n.y})`} style={{ transition: MOTION.pointer }}>
+            <PointerPill
+              name={p.name}
+              color={ptrColor(p.name, pi)}
+              caretY={NODE_R + 10}
+              lane={pi}
+              pillWidth={36}
             />
-            <text
-              x={0}
-              y={NODE_R + 16 + pi * 22}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontFamily="var(--font-mono)"
-              fontSize={9}
-              fontWeight={700}
-              fill="#fff"
-            >
-              {p.name}
-            </text>
           </g>
         );
       })}

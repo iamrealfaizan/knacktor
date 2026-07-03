@@ -5,38 +5,16 @@
 // items[0] = bottom, items[length-1] = TOS.
 // Covers: monotonic stack, valid parentheses, expression eval, histogram, backtracking.
 
-import type { StackVisualState, CellState } from "@/lib/trace";
+import type { StackVisualState } from "@/lib/trace";
 import { fitTextSize } from "./renderer-utils";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
 
 const CELL_W = 88;    // per SimulationRules A-3: "Stack cell (vertical) | 88×40"
 const CELL_H = 40;
 const CELL_GAP = 4;
 const CELL_R = 6;
 const CONTAINER_PAD = 8;
-
-function cellStyle(state: CellState): { fill: string; stroke: string; strokeWidth: number; opacity: number } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", strokeWidth: 2.5, opacity: 1 };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-compared)", strokeWidth: 2, opacity: 1 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", strokeWidth: 2.5, opacity: 1 };
-    case "frontier":
-      return { fill: "var(--kn-amber-subtle)", stroke: "var(--kn-amber)", strokeWidth: 2, opacity: 1 };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-special)", strokeWidth: 2.5, opacity: 1 };
-    case "error":
-      return { fill: "var(--kn-error-subtle)", stroke: "var(--kn-error)", strokeWidth: 2.5, opacity: 1 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 0.7 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 0.35 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 1 };
-  }
-}
 
 export function StackRenderer({ visual }: { visual: StackVisualState }) {
   const { items, label } = visual;
@@ -107,16 +85,20 @@ export function StackRenderer({ visual }: { visual: StackVisualState }) {
       {/* Cells */}
       <g transform={`translate(0, ${CONTAINER_PAD})`}>
         {items.map((item, i) => {
-          const s = cellStyle(item.state);
+          const s = cellStateStyle(item.state);
           const y = yOf(i);
           const isTOS = i === n - 1;
 
+          // key by bottom-index: stack cells never move index below the top,
+          // so a push mounts a NEW key → the B-5 entrance (drop from above
+          // with overshoot) fires exactly on push.
           return (
             <g
               key={i}
               transform={`translate(0, ${y})`}
-              style={{ transition: "transform 0.3s cubic-bezier(.34,1.2,.4,1)", opacity: s.opacity }}
+              style={{ transition: MOTION.glide, opacity: s.opacity }}
             >
+              <g className="kn-anim-stack-push">
               <rect
                 x={-CELL_W / 2}
                 y={0}
@@ -126,7 +108,9 @@ export function StackRenderer({ visual }: { visual: StackVisualState }) {
                 fill={s.fill}
                 stroke={s.stroke}
                 strokeWidth={s.strokeWidth}
-                style={{ transition: "fill 0.18s ease, stroke 0.18s ease" }}
+                strokeDasharray={s.dashed ? "5 4" : undefined}
+                className={s.pulse ? "kn-anim-cell-pulse" : undefined}
+                style={{ transition: MOTION.flash }}
               />
               <text
                 x={0}
@@ -149,12 +133,13 @@ export function StackRenderer({ visual }: { visual: StackVisualState }) {
                   <text
                     x={34} y={1}
                     textAnchor="middle" dominantBaseline="middle"
-                    fontFamily="var(--font-mono)" fontSize={9} fontWeight={700} fill="#fff"
+                    fontFamily="var(--font-mono)" fontSize={9} fontWeight={700} fill="var(--kn-surface-0)"
                   >
                     top
                   </text>
                 </g>
               )}
+              </g>
             </g>
           );
         })}

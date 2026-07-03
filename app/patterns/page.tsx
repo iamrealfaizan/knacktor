@@ -1,16 +1,18 @@
 import Link from "next/link";
-import { getPatterns, getProblems } from "@/lib/content-service";
+import { getPatterns, getProblemCountsByPattern } from "@/lib/content-service";
 import { ArrowRight } from "lucide-react";
 
 export const metadata = { title: "Patterns" };
 
-export default async function PatternsPage() {
-  const [patterns, problems] = await Promise.all([getPatterns(), getProblems()]);
+// ISR: content changes only at ingest — rebuild at most hourly.
+export const revalidate = 3600;
 
-  const countByPattern = problems.reduce<Record<string, number>>((acc, p) => {
-    p.patterns.forEach((pat) => { acc[pat] = (acc[pat] ?? 0) + 1; });
-    return acc;
-  }, {});
+export default async function PatternsPage() {
+  // Counts via one $unwind/$group aggregation — no full problem-list scan.
+  const [patterns, countByPattern] = await Promise.all([
+    getPatterns(),
+    getProblemCountsByPattern(),
+  ]);
 
   const mustKnow  = patterns.filter((p) => p.mustKnow);
   const supporting = patterns.filter((p) => !p.mustKnow);

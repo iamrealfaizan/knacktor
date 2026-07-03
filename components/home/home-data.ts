@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, CircleDot, Circle } from "lucide-react";
+import { NAV_LINKS as SITE_NAV_LINKS, SITE_STATS } from "@/lib/site";
+import { DIFFICULTY_STYLE as CANONICAL_DIFFICULTY_STYLE } from "@/lib/difficulty";
 
 /**
  * Logged-in dashboard content (static mock — no DB / no auth yet).
@@ -15,14 +17,14 @@ import { CheckCircle2, CircleDot, Circle } from "lucide-react";
 export type Difficulty = "Easy" | "Medium" | "Hard";
 export type Status = "solved" | "attempted" | "todo";
 
-/** Difficulty pill tokens. Medium maps to `--kn-med-*` — an exact match to the reference. */
+/** Difficulty pill tokens — derived from the canonical lib/difficulty map (Title-case display keys). */
 export const DIFFICULTY_STYLE: Record<
   Difficulty,
   { bg: string; ink: string; bar: string; dot: string }
 > = {
-  Easy: { bg: "bg-kn-result-subtle", ink: "text-kn-result", bar: "bg-kn-result", dot: "text-kn-result" },
-  Medium: { bg: "bg-kn-med-bg", ink: "text-kn-med-ink", bar: "bg-kn-med-ink", dot: "text-kn-med-ink" },
-  Hard: { bg: "bg-kn-error-subtle", ink: "text-kn-error", bar: "bg-kn-error", dot: "text-kn-error" },
+  Easy: CANONICAL_DIFFICULTY_STYLE.easy,
+  Medium: CANONICAL_DIFFICULTY_STYLE.medium,
+  Hard: CANONICAL_DIFFICULTY_STYLE.hard,
 };
 
 /** Solved / attempted / todo — icon (lucide) + token color + label. */
@@ -149,7 +151,8 @@ export const HEAT_MONTHS: string[] = [
 export const POTD = { title: "Longest Consecutive Sequence", href: "#" };
 
 /* ── Progress ring + per-difficulty bars + next badge ─────────────────── */
-export const RING = { solved: 83, total: 480, circumference: 270 };
+// MOCK until auth: `solved` is user-specific; total comes from the shared catalog stat.
+export const RING = { solved: 83, total: SITE_STATS.problems, circumference: 270 };
 
 export const DIFF_PROGRESS: {
   label: Difficulty;
@@ -165,13 +168,11 @@ export const DIFF_PROGRESS: {
 
 export const NEXT_BADGE = { remaining: 17, name: "Century Club" };
 
-/* ── Header nav ───────────────────────────────────────────────────────── */
-export const NAV_LINKS = [
-  { label: "Problems", href: "/problems", active: true },
-  { label: "Topics", href: "/topics", active: false },
-  { label: "Patterns", href: "/patterns", active: false },
-  { label: "Sheets", href: "/sheets", active: false },
-] as const;
+/* ── Header nav (canonical list from lib/site.ts + dashboard active flag) ── */
+export const NAV_LINKS = SITE_NAV_LINKS.map((l) => ({
+  ...l,
+  active: l.href === "/problems",
+}));
 
 /* ── Browse sidebar (filters are visual only — no client filtering yet) ─── */
 export interface FilterOption {

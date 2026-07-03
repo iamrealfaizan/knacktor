@@ -5,7 +5,11 @@
 // horizontal chain with 40px gaps, head/tail pills above.
 // Pointers (prev/curr/next) glide along their named lanes below the chain.
 
-import type { LinkedListVisualState, CellState } from "@/lib/trace";
+import type { LinkedListVisualState } from "@/lib/trace";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
+import { PointerPill, ptrColor } from "./shared/pointer-pill";
+import { PopIn } from "./shared/atoms";
 
 const NODE_W = 84;      // value box (52) + pointer box (32)
 const VAL_W = 52;
@@ -13,41 +17,6 @@ const PTR_W = 32;
 const NODE_H = 48;
 const GAP = 40;         // gap between nodes (room for the arrow)
 const PITCH = NODE_W + GAP;
-
-const PTR_COLOR: Record<string, string> = {
-  prev: "var(--kn-ptr-lo)",
-  curr: "var(--kn-ptr-i)",
-  current: "var(--kn-ptr-i)",
-  next: "var(--kn-ptr-j)",
-  slow: "var(--kn-ptr-lo)",
-  fast: "var(--kn-ptr-hi)",
-  head: "var(--kn-ptr-i)",
-  tail: "var(--kn-ptr-hi)",
-};
-const PTR_PALETTE = [
-  "var(--kn-ptr-i)", "var(--kn-ptr-j)", "var(--kn-ptr-lo)",
-  "var(--kn-ptr-hi)", "var(--kn-special)", "var(--kn-amber)",
-];
-
-function nodeStyle(state: CellState): { fill: string; stroke: string; strokeWidth: number; opacity: number } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", strokeWidth: 2.5, opacity: 1 };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-compared)", strokeWidth: 2.5, opacity: 1 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", strokeWidth: 2.5, opacity: 1 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-compared)", strokeWidth: 2, opacity: 0.8 };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-special)", strokeWidth: 2.5, opacity: 1 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 0.4 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 1 };
-  }
-}
 
 export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }) {
   const { nodes, links, pointers } = visual;
@@ -76,9 +45,10 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         </marker>
       </defs>
 
-      {/* Nodes — rendered before arrows so backward arrows appear on top */}
+      {/* Nodes — rendered before arrows so backward arrows appear on top.
+          Keyed by id → positional changes GLIDE; PopIn fires on node creation. */}
       {nodes.map((nd, i) => {
-        const s = nodeStyle(nd.state ?? "idle");
+        const s = cellStateStyle(nd.state);
         const nx = xOf(i);
         const isNull = nd.value === null || nd.value === undefined;
         const hasNext = linkMap[nd.id] !== undefined;
@@ -87,8 +57,9 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
             key={nd.id}
             transform={`translate(${nx}, ${-NODE_H / 2})`}
             opacity={s.opacity}
-            style={{ transition: "opacity 0.3s ease, transform 0.3s ease" }}
+            style={{ transition: `${MOTION.fade}, ${MOTION.glide}` }}
           >
+            <PopIn>
             {/* Outer border */}
             <rect
               x={0}
@@ -99,7 +70,9 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
               fill={s.fill}
               stroke={s.stroke}
               strokeWidth={s.strokeWidth}
-              style={{ transition: "fill 0.18s ease, stroke 0.18s ease" }}
+              strokeDasharray={s.dashed ? "5 4" : undefined}
+              className={s.pulse ? "kn-anim-cell-pulse" : undefined}
+              style={{ transition: MOTION.flash }}
             />
             {/* Divider between value and pointer fields */}
             <line x1={VAL_W} y1={4} x2={VAL_W} y2={NODE_H - 4} stroke={s.stroke} strokeWidth={1} opacity={0.6} />
@@ -138,6 +111,7 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
                 ∅
               </text>
             )}
+            </PopIn>
           </g>
         );
       })}
@@ -165,7 +139,8 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         );
       })}
 
-      {/* changedLinks — green overlay, same horizontal style, on top of everything */}
+      {/* changedLinks — the re-link crux (B-4): the NEW arrow visibly DRAWS
+          from source to destination (stroke-dashoffset), green, on top. */}
       {(visual.changedLinks ?? []).map((lk) => {
         const fi = idxOf[lk.from];
         if (fi === undefined) return null;
@@ -179,11 +154,12 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
           <path
             key={`changed-arrow-${lk.from}-${lk.to}`}
             d={pathD}
+            pathLength={1}
+            className="kn-anim-draw-in"
             stroke="var(--kn-result)"
             strokeWidth={2.5}
             fill="none"
             markerEnd="url(#ll-arrow-changed)"
-            style={{ transition: "all 0.3s ease" }}
           />
         );
       })}
@@ -196,30 +172,21 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         <TailPill x={xOf(n - 1) + NODE_W / 4} />
       )}
 
-      {/* Pointer lanes below nodes (prev/curr/next etc.) */}
+      {/* Pointer lanes below nodes (prev/curr/next etc.) — shared pill, fixed identity hues */}
       {pointers.map((p, pi) => {
         const idx = p.at !== null ? idxOf[p.at] : null;
         if (idx === undefined || idx === null) return null;
-        const color = PTR_COLOR[p.name] ?? PTR_PALETTE[pi % PTR_PALETTE.length];
         const cx = xOf(idx) + NODE_W / 2;
-        const laneY = NODE_H / 2 + 28 + pi * 22;
         const pillW = Math.max(28, p.name.length * 6.5 + 12);
         return (
-          <g
-            key={p.name}
-            transform={`translate(${cx}, 0)`}
-            style={{ transition: "transform 0.28s cubic-bezier(.34,1.2,.4,1)" }}
-          >
-            <line x1={0} y1={NODE_H / 2 + 4} x2={0} y2={laneY} stroke={color} strokeWidth={1} opacity={0.5} />
-            <path d={`M 0 ${NODE_H / 2 + 2} L -5 ${NODE_H / 2 + 10} L 5 ${NODE_H / 2 + 10} Z`} fill={color} />
-            <rect x={-pillW / 2} y={laneY} width={pillW} height={18} rx={9} fill={color} />
-            <text
-              x={0} y={laneY + 10}
-              textAnchor="middle" dominantBaseline="middle"
-              fontFamily="var(--font-mono)" fontSize={10} fontWeight={700} fill="#fff"
-            >
-              {p.name}
-            </text>
+          <g key={p.name} transform={`translate(${cx}, 0)`} style={{ transition: MOTION.pointer }}>
+            <PointerPill
+              name={p.name}
+              color={ptrColor(p.name, pi)}
+              caretY={NODE_H / 2 + 10}
+              lane={pi}
+              pillWidth={pillW}
+            />
           </g>
         );
       })}

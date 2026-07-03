@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProblemFull, getPresetTraces } from "@/lib/content-service";
+import { getProblemFull, getPresetTraces, getProblems } from "@/lib/content-service";
 import { ProblemEngine } from "@/components/problem/problem-engine";
 
 interface Props {
   params: { slug: string };
+}
+
+// Static-first: every problem page is prerendered and revalidated hourly.
+// Content changes only at ingest (which can later call revalidatePath).
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const problems = await getProblems();
+  return problems.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -16,16 +25,17 @@ export default async function ProblemPage({ params }: Props) {
   const problem = await getProblemFull(params.slug);
   if (!problem) notFound();
 
-  // Load precomputed traces for EVERY approach (so approach-switching and Compare
-  // mode read real, DB-stored Python traces — never a client-side recompute).
-  const approachTraces: Record<string, Awaited<ReturnType<typeof getPresetTraces>>> = {};
-  await Promise.all(
-    problem.approaches.map(async (a) => {
-      approachTraces[a.id] = await getPresetTraces(params.slug, a.id);
-    })
-  );
-  const recommended = approachTraces[problem.recommendedApproachId] ?? {};
+  // Ship ONLY the recommended approach's traces in the initial payload.
+  // Other approaches are fetched on demand by the engine from
+  // /api/problems/[slug]/traces?approachId=… (they're rarely opened, and
+  // eagerly inlining every approach × preset made the page multi-hundred-KB).
+  const recommended = await getPresetTraces(params.slug, problem.recommendedApproachId);
   if (Object.keys(recommended).length === 0) notFound();
 
-  return <ProblemEngine problem={problem} approachTraces={approachTraces} />;
+  return (
+    <ProblemEngine
+      problem={problem}
+      approachTraces={{ [problem.recommendedApproachId]: recommended }}
+    />
+  );
 }

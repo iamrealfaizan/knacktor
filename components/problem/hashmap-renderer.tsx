@@ -6,7 +6,10 @@
 // The hero animation is the key→bucket arc (drawn by CSS transition on the flying chip).
 // Covers: Two Sum, group anagrams, frequency count, prefix sum + map, LRU cache.
 
-import type { HashMapVisualState, CellState } from "@/lib/trace";
+import type { HashMapVisualState } from "@/lib/trace";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
+import { PopIn } from "./shared/atoms";
 
 const BUCKET_W = 160;   // wider than A-3's 56px minimum to accommodate key:value text
 const BUCKET_H = 40;    // per SimulationRules A-3: "Hash bucket | 56×40"
@@ -14,28 +17,6 @@ const BUCKET_GAP = 4;   // per SimulationRules A-3: "Hash bucket | 4px gap"
 const BUCKET_R = 6;     // per SimulationRules A-3: "Hash bucket | 6px radius"
 const NUM_W = 28;
 const CONTENT_W = BUCKET_W - NUM_W - 8;
-
-function bucketStyle(state: CellState): { fill: string; stroke: string; strokeWidth: number; opacity: number } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", strokeWidth: 2.5, opacity: 1 };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-compared)", strokeWidth: 2, opacity: 1 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", strokeWidth: 2.5, opacity: 1 };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-special)", strokeWidth: 2.5, opacity: 1 };
-    case "error":
-      return { fill: "var(--kn-error-subtle)", stroke: "var(--kn-error)", strokeWidth: 2, opacity: 1 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-border-0)", strokeWidth: 1.5, opacity: 0.75 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-0)", strokeWidth: 1, opacity: 0.35 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 1 };
-  }
-}
 
 function truncate(s: string, max = 18): string {
   return s.length > max ? s.slice(0, max - 1) + "…" : s;
@@ -62,37 +43,69 @@ export function HashMapRenderer({ visual }: { visual: HashMapVisualState }) {
         {(label ?? "MAP").toUpperCase()}
       </text>
 
-      {/* Flying key chip (highlighted key being inserted/looked up) */}
-      {highlightedKey !== undefined && highlightedKey !== null && (
-        <g
-          transform={`translate(-80, ${-BUCKET_H - 8})`}
-          style={{ transition: "transform 0.4s cubic-bezier(.34,1.2,.4,1)" }}
-        >
-          <rect
-            x={-32}
-            y={-14}
-            width={64}
-            height={28}
-            rx={14}
-            fill="var(--kn-special)"
-            opacity={0.18}
-            stroke="var(--kn-special)"
-            strokeWidth={1.5}
-          />
-          <text
-            x={0}
-            y={1}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontFamily="var(--font-mono)"
-            fontSize={13}
-            fontWeight={700}
-            fill="var(--kn-special)"
+      {/* Flying key chip — B-3 "the hash arc is the hero": the chip is
+          positioned AT its target bucket row and mounts with a fly-in from the
+          input area (upper-left); when the highlighted key changes buckets the
+          transform transition glides it. Keyed by the key so each new lookup
+          re-fires the flight. */}
+      {highlightedKey !== undefined && highlightedKey !== null && (() => {
+        const targetIdx = entries.findIndex((e) => e.key === highlightedKey);
+        const y = targetIdx >= 0
+          ? targetIdx * (BUCKET_H + BUCKET_GAP) + BUCKET_H / 2
+          : -BUCKET_H - 8; // key not (yet) in the map — hover at the input area
+        return (
+          <g
+            key={`chip-${String(highlightedKey)}`}
+            transform={`translate(-56, ${y})`}
+            style={{ transition: `transform 0.4s cubic-bezier(.34,1.2,.4,1)` }}
           >
-            {truncate(String(highlightedKey), 10)}
-          </text>
-        </g>
-      )}
+            <g className="kn-anim-key-fly">
+              <rect
+                x={-32}
+                y={-14}
+                width={64}
+                height={28}
+                rx={14}
+                fill="var(--kn-special)"
+                opacity={0.18}
+                stroke="var(--kn-special)"
+                strokeWidth={1.5}
+              />
+              <text
+                x={0}
+                y={1}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontFamily="var(--font-mono)"
+                fontSize={13}
+                fontWeight={700}
+                fill="var(--kn-special)"
+              >
+                {truncate(String(highlightedKey), 10)}
+              </text>
+              {/* connector into the bucket */}
+              {targetIdx >= 0 && (
+                <line x1={32} y1={0} x2={54} y2={0} stroke="var(--kn-special)" strokeWidth={1.5} strokeDasharray="3 3" />
+              )}
+            </g>
+            {/* lookup readout — honest "key ➜ slot" (no fabricated modulo math:
+                these entries are insertion-ordered dict slots, not hash buckets) */}
+            {targetIdx >= 0 && (
+              <text
+                x={0}
+                y={-24}
+                textAnchor="middle"
+                fontFamily="var(--font-mono)"
+                fontSize={10}
+                fontWeight={600}
+                fill="var(--kn-ink-2)"
+              >
+                ➜ slot {targetIdx}
+              </text>
+            )}
+          </g>
+        );
+      })()}
 
       {n === 0 && (
         <text
@@ -108,9 +121,10 @@ export function HashMapRenderer({ visual }: { visual: HashMapVisualState }) {
         </text>
       )}
 
-      {/* Buckets */}
+      {/* Buckets — keyed by KEY (stable identity): a new insertion mounts a
+          fresh row (PopIn = behavior #1), reorders glide. */}
       {entries.map((entry, i) => {
-        const s = bucketStyle(entry.state);
+        const s = cellStateStyle(entry.state);
         const y = i * (BUCKET_H + BUCKET_GAP);
         const isHighlighted = entry.key === highlightedKey;
         const keyStr = truncate(String(entry.key), 12);
@@ -120,11 +134,12 @@ export function HashMapRenderer({ visual }: { visual: HashMapVisualState }) {
 
         return (
           <g
-            key={i}
+            key={String(entry.key)}
             transform={`translate(0, ${y})`}
-            style={{ transition: "transform 0.3s ease", opacity: s.opacity }}
+            style={{ transition: MOTION.glide, opacity: s.opacity }}
           >
-            {/* Bucket row */}
+            <PopIn>
+            {/* Bucket row (full value on hover — truncation never hides data) */}
             <rect
               x={0}
               y={0}
@@ -134,8 +149,12 @@ export function HashMapRenderer({ visual }: { visual: HashMapVisualState }) {
               fill={s.fill}
               stroke={s.stroke}
               strokeWidth={s.strokeWidth}
-              style={{ transition: "fill 0.18s ease, stroke 0.18s ease" }}
-            />
+              strokeDasharray={s.dashed ? "5 4" : undefined}
+              className={s.pulse ? "kn-anim-cell-pulse" : undefined}
+              style={{ transition: MOTION.flash }}
+            >
+              <title>{`${String(entry.key)}${valStr !== null ? ` : ${String(entry.value)}` : ""}`}</title>
+            </rect>
 
             {/* Key highlight ring */}
             {isHighlighted && (
@@ -215,6 +234,7 @@ export function HashMapRenderer({ visual }: { visual: HashMapVisualState }) {
                 </text>
               </>
             )}
+            </PopIn>
           </g>
         );
       })}

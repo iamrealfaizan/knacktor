@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Topic, Pattern, Difficulty } from "@/lib/types";
+import { DIFFICULTY_LABEL, DIFFICULTY_STYLE } from "@/lib/difficulty";
 
 interface Props {
   topics: Topic[];
@@ -12,16 +13,15 @@ interface Props {
   current: { difficulty?: string; topic?: string; pattern?: string };
 }
 
-const DIFFICULTIES: { value: Difficulty; label: string }[] = [
-  { value: "easy",   label: "Easy"   },
-  { value: "medium", label: "Medium" },
-  { value: "hard",   label: "Hard"   },
-];
+const DIFFICULTIES: { value: Difficulty; label: string }[] = (
+  ["easy", "medium", "hard"] as Difficulty[]
+).map((value) => ({ value, label: DIFFICULTY_LABEL[value] }));
 
+// Derived from the canonical difficulty map — never redefine colors here.
 const DIFFICULTY_ACTIVE: Record<Difficulty, string> = {
-  easy:   "bg-kn-result-subtle  text-kn-result  border-kn-result-border",
-  medium: "bg-kn-amber-subtle   text-kn-amber   border-kn-amber-border",
-  hard:   "bg-kn-error-subtle   text-kn-error   border-kn-error-border",
+  easy:   `${DIFFICULTY_STYLE.easy.bg} ${DIFFICULTY_STYLE.easy.ink} ${DIFFICULTY_STYLE.easy.border}`,
+  medium: `${DIFFICULTY_STYLE.medium.bg} ${DIFFICULTY_STYLE.medium.ink} ${DIFFICULTY_STYLE.medium.border}`,
+  hard:   `${DIFFICULTY_STYLE.hard.bg} ${DIFFICULTY_STYLE.hard.ink} ${DIFFICULTY_STYLE.hard.border}`,
 };
 
 export function ProblemFilters({ topics, patterns, current }: Props) {

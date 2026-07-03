@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
+import { ThemeProvider, ThemeScript } from "@/components/problem/theme-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,9 +29,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
-        <Nav />
-        {children}
+        <ThemeProvider>
+          <Nav />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

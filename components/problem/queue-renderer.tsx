@@ -5,37 +5,15 @@
 // items[0] = front, items[length-1] = rear.
 // Covers: BFS traversal, sliding window max (monotonic deque), level-order processing.
 
-import type { QueueVisualState, CellState } from "@/lib/trace";
+import type { QueueVisualState } from "@/lib/trace";
 import { fitTextSize } from "./renderer-utils";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
 
 const CELL = 48;    // per SimulationRules A-3: "Queue cell (horizontal) | 48×48"
 const GAP = 4;      // per SimulationRules A-3: "Queue cell | 4px gap"
 const PITCH = CELL + GAP;
 const CELL_R = 6;
-
-function cellStyle(state: CellState): { fill: string; stroke: string; strokeWidth: number; opacity: number } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", strokeWidth: 2.5, opacity: 1 };
-    case "frontier":
-      return { fill: "var(--kn-amber-subtle)", stroke: "var(--kn-amber)", strokeWidth: 2, opacity: 1 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-compared)", strokeWidth: 2, opacity: 0.75 };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-compared)", strokeWidth: 2, opacity: 1 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", strokeWidth: 2.5, opacity: 1 };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-special)", strokeWidth: 2.5, opacity: 1 };
-    case "error":
-      return { fill: "var(--kn-error-subtle)", stroke: "var(--kn-error)", strokeWidth: 2, opacity: 1 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 0.3 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", strokeWidth: 1.5, opacity: 1 };
-  }
-}
 
 export function QueueRenderer({ visual }: { visual: QueueVisualState }) {
   const { items, label } = visual;
@@ -86,42 +64,53 @@ export function QueueRenderer({ visual }: { visual: QueueVisualState }) {
         strokeWidth={1.5}
       />
 
-      {/* Cells */}
-      {items.map((item, i) => {
-        const s = cellStyle(item.state);
-        const cx = xOf(i) + CELL / 2;
-        return (
-          <g
-            key={i}
-            transform={`translate(${cx - CELL / 2}, ${-CELL / 2})`}
-            style={{ transition: "transform 0.3s cubic-bezier(.34,1.2,.4,1)", opacity: s.opacity }}
-          >
-            <rect
-              x={0}
-              y={0}
-              width={CELL}
-              height={CELL}
-              rx={CELL_R}
-              fill={s.fill}
-              stroke={s.stroke}
-              strokeWidth={s.strokeWidth}
-              style={{ transition: "fill 0.18s ease, stroke 0.18s ease" }}
-            />
-            <text
-              x={CELL / 2}
-              y={CELL / 2 + 1}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontFamily="var(--font-mono)"
-              fontSize={fitTextSize(item.value, CELL, 17)}
-              fontWeight={600}
-              fill="var(--kn-ink-0)"
+      {/* Cells — keyed by value+occurrence (NOT index) so a dequeue keeps the
+          remaining cells' keys stable and they GLIDE left one slot; a new rear
+          cell mounts a fresh key and plays the B-6 slide-in-from-right. */}
+      {(() => {
+        const seen: Record<string, number> = {};
+        return items.map((item, i) => {
+          const s = cellStateStyle(item.state);
+          const v = String(item.value);
+          const occ = (seen[v] = (seen[v] ?? 0) + 1);
+          const cx = xOf(i) + CELL / 2;
+          return (
+            <g
+              key={`${v}#${occ}`}
+              transform={`translate(${cx - CELL / 2}, ${-CELL / 2})`}
+              style={{ transition: MOTION.glide, opacity: s.opacity }}
             >
-              {String(item.value)}
-            </text>
-          </g>
-        );
-      })}
+              <g className="kn-anim-queue-enter">
+                <rect
+                  x={0}
+                  y={0}
+                  width={CELL}
+                  height={CELL}
+                  rx={CELL_R}
+                  fill={s.fill}
+                  stroke={s.stroke}
+                  strokeWidth={s.strokeWidth}
+                  strokeDasharray={s.dashed ? "5 4" : undefined}
+                  className={s.pulse ? "kn-anim-cell-pulse" : undefined}
+                  style={{ transition: MOTION.flash }}
+                />
+                <text
+                  x={CELL / 2}
+                  y={CELL / 2 + 1}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontFamily="var(--font-mono)"
+                  fontSize={fitTextSize(item.value, CELL, 17)}
+                  fontWeight={600}
+                  fill="var(--kn-ink-0)"
+                >
+                  {v}
+                </text>
+              </g>
+            </g>
+          );
+        });
+      })()}
 
       {/* Empty placeholder */}
       {n === 0 && (

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProblemFull } from "@/lib/content-service";
+import { CACHE_HEADERS } from "@/lib/api-cache";
 
 export async function GET(
   _req: NextRequest,
@@ -13,7 +14,7 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json({ data });
+    return NextResponse.json({ data }, { headers: CACHE_HEADERS });
   } catch (err) {
     console.error(`[GET /api/problems/${params.slug}]`, err);
     return NextResponse.json(

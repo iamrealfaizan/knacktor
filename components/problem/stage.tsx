@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Minus, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -283,6 +283,21 @@ export function LeafRenderer({
   return null;
 }
 
+type Box = { x: number; y: number; w: number; h: number };
+
+const FIT_PAD = 44;
+
+function unionBox(a: Box, b: Box): Box {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  return {
+    x,
+    y,
+    w: Math.max(a.x + a.w, b.x + b.w) - x,
+    h: Math.max(a.y + a.h, b.y + b.h) - y,
+  };
+}
+
 export function Stage({
   visual,
   vars,
@@ -298,13 +313,52 @@ export function Stage({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
 
+  // ── Measured auto-fit ──────────────────────────────────────────────────────
+  // The heuristic getLeafViewBox() is only the SSR/first-paint estimate; after
+  // mount we measure the real content bbox. The box GROWS whenever content
+  // exceeds it (never shrinks per step — "animate state, not layout"), and the
+  // Reset button snaps it back to an exact fit of the current content.
+  const contentRef = useRef<SVGGElement | null>(null);
+  const [fitBox, setFitBox] = useState<Box | null>(null);
+
+  const measure = (): Box | null => {
+    const el = contentRef.current;
+    if (!el) return null;
+    try {
+      const b = el.getBBox();
+      if (!isFinite(b.width) || b.width <= 0 || b.height <= 0) return null;
+      return {
+        x: b.x - FIT_PAD,
+        y: b.y - FIT_PAD,
+        w: b.width + FIT_PAD * 2,
+        h: b.height + FIT_PAD * 2,
+      };
+    } catch {
+      return null; // getBBox throws on detached/hidden SVG
+    }
+  };
+
+  useLayoutEffect(() => {
+    const m = measure();
+    if (!m) return;
+    setFitBox((prev) => {
+      if (!prev) return m;
+      const grown = unionBox(prev, m);
+      // Only update when content actually outgrew the box (avoids re-render churn).
+      return grown.x !== prev.x || grown.y !== prev.y || grown.w !== prev.w || grown.h !== prev.h
+        ? grown
+        : prev;
+    });
+    // Re-measure on every step's visual — content can grow at any step.
+  }, [visual]);
+
   // ── Custom HTML renderer bypass (D17) — skips SVG canvas entirely ─────────
   if (visual.type === "custom") {
     const cvis = visual as CustomVisualState;
     const CustomComp = CUSTOM_RENDERERS[cvis.componentKey];
     return (
       <div
-        className="relative flex-1 min-h-0 overflow-hidden"
+        className="kn-stage-root relative flex-1 min-h-0 overflow-hidden"
         style={{
           background: "var(--kn-stage)",
           backgroundImage: "radial-gradient(var(--kn-dot) 1px, transparent 1px)",
@@ -340,7 +394,13 @@ export function Stage({
     });
   }
   function onUp() { drag.current = null; }
-  function reset() { setScale(1); setPan({ x: 0, y: 0 }); }
+  function reset() {
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+    // Refit exactly to the CURRENT content (discard grow-only history).
+    const m = measure();
+    if (m) setFitBox(m);
+  }
 
   const isCombined = visual.type === "combined";
   const combinedLayout = isCombined
@@ -350,9 +410,10 @@ export function Stage({
       )
     : null;
 
-  const vb = isCombined
-    ? combinedLayout!.viewBox
-    : getLeafViewBox(visual as LeafVisualState);
+  // Measured fit wins once available; heuristic box is the SSR/first-paint estimate.
+  const vb =
+    fitBox ??
+    (isCombined ? combinedLayout!.viewBox : getLeafViewBox(visual as LeafVisualState));
 
   const legendType = isCombined
     ? (visual as CombinedVisualState).primary.type
@@ -361,7 +422,7 @@ export function Stage({
 
   return (
     <div
-      className="relative flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing"
+      className="kn-stage-root relative flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing"
       style={{
         background: "var(--kn-stage)",
         backgroundImage: "radial-gradient(var(--kn-dot) 1px, transparent 1px)",
@@ -397,6 +458,7 @@ export function Stage({
         preserveAspectRatio="xMidYMid meet"
       >
         <g
+          ref={contentRef}
           transform={`translate(${pan.x} ${pan.y}) scale(${scale})`}
           style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}
         >

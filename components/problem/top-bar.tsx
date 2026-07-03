@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Moon, Sun, Code2, ChevronDown, Check, FileText, X, Lightbulb } from "lucide-react";
+import { ChevronDown, Check, FileText, X, Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Badge } from "@/components/ui/badge";
+import { DifficultyBadge } from "@/components/difficulty-badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,19 +41,18 @@ export function TopBar({
   problem,
   mode,
   setMode,
-  dark,
-  toggleTheme,
   approaches,
   activeApproachId,
+  loadingApproachId = null,
   onSelectApproach,
 }: {
   problem: ProblemFull;
   mode: Mode;
   setMode: (m: Mode) => void;
-  dark: boolean;
-  toggleTheme: () => void;
   approaches: Approach[];
   activeApproachId: string;
+  /** approach currently lazy-loading its traces (spinner in the selector) */
+  loadingApproachId?: string | null;
   onSelectApproach: (id: string) => void;
 }) {
   const activeApproach = approaches.find((a) => a.id === activeApproachId) ?? approaches[0];
@@ -59,22 +60,11 @@ export function TopBar({
 
   return (
     <header className="flex-none h-14 flex items-center gap-3 px-4 border-b border-kn-border-0 bg-kn-surface-0">
-      <Link
-        href="/problems"
-        className="w-7 h-7 rounded-md bg-kn-current grid place-items-center text-white font-mono font-bold text-xs shrink-0"
-        title="Back to problems"
-      >
-        <Code2 className="h-4 w-4" />
-      </Link>
+      <Logo variant="tile" href="/problems" />
 
       <span className="font-semibold text-base text-kn-ink-0">{problem.title}</span>
 
-      <Badge
-        variant="outline"
-        className="font-mono text-[10px] tracking-wider uppercase border-transparent bg-kn-med-bg text-kn-med-ink"
-      >
-        {problem.difficulty}
-      </Badge>
+      <DifficultyBadge difficulty={problem.difficulty} format="upper" />
 
       {problem.patterns[0] && (
         <Badge
@@ -103,12 +93,7 @@ export function TopBar({
             <SheetTitle className="flex-1">
               {problem.number}. {problem.title}
             </SheetTitle>
-            <Badge
-              variant="outline"
-              className="font-mono text-[10px] tracking-wider uppercase border-transparent bg-kn-med-bg text-kn-med-ink"
-            >
-              {problem.difficulty}
-            </Badge>
+            <DifficultyBadge difficulty={problem.difficulty} format="upper" />
             <SheetClose
               render={
                 <Button size="icon" variant="ghost" className="h-7 w-7 text-kn-ink-2">
@@ -130,7 +115,11 @@ export function TopBar({
           className="inline-flex items-center gap-1.5 h-7 px-2.5 font-mono text-[11px] font-semibold rounded-md border border-kn-border-0 bg-kn-inset text-kn-ink-1 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-kn-surface-1 transition-colors"
         >
           {onlyOne ? "Only approach" : approachLabel(activeApproach)}
-          <ChevronDown className="h-3 w-3 opacity-60" />
+          {loadingApproachId ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <ChevronDown className="h-3 w-3 opacity-60" />
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="font-mono text-[12px] min-w-[160px]">
           {approaches.map((a) => (
@@ -201,16 +190,7 @@ export function TopBar({
           })}
         </div>
 
-        {/* Theme toggle */}
-        <Button
-          size="icon"
-          variant="outline"
-          onClick={toggleTheme}
-          className="h-8 w-8 border-kn-border-0 bg-kn-surface-0 text-kn-ink-0"
-          title={dark ? "Switch to light" : "Switch to dark"}
-        >
-          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        <ThemeToggle size="sm" />
       </div>
     </header>
   );

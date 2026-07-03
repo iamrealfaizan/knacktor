@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Code2 } from "lucide-react";
+import { Logo } from "@/components/shared/logo";
 import { FOOTER_COLUMNS } from "./data";
 
 export function LandingFooter() {
@@ -7,10 +7,7 @@ export function LandingFooter() {
     <footer className="border-t border-kn-border-0 px-5 sm:px-7 pt-12 pb-10">
       <div className="max-w-[1240px] mx-auto grid gap-8 grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="col-span-2 md:col-span-1">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Code2 className="h-7 w-7 text-kn-current" strokeWidth={2.5} />
-            <span className="font-semibold text-lg text-kn-ink-0">knacktor</span>
-          </Link>
+          <Logo variant="marketing" href="/" />
           <p className="mt-3.5 max-w-[260px] text-sm leading-relaxed text-kn-ink-2">
             A visual algorithm-learning workspace. See DSA — don&apos;t just read it.
           </p>

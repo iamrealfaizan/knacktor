@@ -1,36 +1,14 @@
 "use client";
 
-import type { BarContainerVisualState, CellState } from "@/lib/trace";
+import type { BarContainerVisualState } from "@/lib/trace";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
+import { PointerMarker } from "./shared/pointer-pill";
 
 const BAR_W = 36;
 const GAP = 12;
 const PITCH = BAR_W + GAP;
 const MAX_H = 140; // SVG units for the tallest bar
-
-const PTR_COLOR: Record<string, string> = {
-  lp: "var(--kn-ptr-lo)",
-  rp: "var(--kn-ptr-hi)",
-};
-
-function barColor(state: CellState): { fill: string; stroke: string; opacity: number } {
-  switch (state) {
-    case "left":
-      return { fill: "var(--kn-blue-soft)", stroke: "var(--kn-ptr-lo)", opacity: 1 };
-    case "right":
-      return { fill: "var(--kn-amber-subtle)", stroke: "var(--kn-ptr-hi)", opacity: 1 };
-    case "current":
-      return { fill: "var(--kn-current-subtle)", stroke: "var(--kn-current)", opacity: 1 };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", stroke: "var(--kn-result)", opacity: 1 };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", stroke: "var(--kn-border-1)", opacity: 0.6 };
-    case "dimmed":
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", opacity: 0.3 };
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", stroke: "var(--kn-border-1)", opacity: 1 };
-  }
-}
 
 export function BarContainerRenderer({ visual }: { visual: BarContainerVisualState }) {
   const { values, cellStates, pointers, container } = visual;
@@ -60,9 +38,11 @@ export function BarContainerRenderer({ visual }: { visual: BarContainerVisualSta
       {/* Bars */}
       {values.map((v, k) => {
         const h = scaleH(v);
-        const style = barColor(cellStates[String(k)] ?? "idle");
+        const style = cellStateStyle(
+          (cellStates[String(k)] ?? "idle") as Parameters<typeof cellStateStyle>[0]
+        );
         return (
-          <g key={k} style={{ transition: "opacity 0.3s ease" }} opacity={style.opacity}>
+          <g key={k} style={{ transition: MOTION.fade }} opacity={style.opacity}>
             <rect
               x={xOf(k)}
               y={-h}
@@ -71,8 +51,9 @@ export function BarContainerRenderer({ visual }: { visual: BarContainerVisualSta
               rx={4}
               fill={style.fill}
               stroke={style.stroke}
-              strokeWidth={1.5}
-              style={{ transition: "fill 0.18s ease, stroke 0.18s ease, y 0.3s ease, height 0.3s ease" }}
+              strokeWidth={style.strokeWidth}
+              className={style.pulse ? "kn-anim-cell-pulse" : undefined}
+              style={{ transition: `${MOTION.flash}, y 0.3s ease, height 0.3s ease` }}
             />
             {/* value label inside bar (if tall enough) */}
             {h > 20 && (
@@ -119,31 +100,17 @@ export function BarContainerRenderer({ visual }: { visual: BarContainerVisualSta
         );
       })}
 
-      {/* Pointer labels below index labels */}
-      {pointers.map((p) => {
-        const color = PTR_COLOR[p.name] ?? "var(--kn-ink-1)";
-        return (
-          <g
-            key={p.name}
-            transform={`translate(${xOf(p.at) + BAR_W / 2}, 30)`}
-            style={{ transition: "transform 0.28s cubic-bezier(.34,1.2,.4,1)" }}
-          >
-            <rect x={-16} y={0} width={32} height={18} rx={9} fill={color} />
-            <text
-              x={0}
-              y={10}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontFamily="var(--font-mono)"
-              fontSize={10}
-              fontWeight={700}
-              fill="#fff"
-            >
-              {p.name}
-            </text>
-          </g>
-        );
-      })}
+      {/* Pointer markers below index labels — shared pill, fixed identity hues */}
+      {pointers.map((p, pi) => (
+        <PointerMarker
+          key={p.name}
+          name={p.name}
+          x={xOf(p.at) + BAR_W / 2}
+          laneIndex={pi}
+          caretY={28}
+          pillWidth={32}
+        />
+      ))}
 
       {/* Area chip above bars */}
       {container && (

@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Code2, Search, Moon, Sun, Flame } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, Flame } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -13,20 +11,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/components/problem/theme-provider";
+import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { NAV_LINKS, STREAK_DAYS, USER } from "./home-data";
 
 export function HomeHeader() {
-  const { dark, toggle } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   return (
     <header className="sticky top-0 z-50 flex items-center gap-5 h-[60px] px-5 sm:px-6 border-b border-kn-border-0 bg-kn-bg/85 backdrop-blur-xl">
-      <Link href="/home" className="flex items-center gap-2.5 shrink-0">
-        <Code2 className="h-[26px] w-[26px] text-kn-current" strokeWidth={2.5} />
-        <span className="font-bold text-lg tracking-tight text-kn-ink-0">knacktor</span>
-      </Link>
+      <Logo variant="dashboard" href="/home" />
 
       <nav className="hidden md:flex items-center gap-0.5">
         {NAV_LINKS.map(({ label, href, active }) => (
@@ -68,15 +60,7 @@ export function HomeHeader() {
           <span className="font-mono text-sm font-bold text-kn-current">{STREAK_DAYS}</span>
         </div>
 
-        <Button
-          size="icon"
-          variant="outline"
-          onClick={toggle}
-          aria-label="Toggle theme"
-          className="h-9 w-9 border-kn-border-0 bg-kn-surface-0 text-kn-ink-0"
-        >
-          {mounted && dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        <ThemeToggle />
 
         <TooltipProvider>
           <Tooltip>
