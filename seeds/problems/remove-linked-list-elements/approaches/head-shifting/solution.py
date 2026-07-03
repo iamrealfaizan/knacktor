@@ -1,10 +1,17 @@
 class Solution:
     def removeElements(self, head, val):
-        values = [0] + head
+        values = head
         links = list(range(1, len(values))) + [-1]
         removed = [0] * len(values)
         changed_links = []
-        current = 0
+        start = 0 if len(values) > 0 else -1
+        while start != -1 and values[start] == val:
+            removed[start] = 1
+            start = links[start]
+        if start == -1:
+            result = []
+            return result
+        current = start
         while links[current] != -1:
             nxt = links[current]
             if values[nxt] == val:
@@ -16,7 +23,7 @@ class Solution:
                 current = nxt
                 changed_links = []
         result = []
-        walk = links[0]
+        walk = start
         while walk != -1:
             result.append(values[walk])
             walk = links[walk]

@@ -1,0 +1,211 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Use the input values directly as the nodes — there is no dummy in this approach.",
+      "why": "Instead of a sentinel, we'll handle the head as a special case in Phase 1.",
+      "invariant": "values are the original nodes."
+    },
+    "4": {
+      "happening": "Build links: node i points to node i+1, and the last node points to -1 (null).",
+      "why": "The renderer draws one arrow per link; -1 ends the chain.",
+      "invariant": "links describes the arrows between nodes."
+    },
+    "5": {
+      "happening": "removed starts all zeros — nothing deleted yet.",
+      "why": "A 1 flags a node so the renderer paints it red.",
+      "invariant": "removed[i] == 1 exactly for deleted nodes."
+    },
+    "6": {
+      "happening": "changed_links starts empty.",
+      "why": "It names the arrow rerouted each step so the renderer can flash it.",
+      "invariant": "empty unless a bypass just happened."
+    },
+    "7": {
+      "happening": "start marks the head node — index 0, or -1 if the list is empty.",
+      "why": "We may have to move the head itself if it holds val.",
+      "invariant": "start is the current first node."
+    },
+    "8": [
+      {
+        "when": "start != -1 && values[start] == val",
+        "happening": "The head node's value ({values[start]}) equals val ({val}) — it must go.",
+        "why": "A leading match can't be bypassed from behind, so we drop the head directly.",
+        "invariant": "start still points at a matching head node."
+      },
+      {
+        "happening": "The head no longer matches val (or the list is empty) — Phase 1 is done.",
+        "why": "The front of the list is now clean; the rest is handled by the main loop.",
+        "invariant": "start is a safe head, or -1."
+      }
+    ],
+    "9": {
+      "happening": "Mark the matching head as removed (red).",
+      "why": "This leading node holds val and is being dropped.",
+      "invariant": "removed[start] == 1."
+    },
+    "10": {
+      "happening": "Move the head forward: start = links[start].",
+      "why": "The old head is discarded; the next node becomes the head.",
+      "invariant": "start advanced one node."
+    },
+    "11": [
+      {
+        "when": "start == -1",
+        "happening": "Phase 1 consumed the whole list — nothing remains.",
+        "why": "Every node matched val.",
+        "invariant": "The list is empty."
+      },
+      {
+        "happening": "The list still has nodes after Phase 1.",
+        "why": "There is a real head to keep and more nodes to scan.",
+        "invariant": "start is a valid head."
+      }
+    ],
+    "12": {
+      "happening": "The answer is the empty list.",
+      "why": "No nodes survived Phase 1.",
+      "invariant": "result is empty."
+    },
+    "13": {
+      "happening": "Return the empty result immediately.",
+      "why": "There is nothing left to scan.",
+      "invariant": "Done — the whole list was val."
+    },
+    "14": {
+      "happening": "Phase 2: current starts at the safe head (start).",
+      "why": "From here we test each node's NEXT, exactly like the dummy approach.",
+      "invariant": "current sits before the next candidate."
+    },
+    "15": [
+      {
+        "when": "links[current] != -1",
+        "happening": "current has a next node — keep scanning.",
+        "why": "Another candidate lies ahead.",
+        "invariant": "current.next is a real node."
+      },
+      {
+        "happening": "current.next is -1 — the scan is finished.",
+        "why": "No more nodes lie ahead.",
+        "invariant": "The loop ends here."
+      }
+    ],
+    "16": {
+      "happening": "Look at the candidate nxt = links[current] — the node after current.",
+      "why": "This is the node we'll delete or keep.",
+      "invariant": "nxt is current's next node."
+    },
+    "17": [
+      {
+        "when": "values[nxt] == val",
+        "happening": "The candidate's value ({values[nxt]}) equals val ({val}) — delete it.",
+        "why": "All val-valued nodes must go.",
+        "invariant": "current.next will be bypassed."
+      },
+      {
+        "happening": "The candidate's value ({values[nxt]}) isn't val ({val}) — keep it.",
+        "why": "Only val-valued nodes are removed.",
+        "invariant": "current will advance past it."
+      }
+    ],
+    "18": {
+      "happening": "Bypass: current's arrow skips the candidate to whatever followed it.",
+      "why": "Not following the matched node deletes it.",
+      "invariant": "The live list is one node shorter."
+    },
+    "19": {
+      "happening": "Detach the removed node's arrow (set it to -1).",
+      "why": "It shouldn't point back into the live list.",
+      "invariant": "The removed node links to nothing."
+    },
+    "20": {
+      "happening": "Flag the candidate as removed (red).",
+      "why": "So you can see which node was skipped.",
+      "invariant": "removed[nxt] == 1."
+    },
+    "21": {
+      "happening": "Record current's rerouted arrow so it flashes.",
+      "why": "Highlights the bypass moment.",
+      "invariant": "changed_links names the new arrow."
+    },
+    "23": {
+      "happening": "Keep the candidate: advance current onto it.",
+      "why": "A survivor — move to the next test.",
+      "invariant": "current moved one node right."
+    },
+    "24": {
+      "happening": "No arrow changed this step, so clear the flash.",
+      "why": "Nothing was rerouted.",
+      "invariant": "changed_links is empty."
+    },
+    "25": {
+      "happening": "Start collecting the survivors into result.",
+      "why": "The answer is the values still linked from start.",
+      "invariant": "result begins empty."
+    },
+    "26": {
+      "happening": "walk starts at start — the (possibly shifted) head.",
+      "why": "The cleaned list begins at the head Phase 1 left us with.",
+      "invariant": "walk is the head."
+    },
+    "27": [
+      {
+        "when": "walk != -1",
+        "happening": "walk points at a surviving node — record it.",
+        "why": "Collect every remaining node in order.",
+        "invariant": "walk is a live node."
+      },
+      {
+        "happening": "walk is -1 — the end of the cleaned list.",
+        "why": "All survivors have been collected.",
+        "invariant": "result is complete."
+      }
+    ],
+    "28": {
+      "happening": "Append this survivor's value ({values[walk]}) to result.",
+      "why": "It wasn't removed, so it belongs in the answer.",
+      "invariant": "result grows by one value."
+    },
+    "29": {
+      "happening": "Follow the arrow to the next surviving node.",
+      "why": "Walk the cleaned chain.",
+      "invariant": "walk advances one node."
+    },
+    "30": {
+      "happening": "Return result ({result}) — the cleaned list.",
+      "why": "Every val-valued node has been removed, including any at the head.",
+      "invariant": "No surviving node equals val."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the node array, links, and the head pointer.",
+      "why": "No dummy here — the head is handled specially in Phase 1.",
+      "invariant": "start on index 0 (or -1 if the list is empty)."
+    },
+    "loop": {
+      "happening": "A loop header — testing whether to keep scanning.",
+      "why": "Phase 1 tests the head; Phase 2 tests current.next; the final loop walks survivors.",
+      "invariant": "The condition decides whether the block runs again."
+    },
+    "check": {
+      "happening": "Comparing a node's value to val.",
+      "why": "Only nodes whose value equals val are removed.",
+      "invariant": "A node is about to be dropped or kept."
+    },
+    "update": {
+      "happening": "Rewiring arrows and marking removed nodes.",
+      "why": "Deletion is pointer-skipping, not data shifting.",
+      "invariant": "The live chain reflects every deletion so far."
+    },
+    "move": {
+      "happening": "Advancing a pointer along the list.",
+      "why": "Shift the head, advance current, or walk the final chain.",
+      "invariant": "The pointer steps one node to the right."
+    },
+    "return": {
+      "happening": "Returning the cleaned list of values.",
+      "why": "Every val-valued node has been removed.",
+      "invariant": "result holds only survivors, in original order."
+    }
+  }
+}

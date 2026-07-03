@@ -49,6 +49,24 @@
     "expectedOutput": []
   },
   {
+    "id": "edge-leading-match",
+    "label": "Leading Matches",
+    "value": {
+      "head": [
+        6,
+        6,
+        1,
+        2
+      ],
+      "val": 6
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      1,
+      2
+    ]
+  },
+  {
     "id": "edge-no-removals",
     "label": "No Matches",
     "value": {
