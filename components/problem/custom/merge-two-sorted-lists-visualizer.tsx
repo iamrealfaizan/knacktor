@@ -27,12 +27,13 @@ interface MergeSortedListsVisual extends CustomVisualState {
 
 // ── Color palette (SimulationRules.md CellState vocabulary) ──────────────────
 
+// Design tokens only — theme-adaptive (the old hardcoded hexes broke dark mode).
 const COLORS = {
-  idle:     { border: "var(--kn-border-0)",  bg: "var(--kn-surface-0)", text: "var(--kn-ink)" },
-  compared: { border: "#2E72C4",             bg: "#EEF4FC",             text: "#2E72C4" },
-  current:  { border: "#C2603F",             bg: "#FBEFD3",             text: "#C2603F" },
-  result:   { border: "#2F9E73",             bg: "#EBF7F2",             text: "#2F9E73" },
-  visited:  { border: "#5B8DB8",             bg: "#EEF4FC",             text: "#566D8C" },
+  idle:     { border: "var(--kn-border-0)",  bg: "var(--kn-surface-0)",     text: "var(--kn-ink-0)" },
+  compared: { border: "var(--kn-compared)",  bg: "var(--kn-blue-soft)",     text: "var(--kn-compared)" },
+  current:  { border: "var(--kn-current)",   bg: "var(--kn-current-subtle)", text: "var(--kn-current)" },
+  result:   { border: "var(--kn-result)",    bg: "var(--kn-result-subtle)", text: "var(--kn-result)" },
+  visited:  { border: "var(--kn-compared)",  bg: "var(--kn-blue-soft)",     text: "var(--kn-ink-1)" },
 } as const;
 
 type ColorKey = keyof typeof COLORS;

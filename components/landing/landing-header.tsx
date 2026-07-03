@@ -1,29 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Code2, Search, Moon, Sun, ArrowRight } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useTheme } from "@/components/problem/theme-provider";
-import { NAV_LINKS } from "./data";
+import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { NAV_LINKS } from "@/lib/site";
 
 export function LandingHeader() {
-  const { dark, toggle } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   return (
     <header className="sticky top-0 z-50 flex items-center gap-5 h-16 px-5 sm:px-7 border-b border-kn-border-0 bg-kn-bg/80 backdrop-blur-xl">
-      <Link href="/" className="flex items-center gap-2.5 shrink-0">
-        <Code2 className="h-7 w-7 text-kn-current" strokeWidth={2.5} />
-        <span className="font-semibold text-lg tracking-tight text-kn-ink-0">knacktor</span>
-      </Link>
+      <Logo variant="marketing" href="/" />
 
       <nav className="hidden md:flex items-center gap-1 ml-2">
         {NAV_LINKS.map(({ label, href }) => (
@@ -50,31 +37,19 @@ export function LandingHeader() {
           </span>
         </div>
 
-        <Button
-          size="icon"
-          variant="outline"
-          onClick={toggle}
-          aria-label="Toggle theme"
-          className="h-9 w-9 border-kn-border-0 bg-kn-surface-0 text-kn-ink-0"
-        >
-          {mounted && dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        <ThemeToggle />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger render={<span tabIndex={0} className="hidden sm:inline-flex" />}>
-              <Button variant="ghost" size="sm" disabled className="text-kn-ink-1">
-                Sign in
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Accounts coming soon</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="hidden sm:inline-flex text-kn-ink-1"
+          render={<Link href="/login">Sign in</Link>}
+        />
 
         <Button
           render={
-            <Link href="/problems">
-              Start exploring
+            <Link href="/signup">
+              Get started
               <ArrowRight className="h-4 w-4" />
             </Link>
           }

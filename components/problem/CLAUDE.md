@@ -6,6 +6,29 @@
 
 ---
 
+## Shared renderer primitives (D24) — ALWAYS use these, never reimplement
+
+Everything in `components/problem/shared/` is the single source for renderer building blocks:
+
+| Module | Provides | Replaces |
+|---|---|---|
+| `shared/cell-state.ts` | `cellStateStyle(state)` — THE CellState→{fill,stroke,strokeWidth,opacity,textFill,pulse,dashed} map (+ `left`/`right` wall states) | per-renderer `cellStyle`/`nodeColors`/`bucketStyle` switches |
+| `shared/motion.ts` | `MOTION.flash/fade/pointer/glide/reflow/tray`, `DUR`, `EASE` | inline duration/easing literals |
+| `shared/pointer-pill.tsx` | `ptrColor(name, lane)` full identity palette (i/j/lo/hi/prev/curr/next/head/tail/lp/rp/slow/fast/mid…), `<PointerPill>`, `<PointerMarker>` | per-renderer PTR_COLOR/PTR_PALETTE copies |
+| `shared/ghost-trail.tsx` | `<GhostTrail>` — renders `visual.ghosts` (mandated behavior #3) | (was never rendered) |
+| `shared/layout-tidy-tree.ts` | `layoutTidyTree(nodes,{leafSpan,levelGap})` — Reingold–Tilford, binary or n-ary `children` | tree/recursion duplicate layouts |
+| `shared/edge-path.ts` | `edgeEndpoints`/`edgePath` boundary-offset geometry | per-renderer endpoint math |
+| `shared/atoms.tsx` | `<PopIn>` (behavior #1, nested-group safe), `<StructureLabel>`, `<EmptyPlaceholder>`, `<IndexLabel>` | ad-hoc labels/placeholders |
+| `shared/use-reduced-motion.ts` | hook for JS-driven timing only | — |
+
+Animation classes live in `app/globals.css`: `kn-anim-pop-in`, `kn-anim-write-pop`, `kn-anim-cell-pulse` (0.6s), `kn-anim-ghost-fade`, `kn-anim-draw-in` (pair with `pathLength={1}`), `kn-anim-stack-push`, `kn-anim-queue-enter`, `kn-anim-key-fly`, `kn-anim-return-chip`, `kn-anim-cursor-ring`.
+
+**Reduced motion**: inline SVG `transition`s are neutralized globally by the `.kn-stage-root` rule (stage container carries the class) — do NOT thread a hook through render paths; use `useReducedMotion()` only for `setTimeout`/stagger-delay logic.
+
+**Stage auto-fit**: `stage.tsx` measures the camera group's `getBBox()` after mount (grow-only per step; Reset refits exactly). `getLeafViewBox()` remains only the SSR/first-paint estimate — don't tune magic numbers to fix clipping.
+
+---
+
 ## D17 — Visualization Decision Rule (mandatory before choosing a renderer)
 
 A **custom per-problem component** (`components/problem/custom/<slug>-visualizer.tsx`) is justified ONLY when **≥2** of these criteria apply:

@@ -1,12 +1,20 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPatternBySlug, getProblemsByPattern } from "@/lib/content-service";
+import { getPatternBySlug, getProblemsByPattern, getPatterns } from "@/lib/content-service";
 import { ProblemList } from "@/components/problem-list";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 interface Props {
   params: { slug: string };
+}
+
+// Static-first + hourly ISR; content changes only at ingest.
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const patterns = await getPatterns();
+  return patterns.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -1,16 +1,20 @@
 import Link from "next/link";
-import { getTopics, getProblems } from "@/lib/content-service";
+import { getTopics, getProblemCountsByTopic } from "@/lib/content-service";
 import { ArrowRight } from "lucide-react";
 
 export const metadata = { title: "Topics" };
 
-export default async function TopicsPage() {
-  const [topics, problems] = await Promise.all([getTopics(), getProblems()]);
+// ISR: content changes only at ingest — rebuild at most hourly instead of
+// freezing at deploy time (or querying per request).
+export const revalidate = 3600;
 
-  const countByTopic = problems.reduce<Record<string, number>>((acc, p) => {
-    p.topics.forEach((t) => { acc[t] = (acc[t] ?? 0) + 1; });
-    return acc;
-  }, {});
+export default async function TopicsPage() {
+  // Counts come from a single $unwind/$group aggregation — never fetch the
+  // full problem list just to count it.
+  const [topics, countByTopic] = await Promise.all([
+    getTopics(),
+    getProblemCountsByTopic(),
+  ]);
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">

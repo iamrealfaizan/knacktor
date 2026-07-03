@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useTheme } from "./theme-provider";
 import { usePlayer } from "./use-player";
 import { TopBar } from "./top-bar";
 import { CodePanel } from "./code-panel";
@@ -64,13 +63,13 @@ export interface CustomInputState {
 
 export function ProblemEngine({
   problem,
-  approachTraces,
+  approachTraces: initialApproachTraces,
 }: {
   problem: ProblemFull;
-  /** approachId -> (inputId -> precomputed Python trace) */
+  /** approachId -> (inputId -> precomputed Python trace). The server ships
+   *  only the recommended approach; others lazy-load on first selection. */
   approachTraces: Record<string, Record<string, Trace>>;
 }) {
-  const { dark, toggle } = useTheme();
   const isDesktop = useIsDesktop();
   const [mode, setModeState] = useState<Mode>("Learn");
   const [codeCollapsed, setCodeCollapsed] = useState(false);
@@ -79,6 +78,12 @@ export function ProblemEngine({
   const [codeW, setCodeW] = useState(330);
   const [railW, setRailW] = useState(320);
   const [approachId, setApproachId] = useState(problem.recommendedApproachId);
+
+  // Trace cache: seeded with the server-shipped recommended approach; other
+  // approaches fetched once from /api/problems/[slug]/traces and kept here.
+  const [approachTraces, setApproachTraces] =
+    useState<Record<string, Record<string, Trace>>>(initialApproachTraces);
+  const [approachLoading, setApproachLoading] = useState<string | null>(null);
 
   // Resolve a precomputed trace for (approach, input); fall back to that
   // approach's first available trace.
@@ -133,11 +138,33 @@ export function ProblemEngine({
     setTraceKey(`${newInputId}-${traceNonce.current}`);
   }
 
-  function handleSelectApproach(id: string) {
-    setApproachId(id);
-    // Keep the same example if this approach has it; else its first preset.
-    const t = traceFor(id, activeInputId);
-    if (t) swapTrace(t, t.inputId);
+  async function handleSelectApproach(id: string) {
+    // Already cached (recommended approach, or previously fetched) → instant.
+    if (approachTraces[id]) {
+      setApproachId(id);
+      const t = traceFor(id, activeInputId);
+      if (t) swapTrace(t, t.inputId);
+      return;
+    }
+    // Lazy-load this approach's preset traces (shipped separately from the page).
+    setApproachLoading(id);
+    try {
+      const res = await fetch(
+        `/api/problems/${problem.slug}/traces?approachId=${encodeURIComponent(id)}`
+      );
+      if (!res.ok) throw new Error(`traces fetch failed: ${res.status}`);
+      const { data } = (await res.json()) as { data: Record<string, Trace> };
+      if (!data || Object.keys(data).length === 0) throw new Error("no traces");
+      setApproachTraces((prev) => ({ ...prev, [id]: data }));
+      setApproachId(id);
+      const byInput = data;
+      const t = byInput[activeInputId] ?? Object.values(byInput)[0];
+      if (t) swapTrace(t, t.inputId);
+    } catch (err) {
+      console.error("[approach switch]", err);
+    } finally {
+      setApproachLoading(null);
+    }
   }
 
   function handleSelectPreset(presetId: string) {
@@ -193,10 +220,9 @@ export function ProblemEngine({
           problem={problem}
           mode={mode}
           setMode={setMode}
-          dark={dark}
-          toggleTheme={toggle}
           approaches={problem.approaches}
           activeApproachId={approachId}
+          loadingApproachId={approachLoading}
           onSelectApproach={handleSelectApproach}
         />
 

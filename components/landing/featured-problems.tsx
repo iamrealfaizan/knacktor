@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { CheckCircle2, CircleDot, Circle, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SITE_STATS } from "@/lib/site";
+import { DIFFICULTY_STYLE } from "@/lib/difficulty";
 import { FEATURED, type Difficulty, type Status } from "./data";
 
+// Derived from the canonical difficulty map (Title-case display keys).
 const DIFF_PILL: Record<Difficulty, string> = {
-  Easy: "bg-kn-result-subtle text-kn-result",
-  Medium: "bg-kn-med-bg text-kn-med-ink",
-  Hard: "bg-kn-error-subtle text-kn-error",
+  Easy: `${DIFFICULTY_STYLE.easy.bg} ${DIFFICULTY_STYLE.easy.ink}`,
+  Medium: `${DIFFICULTY_STYLE.medium.bg} ${DIFFICULTY_STYLE.medium.ink}`,
+  Hard: `${DIFFICULTY_STYLE.hard.bg} ${DIFFICULTY_STYLE.hard.ink}`,
 };
 
 function StatusIcon({ status }: { status: Status }) {
@@ -27,7 +30,7 @@ export function FeaturedProblems() {
             </h2>
           </div>
           <Link href="/problems" className="font-semibold text-sm text-kn-current whitespace-nowrap shrink-0">
-            View all 480 →
+            View all {SITE_STATS.problems} →
           </Link>
         </div>
 

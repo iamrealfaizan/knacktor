@@ -2,6 +2,9 @@ import { getSheets } from "@/lib/content-service";
 
 export const metadata = { title: "Sheets" };
 
+// Hourly ISR; sheets change only at ingest.
+export const revalidate = 3600;
+
 export default async function SheetsPage() {
   const sheets = await getSheets();
 

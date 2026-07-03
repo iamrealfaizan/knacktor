@@ -3,45 +3,26 @@
 // 2D Grid / Matrix renderer — per SimulationRules B-11.
 // Shape: square cells, 1px gridlines, NO rounded corners (must tile).
 // Start/end cells carry a glyph (▶ / ◎) in addition to color.
+// Wavefront: newly-recolored cells stagger by distance from the current cell
+// (expanding ripple); `path` cells stagger BACKWARD from the result cell
+// (gold traceback, end → start).
 // Covers: number of islands, word search, shortest path, flood fill,
 //         rotate image, spiral matrix, set matrix zeroes, game of life.
 
-import type { GridVisualState, CellState } from "@/lib/trace";
+import type { GridVisualState } from "@/lib/trace";
+import { cellStateStyle } from "./shared/cell-state";
+import { MOTION } from "./shared/motion";
+import { PointerPill, ptrColor } from "./shared/pointer-pill";
 
 const CELL = 28;       // cell size in SVG units
 const GRID_LINE = 1;   // gridline width
+const STAGGER_MS = 30; // per SimulationRules B-11: ≥30ms per BFS level
+const STAGGER_CAP_MS = 360;
 
-const PTR_PALETTE = [
-  "var(--kn-ptr-i)", "var(--kn-ptr-j)", "var(--kn-ptr-lo)",
-  "var(--kn-ptr-hi)", "var(--kn-special)", "var(--kn-amber)",
-];
-
-function cellFill(state: CellState): { fill: string; textFill: string; glyph?: string } {
-  switch (state) {
-    case "current":
-      return { fill: "var(--kn-current-subtle)", textFill: "var(--kn-current)" };
-    case "compared":
-      return { fill: "var(--kn-blue-soft)", textFill: "var(--kn-ink-0)" };
-    case "frontier":
-      return { fill: "var(--kn-amber-subtle)", textFill: "var(--kn-ink-0)" };
-    case "visited":
-      return { fill: "var(--kn-surface-1)", textFill: "var(--kn-ink-1)" };
-    case "result":
-      return { fill: "var(--kn-result-subtle)", textFill: "var(--kn-result)", glyph: "◎" };
-    case "path":
-      return { fill: "var(--kn-amber-subtle)", textFill: "var(--kn-gold)" };
-    case "special":
-      return { fill: "var(--kn-current-subtle)", textFill: "var(--kn-special)", glyph: "▶" };
-    case "error":
-      return { fill: "var(--kn-error-subtle)", textFill: "var(--kn-error)" };
-    case "dimmed":
-      return { fill: "var(--kn-surface-1)", textFill: "var(--kn-ink-2)" };
-    // "wall" / "blocked" is often represented by a dark fill
-    case "idle":
-    default:
-      return { fill: "var(--kn-surface-0)", textFill: "var(--kn-ink-0)" };
-  }
-}
+const GLYPHS: Partial<Record<string, string>> = {
+  special: "▶", // start
+  result: "◎",  // end / found
+};
 
 export function GridRenderer({ visual }: { visual: GridVisualState }) {
   const { rows, pointers } = visual;
@@ -56,6 +37,26 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
 
   const xOf = (c: number) => x0 + c * CELL;
   const yOf = (r: number) => y0 + r * CELL;
+
+  // Wavefront origin = the current cell (fallback: first pointer).
+  let originR = -1;
+  let originC = -1;
+  // Traceback origin = the result/end cell (path stagger runs backward from it).
+  let endR = -1;
+  let endC = -1;
+  rows.forEach((row, ri) =>
+    row.forEach((cell, ci) => {
+      if (cell.state === "current") { originR = ri; originC = ci; }
+      if (cell.state === "result") { endR = ri; endC = ci; }
+    })
+  );
+  if (originR < 0 && pointers.length > 0) {
+    originR = pointers[0].row;
+    originC = pointers[0].col;
+  }
+
+  const manhattan = (r1: number, c1: number, r2: number, c2: number) =>
+    Math.abs(r1 - r2) + Math.abs(c1 - c2);
 
   return (
     <g>
@@ -72,23 +73,50 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
       {/* Cells */}
       {rows.map((row, ri) =>
         row.map((cell, ci) => {
-          const { fill, textFill } = cellFill(cell.state ?? "idle");
+          const state = cell.state ?? "idle";
+          const s = cellStateStyle(state);
           const cx = xOf(ci);
           const cy = yOf(ri);
           const valStr = cell.value !== null && cell.value !== undefined ? String(cell.value) : "";
+          const isWall = valStr === "#" || valStr === "█";
+          const glyph = GLYPHS[state];
+
+          // Discovery ripple: recolors farther from the current cell fire later.
+          // Traceback: path cells stagger backward from the END cell instead.
+          let delayMs = 0;
+          if (state === "path" && endR >= 0) {
+            delayMs = Math.min(manhattan(ri, ci, endR, endC) * 40, 500);
+          } else if ((state === "frontier" || state === "visited") && originR >= 0) {
+            delayMs = Math.min(manhattan(ri, ci, originR, originC) * STAGGER_MS, STAGGER_CAP_MS);
+          }
 
           return (
-            <g key={`${ri}-${ci}`} style={{ transition: "opacity 0.25s ease" }}>
+            <g key={`${ri}-${ci}`}>
               <rect
                 x={cx + GRID_LINE}
                 y={cy + GRID_LINE}
                 width={CELL - GRID_LINE * 2}
                 height={CELL - GRID_LINE * 2}
                 rx={0}
-                fill={fill}
-                style={{ transition: "fill 0.18s ease" }}
+                fill={isWall ? "var(--kn-ink-2)" : s.fill}
+                style={{
+                  transition: `fill 0.18s ease ${delayMs}ms`,
+                }}
               />
-              {valStr !== "" && (
+              {glyph && (
+                <text
+                  x={cx + CELL / 2}
+                  y={cy + CELL / 2 + 1}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize={11}
+                  fill={s.textFill}
+                  style={{ pointerEvents: "none" }}
+                >
+                  {glyph}
+                </text>
+              )}
+              {!glyph && valStr !== "" && !isWall && (
                 <text
                   x={cx + CELL / 2}
                   y={cy + CELL / 2 + 1}
@@ -97,7 +125,7 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
                   fontFamily="var(--font-mono)"
                   fontSize={CELL > 24 ? 12 : 10}
                   fontWeight={500}
-                  fill={textFill}
+                  fill={s.textFill}
                   style={{ pointerEvents: "none" }}
                 >
                   {valStr.length > 3 ? valStr.slice(0, 3) : valStr}
@@ -108,7 +136,6 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
         })
       )}
 
-      {/* Row + column index labels */}
       {/* Column indices */}
       {Array.from({ length: numCols }, (_, ci) => (
         <text
@@ -139,18 +166,13 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
         </text>
       ))}
 
-      {/* Pointer overlays — row/col cursor cross-hair */}
+      {/* Pointer overlays — halo crosshair + shared pill, real identity hues */}
       {pointers.map((p, pi) => {
-        const color = PTR_PALETTE[pi % PTR_PALETTE.length];
+        const color = ptrColor(p.name, pi);
         const cx = xOf(p.col) + CELL / 2;
         const cy = yOf(p.row) + CELL / 2;
         return (
-          <g
-            key={p.name}
-            style={{ transition: "transform 0.28s cubic-bezier(.34,1.2,.4,1)" }}
-            transform={`translate(${cx}, ${cy})`}
-          >
-            {/* Halo on current cell */}
+          <g key={p.name} style={{ transition: MOTION.pointer }} transform={`translate(${cx}, ${cy})`}>
             <rect
               x={-CELL / 2}
               y={-CELL / 2}
@@ -161,19 +183,8 @@ export function GridRenderer({ visual }: { visual: GridVisualState }) {
               strokeWidth={2}
               rx={2}
               opacity={0.7}
-              style={{ transition: "all 0.28s ease" }}
             />
-            {/* Pointer label pill below */}
-            <g transform={`translate(0, ${CELL / 2 + 2 + pi * 20})`}>
-              <rect x={-16} y={0} width={32} height={16} rx={8} fill={color} />
-              <text
-                x={0} y={9}
-                textAnchor="middle" dominantBaseline="middle"
-                fontFamily="var(--font-mono)" fontSize={8} fontWeight={700} fill="#fff"
-              >
-                {p.name}
-              </text>
-            </g>
+            <PointerPill name={p.name} color={color} caretY={CELL / 2 + 10} lane={pi} pillWidth={32} />
           </g>
         );
       })}

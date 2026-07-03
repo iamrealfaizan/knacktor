@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProblems } from "@/lib/content-service";
 import type { ProblemFilters, DifficultySlug } from "@/lib/types";
-
-export const dynamic = "force-dynamic";
+import { CACHE_HEADERS } from "@/lib/api-cache";
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,7 +24,7 @@ export async function GET(req: NextRequest) {
     if (search) filters.search = search;
 
     const data = await getProblems(filters);
-    return NextResponse.json({ data });
+    return NextResponse.json({ data }, { headers: CACHE_HEADERS });
   } catch (err) {
     console.error("[GET /api/problems]", err);
     return NextResponse.json(

@@ -4,19 +4,21 @@
 //
 // Two synchronized views side by side:
 //   LEFT  — Call Stack (B-14): stacked frames, newest on top, TOS brighter + halo.
-//           Frame shape: full-width rounded rect ~64px tall (B-14).
-//   RIGHT — Recursion Tree (B-13): nodes are rounded rects ~120×40 (B-13), two-line.
-//           Built incrementally DFS left→right; edges are <path> per A-1.
+//   RIGHT — Recursion Tree (B-13): rounded rects ~120×40, built incrementally
+//           DFS left→right (shared layoutTidyTree); on return, a green value
+//           chip rises up the edge toward the parent.
 //
-// Both views share the same CallFrame data from RecursionVisualState:
-//   frames[]     — ordered bottom (oldest) → top (newest/current)
-//   treeEdges[]  — parent→child for the tree view
+// Panel positions are MEASURED from the tree layout extents (the old fixed
+// translate(-220)/translate(60) offsets let wide trees overlap the stack).
 
 import type { RecursionVisualState, CallFrame } from "@/lib/trace";
+import { MOTION } from "./shared/motion";
+import { layoutTidyTree } from "./shared/layout-tidy-tree";
+import { PopIn } from "./shared/atoms";
 
 // Call Stack (B-14): "full-width rounded rect ~64px tall"
 const FRAME_W = 180;
-const FRAME_H = 64;     // per B-14: ~64px tall
+const FRAME_H = 64;
 const FRAME_GAP = 4;
 const FRAME_R = 8;
 
@@ -26,24 +28,47 @@ const NODE_H = 40;
 const NODE_R = 8;
 const TREE_H_GAP = 20;   // horizontal gap between sibling nodes
 const TREE_LEVEL_H = 80; // vertical distance between levels
+const PANEL_GAP = 70;    // gap between call stack and tree panels
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function RecursionRenderer({ visual }: { visual: RecursionVisualState }) {
   const { frames, treeEdges = [] } = visual;
 
+  // Tree layout via the shared tidy-tree (n-ary children from treeEdges).
+  const childrenMap: Record<string, string[]> = {};
+  treeEdges.forEach((e) => {
+    (childrenMap[e.from] ??= []).push(e.to);
+  });
+  const tidyNodes = frames.map((f) => ({ id: f.id, children: childrenMap[f.id] ?? [] }));
+  const { nodes: layout, minY: treeMinY } = layoutTidyTree(tidyNodes, {
+    leafSpan: NODE_W + TREE_H_GAP,
+    levelGap: TREE_LEVEL_H,
+  });
+
+  const frameMap: Record<string, CallFrame> = {};
+  frames.forEach((f) => { frameMap[f.id] = f; });
+
+  // Measured extents → panel positions that never overlap.
+  const treeHalfW = layout.length
+    ? Math.max(...layout.map((n) => Math.abs(n.x))) + NODE_W / 2
+    : NODE_W / 2;
+  const stackCx = -(treeHalfW + PANEL_GAP + FRAME_W / 2);
+  const stackTotalH = frames.length * (FRAME_H + FRAME_GAP);
+  const labelY = Math.min(treeMinY - NODE_H / 2, -stackTotalH / 2) - 34;
+
   return (
     <g>
       {/* Call Stack — left panel */}
-      <g transform="translate(-220, 0)">
-        <PanelLabel text="CALL STACK" />
+      <g transform={`translate(${stackCx}, 0)`}>
+        <PanelLabel text="CALL STACK" y={labelY} />
         <CallStackView frames={frames} />
       </g>
 
-      {/* Recursion Tree — right panel */}
-      <g transform="translate(60, 0)">
-        <PanelLabel text="RECURSION TREE" />
-        <RecursionTreeView frames={frames} edges={treeEdges} />
+      {/* Recursion Tree — right panel (layout already centered at x=0) */}
+      <g>
+        <PanelLabel text="RECURSION TREE" y={labelY} />
+        <RecursionTreeView layout={layout} frameMap={frameMap} edges={treeEdges} />
       </g>
     </g>
   );
@@ -92,8 +117,10 @@ function CallStackView({ frames }: { frames: CallFrame[] }) {
           <g
             key={frame.id}
             transform={`translate(0, ${y})`}
-            style={{ transition: "transform 0.35s cubic-bezier(.34,1.2,.4,1)" }}
+            style={{ transition: MOTION.glide }}
           >
+            {/* Push entrance (B-14): frame slides in from the top with spring */}
+            <g className="kn-anim-stack-push">
             {/* Halo ring on TOS */}
             {isCurrent && (
               <rect
@@ -152,6 +179,7 @@ function CallStackView({ frames }: { frames: CallFrame[] }) {
                 → {String(frame.returnValue)}
               </text>
             )}
+            </g>
           </g>
         );
       })}
@@ -161,70 +189,27 @@ function CallStackView({ frames }: { frames: CallFrame[] }) {
 
 // ── Recursion Tree ────────────────────────────────────────────────────────────
 
-interface TreeLayout {
+interface TreeLayoutNode {
   id: string;
   x: number;
   y: number;
-  frame: CallFrame;
 }
 
-function buildTreeLayout(
-  frames: CallFrame[],
-  edges: { from: string; to: string }[]
-): TreeLayout[] {
-  if (!frames.length) return [];
-
-  const children: Record<string, string[]> = {};
-  const hasParent = new Set<string>();
-  edges.forEach((e) => {
-    if (!children[e.from]) children[e.from] = [];
-    children[e.from].push(e.to);
-    hasParent.add(e.to);
-  });
-
-  const frameMap: Record<string, CallFrame> = {};
-  frames.forEach((f) => { frameMap[f.id] = f; });
-
-  const roots = frames.filter((f) => !hasParent.has(f.id)).map((f) => f.id);
-  if (!roots.length) roots.push(frames[0].id);
-
-  let leafCounter = 0;
-  const layout: TreeLayout[] = [];
-
-  function assign(id: string, depth: number): number {
-    const kids = children[id] ?? [];
-    if (!kids.length) {
-      const x = leafCounter * (NODE_W + TREE_H_GAP);
-      leafCounter++;
-      layout.push({ id, x, y: depth * TREE_LEVEL_H, frame: frameMap[id] });
-      return x;
-    }
-    const childXs = kids.map((k) => assign(k, depth + 1));
-    const x = (childXs[0] + childXs[childXs.length - 1]) / 2;
-    layout.push({ id, x, y: depth * TREE_LEVEL_H, frame: frameMap[id] });
-    return x;
-  }
-
-  roots.forEach((r) => assign(r, 0));
-
-  // Center tree
-  if (layout.length) {
-    const minX = Math.min(...layout.map((n) => n.x));
-    const maxX = Math.max(...layout.map((n) => n.x));
-    layout.forEach((n) => { n.x -= (minX + maxX) / 2; });
-  }
-
-  return layout;
-}
-
-function RecursionTreeView({ frames, edges }: { frames: CallFrame[]; edges: { from: string; to: string }[] }) {
-  const layout = buildTreeLayout(frames, edges);
-  const nodeMap: Record<string, TreeLayout> = {};
+function RecursionTreeView({
+  layout,
+  frameMap,
+  edges,
+}: {
+  layout: TreeLayoutNode[];
+  frameMap: Record<string, CallFrame>;
+  edges: { from: string; to: string }[];
+}) {
+  const nodeMap: Record<string, TreeLayoutNode> = {};
   layout.forEach((n) => { nodeMap[n.id] = n; });
 
   return (
     <g>
-      {/* Edges first — <path> per SimulationRules A-1 (required for stroke-dashoffset draw-in) */}
+      {/* Edges first — <path> per SimulationRules A-1 */}
       {edges.map((e) => {
         const from = nodeMap[e.from];
         const to = nodeMap[e.to];
@@ -238,25 +223,27 @@ function RecursionTreeView({ frames, edges }: { frames: CallFrame[]; edges: { fr
           <path
             key={`te-${e.from}-${e.to}`}
             d={`M ${x1} ${y1} L ${x2} ${y2}`}
+            pathLength={1}
+            className="kn-anim-draw-in"
             stroke="var(--kn-border-1)"
             strokeWidth={1.5}
             fill="none"
-            style={{ transition: "all 0.35s ease" }}
           />
         );
       })}
 
-      {/* Nodes — rounded rect ~120×40 per B-13 */}
+      {/* Nodes — rounded rect ~120×40 per B-13; PopIn = incremental unfold */}
       {layout.map((n) => {
-        const f = n.frame;
+        const f = frameMap[n.id];
         const isCurrent = f?.isCurrent;
         const hasReturn = f?.returnValue !== null && f?.returnValue !== undefined;
         return (
           <g
             key={n.id}
             transform={`translate(${n.x}, ${n.y})`}
-            style={{ transition: "transform 0.4s cubic-bezier(.34,1.2,.4,1)" }}
+            style={{ transition: MOTION.glide }}
           >
+            <PopIn>
             {/* Cursor ring for active node */}
             {isCurrent && (
               <rect
@@ -269,6 +256,7 @@ function RecursionTreeView({ frames, edges }: { frames: CallFrame[]; edges: { fr
                 stroke="var(--kn-current)"
                 strokeWidth={2}
                 opacity={0.4}
+                className="kn-anim-cursor-ring"
               />
             )}
 
@@ -326,6 +314,39 @@ function RecursionTreeView({ frames, edges }: { frames: CallFrame[]; edges: { fr
                 → {String(f.returnValue)}
               </text>
             )}
+            </PopIn>
+          </g>
+        );
+      })}
+
+      {/* Return chips (B-13): when a frame returns, its value chip mounts at
+          the edge midpoint and RISES toward the parent's pending slot. Keyed by
+          id+value so it fires exactly once per return. */}
+      {edges.map((e) => {
+        const child = nodeMap[e.to];
+        const parent = nodeMap[e.from];
+        const f = frameMap[e.to];
+        if (!child || !parent || !f) return null;
+        const hasReturn = f.returnValue !== null && f.returnValue !== undefined;
+        if (!hasReturn) return null;
+        const midX = (child.x + parent.x) / 2;
+        const midY = (child.y - NODE_H / 2 + parent.y + NODE_H / 2) / 2;
+        const label = `→ ${String(f.returnValue)}`;
+        const w = Math.max(30, label.length * 7 + 12);
+        return (
+          <g key={`ret-${e.to}-${String(f.returnValue)}`} transform={`translate(${midX}, ${midY})`}>
+            <g className="kn-anim-return-chip">
+              <rect x={-w / 2} y={-10} width={w} height={20} rx={10}
+                fill="var(--kn-result-subtle)" stroke="var(--kn-result)" strokeWidth={1.5} />
+              <text
+                x={0} y={1}
+                textAnchor="middle" dominantBaseline="middle"
+                fontFamily="var(--font-mono)" fontSize={10} fontWeight={700}
+                fill="var(--kn-result)"
+              >
+                {label}
+              </text>
+            </g>
           </g>
         );
       })}
@@ -335,11 +356,11 @@ function RecursionTreeView({ frames, edges }: { frames: CallFrame[]; edges: { fr
 
 // ── Shared ─────────────────────────────────────────────────────────────────
 
-function PanelLabel({ text }: { text: string }) {
+function PanelLabel({ text, y }: { text: string; y: number }) {
   return (
     <text
       x={0}
-      y={-90}
+      y={y}
       textAnchor="middle"
       fontFamily="var(--font-mono)"
       fontSize={10}
