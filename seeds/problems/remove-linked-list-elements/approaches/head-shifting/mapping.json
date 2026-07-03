@@ -5,6 +5,10 @@
   "changedLinksFrom": "changed_links",
   "pointers": [
     {
+      "name": "start",
+      "var": "start"
+    },
+    {
       "name": "current",
       "var": "current"
     },
@@ -19,12 +23,12 @@
       "when": "removed[node_idx] == 1"
     },
     {
-      "state": "special",
-      "when": "node_idx == 0"
-    },
-    {
       "state": "current",
       "when": "node_idx == nxt"
+    },
+    {
+      "state": "compared",
+      "when": "node_idx == start && phase == 'loop'"
     },
     {
       "state": "idle",
@@ -33,6 +37,7 @@
   ],
   "ghosts": {
     "track": [
+      "start",
       "current",
       "nxt"
     ]
@@ -46,7 +51,8 @@
     {
       "name": "nodes removed",
       "onLines": [
-        13
+        9,
+        20
       ]
     }
   ],
@@ -65,51 +71,63 @@
       "phase": "loop",
       "lines": [
         8,
-        20
+        15,
+        27
       ]
     },
     {
       "phase": "check",
       "lines": [
-        10
+        11,
+        17
       ]
     },
     {
       "phase": "update",
       "lines": [
         9,
-        11,
         12,
-        13,
-        14,
-        17,
+        16,
         18,
-        21
+        19,
+        20,
+        21,
+        24,
+        25,
+        28
       ]
     },
     {
       "phase": "move",
       "lines": [
-        16,
-        19,
-        22
+        10,
+        14,
+        23,
+        26,
+        29
       ]
     },
     {
       "phase": "return",
       "lines": [
-        23
+        13,
+        30
       ]
     }
   ],
   "keyEvents": [
     {
-      "line": 11,
+      "line": 9,
+      "label": "Head node removed",
+      "kind": "match"
+    },
+    {
+      "line": 18,
       "label": "Node bypassed",
       "kind": "match"
     },
     {
-      "line": 23,
+      "line": 30,
       "label": "Cleaned list returned",
       "kind": "return"
     }

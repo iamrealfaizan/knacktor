@@ -1,234 +1,160 @@
 {
   "byLine": {
     "3": {
-      "happening": "self.val = val stores the integer on this node.",
-      "why": "Each ListNode holds its value in self.val; this is set during construction for every node we create.",
-      "invariant": "This node's val field is now populated with the integer value."
+      "happening": "Prepend a dummy sentinel (value 0) before the real nodes, so values = [0] + input.",
+      "why": "With a node in front of the head, deleting the real head uses the same logic as deleting any other node — no special case.",
+      "invariant": "The dummy at index 0 is never removed."
     },
     "4": {
-      "happening": "self.next = nxt sets the next pointer (None by default).",
-      "why": "The linked list is formed through .next pointers; None marks the tail of the list.",
-      "invariant": "This node's next field is initialized — nodes are disconnected until .next is explicitly set."
+      "happening": "Build links: node i points to node i+1, and the last node points to -1 (null).",
+      "why": "The renderer draws one arrow per link; -1 means the chain ends here.",
+      "invariant": "links describes the current arrows between nodes."
     },
-    "8": {
-      "happening": "We receive head as a Python list (e.g. [1,2,6,3,4,5,6]) and keep it as vals. If the input is empty we use [].",
-      "why": "The tracer passes inputs as plain Python values; we convert them to real ListNode objects next.",
-      "invariant": "vals holds the raw integer values we will turn into a linked list."
+    "5": {
+      "happening": "removed starts all zeros — no node has been deleted yet.",
+      "why": "A 1 will flag a node so the renderer paints it red.",
+      "invariant": "removed[i] == 1 exactly for deleted nodes."
     },
-    "9": {
-      "happening": "Create one ListNode for each value in vals.",
-      "why": "We need real nodes with .next pointers so we can do genuine pointer manipulation — not just array slicing.",
-      "invariant": "nodes_list is a flat Python list of disconnected nodes."
+    "6": {
+      "happening": "changed_links starts empty — no arrow has been rerouted yet.",
+      "why": "Each step it names the arrow that just changed so the renderer can flash it.",
+      "invariant": "changed_links is empty unless a bypass just happened."
     },
-    "10": {
-      "happening": "Wire up each node's .next to point to the following node.",
-      "why": "A linked list is built by chaining .next pointers; without this step the nodes are isolated.",
-      "invariant": "After the loop, nodes_list[0].next → nodes_list[1] → … → nodes_list[-1].next = None."
+    "7": {
+      "happening": "current starts on the dummy (index 0).",
+      "why": "We always inspect current's NEXT node, never current itself.",
+      "invariant": "current sits just before the node under inspection."
     },
-    "11": {
-      "happening": "real_head is assigned the first node (or None for an empty list).",
-      "why": "We need to know where the list begins before we can attach the dummy sentinel.",
-      "invariant": "real_head points to the first real node, or is None."
-    },
-    "12": {
-      "happening": "Create a dummy node (value 0) as a sentinel before the real list.",
-      "why": "If the head node itself needs to be deleted, we would lose the head pointer. The dummy node means current.next is always the node we are evaluating — the head is just another next pointer.",
-      "invariant": "dummy is a stable anchor; it is never removed."
-    },
-    "13": {
-      "happening": "Connect dummy.next → real_head so the full list starts right after dummy.",
-      "why": "Now dummy sits just before the first real node — any node, including the head, can be deleted by the same pointer-skip logic.",
-      "invariant": "dummy → node_0 → node_1 → … → None"
-    },
-    "14": {
-      "happening": "current starts at dummy.",
-      "why": "We always examine current.next (the candidate for deletion), not current itself. Starting at dummy means we can handle head deletion without special cases.",
-      "invariant": "current.next is the next node to inspect."
-    },
-    "15": {
-      "happening": "Build the visual nodes array — each node gets an id and a label showing its value.",
-      "why": "The linkedList renderer reads from this array to draw the nodes on screen.",
-      "invariant": "nodes mirrors the current live nodes in the list."
-    },
-    "16": {
-      "happening": "Build the visual links array — each entry is one → arrow between consecutive nodes.",
-      "why": "The renderer uses this to draw the directional arrows connecting nodes.",
-      "invariant": "links mirrors the current live arrows in the list."
-    },
-    "17": {
-      "happening": "changed_links starts empty — no arrows have been rewritten yet.",
-      "why": "The renderer highlights rewritten arrows in a special color; nothing has changed yet.",
-      "invariant": "changed_links is empty until a node is deleted."
-    },
-    "18": {
-      "happening": "node_ids is a bookkeeping list [0, 1, 2, …] with one entry per node.",
-      "why": "Needed to build id_map on the next line.",
-      "invariant": "node_ids aligns with nodes_list by index."
-    },
-    "19": {
-      "happening": "id_map maps each node's Python memory address (id()) to its visual id number.",
-      "why": "When we follow .next pointers to find which node comes after a deleted one, we need to translate Python objects back to visual ids.",
-      "invariant": "id_map[id(nodeX)] == X for every node X."
-    },
-    "20": {
-      "happening": "The dummy node gets visual id -1 so the pointer can render on it.",
-      "why": "-1 is a sentinel id that the renderer recognises as the dummy/pre-head node.",
-      "invariant": "id_map is complete for all nodes including dummy."
-    },
-    "21": {
-      "happening": "curr_id starts at -1 — the dummy node's visual id.",
-      "why": "current is sitting at dummy, so its visual id should be -1.",
-      "invariant": "curr_id always equals the visual id of current."
-    },
-    "22": {
-      "happening": "Check: is current.next non-null? If yes, there is a node ahead to inspect.",
-      "why": "We stop as soon as current.next is None — there is nothing further to remove.",
-      "invariant": "When the loop is entered, current.next is always a real node."
-    },
-    "23": {
-      "happening": "Refresh curr_id to the visual id of current's node.",
-      "why": "current may have moved on a previous iteration; we re-read its id so the visual pointer stays in sync.",
-      "invariant": "curr_id == visual id of current."
-    },
-    "24": {
-      "happening": "next_id = visual id of current.next — the node we are about to judge.",
-      "why": "We need this id to update the visual if we delete current.next.",
-      "invariant": "next_id points to the candidate node."
-    },
-    "25": [
+    "8": [
       {
-        "when": "phase == 'check'",
-        "happening": "current.next.val equals val — this node is marked for deletion!",
-        "why": "The algorithm's job is to skip every node whose value matches val.",
-        "invariant": "current.next will be bypassed; current stays put."
+        "when": "links[current] != -1",
+        "happening": "current still has a next node, so keep scanning.",
+        "why": "There is another candidate node to test.",
+        "invariant": "current.next is a real node."
       },
       {
-        "happening": "current.next.val does NOT equal val — this node survives.",
-        "why": "Only nodes with the target value are removed; all others remain in the list.",
-        "invariant": "current will advance past this surviving node."
+        "happening": "current.next is -1 (null) — the scan is finished.",
+        "why": "No more nodes lie ahead; every node has been checked.",
+        "invariant": "The loop ends here."
       }
     ],
-    "26": {
-      "happening": "Save the visual id of the node about to be deleted as skip_id.",
-      "why": "We need skip_id to filter this node out of the nodes and links arrays after the relink.",
-      "invariant": "skip_id is the id of the doomed node."
+    "9": {
+      "happening": "Look at the candidate nxt = links[current] — the node right after current.",
+      "why": "This is the node we'll decide to delete or keep.",
+      "invariant": "nxt is current's next node."
     },
-    "27": {
-      "happening": "Find after_id — the visual id of the node that will become current.next once the deletion is done.",
-      "why": "We need after_id to draw the new relinked arrow from current to the node after the deleted one.",
-      "invariant": "after_id is None if the deleted node was the last in the list."
+    "10": [
+      {
+        "when": "values[nxt] == val",
+        "happening": "The candidate's value ({values[nxt]}) equals val ({val}) — mark it for deletion.",
+        "why": "Every node holding val must be removed.",
+        "invariant": "current.next will be bypassed."
+      },
+      {
+        "happening": "The candidate's value ({values[nxt]}) is not val ({val}) — it stays.",
+        "why": "Only nodes whose value equals val are removed.",
+        "invariant": "current will advance past this node."
+      }
+    ],
+    "11": {
+      "happening": "Bypass: current's arrow now skips the candidate and points to whatever followed it.",
+      "why": "Never following the matched node makes it unreachable — that is the deletion.",
+      "invariant": "The live list is one node shorter."
     },
-    "28": {
-      "happening": "Bypass: current.next now skips the matched node and points directly to the node after it.",
-      "why": "This is the heart of the deletion — by never following the deleted node, it is unreachable from dummy onward and effectively removed.",
-      "invariant": "The deleted node is now orphaned and will be removed from the visual."
+    "12": {
+      "happening": "Detach the removed node's own arrow (set it to -1).",
+      "why": "It should dangle off the live list, not point back into it.",
+      "invariant": "The removed node links to nothing."
     },
-    "29": {
-      "happening": "Remove the deleted node's arrows from the links array.",
-      "why": "Any arrow pointing into or out of the deleted node must disappear from the visual.",
-      "invariant": "links no longer contains any arrow connected to skip_id."
+    "13": {
+      "happening": "Flag the candidate as removed — the renderer paints it red.",
+      "why": "Removed nodes stay on screen (red) so you can see exactly what was skipped.",
+      "invariant": "removed[nxt] == 1."
     },
-    "30": {
-      "happening": "Remove the deleted node itself from the nodes array.",
-      "why": "The node should vanish from the visual — no box, no label.",
-      "invariant": "nodes no longer contains the deleted node."
+    "14": {
+      "happening": "Record current's rerouted arrow so it flashes this step.",
+      "why": "The bypass is the key moment; the flash draws the eye to the new link.",
+      "invariant": "changed_links names the newly-created arrow."
     },
-    "31": {
-      "happening": "Record a new arrow from current to after_id in changed_links.",
-      "why": "The renderer will highlight this new arrow to show the list has been relinked.",
-      "invariant": "changed_links contains exactly the new arrow."
+    "16": {
+      "happening": "Keep the candidate: advance current onto it.",
+      "why": "This node survives, so move forward to test the next one.",
+      "invariant": "current moved one node to the right."
     },
-    "32": {
-      "happening": "Store the relinked arrow in changed_links (empty list if after_id is None — deleted node was the tail).",
-      "why": "The renderer reads changed_links each step to flash newly-created arrows in a highlight color.",
-      "invariant": "changed_links is either a single-entry list with the new arrow, or empty."
+    "17": {
+      "happening": "No arrow changed this step, so clear the flash.",
+      "why": "Nothing was rerouted; don't flash a stale arrow.",
+      "invariant": "changed_links is empty."
     },
-    "33": {
-      "happening": "current.next.val ≠ val — advance current to current.next.",
-      "why": "This node stays; we move current forward to inspect the next one.",
-      "invariant": "current has moved one step closer to the end."
+    "18": {
+      "happening": "Start collecting the surviving values into result.",
+      "why": "The answer is the values still reachable from the dummy.",
+      "invariant": "result begins empty."
     },
-    "34": {
-      "happening": "curr_id is updated to reflect current's new position.",
-      "why": "Keep the visual pointer in sync with the actual current pointer.",
-      "invariant": "curr_id == visual id of current."
+    "19": {
+      "happening": "walk starts at links[0] — the node right after the dummy, i.e. the new head.",
+      "why": "The dummy's next is where the cleaned list really begins.",
+      "invariant": "walk is the new head (or -1 if every node was removed)."
     },
-    "35": {
-      "happening": "Clear changed_links — no arrow was rewritten this step.",
-      "why": "We didn't delete anything, so no new arrows need highlighting.",
-      "invariant": "changed_links is empty for this step."
+    "20": [
+      {
+        "when": "walk != -1",
+        "happening": "walk points at a surviving node — record it.",
+        "why": "Collect every remaining node in order.",
+        "invariant": "walk is a live node."
+      },
+      {
+        "happening": "walk is -1 — the end of the cleaned list.",
+        "why": "All survivors have been collected.",
+        "invariant": "result is complete."
+      }
+    ],
+    "21": {
+      "happening": "Append this surviving node's value ({values[walk]}) to result.",
+      "why": "It wasn't removed, so it belongs in the answer.",
+      "invariant": "result grows by one value."
     },
-    "36": {
-      "happening": "Reset changed_links to empty — no link was rewritten because we advanced without deleting.",
-      "why": "The renderer highlights rewritten arrows; since no node was removed, there are no new arrows to flash.",
-      "invariant": "changed_links is empty for this step."
+    "22": {
+      "happening": "Follow the arrow to the next surviving node.",
+      "why": "Continue walking the cleaned chain.",
+      "invariant": "walk advances one node."
     },
-    "37": {
-      "happening": "Start collecting surviving values into result_vals.",
-      "why": "The result must be the values of the remaining nodes in order.",
-      "invariant": "result_vals is empty; node starts at the new head."
-    },
-    "38": {
-      "happening": "node starts at dummy.next — the new head of the list.",
-      "why": "dummy.next is the first surviving node after all deletions.",
-      "invariant": "We are about to read the surviving nodes in order."
-    },
-    "39": {
-      "happening": "Append node.val ({result_vals}) to result_vals.",
-      "why": "Collect this surviving node's value.",
-      "invariant": "result_vals grows by one entry per surviving node."
-    },
-    "40": {
-      "happening": "Advance to the next surviving node.",
-      "why": "Continue walking until we reach the end (None).",
-      "invariant": "node advances one step through the remaining list."
-    },
-    "41": {
-      "happening": "Assign result_vals to result so the resultSpec can display it.",
-      "why": "The platform looks for a variable named 'result' to show in the result chip.",
-      "invariant": "result holds the complete ordered list of surviving values."
-    },
-    "42": {
-      "happening": "Assign result_vals to result so the platform can locate the final answer.",
-      "why": "The resultSpec looks for a variable named 'result'; renaming here ensures it is found.",
-      "invariant": "result holds the complete ordered list of surviving values."
-    },
-    "43": {
-      "happening": "Return result — the ordered list of node values that survived.",
-      "why": "The problem asks for the new head; we return the values of the remaining list in order.",
-      "invariant": "Every node with value == val has been removed."
+    "23": {
+      "happening": "Return result ({result}) — the list with every val-node removed.",
+      "why": "This is the new head onward, the answer the problem asks for.",
+      "invariant": "No surviving node equals val."
     }
   },
   "byPhase": {
     "init": {
-      "happening": "Building the linked list and initialising the dummy sentinel.",
-      "why": "We convert the input array to real nodes, wire them up, and place a dummy node before the head so every deletion is handled uniformly.",
-      "invariant": "dummy → head → … → None; current is at dummy."
+      "happening": "Prepending the dummy sentinel and wiring the initial arrows.",
+      "why": "The dummy lets head-deletion reuse the same pointer logic as any other node.",
+      "invariant": "dummy(0) -> head -> ... -> -1; current sits on the dummy."
     },
     "loop": {
-      "happening": "Checking whether current.next is non-null.",
-      "why": "We continue as long as there is a next node to evaluate.",
-      "invariant": "current.next is the candidate node for this iteration."
+      "happening": "Checking whether current has another node ahead.",
+      "why": "We scan until current.next is null.",
+      "invariant": "When entered, current.next is a real node."
     },
     "check": {
-      "happening": "Comparing current.next.val to val.",
-      "why": "Only nodes matching val should be removed.",
-      "invariant": "current.next either matches and will be skipped, or doesn't match and will be kept."
+      "happening": "Comparing the candidate node's value to val.",
+      "why": "Only nodes whose value equals val are deleted.",
+      "invariant": "The candidate is about to be bypassed or kept."
     },
     "update": {
-      "happening": "Bypassing the matched node and updating the visual.",
-      "why": "Removing the node by relinking current.next past it.",
-      "invariant": "The deleted node is gone from the visual; the list is one node shorter."
+      "happening": "Rewiring arrows and marking removed nodes.",
+      "why": "Deletion is done by pointer-skipping, not by shifting data.",
+      "invariant": "The live chain reflects every deletion so far."
     },
     "move": {
-      "happening": "Advancing current one step to the right.",
-      "why": "The current node survived; we move on to check the next candidate.",
-      "invariant": "current has advanced; current.next is the new candidate."
+      "happening": "Advancing a pointer along the list.",
+      "why": "Move forward once a node is kept, then walk the final surviving chain.",
+      "invariant": "The pointer steps one node to the right."
     },
     "return": {
-      "happening": "Returning the list of surviving values.",
-      "why": "All val-matching nodes have been removed; the remaining values are the answer.",
-      "invariant": "result contains exactly the node values that did not equal val, in original order."
+      "happening": "Returning the cleaned list of values.",
+      "why": "Every val-valued node has been bypassed.",
+      "invariant": "result holds only surviving values, in original order."
     }
   }
 }
