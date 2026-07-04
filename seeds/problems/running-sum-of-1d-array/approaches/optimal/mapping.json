@@ -1,0 +1,75 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "compared",
+      "when": "idx == i - 1 && phase == 'update'"
+    },
+    {
+      "state": "result",
+      "when": "idx < i"
+    },
+    {
+      "state": "result",
+      "when": "idx == 0"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "nums[{i}] = {nums[i]} + {nums[i-1]} = {nums[i] + nums[i-1]}"
+  },
+  "counters": [
+    {
+      "name": "additions",
+      "onLines": [
+        4
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "loop",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        5
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 5,
+      "label": "Running sum complete",
+      "kind": "return"
+    }
+  ]
+}

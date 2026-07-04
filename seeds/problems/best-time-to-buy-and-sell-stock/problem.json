@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "best-time-to-buy-and-sell-stock",
+  "number": 121,
+  "title": "Best Time to Buy and Sell Stock",
+  "difficulty": "easy",
+  "topics": [
+    "array",
+    "dynamic-programming"
+  ],
+  "patterns": [
+    "greedy"
+  ],
+  "statement": "You are given an array prices where prices[i] is the price of a given stock on the ith day.\n\nYou want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.\n\nReturn the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.\n\nExample 1:\nInput: prices = [7,1,5,3,6,4]\nOutput: 5\nExplanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5. Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.\n\nExample 2:\nInput: prices = [7,6,4,3,1]\nOutput: 0\nExplanation: In this case, no transactions are done and the max profit = 0.\n\nConstraints:\n1 <= prices.length <= 10^5\n0 <= prices[i] <= 10^4",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "prices",
+        "type": "int[]",
+        "label": "prices",
+        "placeholder": "[7,1,5,3,6,4]",
+        "min": 0,
+        "max": 10000,
+        "minLen": 1,
+        "maxLen": 100000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}
