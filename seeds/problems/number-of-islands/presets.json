@@ -1,0 +1,136 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "grid": [
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 1
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "grid": [
+        [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-all-water",
+    "label": "All Water",
+    "value": {
+      "grid": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  },
+  {
+    "id": "edge-diagonal",
+    "label": "Diagonal Land",
+    "value": {
+      "grid": [
+        [
+          "1",
+          "0",
+          "1"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "0",
+          "1"
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 5
+  },
+  {
+    "id": "edge-single-cell",
+    "label": "Single Cell",
+    "value": {
+      "grid": [
+        [
+          "1"
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  }
+]
