@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Knacktor Mark</title>
+  <defs>
+    
+    <mask id="mark-hole">
+      <rect width="160" height="160" fill="white"></rect>
+      <circle cx="48" cy="80" r="11" fill="black"></circle>
+    </mask>
+  </defs>
+  
+  <line x1="48" y1="24" x2="48" y2="136" stroke="#D8D2C4" stroke-width="4" stroke-linecap="round"></line>
+  <line x1="48" y1="80" x2="136" y2="24" stroke="#D8D2C4" stroke-width="4" stroke-linecap="round"></line>
+  <line x1="48" y1="80" x2="136" y2="136" stroke="#D8D2C4" stroke-width="4" stroke-linecap="round"></line>
+  
+  <line x1="48" y1="80" x2="136" y2="24" stroke="#C2603F" stroke-width="4" stroke-linecap="round" stroke-dasharray="13 8" opacity="0.85"></line>
+  
+  <circle cx="48" cy="24" r="12" fill="#EDE8DF" stroke="#D8D2C4" stroke-width="2.5"></circle>
+  <circle cx="48" cy="136" r="12" fill="#EDE8DF" stroke="#D8D2C4" stroke-width="2.5"></circle>
+  <circle cx="136" cy="136" r="12" fill="#EDE8DF" stroke="#D8D2C4" stroke-width="2.5"></circle>
+  
+  <circle cx="136" cy="24" r="17" fill="#C28A1E"></circle>
+  
+  <circle cx="48" cy="80" r="24" fill="#C2603F" mask="url(#mark-hole)"></circle>
+</svg>

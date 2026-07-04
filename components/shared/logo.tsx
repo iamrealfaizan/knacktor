@@ -1,13 +1,26 @@
 import Link from "next/link";
-import { Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+/** The Knacktor brand mark (public/knacktor-mark.svg), sized by the caller. */
+function Mark({ className }: { className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- brand SVG served statically; next/image would need dangerouslyAllowSVG
+    <img
+      src="/knacktor-mark.svg"
+      alt="Knacktor"
+      width={28}
+      height={28}
+      className={cn("shrink-0", className)}
+    />
+  );
+}
 
 /**
  * The one Knacktor logo lockup. Variants:
- * - "nav":       compact icon + wordmark (global Nav)
- * - "marketing": large icon + large wordmark (landing header/footer)
- * - "dashboard": large icon + bold wordmark (logged-in home header)
- * - "tile":      icon in a filled square, no wordmark (problem top-bar)
+ * - "nav":       compact mark + wordmark (global Nav)
+ * - "marketing": large mark + large wordmark (landing header/footer)
+ * - "dashboard": large mark + bold wordmark (logged-in home header)
+ * - "tile":      mark only, no wordmark (problem top-bar)
  */
 export function Logo({
   variant = "nav",
@@ -22,13 +35,10 @@ export function Logo({
     return (
       <Link
         href={href}
-        title="Back to problems"
-        className={cn(
-          "w-7 h-7 rounded-md bg-kn-current grid place-items-center text-white shrink-0",
-          className
-        )}
+        title="Home"
+        className={cn("grid place-items-center shrink-0", className)}
       >
-        <Code2 className="h-4 w-4" />
+        <Mark className="w-7 h-7" />
       </Link>
     );
   }
@@ -36,10 +46,7 @@ export function Logo({
   const large = variant !== "nav";
   return (
     <Link href={href} className={cn("flex items-center gap-2.5 shrink-0", className)}>
-      <Code2
-        className={cn("text-kn-current", large ? "h-7 w-7" : "h-5 w-5")}
-        strokeWidth={2.5}
-      />
+      <Mark className={cn(large ? "h-7 w-7" : "h-5 w-5")} />
       <span
         className={cn(
           "tracking-tight text-kn-ink-0",
