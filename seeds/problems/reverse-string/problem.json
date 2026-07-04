@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "reverse-string",
+  "number": 344,
+  "title": "Reverse String",
+  "difficulty": "easy",
+  "topics": [
+    "string",
+    "two-pointers"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\nExample 1:\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 10^5\ns[i] is a printable ascii character.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "string",
+        "label": "Characters",
+        "placeholder": "hello",
+        "minLen": 1,
+        "maxLen": 100000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

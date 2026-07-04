@@ -1,0 +1,69 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start the best sum at the first element.",
+      "why": "Every non-empty array has this one-element subarray, so it's a valid starting answer.",
+      "invariant": "max_sum is the best subarray sum found so far."
+    },
+    "4": {
+      "happening": "Seed the best run ending here with the first element too.",
+      "why": "current_sum tracks the best subarray that ends at the current position.",
+      "invariant": "current_sum is the max sum of a subarray ending at i."
+    },
+    "5": {
+      "happening": "Move to the next element.",
+      "why": "Kadane folds in one element at a time.",
+      "invariant": "Elements before i are already accounted for in current_sum and max_sum."
+    },
+    "6": [
+      {
+        "when": "nums[i] > current_sum + nums[i]",
+        "happening": "The previous run ({current_sum}) is a drag — restart the subarray at {nums[i]}.",
+        "why": "When the running sum is negative, dropping it and starting fresh can only help.",
+        "invariant": "current_sum is now the best subarray ending at i."
+      },
+      {
+        "happening": "Extend the run: {current_sum} + {nums[i]} = {current_sum + nums[i]}.",
+        "why": "The running sum is still positive help, so keep the subarray going.",
+        "invariant": "current_sum is now the best subarray ending at i."
+      }
+    ],
+    "7": {
+      "happening": "Is this run ({current_sum}) the best we've seen? Update max_sum if so.",
+      "why": "The answer is the best run ending at any position.",
+      "invariant": "max_sum is the largest current_sum over all positions so far."
+    },
+    "8": {
+      "happening": "Return the largest subarray sum found ({max_sum}).",
+      "why": "One pass suffices — each element folds in in O(1).",
+      "invariant": "max_sum is the global maximum subarray sum."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Seeding both sums with the first element.",
+      "why": "We need a valid starting answer before scanning.",
+      "invariant": "max_sum and current_sum both equal nums[0]."
+    },
+    "loop": {
+      "happening": "Scanning the array one element at a time.",
+      "why": "Kadane extends the answer element by element.",
+      "invariant": "Everything left of the cursor is folded in."
+    },
+    "update": {
+      "happening": "Deciding to extend the current run or restart it here.",
+      "why": "Keeping a negative running sum would only hurt; restarting cuts the loss.",
+      "invariant": "current_sum is the best subarray ending at i."
+    },
+    "check": {
+      "happening": "Keeping the best run seen so far.",
+      "why": "The answer is the maximum run over all end positions.",
+      "invariant": "max_sum is the best subarray sum up to i."
+    },
+    "return": {
+      "happening": "Returning the maximum subarray sum.",
+      "why": "Achieved in a single O(n) pass with O(1) memory.",
+      "invariant": "max_sum is the global maximum subarray sum."
+    }
+  }
+}

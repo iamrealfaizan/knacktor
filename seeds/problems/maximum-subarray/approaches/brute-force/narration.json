@@ -1,0 +1,81 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the elements to bound the search.",
+      "why": "We'll consider every possible start and end.",
+      "invariant": "n is the array length."
+    },
+    "4": {
+      "happening": "Start the best sum at the first element.",
+      "why": "A one-element subarray is always valid, so all-negative arrays are handled correctly.",
+      "invariant": "max_sum is the best subarray sum so far."
+    },
+    "5": {
+      "happening": "Fix the subarray start at index i.",
+      "why": "We'll grow every subarray that begins here.",
+      "invariant": "i is the current start."
+    },
+    "6": {
+      "happening": "Reset the running sum for the new start.",
+      "why": "Each new start begins its own fresh subarray sum.",
+      "invariant": "current_sum is the sum of the window nums[i..j], empty so far."
+    },
+    "7": {
+      "happening": "Extend the subarray end to index j.",
+      "why": "Growing one element at a time lets the sum update in O(1).",
+      "invariant": "The window is nums[i..j]."
+    },
+    "8": {
+      "happening": "Add nums[{j}] ({nums[j]}) → the window sum becomes {current_sum + nums[j]}.",
+      "why": "Extending by one element just adds that element to the previous sum.",
+      "invariant": "current_sum is the sum of nums[i..j]."
+    },
+    "9": {
+      "happening": "Is this window's sum ({current_sum}) a new best?",
+      "why": "We track the largest sum across all subarrays.",
+      "invariant": "Testing sum[i..j] against the best."
+    },
+    "10": {
+      "happening": "New best — record sum[{i}..{j}] = {current_sum}.",
+      "why": "This subarray beats every one tried before it.",
+      "invariant": "max_sum is the largest subarray sum seen."
+    },
+    "11": {
+      "happening": "All subarrays checked — return the best sum ({max_sum}).",
+      "why": "Exhaustive and O(n²); Kadane reaches the same answer in O(n).",
+      "invariant": "max_sum is the global maximum subarray sum."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: element count and initial best.",
+      "why": "Before enumerating subarrays.",
+      "invariant": "max_sum = nums[0]."
+    },
+    "loop": {
+      "happening": "Choosing a subarray start.",
+      "why": "Every subarray begins at some start i.",
+      "invariant": "i is the current start."
+    },
+    "update": {
+      "happening": "Updating the running window sum or the best.",
+      "why": "The window sum grows as the end extends.",
+      "invariant": "current_sum = sum of nums[i..j]."
+    },
+    "move": {
+      "happening": "Extending the subarray end.",
+      "why": "Only later ends form new subarrays for this start.",
+      "invariant": "j runs from i to the end."
+    },
+    "check": {
+      "happening": "Comparing this window's sum to the best.",
+      "why": "We want the largest sum over all subarrays.",
+      "invariant": "Testing sum[i..j]."
+    },
+    "return": {
+      "happening": "Returning the maximum subarray sum.",
+      "why": "Exhaustive but O(n²).",
+      "invariant": "max_sum is the global maximum subarray sum."
+    }
+  }
+}

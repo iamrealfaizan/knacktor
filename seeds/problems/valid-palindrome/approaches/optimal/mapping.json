@@ -1,0 +1,109 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "error",
+      "when": "(idx == left || idx == right) && phase == 'done'"
+    },
+    {
+      "state": "compared",
+      "when": "(idx == left || idx == right) && phase == 'check'"
+    },
+    {
+      "state": "current",
+      "when": "idx == left || idx == right"
+    },
+    {
+      "state": "visited",
+      "when": "idx < left || idx > right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "compare s[{left}] ({s[left]}) vs s[{right}] ({s[right]})",
+    "relationColor": "compared"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        6,
+        7,
+        8,
+        9,
+        12,
+        13
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "done",
+      "lines": [
+        11
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        14
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 11,
+      "label": "Mismatch — not a palindrome",
+      "kind": "boundary"
+    },
+    {
+      "line": 14,
+      "label": "Palindrome",
+      "kind": "return"
+    }
+  ]
+}

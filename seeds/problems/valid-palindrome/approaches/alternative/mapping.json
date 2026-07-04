@@ -1,0 +1,124 @@
+{
+  "primitive": "array",
+  "valuesFrom": "filtered",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "error",
+      "when": "(idx == left || idx == right) && phase == 'done'"
+    },
+    {
+      "state": "compared",
+      "when": "(idx == left || idx == right) && phase == 'check'"
+    },
+    {
+      "state": "current",
+      "when": "idx == left || idx == right"
+    },
+    {
+      "state": "visited",
+      "when": "(idx < left || idx > right) && left != null"
+    },
+    {
+      "state": "special",
+      "when": "idx == len(filtered) - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check' && left != null",
+    "expr": "compare filtered[{left}] ({filtered[left]}) vs filtered[{right}] ({filtered[right]})",
+    "relationColor": "compared"
+  },
+  "counters": [
+    {
+      "name": "chars kept",
+      "onLines": [
+        6
+      ]
+    },
+    {
+      "name": "comparisons",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4,
+        9
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        5,
+        10
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        12,
+        13
+      ]
+    },
+    {
+      "phase": "done",
+      "lines": [
+        11
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        14
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 11,
+      "label": "Mismatch — not a palindrome",
+      "kind": "boundary"
+    },
+    {
+      "line": 14,
+      "label": "Palindrome",
+      "kind": "return"
+    }
+  ]
+}

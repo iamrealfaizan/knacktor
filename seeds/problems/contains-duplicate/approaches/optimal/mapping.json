@@ -1,0 +1,95 @@
+{
+  "primitive": "hashmap",
+  "keysFrom": "seen",
+  "valuesFrom": "seen",
+  "highlightKeyVar": "num",
+  "pointers": [],
+  "highlightRules": [
+    {
+      "state": "result",
+      "whenKey": "k == num && phase == 'done'"
+    },
+    {
+      "state": "compared",
+      "whenKey": "k == num && phase == 'check'"
+    },
+    {
+      "state": "current",
+      "whenKey": "k == num"
+    },
+    {
+      "state": "idle",
+      "whenKey": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "is {num} already seen?",
+    "relation": "{len(seen)} in set",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "lookups",
+      "onLines": [
+        5
+      ]
+    },
+    {
+      "name": "inserts",
+      "onLines": [
+        7
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "done",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 6,
+      "label": "Duplicate found",
+      "kind": "match"
+    },
+    {
+      "line": 8,
+      "label": "All distinct",
+      "kind": "return"
+    }
+  ]
+}

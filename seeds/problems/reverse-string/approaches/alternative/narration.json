@@ -1,0 +1,71 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Record the length of the input.",
+      "why": "It bounds both the reverse-copy loop and the write-back loop.",
+      "invariant": "n is the number of characters."
+    },
+    "4": {
+      "happening": "Create an empty second array `rev` for the reversed copy.",
+      "why": "This is the O(n) extra memory the in-place version avoids.",
+      "invariant": "rev will collect the characters in reverse order."
+    },
+    "5": {
+      "happening": "Walk the input from the last index toward the first.",
+      "why": "Reading end-to-start is what produces the reversed order.",
+      "invariant": "i descends from n-1 down to 0."
+    },
+    "6": {
+      "happening": "Append s[{i}] ({s[i]}) to rev.",
+      "why": "Taking characters back-to-front fills rev in reversed order.",
+      "invariant": "rev holds the input's tail, reversed, so far."
+    },
+    "7": {
+      "happening": "Now walk forward to copy rev back into the input.",
+      "why": "The input array itself must end up holding the reversed characters.",
+      "invariant": "i ascends from 0."
+    },
+    "8": {
+      "happening": "Overwrite s[{i}] with rev[{i}] ({rev[i]}).",
+      "why": "Copying rev back makes the input match the reversed copy.",
+      "invariant": "s[0..i] now equals the reversed string."
+    },
+    "9": {
+      "happening": "The input now matches rev — reversed. Return it.",
+      "why": "Correct, but it required a full extra array (O(n) space).",
+      "invariant": "s is reversed."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the length and an empty reversed-copy array.",
+      "why": "We build the answer in a second array first.",
+      "invariant": "rev is empty."
+    },
+    "loop": {
+      "happening": "Iterating over indices.",
+      "why": "Two passes: one to build rev, one to copy it back.",
+      "invariant": "i is the current index."
+    },
+    "update": {
+      "happening": "Appending a character to the reversed copy.",
+      "why": "Reading end-to-start builds the reverse.",
+      "invariant": "rev grows by one."
+    },
+    "move": {
+      "happening": "Switching to the write-back pass.",
+      "why": "The input must hold the reversed characters.",
+      "invariant": "i restarts at 0 for the copy-back."
+    },
+    "check": {
+      "happening": "Writing a reversed character back into the input.",
+      "why": "Copying rev over s reverses the input array.",
+      "invariant": "s becomes rev, position by position."
+    },
+    "return": {
+      "happening": "Returning the reversed array.",
+      "why": "Correct, but it used O(n) extra memory.",
+      "invariant": "s is reversed."
+    }
+  }
+}

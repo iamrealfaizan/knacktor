@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "valid-palindrome",
+  "number": 125,
+  "title": "Valid Palindrome",
+  "difficulty": "easy",
+  "topics": [
+    "string",
+    "two-pointers"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.\n\nGiven a string s, return true if it is a palindrome, or false otherwise.\n\nExample 1:\nInput: s = \"A man, a plan, a canal: Panama\"\nOutput: true\nExplanation: \"amanaplanacanalpanama\" is a palindrome.\n\nExample 2:\nInput: s = \"race a car\"\nOutput: false\nExplanation: \"raceacar\" is not a palindrome.\n\nExample 3:\nInput: s = \" \"\nOutput: true\nExplanation: s is an empty string \"\" after removing non-alphanumeric characters. Since an empty string reads the same forward and backward, it is a palindrome.\n\nConstraints:\n1 <= s.length <= 2 * 10^5\ns consists only of printable ASCII characters.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "string",
+        "label": "String",
+        "placeholder": "A man, a plan, a canal: Panama",
+        "minLen": 1,
+        "maxLen": 200000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

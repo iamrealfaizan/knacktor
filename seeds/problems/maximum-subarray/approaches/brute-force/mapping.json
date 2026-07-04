@@ -1,0 +1,103 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "window": {
+    "from": "i",
+    "to": "j"
+  },
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == j && (phase == 'move' || phase == 'check')"
+    },
+    {
+      "state": "special",
+      "when": "idx == i && phase != 'init' && phase != 'return'"
+    },
+    {
+      "state": "compared",
+      "when": "idx > i && idx < j && (phase == 'move' || phase == 'check')"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "sum[{i}..{j}] = {current_sum}",
+    "relation": "best {max_sum}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "subarray sums",
+      "onLines": [
+        8
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        8,
+        10
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        11
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 10,
+      "label": "New best sum",
+      "kind": "best"
+    },
+    {
+      "line": 11,
+      "label": "Maximum sum",
+      "kind": "return"
+    }
+  ]
+}

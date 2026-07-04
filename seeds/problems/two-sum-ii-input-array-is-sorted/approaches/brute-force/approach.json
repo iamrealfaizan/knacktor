@@ -1,0 +1,35 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force (every pair)",
+  "kind": "brute",
+  "summary": "Ignore the sorted order and try every pair of indices until one sums to the target. Simple, but O(n²) — it wastes the very property the optimal exploits.",
+  "visualizationIntent": "init: the array as cells. loop (L4): pointer i fixes the first index (special). move (L5): pointer j scans every later index (current). check (L6): readout numbers[i] + numbers[j] vs target. return (L7): when a pair sums to target, both cells glow result (the answer pair, 1-indexed).",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.twoSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j"
+  },
+  "lineExplanations": {
+    "3": "Record the number of elements to bound both loops.",
+    "4": "Fix the first index i of the pair.",
+    "5": "Pick a second index j that comes after i.",
+    "6": "Check whether this pair of values sums to the target.",
+    "7": "It does — return the pair as 1-based indices."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def twoSum(self, numbers, target): — numbers is sorted; target is the sum to reach.",
+    "3": "n = len(numbers) — the number of elements.",
+    "4": "for i in range(n): — outer loop fixes the first index.",
+    "5": "for j in range(i + 1, n): — inner loop picks a later second index.",
+    "6": "if numbers[i] + numbers[j] == target: — does this pair sum to the target?",
+    "7": "return [i + 1, j + 1] — return the pair as 1-based indices."
+  }
+}

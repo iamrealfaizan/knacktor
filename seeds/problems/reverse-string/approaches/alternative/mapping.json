@@ -1,0 +1,110 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "current",
+      "when": "idx == i && phase == 'check'"
+    },
+    {
+      "state": "compared",
+      "when": "idx == i && phase == 'update'"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "s[{i}] = rev[{i}] = {rev[i]}",
+    "relationColor": "current"
+  },
+  "counters": [
+    {
+      "name": "reads",
+      "onLines": [
+        6
+      ]
+    },
+    {
+      "name": "writes",
+      "onLines": [
+        8
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        9
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Reversed",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "rev (extra array)",
+      "primitive": "array",
+      "valuesFrom": "rev",
+      "cellStateRules": [
+        {
+          "state": "special",
+          "when": "idx == len(rev) - 1"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

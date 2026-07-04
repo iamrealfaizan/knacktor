@@ -1,0 +1,44 @@
+{
+  "id": "optimal",
+  "name": "Two Pointers (in-place)",
+  "kind": "optimal",
+  "summary": "Put one pointer at each end and swap the two characters, then step both pointers inward until they meet. Reverses in place with no extra array.",
+  "visualizationIntent": "init: characters shown as a row of cells; left pointer at index 0, right pointer at the last index. loop: while left < right. update (L6): the two end cells (current) swap their characters. move (L7-8): both pointers step inward; the just-swapped outer cells lock to result. return: left and right have crossed — the whole row is reversed (all result).",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.reverseString",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "s",
+    "label": "STRING",
+    "render": "list"
+  },
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi"
+  },
+  "lineExplanations": {
+    "3": "Place the left pointer at the first character.",
+    "4": "Place the right pointer at the last character.",
+    "5": "While the two pointers haven't met, there is still a pair to swap.",
+    "6": "Swap the characters at the two ends in a single step.",
+    "7": "Move the left pointer one step toward the middle.",
+    "8": "Move the right pointer one step toward the middle.",
+    "9": "The pointers met — return the array, now reversed in place."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def reverseString(self, s): — defines the method; s is the list of characters.",
+    "3": "left = 0 — index of the first character.",
+    "4": "right = len(s) - 1 — index of the last character.",
+    "5": "while left < right: — keep going until the two pointers meet in the middle.",
+    "6": "s[left], s[right] = s[right], s[left] — Python tuple swap: exchange the two characters at once.",
+    "7": "left += 1 — move the left pointer one step right.",
+    "8": "right -= 1 — move the right pointer one step left.",
+    "9": "return s — the same array, now reversed in place."
+  }
+}

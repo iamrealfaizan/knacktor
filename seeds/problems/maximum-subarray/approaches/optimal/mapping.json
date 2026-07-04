@@ -1,0 +1,83 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i && phase != 'return'"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "current = max(restart {nums[i]}, extend {current_sum}+{nums[i]}={current_sum + nums[i]}) = {max(nums[i], current_sum + nums[i])}",
+    "relation": "best {max_sum}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "elements",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "when": "current_sum > max_sum && phase == 'check'",
+      "label": "New best sum",
+      "kind": "best"
+    },
+    {
+      "line": 8,
+      "label": "Maximum sum",
+      "kind": "return"
+    }
+  ]
+}

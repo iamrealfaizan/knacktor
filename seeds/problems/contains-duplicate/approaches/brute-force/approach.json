@@ -1,0 +1,37 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force (every pair)",
+  "kind": "brute",
+  "summary": "Compare every pair of elements; if any two are equal, there is a duplicate. No extra memory, but O(n²) comparisons.",
+  "visualizationIntent": "init: the array of values is shown. loop: pointer i fixes an anchor element (special). move: pointer j sweeps every later element (current). check: compare nums[i] and nums[j]; a readout shows the two values. done: when nums[i] == nums[j], both cells glow result (green) — a duplicate pair is found, return true. return: if no pair ever matched, return false.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.containsDuplicate",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j"
+  },
+  "lineExplanations": {
+    "3": "Record the number of elements so both loops know where to stop.",
+    "4": "Fix an anchor element at index i.",
+    "5": "Pick a later element at index j to compare against the anchor.",
+    "6": "Check whether the anchor and this element are equal.",
+    "7": "They are equal — a duplicate pair exists, return true.",
+    "8": "No pair matched anywhere, so return false."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def containsDuplicate(self, nums): — defines the method receiving the integer array.",
+    "3": "n = len(nums) — the number of elements, used to bound both loops.",
+    "4": "for i in range(n): — outer loop picks the anchor index i.",
+    "5": "for j in range(i + 1, n): — inner loop picks a later index j (so each pair is tested once).",
+    "6": "if nums[i] == nums[j]: — are these two elements equal?",
+    "7": "return True — equal elements found, so a duplicate exists.",
+    "8": "return False — no equal pair anywhere, so all elements are distinct."
+  }
+}

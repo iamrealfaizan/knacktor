@@ -1,0 +1,96 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Place a pointer at the first character.",
+      "why": "It marks one end of the pair to compare.",
+      "invariant": "Everything outside [left, right] has already matched."
+    },
+    "4": {
+      "happening": "Place a pointer at the last character.",
+      "why": "It marks the other end.",
+      "invariant": "left and right bound the unchecked middle."
+    },
+    "5": {
+      "happening": "While the pointers haven't met, keep comparing.",
+      "why": "Once they cross, every symmetric pair has matched.",
+      "invariant": "left < right means characters remain to check."
+    },
+    "6": {
+      "happening": "Is the left character s[{left}] ({s[left]}) non-alphanumeric?",
+      "why": "Spaces, punctuation, and symbols are ignored in the comparison.",
+      "invariant": "Only letters and digits are ever compared."
+    },
+    "7": {
+      "happening": "Skip it — advance the left pointer.",
+      "why": "Non-alphanumeric characters don't count toward the palindrome.",
+      "invariant": "left moves toward the next letter or digit."
+    },
+    "8": {
+      "happening": "Is the right character s[{right}] ({s[right]}) non-alphanumeric?",
+      "why": "Same skipping rule applies to the right side.",
+      "invariant": "Only letters and digits are ever compared."
+    },
+    "9": {
+      "happening": "Skip it — retreat the right pointer.",
+      "why": "Non-alphanumeric characters don't count.",
+      "invariant": "right moves toward the next letter or digit."
+    },
+    "10": {
+      "happening": "Compare s[{left}] ({s[left]}) and s[{right}] ({s[right]}), ignoring case.",
+      "why": "A palindrome reads the same both ways, case-insensitively.",
+      "invariant": "Matching ends keep the palindrome possible."
+    },
+    "11": {
+      "happening": "The two ends differ — not a palindrome.",
+      "why": "A single mismatched pair is enough to fail.",
+      "invariant": "The answer is false."
+    },
+    "12": {
+      "happening": "They matched — move the left pointer inward.",
+      "why": "This pair is confirmed; check the next pair in.",
+      "invariant": "left advances past a matched character."
+    },
+    "13": {
+      "happening": "Move the right pointer inward.",
+      "why": "Close in on the middle from both sides.",
+      "invariant": "right retreats past a matched character."
+    },
+    "14": {
+      "happening": "The pointers met with no mismatch — it's a palindrome.",
+      "why": "Every symmetric pair matched, using no extra memory (O(1)).",
+      "invariant": "The string is a palindrome."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Placing a pointer at each end.",
+      "why": "We compare inward from both ends.",
+      "invariant": "left and right bound the unchecked middle."
+    },
+    "loop": {
+      "happening": "Comparing inward from both ends.",
+      "why": "The work finishes when the pointers cross.",
+      "invariant": "Characters outside [left, right] have matched."
+    },
+    "move": {
+      "happening": "Skipping non-alphanumerics and stepping inward.",
+      "why": "Only letters and digits are compared.",
+      "invariant": "The pointers move toward the middle."
+    },
+    "check": {
+      "happening": "Comparing the two end characters, ignoring case.",
+      "why": "A palindrome must read the same both ways.",
+      "invariant": "Matching ends keep it possible."
+    },
+    "done": {
+      "happening": "A mismatch — the string is not a palindrome.",
+      "why": "One bad pair fails it.",
+      "invariant": "The answer is false."
+    },
+    "return": {
+      "happening": "All pairs matched — it's a palindrome.",
+      "why": "Confirmed in one pass with O(1) memory.",
+      "invariant": "The string is a palindrome."
+    }
+  }
+}

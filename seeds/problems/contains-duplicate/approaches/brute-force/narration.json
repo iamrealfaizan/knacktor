@@ -1,0 +1,66 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the elements so both loops know their bounds.",
+      "why": "We'll pair each element with every later one.",
+      "invariant": "n is the array length."
+    },
+    "4": {
+      "happening": "Fix an anchor element at index i.",
+      "why": "We'll compare it against every element that comes after it.",
+      "invariant": "i is the current anchor."
+    },
+    "5": {
+      "happening": "Pick a later element at index j to compare.",
+      "why": "Only pairs with j after i are tested, so each pair is checked once.",
+      "invariant": "j runs from i+1 to the end."
+    },
+    "6": {
+      "happening": "Are nums[i] ({nums[i]}) and nums[j] ({nums[j]}) equal?",
+      "why": "Two equal values anywhere in the array means a duplicate.",
+      "invariant": "We're testing this one pair."
+    },
+    "7": {
+      "happening": "They match — a duplicate pair, return true.",
+      "why": "Two equal values exist in the array.",
+      "invariant": "The answer is true."
+    },
+    "8": {
+      "happening": "No pair ever matched — return false.",
+      "why": "Every element differs from all the others.",
+      "invariant": "All elements are distinct."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: the element count.",
+      "why": "Before pairing elements off.",
+      "invariant": "n = array length."
+    },
+    "loop": {
+      "happening": "Choosing an anchor element.",
+      "why": "Each anchor is compared to all later elements.",
+      "invariant": "i is the anchor."
+    },
+    "move": {
+      "happening": "Advancing the comparison element.",
+      "why": "Only later elements are valid partners.",
+      "invariant": "j is strictly after i."
+    },
+    "check": {
+      "happening": "Comparing the anchor with the current element.",
+      "why": "We're hunting for two equal values.",
+      "invariant": "Testing nums[i] against nums[j]."
+    },
+    "done": {
+      "happening": "Found a matching pair — returning true.",
+      "why": "Two equal values exist.",
+      "invariant": "The array is not all-distinct."
+    },
+    "return": {
+      "happening": "No match anywhere — returning false.",
+      "why": "All elements are distinct.",
+      "invariant": "The array has no duplicates."
+    }
+  }
+}

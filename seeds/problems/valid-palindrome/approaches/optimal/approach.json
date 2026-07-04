@@ -1,0 +1,49 @@
+{
+  "id": "optimal",
+  "name": "Two Pointers (in-place)",
+  "kind": "optimal",
+  "summary": "One pointer at each end. Skip past any non-alphanumeric character, then compare the two ends case-insensitively; step inward until they meet. No cleaned copy is built.",
+  "visualizationIntent": "init: the full string shown as character cells (including spaces and punctuation); left pointer at 0, right at the last index. loop: while left < right. skip (L6-9): when an end character isn't alphanumeric, that pointer advances past it. check (L10): compare the two end characters case-insensitively (compared). done (L11): a mismatch flashes both ends error and returns false. move (L12-13): on a match, both pointers step inward and the matched ends lock visited. return (L14): the pointers crossed with no mismatch — palindrome (all result).",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.isPalindrome",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi"
+  },
+  "lineExplanations": {
+    "3": "Start a pointer at the first character.",
+    "4": "Start a pointer at the last character.",
+    "5": "Keep going while the two pointers haven't met.",
+    "6": "If the left character isn't alphanumeric, get ready to skip it.",
+    "7": "Move the left pointer past the non-alphanumeric character.",
+    "8": "If the right character isn't alphanumeric, get ready to skip it.",
+    "9": "Move the right pointer past the non-alphanumeric character.",
+    "10": "Compare the two end characters, ignoring letter case.",
+    "11": "They differ — the string is not a palindrome.",
+    "12": "They matched — move the left pointer inward.",
+    "13": "Move the right pointer inward.",
+    "14": "The pointers met with every compared pair matching — it's a palindrome."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def isPalindrome(self, s): — s is the raw string, punctuation and all.",
+    "3": "left = 0 — pointer at the first character.",
+    "4": "right = len(s) - 1 — pointer at the last character.",
+    "5": "while left < right: — keep comparing until the pointers meet.",
+    "6": "while left < right and not s[left].isalnum(): — skip a left character that isn't a letter or digit.",
+    "7": "left += 1 — advance left past the skipped character.",
+    "8": "while left < right and not s[right].isalnum(): — skip a right character that isn't a letter or digit.",
+    "9": "right -= 1 — advance right past the skipped character.",
+    "10": "if s[left].lower() != s[right].lower(): — compare the two ends, ignoring case.",
+    "11": "return False — the ends differ, so it's not a palindrome.",
+    "12": "left += 1 — the ends matched; move left inward.",
+    "13": "right -= 1 — move right inward.",
+    "14": "return True — the pointers met with every pair matching — it's a palindrome."
+  }
+}

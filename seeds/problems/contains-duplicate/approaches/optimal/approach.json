@@ -1,0 +1,36 @@
+{
+  "id": "optimal",
+  "name": "Hash Set (one pass)",
+  "kind": "optimal",
+  "summary": "Scan once, keeping a hash table of values already seen (a set); the moment a value is already present, a duplicate exists. O(1) average membership check per element.",
+  "visualizationIntent": "init: an empty hash set is shown. loop: we take the next value num from the array. check: num flies to the set as the lookup key — if an entry with that value already exists it flashes (compared), meaning we've seen it before. update: a brand-new value is inserted into the set (pop-in). done: on a hit, the matching entry glows result (green) — a duplicate is found and we return true. return: if the scan finishes with no hit, every value was distinct and we return false.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.containsDuplicate",
+  "primaryPrimitive": "hashmap",
+  "auxStructures": [],
+  "varColors": {
+    "num": "current"
+  },
+  "lineExplanations": {
+    "3": "Create an empty hash table used as a set of values seen so far.",
+    "4": "Take the next value from the array to test.",
+    "5": "Check in O(1) whether this value is already in the set.",
+    "6": "It is — a repeat exists, so return true immediately.",
+    "7": "It's new — record it in the set and keep scanning.",
+    "8": "The whole array was scanned with no repeat, so return false."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def containsDuplicate(self, nums): — defines the method; nums is the integer array.",
+    "3": "seen = {} — an empty dict used as a set of values seen so far.",
+    "4": "for num in nums: — iterate over each value in the array in order.",
+    "5": "if num in seen: — O(1) average membership check: is this value already recorded?",
+    "6": "return True — a repeat exists, so report a duplicate immediately.",
+    "7": "seen[num] = True — record this value as seen (True is just a presence marker).",
+    "8": "return False — the loop finished with no repeat, so all values are distinct."
+  }
+}
