@@ -69,6 +69,12 @@ The author brings the filled bundle (or combined JSON). The reviewer:
 9. **Both approaches are faithful** (brute and optimal), each on its own terms.
 10. **An edge case still reads correctly** (empty/single/no-solution doesn't produce a confusing or
     empty-looking stage).
+11. **Presets cover the scenario space (Rules.md §6.1).** The preset set is not just simple/generic
+    inputs — it makes the learner *watch* the meaningful scenarios: the canonical case, the boundary
+    cases, and every branch that changes the visual narrative (found vs. not-found, match vs. no-match,
+    duplicates, sorted vs. reverse-sorted, collision vs. clean, cycle vs. none, the `error`/`rejected`
+    path, deepest recursion). Each preset shows something the others don't. A structurally-valid trace
+    with pedagogically-thin presets **fails this gate**.
 
 ## Verdicts
 

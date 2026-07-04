@@ -1,0 +1,47 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force (every pair)",
+  "kind": "brute",
+  "summary": "Try every buy day i paired with every later sell day j, compute the profit, and keep the largest — the O(n²) baseline the one-pass approach improves on.",
+  "visualizationIntent": "init: prices shown as a row of day-cells; max_profit starts at 0. loop: pointer i fixes the buy day (special). move: pointer j sweeps every later sell day (current). check: profit = prices[j] - prices[i]; a readout shows this trial profit against the best. update: whenever the trial profit beats max_profit, the best jumps (key event). return: the result panel holds the max profit found across all pairs.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.maxProfit",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "max_profit",
+    "label": "MAX PROFIT",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "max_profit": "result"
+  },
+  "lineExplanations": {
+    "3": "Start the best profit at 0 — if no pair is profitable, the answer stays 0.",
+    "4": "Record the number of days so both loops know where to stop.",
+    "5": "Outer loop: fix a day i to buy on.",
+    "6": "Inner loop: try selling on each later day j (must be after the buy day).",
+    "7": "Compute the profit of buying on day i and selling on day j.",
+    "8": "Check whether this pair's profit beats the best found so far.",
+    "9": "It does — record this pair's profit as the new best.",
+    "10": "Every pair has been tried — return the largest profit found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def maxProfit(self, prices): — defines the method receiving the list of daily prices.",
+    "3": "max_profit = 0 — best profit so far; 0 means no profitable trade.",
+    "4": "n = len(prices) — the number of days, used to bound both loops.",
+    "5": "for i in range(n): — outer loop picks the buy day i.",
+    "6": "for j in range(i + 1, n): — inner loop picks a sell day j strictly after i.",
+    "7": "profit = prices[j] - prices[i] — profit of buying on day i, selling on day j.",
+    "8": "if profit > max_profit: — is this pair better than the best so far?",
+    "9": "max_profit = profit — record the new best profit.",
+    "10": "return max_profit — the maximum profit over all pairs."
+  }
+}

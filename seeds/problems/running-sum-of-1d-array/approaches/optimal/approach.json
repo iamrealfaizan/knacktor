@@ -1,0 +1,35 @@
+{
+  "id": "optimal",
+  "name": "Prefix Sum (in-place)",
+  "kind": "optimal",
+  "summary": "Sweep left to right, adding each element to the one before it so every slot becomes the running total up to that index — one pass, no extra array.",
+  "visualizationIntent": "init: nums shown as a row of cells; index 0 is already its own running sum (result), the rest idle; pointer i starts at 1. loop (L3): pointer i sits at the current index; cell i-1 flashes compared (the running total being read) and cell i is current (the slot being updated). update (L4): nums[i] += nums[i-1] writes the new running total into cell i — it flashes/pops with the summed value (visible on the next step), then locks to result. return (L5): every cell is now a running sum (all result); pointer parks at the end.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.runningSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "nums",
+    "label": "RUNNING SUM",
+    "render": "list"
+  },
+  "varColors": {
+    "i": "ptr-i"
+  },
+  "lineExplanations": {
+    "3": "Walk the index from 1 to the end — each pass converts the current slot into a running total. Index 0 is skipped because it is already the sum of everything up to itself.",
+    "4": "Add the running total sitting just to the left (nums[i-1]) into the current slot, so nums[i] now holds the sum of every element from the start up to i.",
+    "5": "The array has been rewritten in place — every slot is now a running sum — so hand it back."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def runningSum(self, nums): — defines the method; nums is the input list of integers.",
+    "3": "for i in range(1, len(nums)): — loops i over 1, 2, …, len(nums)-1. Starting at 1 deliberately skips index 0.",
+    "4": "nums[i] += nums[i - 1] — shorthand for nums[i] = nums[i] + nums[i - 1]; it updates the current slot in place.",
+    "5": "return nums — hands back the same list object, now filled with the running sums."
+  }
+}

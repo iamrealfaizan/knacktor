@@ -1,0 +1,81 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Remember the first day's price as the cheapest buy price seen so far.",
+      "why": "We need a baseline buy price before any profit can be measured.",
+      "invariant": "min_price is the lowest price among the days seen so far."
+    },
+    "4": {
+      "happening": "Start the best profit at 0 — no trade beats doing nothing.",
+      "why": "If prices only fall, the answer must stay 0 (we simply don't trade).",
+      "invariant": "max_profit is the best profit achievable up to now."
+    },
+    "5": {
+      "happening": "Advance to the next day to consider selling on.",
+      "why": "Every day is a potential sell day; we scan them left to right.",
+      "invariant": "All days before i have already been considered."
+    },
+    "6": {
+      "happening": "Look at today's price so we can test selling now.",
+      "why": "Selling today only pays off against the cheapest earlier day.",
+      "invariant": "i marks today; price will hold prices[i]."
+    },
+    "7": {
+      "happening": "Is today's price ({price}) below the cheapest seen ({min_price})?",
+      "why": "A new low means a cheaper day we could have bought on.",
+      "invariant": "If yes, today becomes the new buy candidate."
+    },
+    "8": {
+      "happening": "Today is cheaper — record it as the new lowest buy price.",
+      "why": "Buying at the lowest possible price maximizes every later profit.",
+      "invariant": "min_price now equals today's price."
+    },
+    "9": {
+      "happening": "Profit of buying at the cheapest ({min_price}) and selling today ({price}) is {price - min_price}.",
+      "why": "This is the best profit any sell-today plan can produce.",
+      "invariant": "profit is today's best achievable gain."
+    },
+    "10": {
+      "happening": "Is today's profit ({price - min_price}) better than our best ({max_profit})?",
+      "why": "We keep only the single most profitable transaction.",
+      "invariant": "If yes, the answer updates."
+    },
+    "11": {
+      "happening": "New record — lock in this profit as the best so far.",
+      "why": "It beats every earlier transaction we tried.",
+      "invariant": "max_profit is the largest profit found up to today."
+    },
+    "12": {
+      "happening": "All days scanned — return the best profit ({max_profit}).",
+      "why": "One pass sufficed because we only ever needed the cheapest earlier price.",
+      "invariant": "max_profit is the global best; 0 if no profitable trade existed."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting the baseline: cheapest price and zero profit.",
+      "why": "We need a buy price and a starting best before scanning.",
+      "invariant": "min_price and max_profit are initialized."
+    },
+    "loop": {
+      "happening": "Scanning the days one at a time as sell candidates.",
+      "why": "Each day is a chance to sell against the cheapest earlier day.",
+      "invariant": "Days left of the cursor are done."
+    },
+    "check": {
+      "happening": "Checking whether today is a cheaper day to have bought.",
+      "why": "A lower buy price raises every future profit.",
+      "invariant": "min_price stays the lowest price seen."
+    },
+    "update": {
+      "happening": "Measuring today's profit and keeping it if it's a new best.",
+      "why": "Only the single best transaction matters.",
+      "invariant": "max_profit tracks the best profit so far."
+    },
+    "return": {
+      "happening": "Returning the maximum profit.",
+      "why": "Achieved in one pass with O(1) memory.",
+      "invariant": "max_profit is the answer (0 if no profit was possible)."
+    }
+  }
+}

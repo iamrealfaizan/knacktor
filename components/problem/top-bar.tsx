@@ -60,7 +60,7 @@ export function TopBar({
 
   return (
     <header className="flex-none h-14 flex items-center gap-3 px-4 border-b border-kn-border-0 bg-kn-surface-0">
-      <Logo variant="tile" href="/problems" />
+      <Logo variant="tile" href="/home" />
 
       <span className="font-semibold text-base text-kn-ink-0">{problem.title}</span>
 

@@ -1,0 +1,76 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start the best profit at 0.",
+      "why": "If no pair is profitable, the answer is 0 (we don't trade).",
+      "invariant": "max_profit holds the best profit found so far."
+    },
+    "4": {
+      "happening": "Record how many days there are.",
+      "why": "Both loops need the day count to know where to stop.",
+      "invariant": "n is the number of days."
+    },
+    "5": {
+      "happening": "Fix a buy day i.",
+      "why": "We will try selling on every day that comes after it.",
+      "invariant": "i is the buy day for this round of trials."
+    },
+    "6": {
+      "happening": "Pick a later day j to sell on.",
+      "why": "Selling must happen after buying, so j starts at i+1.",
+      "invariant": "j is a sell day strictly after i."
+    },
+    "7": {
+      "happening": "Buy at prices[i] ({prices[i]}), sell at prices[j] ({prices[j]}) → profit {prices[j] - prices[i]}.",
+      "why": "This is the gain of this one specific buy/sell pair.",
+      "invariant": "profit is this pair's result."
+    },
+    "8": {
+      "happening": "Is this pair's profit ({prices[j] - prices[i]}) better than the best ({max_profit})?",
+      "why": "We keep only the largest profit across all pairs.",
+      "invariant": "If yes, the answer updates."
+    },
+    "9": {
+      "happening": "New record — this pair is the best transaction so far.",
+      "why": "It beats every pair tried before it.",
+      "invariant": "max_profit is the largest profit among pairs tried."
+    },
+    "10": {
+      "happening": "Every pair checked — return the best profit ({max_profit}).",
+      "why": "The exhaustive search guarantees the true maximum, but at O(n²) cost.",
+      "invariant": "max_profit is the global best."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Preparing: zero profit and the day count.",
+      "why": "We set up before pairing days off.",
+      "invariant": "max_profit = 0; n = number of days."
+    },
+    "loop": {
+      "happening": "Choosing a buy day to hold fixed.",
+      "why": "Each buy day is paired with all later sell days.",
+      "invariant": "i is the current buy day."
+    },
+    "move": {
+      "happening": "Sweeping the sell day forward.",
+      "why": "Only days after the buy day are valid sells.",
+      "invariant": "j runs from i+1 to the end."
+    },
+    "check": {
+      "happening": "Comparing this pair's profit to the best.",
+      "why": "We want the single most profitable pair.",
+      "invariant": "profit = prices[j] - prices[i]."
+    },
+    "update": {
+      "happening": "Recording a new best profit.",
+      "why": "This pair beats every earlier one.",
+      "invariant": "max_profit tracks the best pair."
+    },
+    "return": {
+      "happening": "Returning the maximum profit found.",
+      "why": "Exhaustive and correct, but O(n²).",
+      "invariant": "max_profit is the answer."
+    }
+  }
+}

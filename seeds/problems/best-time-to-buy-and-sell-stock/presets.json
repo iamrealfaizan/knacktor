@@ -1,0 +1,70 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "prices": [
+        7,
+        1,
+        5,
+        3,
+        6,
+        4
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 5
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "prices": [
+        7,
+        6,
+        4,
+        3,
+        1
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 0
+  },
+  {
+    "id": "edge-single",
+    "label": "Single day",
+    "value": {
+      "prices": [
+        5
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  },
+  {
+    "id": "edge-all-equal",
+    "label": "Flat prices",
+    "value": {
+      "prices": [
+        3,
+        3,
+        3
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  },
+  {
+    "id": "edge-min-at-end",
+    "label": "Min arrives late",
+    "value": {
+      "prices": [
+        2,
+        4,
+        1
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2
+  }
+]

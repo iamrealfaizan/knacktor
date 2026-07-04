@@ -1,0 +1,91 @@
+{
+  "primitive": "array",
+  "valuesFrom": "prices",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i && phase != 'return'"
+    },
+    {
+      "state": "special",
+      "when": "values[idx] == min_price && idx <= i"
+    },
+    {
+      "state": "visited",
+      "when": "idx <= i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "sell {price} - buy {min_price} = {price - min_price}",
+    "relation": "best {max_profit}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "days scanned",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        12
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 11,
+      "label": "New best profit",
+      "kind": "best"
+    },
+    {
+      "line": 12,
+      "label": "Max profit",
+      "kind": "return"
+    }
+  ]
+}

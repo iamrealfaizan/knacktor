@@ -1,0 +1,51 @@
+{
+  "id": "optimal",
+  "name": "One-Pass (track min price)",
+  "kind": "optimal",
+  "summary": "Walk the days once, remembering the cheapest price seen so far; at each day check the profit of selling today against that minimum, and keep the best.",
+  "visualizationIntent": "init: prices shown as a row of day-cells; min_price starts as prices[0]. loop: pointer i advances to today (current cell) and we read prices[i]. check: compare today's price to the cheapest-so-far — if lower, today becomes the new cheapest buy day (special). update: compute profit = today - cheapest and, if it beats the best, max_profit jumps (key event). The cheapest-so-far cell to the left stays special (the buy point); a readout shows 'sell - buy = profit · best'. return: the overall cheapest day stays special and the result panel holds the max profit.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.maxProfit",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "max_profit",
+    "label": "MAX PROFIT",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "min_price": "special",
+    "max_profit": "result"
+  },
+  "lineExplanations": {
+    "3": "Remember the first day's price as the cheapest buy price seen so far.",
+    "4": "Start the best profit at 0 — if prices only fall, doing nothing (profit 0) is the answer.",
+    "5": "Scan every day in order; each is a potential day to sell on.",
+    "6": "Read today's price into a variable so the profit check reads clearly.",
+    "7": "Check whether today's price is lower than the cheapest price seen so far.",
+    "8": "It is — record today as the new cheapest possible buy price.",
+    "9": "Compute the profit of buying at the cheapest price so far and selling today.",
+    "10": "Check whether selling today would beat the best profit found so far.",
+    "11": "It does — lock in this profit as the new best.",
+    "12": "Return the largest profit found across the single pass (0 if none was possible)."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def maxProfit(self, prices): — defines the method; prices is the list of daily stock prices.",
+    "3": "min_price = prices[0] — initialise the cheapest-seen price to the first day's price.",
+    "4": "max_profit = 0 — the best profit so far; 0 represents making no trade.",
+    "5": "for i in range(len(prices)): — loop i over every day index 0 .. n-1.",
+    "6": "price = prices[i] — grab today's price into a local for readability.",
+    "7": "if price < min_price: — is today cheaper than every earlier day?",
+    "8": "min_price = price — update the cheapest buy price to today's.",
+    "9": "profit = price - min_price — profit of selling today after buying at the cheapest.",
+    "10": "if profit > max_profit: — did selling today beat our best profit?",
+    "11": "max_profit = profit — record the new best profit.",
+    "12": "return max_profit — hand back the largest profit (0 if none)."
+  }
+}

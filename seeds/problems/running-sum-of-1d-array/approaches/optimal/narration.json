@@ -1,0 +1,36 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Move the cursor to the next slot we will turn into a running total.",
+      "why": "We sweep left to right so each slot can reuse the total already built to its left.",
+      "invariant": "Every slot before the cursor already holds a running sum; index 0 was correct from the start."
+    },
+    "4": {
+      "happening": "Add the running total on the left ({nums[i-1]}) into this slot ({nums[i]} → {nums[i] + nums[i-1]}).",
+      "why": "nums[i-1] already sums everything up to i-1, so one addition extends the total to include nums[i].",
+      "invariant": "After this line, nums[i] holds the sum of nums[0..i]."
+    },
+    "5": {
+      "happening": "Every slot has been rewritten into a running sum — return the finished array.",
+      "why": "The array was transformed in place, so no second array was ever allocated (O(1) extra space).",
+      "invariant": "nums[k] equals sum(nums[0..k]) for every index k."
+    }
+  },
+  "byPhase": {
+    "loop": {
+      "happening": "Sweeping across the array one slot at a time.",
+      "why": "Each new slot builds directly on the total already computed to its left.",
+      "invariant": "Slots left of the cursor are finished running sums."
+    },
+    "update": {
+      "happening": "Folding the previous running total into the current slot.",
+      "why": "A single addition turns nums[i] into the sum of everything up to i.",
+      "invariant": "The cursor's slot becomes a running sum this step."
+    },
+    "return": {
+      "happening": "The whole array now reads as a running sum.",
+      "why": "Computed in one pass, in place — O(n) time, O(1) extra space.",
+      "invariant": "nums[k] = sum(nums[0..k]) for all k."
+    }
+  }
+}

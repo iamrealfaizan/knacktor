@@ -58,6 +58,13 @@
 - Multiple approaches are strongly preferred but not mandatory.
 - Compare mode is **hidden** for problems without meaningful comparison.
 
+## 6.1 Preset test cases — pedagogical scenario coverage (hard requirement, ALL problems, no exceptions)
+- **Preset inputs are teaching artifacts, not just correctness checks.** They are the cases a learner actually watches animate, so every problem's preset set MUST be curated to teach the algorithm — never a bag of generic, simple, or near-duplicate inputs.
+- **Each preset must reveal a distinct behavior the learner cannot see in the others.** Before a preset earns its place, answer: *"what does the learner see here that no other preset shows?"* If the answer is "nothing", the preset is replaced — two inputs that trace the same visual story count as one.
+- **The set must span the problem's meaningful scenario space**, not just the happy path. As applicable to the specific problem, include: the canonical/typical case; the instructive **boundary/edge** cases (empty, single element, minimum size, maximum-in-scope size); and every case that **changes the visual narrative** — e.g. target found early vs. not found at all, match vs. no match, duplicates / all-equal, already-sorted vs. reverse-sorted, negative/zero values, hashmap collision vs. clean insert, cycle vs. no cycle, deepest-recursion / full-backtrack, the branch that triggers the `error`/`rejected` state. A learner stepping through the full preset set should come away having seen the algorithm succeed, hit its edges, and fail/short-circuit where it can.
+- **Forbidden:** a preset set that only exercises trivial "generic simple" inputs, or that never shows an edge/failure/alternate-branch scenario. This is distinct from — and stronger than — the mechanical No-Line-Left-Behind coverage gate (§4.1 Gate 1): line coverage proves *code ran*; this rule requires the *scenarios a learner needs to build intuition* are all visible.
+- This is a **Gate 2 fidelity concern** — a problem with structurally-valid but pedagogically-thin presets does not pass fidelity review. See [Authoring.md](Authoring.md) §3 for the operational spec and naming.
+
 ## 7. Engineering
 - `shadcn/ui` components for everything unless explicitly exempted.
 - `lucide-react` icons for everything unless explicitly exempted.

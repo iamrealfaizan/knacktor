@@ -65,6 +65,18 @@ Unknown topic/pattern/difficulty slugs are a **hard ingest failure** — seed th
 Shared across approaches (the tracer runs each approach against every preset). **≥3 presets,
 ≥1 edge case, each with `expectedOutput`.** Source them from LeetCode examples + edge cases.
 
+**Presets are teaching artifacts (Rules.md §6.1 — hard requirement, every problem).** They are the
+inputs the learner actually watches animate, so the set MUST cover the problem's meaningful scenario
+space — never just generic/simple inputs. As applicable to *this* problem, span: the canonical case;
+the instructive **boundary** cases (empty, single element, min/max in-scope size); and every case that
+**changes the visual narrative** — found-early vs. not-found, match vs. no-match, duplicates/all-equal,
+sorted vs. reverse-sorted, negative/zero values, hashmap collision vs. clean insert, cycle vs. no-cycle,
+deepest-recursion/full-backtrack, the branch that triggers an `error`/`rejected` state. Rule of thumb
+before adding a preset: *"what does the learner see here they can't see in the others?"* — if "nothing",
+replace it. Two inputs that trace the same visual story count as one. This is stronger than the
+No-Line-Left-Behind coverage gate: line coverage proves code ran; this requires the *scenarios a learner
+needs* are all visible, and it is checked at Gate 2 (FidelityReview.md).
+
 ```jsonc
 [
   { "id": "example-1", "label": "Example 1", "value": { "height": [1,8,6,2,5,4,8,3,7] }, "isEdgeCase": false, "expectedOutput": 49 },
