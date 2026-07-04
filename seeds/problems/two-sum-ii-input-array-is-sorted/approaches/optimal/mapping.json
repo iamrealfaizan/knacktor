@@ -1,0 +1,98 @@
+{
+  "primitive": "array",
+  "valuesFrom": "numbers",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "(idx == left || idx == right) && phase == 'return'"
+    },
+    {
+      "state": "compared",
+      "when": "(idx == left || idx == right) && phase == 'check'"
+    },
+    {
+      "state": "current",
+      "when": "idx == left || idx == right"
+    },
+    {
+      "state": "dimmed",
+      "when": "idx < left || idx > right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update' || phase == 'check'",
+    "expr": "numbers[{left}] + numbers[{right}] = {numbers[left] + numbers[right]}",
+    "relation": "target {target}",
+    "relationColor": "amber"
+  },
+  "counters": [
+    {
+      "name": "checks",
+      "onLines": [
+        7
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7,
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        10,
+        12
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 8,
+      "label": "Found the pair",
+      "kind": "result"
+    }
+  ]
+}

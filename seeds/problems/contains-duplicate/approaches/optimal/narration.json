@@ -1,0 +1,66 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty set to remember values we've already seen.",
+      "why": "A hash set gives O(1) membership checks — far cheaper than rescanning.",
+      "invariant": "seen holds every value encountered so far."
+    },
+    "4": {
+      "happening": "Take the next value from the array.",
+      "why": "We test each value exactly once, in order.",
+      "invariant": "num is the value under consideration."
+    },
+    "5": {
+      "happening": "Have we seen {num} before? Look it up in the set.",
+      "why": "If it's already there, we've found a repeat.",
+      "invariant": "A hit means a duplicate exists."
+    },
+    "6": {
+      "happening": "{num} is already in the set — a duplicate exists, return true.",
+      "why": "The same value appeared earlier, so the array is not all-distinct.",
+      "invariant": "The answer is true the instant any value repeats."
+    },
+    "7": {
+      "happening": "New value — add {num} to the set and keep scanning.",
+      "why": "Recording it now lets a later repeat be caught in O(1).",
+      "invariant": "Every value seen so far is now in the set."
+    },
+    "8": {
+      "happening": "Scanned every value with no repeat — return false.",
+      "why": "No value ever matched an existing entry, so all elements are distinct.",
+      "invariant": "The set holds n distinct values."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Preparing an empty set of seen values.",
+      "why": "We'll record each value as we encounter it.",
+      "invariant": "seen is empty."
+    },
+    "loop": {
+      "happening": "Walking the array value by value.",
+      "why": "Each value is checked exactly once.",
+      "invariant": "Values before the cursor are all in the set."
+    },
+    "check": {
+      "happening": "Looking up the current value in the set.",
+      "why": "An existing entry means a duplicate.",
+      "invariant": "seen holds all earlier values."
+    },
+    "update": {
+      "happening": "Inserting a newly-seen value.",
+      "why": "So a future repeat is caught instantly.",
+      "invariant": "seen grows by one."
+    },
+    "done": {
+      "happening": "A duplicate was found — returning true.",
+      "why": "Two equal values exist in the array.",
+      "invariant": "The array is not all-distinct."
+    },
+    "return": {
+      "happening": "No duplicates — returning false.",
+      "why": "Every value was distinct.",
+      "invariant": "All n values are unique."
+    }
+  }
+}

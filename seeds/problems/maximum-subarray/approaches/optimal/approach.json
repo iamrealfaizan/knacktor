@@ -1,0 +1,43 @@
+{
+  "id": "optimal",
+  "name": "Kadane's Algorithm",
+  "kind": "optimal",
+  "summary": "Walk the array once, tracking the best sum of a subarray ending at the current element: either extend the previous run or restart at this element. The running best of those is the answer.",
+  "visualizationIntent": "init: array of values shown; max_sum and current_sum both start at nums[0]. loop: pointer i advances to the current element (current cell), earlier cells are visited. update (L6): the Kadane decision — current_sum becomes max(nums[i], current_sum + nums[i]); a readout shows 'restart nums[i] vs extend prev+nums[i]' and which wins. check (L7): if current_sum beats max_sum, the global best rises (key event). return: result panel holds the maximum subarray sum.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.maxSubArray",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "max_sum",
+    "label": "MAX SUM",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "current_sum": "amber",
+    "max_sum": "result"
+  },
+  "lineExplanations": {
+    "3": "Initialise the overall best sum to the first element.",
+    "4": "Track the best subarray sum ending at the current position, also seeded with the first element.",
+    "5": "Scan from the second element to the end.",
+    "6": "The Kadane step: either restart the run at nums[i] or extend the previous run — whichever is larger.",
+    "7": "Update the overall best if the current run beats it.",
+    "8": "Return the largest subarray sum found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def maxSubArray(self, nums): — defines the method; nums is the integer array.",
+    "3": "max_sum = nums[0] — initialise the overall best to the first element.",
+    "4": "current_sum = nums[0] — the best subarray sum ending at the current position, seeded with the first element.",
+    "5": "for i in range(1, len(nums)): — scan from the second element to the end.",
+    "6": "current_sum = max(nums[i], current_sum + nums[i]) — restart at nums[i] or extend the run, whichever is larger.",
+    "7": "max_sum = max(max_sum, current_sum) — keep the best run seen so far.",
+    "8": "return max_sum — the maximum subarray sum."
+  }
+}

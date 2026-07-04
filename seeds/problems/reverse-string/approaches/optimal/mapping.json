@@ -1,0 +1,86 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "phase == 'return'"
+    },
+    {
+      "state": "result",
+      "when": "idx < left || idx > right"
+    },
+    {
+      "state": "current",
+      "when": "idx == left || idx == right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "swap s[{left}] ({s[left]}) and s[{right}] ({s[right]})",
+    "relationColor": "current"
+  },
+  "counters": [
+    {
+      "name": "swaps",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        9
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Reversed",
+      "kind": "return"
+    }
+  ]
+}

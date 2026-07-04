@@ -1,0 +1,96 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "(idx == i || idx == j) && phase == 'done'"
+    },
+    {
+      "state": "current",
+      "when": "idx == j && (phase == 'move' || phase == 'check')"
+    },
+    {
+      "state": "special",
+      "when": "idx == i && phase != 'init' && phase != 'return'"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "nums[{i}] = {nums[i]} vs nums[{j}] = {nums[j]}",
+    "relation": "equal?",
+    "relationColor": "compared"
+  },
+  "counters": [
+    {
+      "name": "pairs tried",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "done",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 7,
+      "label": "Duplicate found",
+      "kind": "match"
+    },
+    {
+      "line": 8,
+      "label": "All distinct",
+      "kind": "return"
+    }
+  ]
+}

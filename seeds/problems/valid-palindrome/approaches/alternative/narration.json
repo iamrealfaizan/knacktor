@@ -1,0 +1,101 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty array for the cleaned characters.",
+      "why": "This is the O(n) extra memory the in-place version avoids.",
+      "invariant": "filtered will hold only letters and digits, lowercased."
+    },
+    "4": {
+      "happening": "Look at each character of the input in turn.",
+      "why": "We decide which characters to keep.",
+      "invariant": "filtered holds the kept characters so far."
+    },
+    "5": {
+      "happening": "Is this character ({ch}) a letter or digit?",
+      "why": "Punctuation, spaces, and symbols are dropped.",
+      "invariant": "Only alphanumerics survive into filtered."
+    },
+    "6": {
+      "happening": "Keep it — append {ch} (lowercased) to the clean copy.",
+      "why": "Lowercasing now makes the later comparison case-insensitive for free.",
+      "invariant": "filtered grows by one cleaned character."
+    },
+    "7": {
+      "happening": "Point left at the start of the cleaned array.",
+      "why": "One end of the palindrome check.",
+      "invariant": "left begins at index 0."
+    },
+    "8": {
+      "happening": "Point right at the end of the cleaned array.",
+      "why": "The other end of the check.",
+      "invariant": "right begins at the last index."
+    },
+    "9": {
+      "happening": "While the pointers haven't met, keep comparing.",
+      "why": "Once they cross, every pair has matched.",
+      "invariant": "left < right means characters remain to check."
+    },
+    "10": {
+      "happening": "Compare filtered[{left}] ({filtered[left]}) and filtered[{right}] ({filtered[right]}).",
+      "why": "The copy is already clean and lowercase, so a direct compare suffices.",
+      "invariant": "Matching ends keep the palindrome possible."
+    },
+    "11": {
+      "happening": "The ends differ — not a palindrome.",
+      "why": "One mismatched pair fails it.",
+      "invariant": "The answer is false."
+    },
+    "12": {
+      "happening": "They matched — move the left pointer inward.",
+      "why": "This pair is confirmed; check the next in.",
+      "invariant": "left advances past a matched character."
+    },
+    "13": {
+      "happening": "Move the right pointer inward.",
+      "why": "Close in on the middle from both sides.",
+      "invariant": "right retreats past a matched character."
+    },
+    "14": {
+      "happening": "All pairs matched — it's a palindrome.",
+      "why": "Correct, but it required a full cleaned copy (O(n) space).",
+      "invariant": "The string is a palindrome."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Creating the empty cleaned-copy array.",
+      "why": "We build the answer in a second array first.",
+      "invariant": "filtered is empty."
+    },
+    "loop": {
+      "happening": "Iterating — first to build the copy, then to compare it.",
+      "why": "Two passes: clean, then check.",
+      "invariant": "Progressing through the characters."
+    },
+    "check": {
+      "happening": "Deciding what to keep, or comparing the two ends.",
+      "why": "Keep only alphanumerics; then compare symmetric pairs.",
+      "invariant": "filtered holds only cleaned characters."
+    },
+    "update": {
+      "happening": "Appending a cleaned character or setting up the pointers.",
+      "why": "The clean copy grows, then the two-pointer check begins.",
+      "invariant": "filtered reflects the kept characters."
+    },
+    "move": {
+      "happening": "Stepping the pointers inward.",
+      "why": "A matched pair lets us close in on the middle.",
+      "invariant": "The unchecked range shrinks."
+    },
+    "done": {
+      "happening": "A mismatch — not a palindrome.",
+      "why": "One bad pair fails it.",
+      "invariant": "The answer is false."
+    },
+    "return": {
+      "happening": "All pairs matched — it's a palindrome.",
+      "why": "Correct, but it used O(n) extra memory.",
+      "invariant": "The string is a palindrome."
+    }
+  }
+}

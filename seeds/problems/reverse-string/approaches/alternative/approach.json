@@ -1,0 +1,45 @@
+{
+  "id": "alternative",
+  "name": "Extra Array (copy back)",
+  "kind": "alternative",
+  "summary": "Build a reversed copy in a second array, then write it back over the input. Simple, but it uses O(n) extra memory — exactly what the in-place version avoids.",
+  "visualizationIntent": "init: the input characters shown as a row; an empty second array 'rev' sits alongside (the extra O(n) memory). build (L5-6): pointer i walks the input from the end; each character is read (compared) and pops into rev, so rev fills up as the visible reversed copy. writeback (L7-8): pointer i walks forward and each s[i] is overwritten (current) with rev[i]. return: s now matches rev — reversed. The learner sees a full second array had to exist, unlike the in-place approach.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.reverseString",
+  "primaryPrimitive": "array",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "s",
+    "label": "STRING",
+    "render": "list"
+  },
+  "varColors": {
+    "i": "ptr-i"
+  },
+  "lineExplanations": {
+    "3": "Record the length to bound both loops.",
+    "4": "Create an empty second array to hold the reversed copy (the extra memory).",
+    "5": "Walk the input from the last index toward the first.",
+    "6": "Append each character to the copy, building it back-to-front (reversed).",
+    "7": "Now walk forward to copy the reversed array back into the input.",
+    "8": "Overwrite each input character with the corresponding reversed one.",
+    "9": "The input now holds the reversed characters — return it."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def reverseString(self, s): — defines the method; s is the list of characters.",
+    "3": "n = len(s) — the number of characters.",
+    "4": "rev = [] — an empty list to build the reversed copy (the extra memory).",
+    "5": "for i in range(n - 1, -1, -1): — count down from the last index to 0.",
+    "6": "rev.append(s[i]) — add characters back-to-front, building the reverse.",
+    "7": "for i in range(n): — count up from 0 to write the copy back.",
+    "8": "s[i] = rev[i] — overwrite the input with the reversed characters.",
+    "9": "return s — the input array, now reversed."
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "A man, a plan, a canal: Panama"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "race a car"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": false
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "s": " "
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "edge-alnum-mismatch",
+    "label": "Digit vs letter",
+    "value": {
+      "s": "0P"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  }
+]

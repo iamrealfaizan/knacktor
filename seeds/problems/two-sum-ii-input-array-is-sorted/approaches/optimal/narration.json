@@ -1,0 +1,81 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Place the left pointer at the smallest value (index 0).",
+      "why": "In a sorted array the smallest value is on the left.",
+      "invariant": "The answer pair lies within [left, right]."
+    },
+    "4": {
+      "happening": "Place the right pointer at the largest value (last index).",
+      "why": "In a sorted array the largest value is on the right.",
+      "invariant": "The answer pair lies within [left, right]."
+    },
+    "5": {
+      "happening": "While the pointers haven't met, a pair remains to try.",
+      "why": "Once they meet, the whole array has been considered.",
+      "invariant": "left < right bounds the live search space."
+    },
+    "6": {
+      "happening": "Add the ends: numbers[{left}] ({numbers[left]}) + numbers[{right}] ({numbers[right]}) = {numbers[left] + numbers[right]}.",
+      "why": "Comparing this sum to the target tells us which pointer to move.",
+      "invariant": "total is the sum of the current two ends."
+    },
+    "7": {
+      "happening": "Does the sum equal the target ({target})?",
+      "why": "Equality means we've found the unique pair.",
+      "invariant": "A match ends the search."
+    },
+    "8": {
+      "happening": "Found it — return [{left} + 1, {right} + 1] (1-indexed).",
+      "why": "These two indices are the unique solution.",
+      "invariant": "The answer is the 1-indexed pair."
+    },
+    "9": {
+      "happening": "Is the sum too small (less than {target})?",
+      "why": "A larger sum needs a bigger value, and bigger values are to the right.",
+      "invariant": "If total < target, only moving left up can help."
+    },
+    "10": {
+      "happening": "Sum too small — discard the left value and move left up.",
+      "why": "Paired with the largest remaining value it was still too small, so it can never reach the target.",
+      "invariant": "The discarded left element can never be part of the answer."
+    },
+    "12": {
+      "happening": "Sum too big — discard the right value and move right down.",
+      "why": "Paired with the smallest remaining value it was still too big, so it can never reach the target.",
+      "invariant": "The discarded right element can never be part of the answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Placing a pointer at each end of the sorted array.",
+      "why": "The sum of the ends brackets the whole range of possible sums.",
+      "invariant": "The answer lies within [left, right]."
+    },
+    "loop": {
+      "happening": "Converging the two pointers.",
+      "why": "Each step rules out one element for good.",
+      "invariant": "The live search space is [left, right]."
+    },
+    "update": {
+      "happening": "Summing the two current ends.",
+      "why": "The sum decides which pointer moves.",
+      "invariant": "total = numbers[left] + numbers[right]."
+    },
+    "check": {
+      "happening": "Comparing the sum to the target.",
+      "why": "Too small, too big, or exactly right — each has one response.",
+      "invariant": "Sorted order makes the decision unambiguous."
+    },
+    "move": {
+      "happening": "Discarding one end and stepping that pointer inward.",
+      "why": "The discarded value can never be part of the answer.",
+      "invariant": "The search space shrinks by one."
+    },
+    "return": {
+      "happening": "Returning the 1-indexed answer pair.",
+      "why": "The two ends summed exactly to the target.",
+      "invariant": "The unique solution is found."
+    }
+  }
+}

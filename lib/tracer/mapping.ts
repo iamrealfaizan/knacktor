@@ -169,7 +169,15 @@ function mapLeaf(
   if (spec.primitive === "recursion")  return mapRecursion(spec, scope);
 
   const valuesRaw = spec.valuesFrom ? scope[spec.valuesFrom] : undefined;
-  const values = (Array.isArray(valuesRaw) ? valuesRaw : []) as (number | string)[];
+  // A string valuesFrom renders as its characters (Array.split), so string
+  // problems can visualize the raw input in place with no O(n) list copy.
+  const values = (
+    Array.isArray(valuesRaw)
+      ? valuesRaw
+      : typeof valuesRaw === "string"
+        ? valuesRaw.split("")
+        : []
+  ) as (number | string)[];
   const n = values.length;
 
   // pointers

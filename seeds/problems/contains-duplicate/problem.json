@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "contains-duplicate",
+  "number": 217,
+  "title": "Contains Duplicate",
+  "difficulty": "easy",
+  "topics": [
+    "array",
+    "hash-set"
+  ],
+  "patterns": [
+    "hash-map"
+  ],
+  "statement": "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.\n\nExample 1:\nInput: nums = [1,2,3,1]\nOutput: true\nExplanation: The element 1 occurs at the indices 0 and 3.\n\nExample 2:\nInput: nums = [1,2,3,4]\nOutput: false\nExplanation: All elements are distinct.\n\nExample 3:\nInput: nums = [1,1,1,3,3,4,3,2,4,2]\nOutput: true\n\nConstraints:\n1 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "nums",
+        "type": "int[]",
+        "label": "nums",
+        "placeholder": "[1,2,3,1]",
+        "min": -1000000000,
+        "max": 1000000000,
+        "minLen": 1,
+        "maxLen": 100000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

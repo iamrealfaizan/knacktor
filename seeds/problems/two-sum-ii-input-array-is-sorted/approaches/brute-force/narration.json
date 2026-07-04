@@ -1,0 +1,56 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Record the number of elements.",
+      "why": "It bounds both the outer and inner loops.",
+      "invariant": "n is the array length."
+    },
+    "4": {
+      "happening": "Fix the first index i of the pair.",
+      "why": "We'll pair it with every index that comes after it.",
+      "invariant": "i is the first index of the pair under test."
+    },
+    "5": {
+      "happening": "Pick a second index j after i.",
+      "why": "Requiring j > i tries each unordered pair exactly once.",
+      "invariant": "j is the second index of the pair."
+    },
+    "6": {
+      "happening": "Does numbers[{i}] ({numbers[i]}) + numbers[{j}] ({numbers[j]}) equal the target ({target})?",
+      "why": "We test every pair until one matches.",
+      "invariant": "Exactly this pair is being checked."
+    },
+    "7": {
+      "happening": "Found it — return [{i} + 1, {j} + 1] (1-indexed).",
+      "why": "This pair sums to the target.",
+      "invariant": "The answer is the 1-indexed pair."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Recording the array length.",
+      "why": "Before pairing elements off.",
+      "invariant": "n = array length."
+    },
+    "loop": {
+      "happening": "Choosing the first index of the pair.",
+      "why": "Each element is tried as the first of a pair.",
+      "invariant": "i is the current first index."
+    },
+    "move": {
+      "happening": "Sweeping the second index forward.",
+      "why": "Only indices after i form new pairs.",
+      "invariant": "j runs from i+1 to the end."
+    },
+    "check": {
+      "happening": "Comparing this pair's sum to the target.",
+      "why": "We're scanning every pair for a match.",
+      "invariant": "Testing numbers[i] + numbers[j]."
+    },
+    "return": {
+      "happening": "Returning the 1-indexed answer pair.",
+      "why": "This pair sums to the target.",
+      "invariant": "The solution is found."
+    }
+  }
+}

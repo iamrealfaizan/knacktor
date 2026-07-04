@@ -1,0 +1,50 @@
+{
+  "id": "brute-force",
+  "name": "Brute Force (all subarrays)",
+  "kind": "brute",
+  "summary": "Try every subarray: fix a start i, extend the end j one element at a time keeping a running sum, and track the largest sum seen. O(n²) with a running sum.",
+  "visualizationIntent": "init: array of values shown; max_sum starts at nums[0]. loop (L5): pointer i fixes the subarray start (special). update (L6): current_sum resets to 0 for the new start. move (L7): pointer j extends the subarray end (current); a translucent window tray spans i..j. update (L8): current_sum accumulates nums[j]; a readout shows sum[i..j]. check (L9): compare against the best. update (L10): when the window sum beats max_sum, the best rises (key event). return: result panel holds the maximum subarray sum.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.maxSubArray",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "max_sum",
+    "label": "MAX SUM",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "current_sum": "amber",
+    "max_sum": "result"
+  },
+  "lineExplanations": {
+    "3": "Record the number of elements to bound both loops.",
+    "4": "Seed the best sum with the first element (correct even when all values are negative).",
+    "5": "Fix the subarray start at index i.",
+    "6": "Reset the running sum for a subarray starting at i.",
+    "7": "Extend the subarray end to index j.",
+    "8": "Add the new end element to the running sum.",
+    "9": "Check whether this subarray's sum beats the best so far.",
+    "10": "Record the new best sum.",
+    "11": "Return the largest subarray sum found across all subarrays."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def maxSubArray(self, nums): — defines the method; nums is the integer array.",
+    "3": "n = len(nums) — the number of elements, used to bound both loops.",
+    "4": "max_sum = nums[0] — seed the best with the first element (handles all-negative arrays).",
+    "5": "for i in range(n): — outer loop fixes the subarray start.",
+    "6": "current_sum = 0 — reset the running sum for a subarray starting at i.",
+    "7": "for j in range(i, n): — inner loop extends the subarray end.",
+    "8": "current_sum += nums[j] — add the new end element to the running sum.",
+    "9": "if current_sum > max_sum: — is this subarray the best so far?",
+    "10": "max_sum = current_sum — record the new best.",
+    "11": "return max_sum — the maximum subarray sum over all subarrays."
+  }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": [
+        "h",
+        "e",
+        "l",
+        "l",
+        "o"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      "o",
+      "l",
+      "l",
+      "e",
+      "h"
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": [
+        "H",
+        "a",
+        "n",
+        "n",
+        "a",
+        "h"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      "h",
+      "a",
+      "n",
+      "n",
+      "a",
+      "H"
+    ]
+  },
+  {
+    "id": "edge-single",
+    "label": "Single character",
+    "value": {
+      "s": [
+        "a"
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      "a"
+    ]
+  },
+  {
+    "id": "edge-two",
+    "label": "Two characters",
+    "value": {
+      "s": [
+        "a",
+        "b"
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      "b",
+      "a"
+    ]
+  }
+]

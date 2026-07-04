@@ -1,0 +1,60 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "nums": [
+        -2,
+        1,
+        -3,
+        4,
+        -1,
+        2,
+        1,
+        -5,
+        4
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 6
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "nums": [
+        1
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 1
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "nums": [
+        5,
+        4,
+        -1,
+        7,
+        8
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 23
+  },
+  {
+    "id": "edge-all-negative",
+    "label": "All negative",
+    "value": {
+      "nums": [
+        -3,
+        -1,
+        -2
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": -1
+  }
+]

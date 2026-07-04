@@ -1,0 +1,45 @@
+{
+  "id": "optimal",
+  "name": "Two Pointers (converging)",
+  "kind": "optimal",
+  "summary": "Because the array is sorted, put one pointer at each end: if their sum is too small move left up, too big move right down, and equal is the answer. Each step discards one element for good.",
+  "visualizationIntent": "init: the sorted array as cells; left pointer at 0, right at the last index. loop: while left < right. update (L6): compute total = numbers[left] + numbers[right]; readout 'a + b = total vs target'. check (L7,9): compare total to target. move (L10/L12): total < target discards the left cell and steps left right; total > target discards the right cell and steps right left — discarded cells dim. return (L8): total == target — both end cells glow result (the answer pair, 1-indexed).",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.twoSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi",
+    "total": "amber"
+  },
+  "lineExplanations": {
+    "3": "Start a pointer at the smallest value (index 0).",
+    "4": "Start a pointer at the largest value (last index).",
+    "5": "Keep going while the two pointers haven't met.",
+    "6": "Add the two end values to get their current sum.",
+    "7": "Check whether that sum equals the target.",
+    "8": "It does — return the two indices, converted to 1-based.",
+    "9": "Otherwise, check whether the sum is too small.",
+    "10": "Sum too small — move the left pointer up to a larger value.",
+    "12": "Sum too big — move the right pointer down to a smaller value."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def twoSum(self, numbers, target): — numbers is sorted ascending; target is the sum to reach.",
+    "3": "left = 0 — index of the smallest value.",
+    "4": "right = len(numbers) - 1 — index of the largest value.",
+    "5": "while left < right: — keep going until the pointers meet.",
+    "6": "total = numbers[left] + numbers[right] — the sum of the current two ends.",
+    "7": "if total == target: — did we hit the target?",
+    "8": "return [left + 1, right + 1] — return the two indices, converted to 1-based.",
+    "9": "elif total < target: — is the sum too small?",
+    "10": "left += 1 — move left up to a larger value.",
+    "11": "else: — the remaining case, where the sum was greater than the target.",
+    "12": "right -= 1 — move right down to a smaller value."
+  }
+}

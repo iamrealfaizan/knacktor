@@ -1,0 +1,85 @@
+{
+  "primitive": "array",
+  "valuesFrom": "numbers",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "(idx == i || idx == j) && phase == 'return'"
+    },
+    {
+      "state": "current",
+      "when": "idx == j && (phase == 'move' || phase == 'check')"
+    },
+    {
+      "state": "special",
+      "when": "idx == i && phase != 'init' && phase != 'return'"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "numbers[{i}] + numbers[{j}] = {numbers[i] + numbers[j]}",
+    "relation": "target {target}",
+    "relationColor": "amber"
+  },
+  "counters": [
+    {
+      "name": "pairs tried",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        7
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 7,
+      "label": "Found the pair",
+      "kind": "result"
+    }
+  ]
+}

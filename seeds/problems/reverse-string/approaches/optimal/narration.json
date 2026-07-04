@@ -1,0 +1,66 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Place the left pointer at the first character.",
+      "why": "It marks one end of the pair we'll swap.",
+      "invariant": "Everything left of `left` is already reversed."
+    },
+    "4": {
+      "happening": "Place the right pointer at the last character.",
+      "why": "It marks the other end of the pair.",
+      "invariant": "Everything right of `right` is already reversed."
+    },
+    "5": {
+      "happening": "While the pointers haven't met, a pair still needs swapping.",
+      "why": "Once they meet or cross, every character is in its final place.",
+      "invariant": "left < right means unreversed characters remain in the middle."
+    },
+    "6": {
+      "happening": "Swap the two ends: s[{left}] ({s[left]}) and s[{right}] ({s[right]}).",
+      "why": "Exchanging the outermost unreversed pair puts both characters in their final spots.",
+      "invariant": "After the swap, indices {left} and {right} hold their final characters."
+    },
+    "7": {
+      "happening": "Step the left pointer inward.",
+      "why": "The outer pair is done, so move toward the middle.",
+      "invariant": "left has advanced past a finished character."
+    },
+    "8": {
+      "happening": "Step the right pointer inward.",
+      "why": "Same for the right side — close in on the middle.",
+      "invariant": "right has retreated past a finished character."
+    },
+    "9": {
+      "happening": "The pointers met — the string is fully reversed. Return it.",
+      "why": "Each character was swapped exactly once, using no extra array (O(1) space).",
+      "invariant": "s is reversed in place."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Placing a pointer at each end.",
+      "why": "We'll swap inward from both ends.",
+      "invariant": "left and right bound the unreversed middle."
+    },
+    "loop": {
+      "happening": "Checking whether the pointers have met.",
+      "why": "The work is done once they cross.",
+      "invariant": "Characters outside [left, right] are already reversed."
+    },
+    "update": {
+      "happening": "Swapping the two end characters.",
+      "why": "One swap fixes both ends of the remaining range.",
+      "invariant": "The outermost unreversed pair becomes final."
+    },
+    "move": {
+      "happening": "Stepping both pointers toward the middle.",
+      "why": "The just-swapped pair is finished.",
+      "invariant": "The unreversed range shrinks by two."
+    },
+    "return": {
+      "happening": "Returning the reversed array.",
+      "why": "Done in one pass with O(1) extra memory.",
+      "invariant": "s is reversed."
+    }
+  }
+}

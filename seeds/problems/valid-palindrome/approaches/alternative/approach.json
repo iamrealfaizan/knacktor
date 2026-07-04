@@ -1,0 +1,49 @@
+{
+  "id": "alternative",
+  "name": "Filter then Compare",
+  "kind": "alternative",
+  "summary": "First build a cleaned copy — only letters and digits, all lowercased — then two-pointer check that copy. Simpler logic, but it uses O(n) extra memory for the filtered array.",
+  "visualizationIntent": "build (L3-6): starting from an empty filtered array, scan the input and let each alphanumeric character, lowercased, pop into filtered — the extra O(n) array visibly fills. check (L7-14): two-pointer over filtered; left/right converge, compare (L10) marks the pair compared, a mismatch (L11) flashes error and returns false, matches lock visited as pointers step inward, and crossing returns true (L14). The learner sees that a whole cleaned copy had to be built.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.isPalindrome",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi"
+  },
+  "lineExplanations": {
+    "3": "Create an empty array to hold the cleaned characters.",
+    "4": "Look at each character of the input.",
+    "5": "Keep only alphanumeric characters.",
+    "6": "Append the lowercased character to the cleaned copy.",
+    "7": "Point left at the start of the cleaned array.",
+    "8": "Point right at the end of the cleaned array.",
+    "9": "Compare inward until the pointers meet.",
+    "10": "Compare the two ends (already lowercased, so a direct compare works).",
+    "11": "A mismatch — not a palindrome.",
+    "12": "Matched — move the left pointer inward.",
+    "13": "Move the right pointer inward.",
+    "14": "All pairs matched — it's a palindrome."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def isPalindrome(self, s): — s is the raw string.",
+    "3": "filtered = [] — an empty list for the cleaned characters (the extra memory).",
+    "4": "for ch in s: — look at each character of the input.",
+    "5": "if ch.isalnum(): — keep only letters and digits.",
+    "6": "filtered.append(ch.lower()) — add the lowercased character to the clean copy.",
+    "7": "left = 0 — pointer at the start of the cleaned array.",
+    "8": "right = len(filtered) - 1 — pointer at the end of the cleaned array.",
+    "9": "while left < right: — compare inward until the pointers meet.",
+    "10": "if filtered[left] != filtered[right]: — the copy is already lowercase, so a direct compare works.",
+    "11": "return False — a mismatch means it's not a palindrome.",
+    "12": "left += 1 — matched; move left inward.",
+    "13": "right -= 1 — move right inward.",
+    "14": "return True — all pairs matched — it's a palindrome."
+  }
+}
