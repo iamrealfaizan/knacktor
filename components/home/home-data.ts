@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, CircleDot, Circle } from "lucide-react";
 import { NAV_LINKS as SITE_NAV_LINKS, SITE_STATS } from "@/lib/site";
 import { DIFFICULTY_STYLE as CANONICAL_DIFFICULTY_STYLE } from "@/lib/difficulty";
+import type { Problem as DbProblem, DifficultySlug } from "@/lib/types";
 
 /**
  * Dashboard content contracts + remaining static mock.
@@ -47,6 +48,35 @@ export interface Problem {
   status: Status;
   viz: boolean;
   href: string;
+}
+
+const DIFF_DISPLAY: Record<DifficultySlug, Difficulty> = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard",
+};
+
+/**
+ * Map a resolved DB Problem (slug arrays) into a home table row (display names).
+ * Runs on both the server (initial render) and client (after each fetch), so it
+ * takes plain name-maps rather than touching the DB. Status is "todo" until a
+ * UserProgress backend exists.
+ */
+export function toHomeRow(
+  p: DbProblem,
+  topicName: Record<string, string>,
+  patternName: Record<string, string>
+): Problem {
+  return {
+    num: p.number,
+    title: p.title,
+    diff: DIFF_DISPLAY[p.difficulty],
+    topics: p.topics.map((s) => topicName[s] ?? s),
+    patterns: p.patterns.map((s) => patternName[s] ?? s),
+    status: "todo",
+    viz: p.hasVisualization,
+    href: `/problems/${p.slug}`,
+  };
 }
 
 /* ── Greeting ─────────────────────────────────────────────────────────── */
@@ -117,8 +147,9 @@ export const NAV_LINKS = SITE_NAV_LINKS.map((l) => ({
   active: l.href === "/problems",
 }));
 
-/* ── Browse sidebar (filter rows are visual only — no client filtering yet;
-      the options + counts themselves are DB-derived in app/home/page.tsx) ─── */
+/* ── Browse sidebar (difficulty + topic rows filter via URL params; options +
+      counts are DB-derived in app/home/page.tsx). Status/patterns/sheets rows
+      stay inert until a UserProgress backend lands. ─── */
 export interface FilterOption {
   label: string;
   count?: number;
@@ -126,4 +157,17 @@ export interface FilterOption {
   dot?: string; // token text-color class for the difficulty dot
 }
 
-export const SORT_OPTIONS = ["#", "Difficulty", "Acceptance", "Frequency"] as const;
+/** A selectable filter facet: slug value + display label + catalog count. */
+export interface FacetOption {
+  value: string;
+  label: string;
+  count: number;
+  dot?: string; // token text-color class for the difficulty dot
+}
+
+/** Sort bar options → the `sort` URL/query value they set. Order: # is default. */
+export const SORT_OPTIONS: { label: string; value: "number" | "difficulty" | "title" }[] = [
+  { label: "#", value: "number" },
+  { label: "Difficulty", value: "difficulty" },
+  { label: "Title", value: "title" },
+];
