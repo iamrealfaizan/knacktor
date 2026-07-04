@@ -82,10 +82,27 @@ export interface Sheet {
   updatedAt?: string;
 }
 
+export type ProblemSort = "number" | "difficulty" | "title";
+export type SortOrder = "asc" | "desc";
+
 export interface ProblemFilters {
+  // Singular filters (back-compat: /problems page, getProblemsBy* wrappers).
   difficulty?: DifficultySlug;
   topicSlug?: string;
   patternSlug?: string;
+  // Multi-select filters (home dashboard). Difficulty combines as OR (union);
+  // topics/patterns combine as AND (a problem must carry ALL selected slugs).
+  difficulties?: DifficultySlug[];
+  topicSlugs?: string[];
+  patternSlugs?: string[];
   sheetSlug?: string;
   search?: string;
+  /** sort field for the paginated list path (getProblemsPage); defaults to "number" */
+  sort?: ProblemSort;
+  /** sort direction; defaults to "asc" */
+  order?: SortOrder;
+  /** 1-based page number (getProblemsPage) */
+  page?: number;
+  /** page size (getProblemsPage) */
+  limit?: number;
 }

@@ -251,27 +251,58 @@ export async function getTrace(
 
 // ── Problems ──────────────────────────────────────────────────────────────────
 
-export async function getProblems(filters: ProblemFilters = {}): Promise<Problem[]> {
+// Escape user text before embedding it in a MongoDB $regex.
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Resolve taxonomy slugs → ObjectIds (drops any that don't resolve).
+async function resolveIds(col: TaxCol, slugs: string[]): Promise<ObjectId[]> {
+  const map = (await idSlugMap(col)).bySlug;
+  const out: ObjectId[] = [];
+  for (const s of slugs) {
+    const id = map.get(s);
+    if (id) out.push(new ObjectId(id));
+  }
+  return out;
+}
+
+// Build the difficulty/topic/pattern/sheet portion of a problems query, shared
+// by getProblems (full-text search) and getProblemsPage (regex + number search).
+// Multi-select: difficulty combines as OR ($in); topics/patterns as AND ($all).
+// Singular fields are accepted for back-compat and treated as one-element sets.
+async function buildProblemQuery(
+  filters: ProblemFilters
+): Promise<Record<string, unknown>> {
   const conn = await db();
   const query: Record<string, unknown> = {};
 
-  if (filters.difficulty) {
-    const id = (await idSlugMap("difficulties")).bySlug.get(filters.difficulty);
-    query.difficultyId = id ? new ObjectId(id) : null;
+  const diffSlugs = filters.difficulties ?? (filters.difficulty ? [filters.difficulty] : []);
+  if (diffSlugs.length) {
+    query.difficultyId = { $in: await resolveIds("difficulties", diffSlugs) };
   }
-  if (filters.topicSlug) {
-    const id = (await idSlugMap("topics")).bySlug.get(filters.topicSlug);
-    query.topicIds = id ? new ObjectId(id) : null;
+
+  const topicSlugs = filters.topicSlugs ?? (filters.topicSlug ? [filters.topicSlug] : []);
+  if (topicSlugs.length) {
+    query.topicIds = { $all: await resolveIds("topics", topicSlugs) };
   }
-  if (filters.patternSlug) {
-    const id = (await idSlugMap("patterns")).bySlug.get(filters.patternSlug);
-    query.patternIds = id ? new ObjectId(id) : null;
+
+  const patternSlugs = filters.patternSlugs ?? (filters.patternSlug ? [filters.patternSlug] : []);
+  if (patternSlugs.length) {
+    query.patternIds = { $all: await resolveIds("patterns", patternSlugs) };
   }
+
   if (filters.sheetSlug) {
     const sheet = await conn.collection("sheets").findOne({ slug: filters.sheetSlug });
     const ids = ((sheet?.entries as { problemId: ObjectId }[]) ?? []).map((e) => e.problemId);
     query._id = { $in: ids };
   }
+  return query;
+}
+
+export async function getProblems(filters: ProblemFilters = {}): Promise<Problem[]> {
+  const conn = await db();
+  const query = await buildProblemQuery(filters);
   if (filters.search) query.$text = { $search: filters.search };
 
   const docs = await conn
@@ -281,6 +312,67 @@ export async function getProblems(filters: ProblemFilters = {}): Promise<Problem
     .toArray();
 
   return Promise.all(docs.map(resolveProblem));
+}
+
+/**
+ * Paginated problem list with dynamic search / sort — powers the /home dashboard.
+ * Search matches problem TITLE (case-insensitive partial) and NUMBER (exact).
+ * Sort by "number" | "title" (direct) or "difficulty" (by the difficulties.rank
+ * order, via an aggregation that ranks each doc's difficultyId).
+ * Returns the current page plus the total matching count (for the pager).
+ */
+export async function getProblemsPage(
+  filters: ProblemFilters = {}
+): Promise<{ items: Problem[]; total: number }> {
+  const conn = await db();
+  const query = await buildProblemQuery(filters);
+
+  const term = filters.search?.trim();
+  if (term) {
+    const or: Record<string, unknown>[] = [
+      { title: { $regex: escapeRegex(term), $options: "i" } },
+    ];
+    const n = Number(term);
+    if (Number.isInteger(n)) or.push({ number: n });
+    query.$or = or;
+  }
+
+  const page = Math.max(1, Math.floor(filters.page ?? 1));
+  const limit = Math.max(1, Math.floor(filters.limit ?? 20));
+  const skip = (page - 1) * limit;
+  const dir = filters.order === "desc" ? -1 : 1;
+
+  const coll = conn.collection<RawProblem>("problems");
+  const total = await coll.countDocuments(query);
+
+  let docs: RawProblem[];
+  if (filters.sort === "difficulty") {
+    // difficultyId is an _id ref (no intrinsic order) — rank each doc against the
+    // difficulties collection's rank order, then sort by that rank.
+    const diffs = await getDifficulties(); // already sorted by rank asc
+    const orderedIds = diffs.map((d) => new ObjectId(d._id));
+    docs = await coll
+      .aggregate<RawProblem>([
+        { $match: query },
+        { $addFields: { _diffRank: { $indexOfArray: [orderedIds, "$difficultyId"] } } },
+        { $sort: { _diffRank: dir, number: 1 } },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: { _diffRank: 0 } },
+      ])
+      .toArray();
+  } else {
+    const sortField = filters.sort === "title" ? "title" : "number";
+    docs = await coll
+      .find(query)
+      .sort({ [sortField]: dir })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+  }
+
+  const items = await Promise.all(docs.map(resolveProblem));
+  return { items, total };
 }
 
 export async function getProblemBySlug(slug: string): Promise<Problem | null> {
@@ -378,6 +470,33 @@ async function taxonomyProblemCounts(
     if (slug) out[slug] = r.count;
   }
   return out;
+}
+
+/**
+ * Whole-catalog facet counts for the /home sidebar (difficulty + topic).
+ * Independent of any active filter/page so the sidebar always shows totals.
+ */
+export async function getProblemFacets(): Promise<{
+  difficulty: Record<string, number>;
+  topics: Record<string, number>;
+}> {
+  const conn = await db();
+  const [diffRows, topics] = await Promise.all([
+    conn
+      .collection("problems")
+      .aggregate<{ _id: ObjectId | null; count: number }>([
+        { $group: { _id: "$difficultyId", count: { $sum: 1 } } },
+      ])
+      .toArray(),
+    getProblemCountsByTopic(),
+  ]);
+  const diffMap = await idSlugMap("difficulties");
+  const difficulty: Record<string, number> = {};
+  for (const r of diffRows) {
+    const slug = r._id && diffMap.byId.get(r._id.toHexString());
+    if (slug) difficulty[slug] = r.count;
+  }
+  return { difficulty, topics };
 }
 
 /** Catalog-wide counts for headers/marketing surfaces (single cheap round-trips). */

@@ -1,32 +1,36 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import {
-  getProblems,
+  getProblemsPage,
+  getProblemFacets,
+  getProblemCountsByPattern,
   getTopics,
   getPatterns,
   getSheets,
 } from "@/lib/content-service";
 import type { DifficultySlug } from "@/lib/types";
+import { HOME_PAGE_SIZE, parseState } from "@/lib/home-url";
 import { HomeHeader } from "@/components/home/home-header";
 import { Greeting } from "@/components/home/greeting";
 import { ContinueLearning } from "@/components/home/continue-learning";
 import { StreakCard } from "@/components/home/streak-card";
 import { ProgressCard } from "@/components/home/progress-card";
-import {
-  BrowseSidebar,
-  type BrowseFilters,
-} from "@/components/home/browse-sidebar";
-import { ProblemTable } from "@/components/home/problem-table";
-import type { Difficulty, Problem } from "@/components/home/home-data";
-import { DIFFICULTY_STYLE } from "@/components/home/home-data";
+import { BrowsePanel } from "@/components/home/browse-panel";
+import type { Difficulty, FacetOption, FilterOption } from "@/components/home/home-data";
+import { DIFFICULTY_STYLE, toHomeRow } from "@/components/home/home-data";
 
 const DIFF_DISPLAY: Record<DifficultySlug, Difficulty> = {
   easy: "Easy",
   medium: "Medium",
   hard: "Hard",
 };
+const VALID_DIFF: DifficultySlug[] = ["easy", "medium", "hard"];
 
-export default async function HomeDashboardPage() {
+export default async function HomeDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
   // Middleware already gates /home; this is a defensive fallback.
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -37,66 +41,67 @@ export default async function HomeDashboardPage() {
     email: session.user.email ?? "",
   };
 
-  const [dbProblems, topics, patterns, sheets] = await Promise.all([
-    getProblems(),
-    getTopics(),
-    getPatterns(),
-    getSheets(),
-  ]);
+  // Initial browse state comes from the URL so a shared link renders correctly (SSR).
+  const initialState = parseState(searchParams);
 
-  const topicName = new Map(topics.map((t) => [t.slug, t.name]));
-  const patternName = new Map(patterns.map((p) => [p.slug, p.name]));
+  const [{ items, total }, facets, patternCounts, topics, patterns, sheets] =
+    await Promise.all([
+      getProblemsPage({
+        search: initialState.q || undefined,
+        difficulties: initialState.difficulties as DifficultySlug[],
+        topicSlugs: initialState.topics,
+        patternSlugs: initialState.patterns,
+        sort: initialState.sort,
+        order: initialState.order,
+        page: initialState.page,
+        limit: HOME_PAGE_SIZE,
+      }),
+      getProblemFacets(),
+      getProblemCountsByPattern(),
+      getTopics(),
+      getPatterns(),
+      getSheets(),
+    ]);
 
-  // Per-problem status stays "todo" until a UserProgress backend exists.
-  const problems: Problem[] = dbProblems.map((p) => ({
-    num: p.number,
-    title: p.title,
-    diff: DIFF_DISPLAY[p.difficulty],
-    topics: p.topics.map((s) => topicName.get(s) ?? s),
-    patterns: p.patterns.map((s) => patternName.get(s) ?? s),
-    status: "todo",
-    viz: p.hasVisualization,
-    href: `/problems/${p.slug}`,
+  const topicName: Record<string, string> = Object.fromEntries(
+    topics.map((t) => [t.slug, t.name])
+  );
+  const patternName: Record<string, string> = Object.fromEntries(
+    patterns.map((p) => [p.slug, p.name])
+  );
+
+  const initialRows = items.map((p) => toHomeRow(p, topicName, patternName));
+
+  // Sidebar facet counts reflect the WHOLE catalog, independent of active filters.
+  const catalogTotal = Object.values(facets.difficulty).reduce((a, b) => a + b, 0);
+
+  const difficultyOptions: FacetOption[] = VALID_DIFF.map((slug) => ({
+    value: slug,
+    label: DIFF_DISPLAY[slug],
+    count: facets.difficulty[slug] ?? 0,
+    dot: DIFFICULTY_STYLE[DIFF_DISPLAY[slug]].dot,
   }));
 
-  const total = problems.length;
-  const countDiff = (d: Difficulty) =>
-    problems.filter((p) => p.diff === d).length;
-  const countTag = (list: "topics" | "patterns", name: string) =>
-    problems.filter((p) => p[list].includes(name)).length;
+  const topicOptions: FacetOption[] = topics
+    .filter((t) => facets.topics[t.slug])
+    .map((t) => ({ value: t.slug, label: t.name, count: facets.topics[t.slug] }));
 
-  const topicsInCatalog = [...new Set(problems.flatMap((p) => p.topics))].sort();
-  const patternsInCatalog = [
-    ...new Set(problems.flatMap((p) => p.patterns)),
-  ].sort();
+  const patternOptions: FacetOption[] = patterns
+    .filter((p) => patternCounts[p.slug])
+    .map((p) => ({ value: p.slug, label: p.name, count: patternCounts[p.slug] }));
 
-  const filters: BrowseFilters = {
-    status: [
-      { label: "All problems", count: total, active: true },
-      { label: "Solved", count: 0 },
-      { label: "Attempted", count: 0 },
-      { label: "To do", count: total },
-    ],
-    difficulty: [
-      { label: "All", count: total, active: true, dot: "text-kn-ink-2" },
-      { label: "Easy", count: countDiff("Easy"), dot: DIFFICULTY_STYLE.Easy.dot },
-      { label: "Medium", count: countDiff("Medium"), dot: DIFFICULTY_STYLE.Medium.dot },
-      { label: "Hard", count: countDiff("Hard"), dot: DIFFICULTY_STYLE.Hard.dot },
-    ],
-    topics: [
-      { label: "All topics", count: total, active: true },
-      ...topicsInCatalog.map((t) => ({ label: t, count: countTag("topics", t) })),
-    ],
-    patterns: [
-      { label: "All", active: true },
-      ...patternsInCatalog.map((t) => ({ label: t })),
-    ],
-    sheets: sheets.map((s) => ({
-      label: s.name,
-      icon: "📘",
-      count: s.entries.length,
-    })),
-  };
+  const statusOptions: FilterOption[] = [
+    { label: "All problems", count: catalogTotal, active: true },
+    { label: "Solved", count: 0 },
+    { label: "Attempted", count: 0 },
+    { label: "To do", count: catalogTotal },
+  ];
+
+  const sheetFilters = sheets.map((s) => ({
+    label: s.name,
+    icon: "📘",
+    count: s.entries.length,
+  }));
 
   return (
     <div className="min-h-screen bg-kn-bg text-kn-ink-0">
@@ -111,13 +116,19 @@ export default async function HomeDashboardPage() {
           <ProgressCard />
         </div>
 
-        {/* browse: sidebar + table */}
-        <div className="grid gap-5 items-start lg:grid-cols-[236px_1fr]">
-          <div className="hidden lg:block">
-            <BrowseSidebar filters={filters} />
-          </div>
-          <ProblemTable problems={problems} />
-        </div>
+        {/* browse: sidebar + table (self-contained client island) */}
+        <BrowsePanel
+          initialRows={initialRows}
+          initialTotal={total}
+          initialState={initialState}
+          topicName={topicName}
+          patternName={patternName}
+          status={statusOptions}
+          difficulties={difficultyOptions}
+          topics={topicOptions}
+          patterns={patternOptions}
+          sheets={sheetFilters}
+        />
       </main>
     </div>
   );

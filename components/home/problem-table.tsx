@@ -1,58 +1,33 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { Problem } from "./home-data";
-import { DIFFICULTY_STYLE, SORT_OPTIONS, STATUS_STYLE } from "./home-data";
+import { DIFFICULTY_STYLE, STATUS_STYLE } from "./home-data";
 
 const GRID = "grid grid-cols-[44px_52px_1fr_96px] gap-3.5 items-center";
 
-export function ProblemTable({ problems }: { problems: Problem[] }) {
+/**
+ * Presentational problem table. `rows` is the current page; `pending` dims the
+ * list while the parent island fetches the next result set (no layout shift, so
+ * scroll position is preserved).
+ */
+export function ProblemTable({
+  rows,
+  pending = false,
+}: {
+  rows: Problem[];
+  pending?: boolean;
+}) {
   return (
     <section>
-      {/* toolbar (search + sort are visual only for now) */}
-      <div className="flex items-center gap-3.5 mb-3.5">
-        <div className="text-sm text-kn-ink-1 whitespace-nowrap">
-          <b className="text-kn-ink-0 font-bold">{problems.length}</b> problems
-        </div>
-        <div className="flex-1 flex items-center gap-2 h-[38px] px-3 border border-kn-border-0 rounded-lg bg-kn-surface-0">
-          <Search className="h-4 w-4 text-kn-ink-2 shrink-0" />
-          <Input
-            readOnly
-            aria-label="Search problems"
-            placeholder="Search problems…"
-            className="h-auto flex-1 border-0 bg-transparent p-0 text-sm text-kn-ink-0 placeholder:text-kn-ink-2 focus-visible:ring-0"
-          />
-          <span className="font-mono text-[10px] font-semibold text-kn-ink-2 border border-kn-border-0 rounded px-1.5 py-0.5">
-            ⌘K
-          </span>
-        </div>
-        <div className="hidden sm:flex items-center gap-2.5">
-          <span className="text-xs text-kn-ink-2">Sort</span>
-          <div className="flex gap-0.5 bg-kn-inset border border-kn-border-0 rounded-lg p-[3px]">
-            {SORT_OPTIONS.map((label, i) => (
-              <Button
-                key={label}
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "h-auto py-1.5 px-3 rounded-md text-xs font-semibold",
-                  i === 0
-                    ? "bg-kn-surface-0 text-kn-ink-0 shadow-sm hover:bg-kn-surface-0"
-                    : "text-kn-ink-2 hover:bg-kn-surface-2 hover:text-kn-ink-0"
-                )}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* table */}
-      <div className="border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden">
+      <div
+        className={cn(
+          "border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden transition-opacity",
+          pending && "opacity-60"
+        )}
+        aria-busy={pending}
+      >
         <div
           className={cn(
             GRID,
@@ -65,7 +40,13 @@ export function ProblemTable({ problems }: { problems: Problem[] }) {
           <span className="text-right">LEVEL</span>
         </div>
 
-        {problems.map((p) => {
+        {rows.length === 0 && (
+          <div className="py-14 text-center text-sm text-kn-ink-2">
+            No problems match your search or filters.
+          </div>
+        )}
+
+        {rows.map((p) => {
           const s = STATUS_STYLE[p.status];
           const d = DIFFICULTY_STYLE[p.diff];
           const StatusIcon = s.icon;
