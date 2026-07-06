@@ -16,7 +16,6 @@ import {
   NotesSection,
 } from "./insight-rail";
 import { ControlDock } from "./control-dock";
-import { MobileModeTabs } from "./mobile-mode-tabs";
 import type { ProblemFull, Trace } from "@/lib/trace";
 import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
 
@@ -292,17 +291,16 @@ export function ProblemEngine({
             </section>
           </div>
         ) : (
-          /* Body — mobile stacked layout (D14): mode tabs → PINNED stage →
-             scrollable content column. The dock below stays pinned by flex. */
+          /* Body — mobile stacked layout (D14): PINNED stage → scrollable content
+             column. Mode switching lives in the ⋮ overflow sheet, so the stage
+             gets that vertical space. The dock below stays pinned by flex. */
           <>
-            <MobileModeTabs mode={mode} setMode={setMode} supportsCompare={problem.supportsCompare} />
-
             {/* Pinned stage — fluid: compact clamp in Learn/Compare, fills in Focus */}
             <div
               className={
                 mode === "Focus"
                   ? "flex-1 min-h-0 flex flex-col"
-                  : "flex-none h-[clamp(11rem,30dvh,20rem)] flex flex-col"
+                  : "flex-none h-[clamp(12rem,34dvh,22rem)] flex flex-col"
               }
             >
               <Stage

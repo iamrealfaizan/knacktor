@@ -571,15 +571,15 @@ export function Stage({
         </g>
       </svg>
 
-      {/* zoom controls */}
+      {/* zoom controls — +/- are desktop-only; mobile zooms via pinch */}
       <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1.5">
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2.6, s + 0.15))} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
+        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2.6, s + 0.15))} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Plus className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.15))} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
+        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.15))} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Minus className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="outline" onClick={reset} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
+        <Button size="icon" variant="outline" onClick={reset} className="h-9 w-9 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Maximize className="h-4 w-4" />
         </Button>
       </div>

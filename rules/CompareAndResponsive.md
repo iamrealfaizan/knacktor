@@ -88,24 +88,26 @@ beneath, and a pinned bottom dock. One responsive `ProblemEngine` — no separat
   `viewportFit: "cover"` so `env(safe-area-inset-*)` works on notch devices.
 
 ### 2.2 Mobile structure (top → bottom; only the scroll body scrolls)
-1. **Top bar** — back button (`router.back()`) · truncating title · **⋮ overflow button**. The
-   overflow opens a **bottom sheet** (`MobileOverflowSheet`) containing: difficulty + topic/pattern
-   badges, Problem-statement button (opens its own bottom sheet — base-ui dialogs don't nest),
-   Approach selector, Strategy summary + complexity chips, Mode switcher, Theme toggle.
-2. **Mode tabs** (`MobileModeTabs`) — slim Learn/Focus/Compare segmented row for one-tap switching
-   (duplicates the sheet's Mode control; Compare gated by `supportsCompare`).
-3. **Pinned Stage** — always visible. Fluid sizing, **no fixed pixel heights**:
-   Learn/Compare `h-[clamp(11rem,30dvh,20rem)]`; Focus `flex-1` (stage fills everything between
-   tabs and dock; scroll body not rendered — matches desktop Focus's stage-only semantics).
+1. **Top bar** — back button (`router.back()`) · **Knacktor logo** (`Logo variant="tile"` → `/home`) ·
+   truncating title · **⋮ overflow button**. The overflow opens a **bottom sheet**
+   (`MobileOverflowSheet`) containing: difficulty + topic/pattern badges, Problem-statement button
+   (opens its own bottom sheet with a **back button** — base-ui dialogs don't nest — where any
+   dismissal returns to the overflow sheet), Approach selector, Strategy summary + complexity chips,
+   **Mode switcher**, Theme toggle. **Mode switching is overflow-sheet-only on mobile** — there is no
+   on-screen tab row; that vertical space goes to the pinned stage.
+2. **Pinned Stage** — always visible. Fluid sizing, **no fixed pixel heights**:
+   Learn/Compare `h-[clamp(12rem,34dvh,22rem)]`; Focus `flex-1` (stage fills everything between the
+   top bar and dock; scroll body not rendered — matches desktop Focus's stage-only semantics).
    Touch: **pointer-event pan + two-finger pinch-zoom** (`touch-none` on stage root); NO
-   tap-to-play gesture — playback is dock-only.
-4. **Scroll body** (`flex-1 min-h-0 overflow-y-auto overscroll-contain`), reference order:
+   tap-to-play gesture — playback is dock-only. The **+/− zoom buttons are desktop-only** (pinch
+   replaces them on mobile); only the auto-fit/reset button remains on mobile (slightly smaller).
+3. **Scroll body** (`flex-1 min-h-0 overflow-y-auto overscroll-contain`), reference order:
    Narration (2×2 grid, always open — collapse chevron is desktop-only) → Variables → Result →
    Call stack → **CodePanel** (body capped `max-h-[45dvh]` with internal scroll; an always-on
    line-explanation box below the code shows the **currently executing** line — prefers
    `syntaxExplanations`, falls back to `lineExplanations`; hover tooltip is desktop-only) →
    Complexity → Notes.
-5. **ControlDock** — pinned by flex (flex-none sibling, not sticky), safe-area bottom padding:
+4. **ControlDock** — pinned by flex (flex-none sibling, not sticky), safe-area bottom padding:
    input-example **chip** opening a bottom sheet (`PresetSheet`: presets + disabled
    "Custom input · SOON" row per D12) → scrubber (taller `h-8` touch zone, diamonds with ≥24px
    hit wrappers) → transport row (speed · first/prev/**play**/next/last · step counter;
@@ -127,6 +129,5 @@ dock stays pinned, and the pinned-stage slot shows lane A. Side-by-side is deskt
 
 ### 2.5 Reuse
 One responsive engine; every panel component is shared. Mobile-only additions are thin shells:
-`mobile-mode-tabs.tsx`, `mobile-overflow-sheet.tsx`, `preset-sheet.tsx` (all compose existing
-shadcn/`kn-*` primitives — the InsightRail's sections are exported individually so the mobile
-scroll body can reorder them).
+`mobile-overflow-sheet.tsx`, `preset-sheet.tsx` (all compose existing shadcn/`kn-*` primitives —
+the InsightRail's sections are exported individually so the mobile scroll body can reorder them).

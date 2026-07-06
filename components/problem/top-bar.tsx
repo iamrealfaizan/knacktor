@@ -77,6 +77,7 @@ export function TopBar({
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
+        <Logo variant="tile" href="/home" />
         <span className="font-semibold text-sm text-kn-ink-0 truncate flex-1 min-w-0">
           {problem.title}
         </span>
@@ -104,10 +105,23 @@ export function TopBar({
         onOpenStatement={() => setStatementOpen(true)}
       />
 
-      {/* Mobile problem statement — its own bottom sheet (base-ui dialogs don't nest) */}
-      <Sheet open={statementOpen} onOpenChange={setStatementOpen}>
+      {/* Mobile problem statement — its own bottom sheet (base-ui dialogs don't nest).
+          Any dismissal returns to the options sheet (statement is a child of it). */}
+      <Sheet
+        open={statementOpen}
+        onOpenChange={(o) => { setStatementOpen(o); if (!o) setOverflowOpen(true); }}
+      >
         <SheetContent side="bottom" className="gap-4 lg:hidden">
           <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => { setStatementOpen(false); setOverflowOpen(true); }}
+              aria-label="Back to options"
+              className="h-8 w-8 -ml-1 shrink-0 text-kn-ink-2 touch-manipulation"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <SheetTitle className="flex-1">
               {problem.number}. {problem.title}
             </SheetTitle>
