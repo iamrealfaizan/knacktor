@@ -1,0 +1,130 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "image": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1
+        ]
+      ],
+      "sr": 1,
+      "sc": 1,
+      "color": 2
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        0
+      ],
+      [
+        2,
+        0,
+        1
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (already colored)",
+    "value": {
+      "image": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "sr": 0,
+      "sc": 0,
+      "color": 0
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  {
+    "id": "edge-single-pixel",
+    "label": "Single Pixel",
+    "value": {
+      "image": [
+        [
+          7
+        ]
+      ],
+      "sr": 0,
+      "sc": 0,
+      "color": 9
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        9
+      ]
+    ]
+  },
+  {
+    "id": "edge-bounded-region",
+    "label": "Bounded Region",
+    "value": {
+      "image": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "sr": 0,
+      "sc": 0,
+      "color": 3
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        1
+      ]
+    ]
+  }
+]

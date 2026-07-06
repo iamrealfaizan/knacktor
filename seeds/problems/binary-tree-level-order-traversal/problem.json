@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "binary-tree-level-order-traversal",
+  "number": 102,
+  "title": "Binary Tree Level Order Traversal",
+  "difficulty": "medium",
+  "topics": [
+    "tree",
+    "binary-tree",
+    "graph"
+  ],
+  "patterns": [
+    "bfs"
+  ],
+  "statement": "Given the `root` of a binary tree, return the *level order traversal* of its nodes' values. (i.e., from left to right, level by level).\n\n> The tree is provided in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples).\n\n**Example 1:**\n\n```\nInput: root = [3,9,20,null,null,15,7]\nOutput: [[3],[9,20],[15,7]]\n```\n\n**Example 2:**\n\n```\nInput: root = [1]\nOutput: [[1]]\n```\n\n**Example 3:**\n\n```\nInput: root = []\nOutput: []\n```\n\n**Constraints:**\n\n- The number of nodes in the tree is in the range `[0, 2000]`.\n- `-1000 <= Node.val <= 1000`",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "bfs",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Tree (level-order, null for gaps)",
+        "placeholder": "3,9,20,null,null,15,7",
+        "min": -1000,
+        "max": 1000,
+        "minLen": 0,
+        "maxLen": 2000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

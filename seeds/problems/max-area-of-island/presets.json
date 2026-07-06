@@ -1,0 +1,215 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "grid": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 6
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (no island)",
+    "value": {
+      "grid": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  },
+  {
+    "id": "edge-full-island",
+    "label": "One Full Island",
+    "value": {
+      "grid": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 4
+  },
+  {
+    "id": "edge-diagonal",
+    "label": "Diagonal Land",
+    "value": {
+      "grid": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "edge-two-islands",
+    "label": "Pick The Bigger",
+    "value": {
+      "grid": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2
+  }
+]

@@ -1,0 +1,130 @@
+{
+  "primitive": "grid",
+  "gridFrom": "image",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "r == cur_r && c == cur_c"
+    },
+    {
+      "state": "visited",
+      "when": "state[r][c] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state[r][c] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Stack (frontier)",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "recoloring {start_color} → {color}",
+    "when": "phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "pixels recolored",
+      "onLines": [
+        17,
+        28
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        12,
+        26
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        13,
+        30
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        14,
+        15,
+        16,
+        17,
+        22,
+        27,
+        28,
+        29
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        18,
+        23
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        19,
+        20,
+        21,
+        24,
+        25
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 13,
+      "label": "Already that color",
+      "kind": "return"
+    },
+    {
+      "line": 15,
+      "label": "Fill begins",
+      "kind": "boundary"
+    },
+    {
+      "line": 30,
+      "label": "Region filled",
+      "kind": "return"
+    }
+  ]
+}

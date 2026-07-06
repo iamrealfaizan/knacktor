@@ -1,0 +1,147 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "edges",
+  "directed": true,
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == cur"
+    },
+    {
+      "state": "visited",
+      "when": "status[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "status[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "cur",
+      "var": "cur"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Ready queue",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "cellStateRules": [
+        {
+          "state": "visited",
+          "when": "idx < head"
+        },
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "taken {taken} of {numCourses}",
+    "when": "phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "courses taken",
+      "onLines": [
+        31
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        26,
+        32
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        33,
+        36
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        27,
+        28,
+        29,
+        39
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        30,
+        31,
+        34,
+        35,
+        37,
+        38
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        40,
+        41
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 37,
+      "label": "Course unlocked",
+      "kind": "boundary"
+    },
+    {
+      "line": 41,
+      "label": "Result",
+      "kind": "return"
+    }
+  ]
+}
