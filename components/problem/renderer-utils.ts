@@ -7,6 +7,18 @@
 const CHAR_RATIO = 0.601; // JetBrains Mono: charWidth ≈ fontSize × 0.601
 
 /**
+ * Display text for one array cell. Scalars render as-is; a tuple value (e.g. an
+ * interval pair [1, 4]) renders as "[1, 4]" instead of React's raw "14"
+ * concatenation. Keeps the array renderer honest for pair-valued problems.
+ */
+export function formatCellValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((x) => String(x)).join(", ")}]`;
+  }
+  return String(value);
+}
+
+/**
  * Returns the largest integer fontSize (px) that fits `value` inside `cellWidth`
  * SVG units, clamped to [min, max].
  *

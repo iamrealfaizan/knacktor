@@ -1,0 +1,89 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We are about to sort intervals by start ascending, breaking ties by larger end first.",
+      "why": "After sorting, any interval that could cover another appears earlier, so a single left-to-right sweep can detect covered intervals.",
+      "invariant": "Once sorted, every interval's start is at least the start of all intervals before it."
+    },
+    "4": {
+      "happening": "We set count to 0.",
+      "why": "count will track how many intervals survive without being covered.",
+      "invariant": "No interval has been kept yet."
+    },
+    "5": {
+      "happening": "We set prev_end to 0, the largest right endpoint kept so far.",
+      "why": "Each new interval is compared against the farthest right end we have already kept.",
+      "invariant": "prev_end is 0 before any interval is processed."
+    },
+    "6": {
+      "happening": "We move to interval i = {i} in sorted order.",
+      "why": "We examine the intervals left to right, so any covering interval is always seen first.",
+      "invariant": "Every interval before i has already been decided."
+    },
+    "7": {
+      "happening": "We read this interval's start = {intervals[i][0]}.",
+      "why": "The start makes the interval explicit; sorting already used it to order the sweep.",
+      "invariant": "start is the left endpoint of interval i."
+    },
+    "8": {
+      "happening": "We read this interval's end = {intervals[i][1]}.",
+      "why": "The end decides whether this interval extends beyond everything kept so far.",
+      "invariant": "end is the right endpoint of interval i."
+    },
+    "9": [
+      {
+        "when": "end > prev_end",
+        "happening": "end ({end}) is greater than prev_end ({prev_end}) — this interval reaches farther right than anything kept, so it is NOT covered.",
+        "why": "Because intervals are sorted by start, an interval is covered only if an earlier one already reaches at least as far right; a strictly larger end proves this interval is new.",
+        "invariant": "Every kept interval has the largest end seen so far."
+      },
+      {
+        "happening": "end ({end}) is not greater than prev_end ({prev_end}) — an earlier interval already covers this one, so we skip it.",
+        "why": "An earlier interval has start <= this start and end >= this end, which is exactly the definition of covering.",
+        "invariant": "Covered intervals change neither count nor prev_end."
+      }
+    ],
+    "10": {
+      "happening": "We keep this interval, so count becomes {count + 1}.",
+      "why": "It is not covered by any earlier interval.",
+      "invariant": "count equals the number of intervals kept so far."
+    },
+    "11": {
+      "happening": "We update prev_end to {end}, the new farthest right endpoint.",
+      "why": "Future intervals must reach beyond this to avoid being covered.",
+      "invariant": "prev_end is the maximum end among all kept intervals."
+    },
+    "12": {
+      "happening": "We return count = {count}.",
+      "why": "Every interval has been checked; count is the number that survived.",
+      "invariant": "count equals the number of intervals not covered by any other."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Sort the intervals and initialize the counter and prev_end.",
+      "why": "Sorting lets a single sweep detect covered intervals; the counter and prev_end drive that sweep.",
+      "invariant": "No interval has been processed yet."
+    },
+    "loop": {
+      "happening": "Advance to the next interval in sorted order.",
+      "why": "One left-to-right pass is enough once intervals are sorted.",
+      "invariant": "Intervals before i are already decided."
+    },
+    "update": {
+      "happening": "Read the interval's endpoints or record that it was kept.",
+      "why": "Each step either exposes the current interval or extends the kept range.",
+      "invariant": "prev_end never decreases."
+    },
+    "check": {
+      "happening": "Compare the current interval's end against prev_end.",
+      "why": "A strictly larger end means the interval is not covered.",
+      "invariant": "Covered intervals are skipped without changing state."
+    },
+    "return": {
+      "happening": "Return the final survivor count.",
+      "why": "The sweep has finished.",
+      "invariant": "count is the number of intervals not covered by any other."
+    }
+  }
+}

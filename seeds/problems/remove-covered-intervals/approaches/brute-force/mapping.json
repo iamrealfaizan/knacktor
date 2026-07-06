@@ -1,0 +1,123 @@
+{
+  "primitive": "array",
+  "valuesFrom": "intervals",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "flags": {
+    "hasJ": "j != null && j != i",
+    "isCovered": "covered"
+  },
+  "cellStateRules": [
+    {
+      "state": "dimmed",
+      "when": "idx == i",
+      "onlyWhen": "isCovered"
+    },
+    {
+      "state": "compared",
+      "when": "idx == j",
+      "onlyWhen": "hasJ"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return' && phase != 'init'",
+    "expr": "testing interval i = [{a}, {b}]"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        14
+      ]
+    },
+    {
+      "name": "kept",
+      "onLines": [
+        18
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        9
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        7,
+        8,
+        12,
+        13,
+        15,
+        18
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        10,
+        14,
+        17
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        11,
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        19
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 14,
+      "when": "c <= a && b <= d",
+      "label": "Covered by another",
+      "kind": "boundary"
+    },
+    {
+      "line": 18,
+      "label": "Interval kept",
+      "kind": "best"
+    },
+    {
+      "line": 19,
+      "label": "Final count",
+      "kind": "return"
+    }
+  ]
+}

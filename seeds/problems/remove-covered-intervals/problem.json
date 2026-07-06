@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "remove-covered-intervals",
+  "number": 1288,
+  "title": "Remove Covered Intervals",
+  "difficulty": "medium",
+  "topics": [
+    "array",
+    "sorting",
+    "interval"
+  ],
+  "patterns": [
+    "merge-intervals",
+    "sorting",
+    "greedy"
+  ],
+  "statement": "Given an array intervals where intervals[i] = [li, ri] represent the interval [li, ri), remove all intervals that are covered by another interval in the list.\n\nThe interval [a, b) is covered by the interval [c, d) if and only if c <= a and b <= d.\n\nReturn the number of remaining intervals.\n\nExample 1:\nInput: intervals = [[1,4],[3,6],[2,8]]\nOutput: 2\nExplanation: Interval [3,6] is covered by [2,8], therefore it is removed.\n\nExample 2:\nInput: intervals = [[1,4],[2,3]]\nOutput: 1\n\nConstraints:\n1 <= intervals.length <= 1000\nintervals[i].length == 2\n0 <= li < ri <= 10^5\nAll the given intervals are unique.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "intervals",
+        "type": "int[]",
+        "label": "Intervals",
+        "placeholder": "[1,4], [3,6], [2,8]",
+        "min": 0,
+        "max": 100000,
+        "minLen": 1,
+        "maxLen": 24
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "primitive": "array",
+  "valuesFrom": "intervals",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "flags": {
+    "isKept": "end != null && end > prev_end"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == i",
+      "onlyWhen": "isKept"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return' && phase != 'init'",
+    "expr": "current end = {end}; largest kept end = {prev_end}"
+  },
+  "counters": [
+    {
+      "name": "kept",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        10,
+        11
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        12
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "when": "end > prev_end",
+      "label": "Interval kept",
+      "kind": "best"
+    },
+    {
+      "line": 9,
+      "when": "end <= prev_end",
+      "label": "Interval covered",
+      "kind": "boundary"
+    },
+    {
+      "line": 12,
+      "label": "Final count",
+      "kind": "return"
+    }
+  ]
+}

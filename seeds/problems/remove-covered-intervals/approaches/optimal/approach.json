@@ -1,0 +1,52 @@
+{
+  "id": "optimal",
+  "name": "Sort and Sweep",
+  "kind": "optimal",
+  "summary": "Sort by start ascending (ties by larger end first), then sweep once keeping an interval only when its end passes the largest end kept so far.",
+  "visualizationIntent": "init: show the sorted intervals as cells (each cell an interval like [1, 4]), count 0 and prev_end 0. loop: the i pointer moves to the current interval. update: read the current interval's start and end. check: compare end against prev_end — if end is larger the interval is NOT covered (flash it result-green) and count grows; otherwise it is covered by an earlier interval and is skipped (stays current, no green). return: freeze on the final survivor count.",
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.removeCoveredIntervals",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "count",
+    "label": "REMAINING",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "prev_end": "special",
+    "end": "current",
+    "count": "result"
+  },
+  "lineExplanations": {
+    "3": "Sort the intervals so that any interval able to cover another comes first.",
+    "4": "Start the survivor counter at zero.",
+    "5": "Track the largest right endpoint among intervals we have decided to keep.",
+    "6": "Walk through the sorted intervals one by one.",
+    "7": "Read the current interval's start endpoint.",
+    "8": "Read the current interval's end endpoint.",
+    "9": "Keep the interval only if its end reaches beyond every kept interval; otherwise it is covered.",
+    "10": "Count this interval because it is not covered.",
+    "11": "Remember this interval's end as the new farthest right endpoint.",
+    "12": "Return how many intervals were not covered."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper the platform expects.",
+    "2": "def removeCoveredIntervals(self, intervals): defines the method; intervals is a list of [start, end] pairs.",
+    "3": "intervals.sort(key=lambda p: (p[0], -p[1])) sorts by start ascending and, on equal starts, by larger end first.",
+    "4": "count = 0 creates an integer counter starting at zero.",
+    "5": "prev_end = 0 stores the largest right endpoint kept so far.",
+    "6": "for i in range(len(intervals)): loops i over every interval index in sorted order.",
+    "7": "start = intervals[i][0] reads the left endpoint of interval i.",
+    "8": "end = intervals[i][1] reads the right endpoint of interval i.",
+    "9": "if end > prev_end: runs the block only when this interval reaches beyond everything kept.",
+    "10": "count += 1 adds one to the survivor count.",
+    "11": "prev_end = end updates the farthest kept right endpoint.",
+    "12": "return count sends back the number of surviving intervals."
+  }
+}

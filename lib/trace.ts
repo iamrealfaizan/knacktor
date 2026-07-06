@@ -35,9 +35,12 @@ export interface StageReadout {
 }
 
 // ── VisualState — discriminated union by `type` (MVP: array | linkedList | recursion)
+/** A single array cell value: a scalar, or a small tuple (e.g. an interval pair). */
+export type ArrayCellValue = number | string | (number | string)[];
+
 export interface ArrayVisualState {
   type: "array";
-  values: (number | string)[];
+  values: ArrayCellValue[];
   /** index (string key) -> Layer-1 state */
   cellStates: Record<string, CellState>;
   /** Layer-2 pointer markers, drawn in the gutter — never recolor a cell */
