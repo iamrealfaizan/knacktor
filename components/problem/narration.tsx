@@ -30,11 +30,12 @@ export function Narration({
   }
 
   return (
-    <div className="flex-none h-[150px] border-t border-kn-border-0 bg-kn-surface-0 px-4 py-3 relative">
-      <Button size="icon" variant="ghost" onClick={onToggle} className="absolute top-2 right-3 h-6 w-6 text-kn-ink-2 z-10" title="Collapse narration">
+    <div className="flex-none h-auto lg:h-[150px] border-t border-kn-border-0 bg-kn-surface-0 px-4 py-3 relative">
+      {/* collapse is a desktop affordance — mobile keeps narration always open */}
+      <Button size="icon" variant="ghost" onClick={onToggle} className="max-lg:hidden absolute top-2 right-3 h-6 w-6 text-kn-ink-2 z-10" title="Collapse narration">
         <ChevronDown className="h-4 w-4" />
       </Button>
-      <div className="grid grid-cols-2 gap-x-7 gap-y-2.5 h-full">
+      <div className="grid grid-cols-2 gap-x-4 lg:gap-x-7 gap-y-2.5 h-full">
         <Block label="▸ WHAT'S HAPPENING" labelColor="text-kn-current" body={narration.happening} bodyClass="text-kn-ink-0" />
         <Block label="✦ WHY IT MATTERS" labelColor="text-kn-result" body={narration.why} bodyClass="text-kn-ink-1" />
         <Block label="‹/› LINE EXPLANATION" labelColor="text-kn-compared" body={lineExplanation} bodyClass="text-kn-ink-1 font-mono text-[12.5px]" />

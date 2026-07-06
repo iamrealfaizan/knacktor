@@ -23,7 +23,7 @@ const SIDE_CLASS: Record<Side, string> = {
   left:
     "inset-y-0 left-0 h-full w-full max-w-md border-r data-closed:-translate-x-full",
   bottom:
-    "inset-x-0 bottom-0 max-h-[85vh] w-full border-t rounded-t-2xl data-closed:translate-y-full",
+    "inset-x-0 bottom-0 max-h-[85dvh] w-full border-t rounded-t-2xl data-closed:translate-y-full pb-[max(1.25rem,env(safe-area-inset-bottom))]",
 };
 
 function SheetContent({

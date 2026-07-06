@@ -1,7 +1,13 @@
 # Compare Mode & Responsive Layout — Knacktor (D14)
 
-> **Status:** v1.0 — specs for Compare mode and the mobile/responsive layout.
+> **Status:** v2.0 — Part 2 (mobile) rewritten to the shipped stacked-1a layout (pinned stage +
+> scroll body + bottom sheets). Part 1 (Compare) remains the spec for the not-yet-built dual-lane view.
 > **Companions:** [Design.md](Design.md) (page layout + tokens), [Rules.md](Rules.md) §1/§8 (no-scroll desktop loop), the locked prototype `4Sum Visualizer.html`.
+>
+> **Known discrepancy (open item, see Tracker):** §1.4 says `MODE_LAYOUT.Compare` sets
+> `code:false, rail:false`, but the shipped `problem-engine.tsx` uses
+> `Compare: { code: true (collapsed), rail: false (visible), narr: true }`. Resolve when the
+> dual-lane Compare view is built.
 
 ---
 
@@ -65,37 +71,62 @@ moment" rule within a lane. May be offered later as an opt-in toggle.
 
 ---
 
-## Part 2 — Responsive / Mobile Layout (D14)
+## Part 2 — Responsive / Mobile Layout (D14, v2 — shipped)
 
-Desktop stays the canonical **no-scroll 5-panel** layout. Below `lg` the page becomes a vertical
-stack with a pinned controller.
+Desktop stays the canonical **no-scroll 5-panel** layout, byte-for-byte unchanged. Below `lg` the
+engine renders the **stacked-1a mobile layout**: pinned stage on top, a scrollable content column
+beneath, and a pinned bottom dock. One responsive `ProblemEngine` — no separate mobile engine.
 
-### 2.1 Breakpoint
-Single Tailwind breakpoint at **`lg` (1024px)**. `≥ lg` = desktop canonical; `< lg` = mobile stack.
-Layout is driven by responsive classes (SSR-clean); a `useMediaQuery('(min-width:1024px)')` flag
-(defaulting to desktop for SSR) gates the desktop-only inline panel widths.
+### 2.1 Breakpoint & branching
+- Single Tailwind breakpoint at **`lg` (1024px)**: `≥ lg` desktop canonical, `< lg` mobile stack
+  (phones AND tablets).
+- `useIsDesktop()` (`matchMedia(min-width:1024px)`, SSR-defaults desktop → one accepted paint of
+  the desktop layout on phones before correction) selects the structural branch inside
+  `problem-engine.tsx`; everything inside components uses `lg:` / `max-lg:` classes.
+- Route layout: `h-dvh lg:h-screen overflow-hidden` — `dvh` tracks mobile browser chrome so the
+  pinned dock never sits under the URL bar. `app/layout.tsx` exports `viewport` with
+  `viewportFit: "cover"` so `env(safe-area-inset-*)` works on notch devices.
 
-### 2.2 Mobile DOM order (top → bottom)
-1. **Top bar** (condensed; mode switch may move to an overflow menu on narrow widths).
-2. **Code panel** — full width, capped height, internal `cs-scroll`.
-3. **Simulation window** (Stage) — full width, fixed height (e.g. `h-[40vh]`); pan/zoom via touch.
-4. **Narration** — full width; the 2×2 grid stacks to 1 column on the narrowest widths.
-5. **Insight rail** — full width.
-6. **Controller (`ControlDock`)** — **pinned to bottom** (`sticky bottom-0 z-20`), outside the
-   scrolling content column.
+### 2.2 Mobile structure (top → bottom; only the scroll body scrolls)
+1. **Top bar** — back button (`router.back()`) · truncating title · **⋮ overflow button**. The
+   overflow opens a **bottom sheet** (`MobileOverflowSheet`) containing: difficulty + topic/pattern
+   badges, Problem-statement button (opens its own bottom sheet — base-ui dialogs don't nest),
+   Approach selector, Strategy summary + complexity chips, Mode switcher, Theme toggle.
+2. **Mode tabs** (`MobileModeTabs`) — slim Learn/Focus/Compare segmented row for one-tap switching
+   (duplicates the sheet's Mode control; Compare gated by `supportsCompare`).
+3. **Pinned Stage** — always visible. Fluid sizing, **no fixed pixel heights**:
+   Learn/Compare `h-[clamp(11rem,30dvh,20rem)]`; Focus `flex-1` (stage fills everything between
+   tabs and dock; scroll body not rendered — matches desktop Focus's stage-only semantics).
+   Touch: **pointer-event pan + two-finger pinch-zoom** (`touch-none` on stage root); NO
+   tap-to-play gesture — playback is dock-only.
+4. **Scroll body** (`flex-1 min-h-0 overflow-y-auto overscroll-contain`), reference order:
+   Narration (2×2 grid, always open — collapse chevron is desktop-only) → Variables → Result →
+   Call stack → **CodePanel** (body capped `max-h-[45dvh]` with internal scroll; an always-on
+   line-explanation box below the code shows the **currently executing** line — prefers
+   `syntaxExplanations`, falls back to `lineExplanations`; hover tooltip is desktop-only) →
+   Complexity → Notes.
+5. **ControlDock** — pinned by flex (flex-none sibling, not sticky), safe-area bottom padding:
+   input-example **chip** opening a bottom sheet (`PresetSheet`: presets + disabled
+   "Custom input · SOON" row per D12) → scrubber (taller `h-8` touch zone, diamonds with ≥24px
+   hit wrappers) → transport row (speed · first/prev/**play**/next/last · step counter;
+   diamond-jump buttons and the legend/input caption are desktop-only).
 
-### 2.3 Coexistence with desktop resize
-- Desktop resize handles are `hidden lg:block`; the inline `width` styles apply only `≥ lg`.
-- Mobile panels are `w-full`, so `codeW`/`railW` are harmlessly ignored.
-- `app/problems/[slug]/layout.tsx`'s `h-screen overflow-hidden` is relaxed so the **mobile content
-  column** owns `overflow-y-auto` while the dock stays pinned. The no-scroll invariant is
-  **desktop-only**.
-- Panel collapse toggles default to **expanded** on mobile (collapse is a desktop space affordance).
+### 2.3 Coexistence with desktop
+- The desktop branch renders the original 3-column JSX verbatim; `codeW`/`railW` resize handles
+  and collapse buttons exist only there.
+- CodePanel auto-scroll uses **internal `scrollTop` math** (not `scrollIntoView`) so line-tracking
+  never yanks the mobile page scroll (also applies on desktop — same behavior, safer mechanism).
+- Touch targets ≥40–44px on mobile (`h-10/h-11` with `lg:h-8` desktop sizes); `touch-manipulation`
+  on all transport/tab/zoom controls.
 
 ### 2.4 Compare on mobile
-`< lg`, the two Compare lanes stack **vertically** (lane A stage, then lane B stage) within the same
-scroll column; the shared dock stays pinned. Side-by-side is desktop-only.
+Until the dual-lane Compare view (Part 1) is built, Compare on mobile renders **single-lane**
+(identical to Learn; tab still gated by `supportsCompare`). When lanes land: both lane blocks
+(lane header → stage → per-lane strip) stack **vertically inside the scroll body**, the shared
+dock stays pinned, and the pinned-stage slot shows lane A. Side-by-side is desktop-only.
 
 ### 2.5 Reuse
-Every panel component is reused unchanged across desktop and mobile — **only the wrapping
-containers and ordering classes differ**. No mobile-specific component variants.
+One responsive engine; every panel component is shared. Mobile-only additions are thin shells:
+`mobile-mode-tabs.tsx`, `mobile-overflow-sheet.tsx`, `preset-sheet.tsx` (all compose existing
+shadcn/`kn-*` primitives — the InsightRail's sections are exported individually so the mobile
+scroll body can reorder them).

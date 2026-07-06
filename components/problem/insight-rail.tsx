@@ -36,6 +36,136 @@ function fmt(v: unknown): string {
   return v === null || v === undefined ? "∅" : String(v);
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Exported sections — the desktop InsightRail composes them in its canonical
+ * order; the mobile stacked layout (D14) recomposes them in the reference
+ * order (variables → result → call stack → … → complexity → notes).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export function VariablesSection({
+  step,
+  prevVars,
+  idx,
+  varOrder,
+  varColors,
+}: {
+  step: Step;
+  prevVars: Record<string, unknown>;
+  idx: number;
+  varOrder?: string[];
+  varColors?: Record<string, string>;
+}) {
+  // Ordered, generic variable list: prefer the per-trace registry, fall back to
+  // this step's own keys. Only scalar (primitive) vars render as chips — arrays /
+  // objects belong to the RESULT panel or the stage, not the scalar row.
+  const order = varOrder ?? Object.keys(step.vars);
+  const seen = new Set<string>();
+  const visibleVars = order.filter((name) => {
+    if (seen.has(name)) return false;
+    seen.add(name);
+    return name in step.vars && isPrimitive(step.vars[name]);
+  });
+  const colorFor = (name: string): string => {
+    const pin = varColors?.[name];
+    if (pin) return `var(--kn-${pin})`;
+    const i = visibleVars.indexOf(name);
+    return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
+  };
+
+  return (
+    <Section title="VARIABLES" suffix="· flash on change">
+      <div className="flex gap-1.5 flex-wrap">
+        {visibleVars.length === 0 && (
+          <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
+        )}
+        {visibleVars.map((name) => {
+          const changed = step.changedVars.includes(name);
+          const born = !(name in prevVars); // creation pop-in vs population flash
+          const color = colorFor(name);
+          const val = step.vars[name];
+          return (
+            <span
+              key={`${name}-${changed || born ? idx : "x"}`}
+              className={cn(
+                "inline-flex items-center gap-1 px-2 py-1 rounded-lg border bg-kn-surface-0 font-mono text-[13px] font-semibold text-kn-ink-0",
+                born ? "kn-anim-pop-in" : changed && "kn-anim-chip-flash"
+              )}
+              style={{ borderColor: color, borderWidth: 1.5 }}
+            >
+              {name}
+              <b style={{ color }}>{fmt(val)}</b>
+            </span>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
+export function ComplexitySection({ complexity }: { complexity: { time: string; space: string } }) {
+  return (
+    <Section title="COMPLEXITY">
+      <div className="flex flex-col gap-3.5">
+        {/* TIME */}
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">TIME</span>
+          <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+            {complexity.time}
+          </span>
+        </div>
+
+        {/* SPACE */}
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">SPACE</span>
+          <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
+            {complexity.space}
+          </span>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/** Data-driven RESULT panel — renders nothing when the approach has no resultSpec. */
+export function ResultSection({ step, resultSpec }: { step: Step; resultSpec?: ResultSpec }) {
+  if (!resultSpec) return null;
+  return (
+    <Section title={resultSpec.label} suffix={resultSpec.suffix}>
+      <ResultView value={step.vars[resultSpec.varName]} spec={resultSpec} />
+    </Section>
+  );
+}
+
+/** Call stack — renders nothing for non-recursive problems. */
+export function CallStackSection({ step }: { step: Step }) {
+  if (!step.callStack || step.callStack.length === 0) return null;
+  return (
+    <Section title="CALL STACK">
+      <div className="flex flex-col gap-1">
+        {step.callStack.map((f) => (
+          <div
+            key={f.id}
+            className={cn(
+              "px-2 py-1 rounded-md font-mono text-[12px] border",
+              f.isCurrent ? "border-kn-current text-kn-ink-0 bg-kn-current-subtle" : "border-kn-border-0 text-kn-ink-1"
+            )}
+          >
+            {f.label}
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+export function NotesSection({ slug, grow = true }: { slug: string; grow?: boolean }) {
+  return (
+    <Section title="NOTES" suffix="· local" grow={grow}>
+      <NotesArea slug={slug} />
+    </Section>
+  );
+}
+
 export function InsightRail({
   step,
   prevVars,
@@ -75,23 +205,6 @@ export function InsightRail({
     );
   }
 
-  // Ordered, generic variable list: prefer the per-trace registry, fall back to
-  // this step's own keys. Only scalar (primitive) vars render as chips — arrays /
-  // objects belong to the RESULT panel or the stage, not the scalar row.
-  const order = varOrder ?? Object.keys(step.vars);
-  const seen = new Set<string>();
-  const visibleVars = order.filter((name) => {
-    if (seen.has(name)) return false;
-    seen.add(name);
-    return name in step.vars && isPrimitive(step.vars[name]);
-  });
-  const colorFor = (name: string): string => {
-    const pin = varColors?.[name];
-    if (pin) return `var(--kn-${pin})`;
-    const i = visibleVars.indexOf(name);
-    return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
-  };
-
   return (
     <div className="h-full flex flex-col bg-kn-surface-0 overflow-y-auto cs-scroll">
       {/* header */}
@@ -102,85 +215,11 @@ export function InsightRail({
         </Button>
       </div>
 
-      {/* Variables */}
-      <Section title="VARIABLES" suffix="· flash on change">
-        <div className="flex gap-1.5 flex-wrap">
-          {visibleVars.length === 0 && (
-            <span className="px-2 py-1 rounded-lg font-mono text-[12px] text-kn-ink-2 border border-dashed border-kn-border-1">…</span>
-          )}
-          {visibleVars.map((name) => {
-            const changed = step.changedVars.includes(name);
-            const born = !(name in prevVars); // creation pop-in vs population flash
-            const color = colorFor(name);
-            const val = step.vars[name];
-            return (
-              <span
-                key={`${name}-${changed || born ? idx : "x"}`}
-                className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-lg border bg-kn-surface-0 font-mono text-[13px] font-semibold text-kn-ink-0",
-                  born ? "kn-anim-pop-in" : changed && "kn-anim-chip-flash"
-                )}
-                style={{ borderColor: color, borderWidth: 1.5 }}
-              >
-                {name}
-                <b style={{ color }}>{fmt(val)}</b>
-              </span>
-            );
-          })}
-        </div>
-      </Section>
-
-      {/* Complexity */}
-      <Section title="COMPLEXITY">
-        <div className="flex flex-col gap-3.5">
-          {/* TIME */}
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">TIME</span>
-            <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
-              {complexity.time}
-            </span>
-          </div>
-
-          {/* SPACE */}
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] font-bold tracking-widest text-kn-ink-2">SPACE</span>
-            <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded border border-kn-border-0 bg-kn-inset text-kn-ink-0">
-              {complexity.space}
-            </span>
-          </div>
-        </div>
-      </Section>
-
-      {/* Result panel — data-driven via the approach's resultSpec */}
-      {resultSpec && (
-        <Section title={resultSpec.label} suffix={resultSpec.suffix}>
-          <ResultView value={step.vars[resultSpec.varName]} spec={resultSpec} />
-        </Section>
-      )}
-
-      {/* Call stack — only shown for recursive problems */}
-      {step.callStack && step.callStack.length > 0 && (
-        <Section title="CALL STACK">
-          <div className="flex flex-col gap-1">
-            {step.callStack.map((f) => (
-              <div
-                key={f.id}
-                className={cn(
-                  "px-2 py-1 rounded-md font-mono text-[12px] border",
-                  f.isCurrent ? "border-kn-current text-kn-ink-0 bg-kn-current-subtle" : "border-kn-border-0 text-kn-ink-1"
-                )}
-              >
-                {f.label}
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* Notes */}
-      <Section title="NOTES" suffix="· local" grow>
-        <NotesArea slug={slug} />
-      </Section>
+      <VariablesSection step={step} prevVars={prevVars} idx={idx} varOrder={varOrder} varColors={varColors} />
+      <ComplexitySection complexity={complexity} />
+      <ResultSection step={step} resultSpec={resultSpec} />
+      <CallStackSection step={step} />
+      <NotesSection slug={slug} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import { ChevronDown, Check, FileText, X, Lightbulb, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ChevronDown, Check, FileText, X, Lightbulb, Loader2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -26,6 +28,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { MobileOverflowSheet } from "./mobile-overflow-sheet";
 import type { Approach, ProblemFull } from "@/lib/trace";
 import type { Mode } from "./problem-engine";
 
@@ -57,9 +60,65 @@ export function TopBar({
 }) {
   const activeApproach = approaches.find((a) => a.id === activeApproachId) ?? approaches[0];
   const onlyOne = approaches.length <= 1;
+  const router = useRouter();
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const [statementOpen, setStatementOpen] = useState(false);
 
   return (
-    <header className="flex-none h-14 flex items-center gap-3 px-4 border-b border-kn-border-0 bg-kn-surface-0">
+    <header className="flex-none h-12 lg:h-14 flex items-center gap-3 px-2 lg:px-4 border-b border-kn-border-0 bg-kn-surface-0">
+      {/* ── Mobile cluster: back · title · ⋮ (everything else lives in the overflow sheet) ── */}
+      <div className="flex lg:hidden items-center gap-1.5 w-full min-w-0">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => router.back()}
+          aria-label="Back"
+          className="h-10 w-10 shrink-0 text-kn-ink-0 touch-manipulation"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <span className="font-semibold text-sm text-kn-ink-0 truncate flex-1 min-w-0">
+          {problem.title}
+        </span>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => setOverflowOpen(true)}
+          aria-label="More options"
+          className="h-10 w-10 shrink-0 text-kn-ink-0 touch-manipulation"
+        >
+          <MoreVertical className="h-5 w-5" />
+        </Button>
+      </div>
+
+      <MobileOverflowSheet
+        open={overflowOpen}
+        onOpenChange={setOverflowOpen}
+        problem={problem}
+        mode={mode}
+        setMode={setMode}
+        approaches={approaches}
+        activeApproachId={activeApproachId}
+        loadingApproachId={loadingApproachId}
+        onSelectApproach={onSelectApproach}
+        onOpenStatement={() => setStatementOpen(true)}
+      />
+
+      {/* Mobile problem statement — its own bottom sheet (base-ui dialogs don't nest) */}
+      <Sheet open={statementOpen} onOpenChange={setStatementOpen}>
+        <SheetContent side="bottom" className="gap-4 lg:hidden">
+          <div className="flex items-center gap-2">
+            <SheetTitle className="flex-1">
+              {problem.number}. {problem.title}
+            </SheetTitle>
+            <DifficultyBadge difficulty={problem.difficulty} format="upper" />
+          </div>
+          <StatementArticle statement={problem.statement} />
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Desktop cluster — unchanged flagship top bar ── */}
+      <div className="hidden lg:flex items-center gap-3 flex-1 min-w-0">
       <Logo variant="tile" href="/home" />
 
       <span className="font-semibold text-base text-kn-ink-0">{problem.title}</span>
@@ -102,9 +161,7 @@ export function TopBar({
               }
             />
           </div>
-          <article className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-kn-ink-1">
-            {problem.statement}
-          </article>
+          <StatementArticle statement={problem.statement} />
         </SheetContent>
       </Sheet>
 
@@ -192,6 +249,15 @@ export function TopBar({
 
         <ThemeToggle size="sm" />
       </div>
+      </div>
     </header>
+  );
+}
+
+function StatementArticle({ statement }: { statement: string }) {
+  return (
+    <article className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-kn-ink-1">
+      {statement}
+    </article>
   );
 }

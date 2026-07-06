@@ -312,6 +312,9 @@ export function Stage({
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  // Pointer-event gesture state: 1 active pointer = pan, 2 = pinch-zoom (touch).
+  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinch = useRef<{ dist: number; scale: number } | null>(null);
 
   // ── Measured auto-fit ──────────────────────────────────────────────────────
   // The heuristic getLeafViewBox() is only the SSR/first-paint estimate; after
@@ -382,18 +385,46 @@ export function Stage({
     const next = Math.max(0.5, Math.min(2.6, scale - e.deltaY * 0.0012));
     setScale(next);
   }
-  function onDown(e: React.MouseEvent) {
+  function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("button")) return;
-    drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 1) {
+      drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
+      pinch.current = null;
+    } else if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale };
+      drag.current = null;
+    }
   }
-  function onMove(e: React.MouseEvent) {
-    if (!drag.current) return;
-    setPan({
-      x: drag.current.px + (e.clientX - drag.current.x) / scale,
-      y: drag.current.py + (e.clientY - drag.current.y) / scale,
-    });
+  function onPointerMove(e: React.PointerEvent) {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch.current && pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (pinch.current.dist > 0) {
+        setScale(Math.max(0.5, Math.min(2.6, pinch.current.scale * (dist / pinch.current.dist))));
+      }
+    } else if (drag.current) {
+      setPan({
+        x: drag.current.px + (e.clientX - drag.current.x) / scale,
+        y: drag.current.py + (e.clientY - drag.current.y) / scale,
+      });
+    }
   }
-  function onUp() { drag.current = null; }
+  function onPointerUp(e: React.PointerEvent) {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    if (pointers.current.size === 1) {
+      // pinch ended with one finger still down — resume panning from it
+      const [p] = [...pointers.current.values()];
+      drag.current = { x: p.x, y: p.y, px: pan.x, py: pan.y };
+    } else if (pointers.current.size === 0) {
+      drag.current = null;
+    }
+  }
   function reset() {
     setScale(1);
     setPan({ x: 0, y: 0 });
@@ -422,28 +453,28 @@ export function Stage({
 
   return (
     <div
-      className="kn-stage-root relative flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing"
+      className="kn-stage-root relative flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
       style={{
         background: "var(--kn-stage)",
         backgroundImage: "radial-gradient(var(--kn-dot) 1px, transparent 1px)",
         backgroundSize: "22px 22px",
       }}
       onWheel={onWheel}
-      onMouseDown={onDown}
-      onMouseMove={onMove}
-      onMouseUp={onUp}
-      onMouseLeave={onUp}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
     >
-      {/* caption */}
-      <span className="absolute top-3 left-3 z-10 font-mono text-[9.5px] font-bold tracking-widest text-kn-ink-2 pointer-events-none uppercase">
+      {/* caption — truncates on narrow screens so it never runs under the legend */}
+      <span className="absolute top-3 left-3 z-10 font-mono text-[9.5px] font-bold tracking-widest text-kn-ink-2 pointer-events-none uppercase max-w-[40%] lg:max-w-none truncate">
         {caption}
       </span>
 
-      {/* legend */}
+      {/* legend — compact below lg */}
       {legend.length > 0 && (
-        <div className="absolute top-2.5 right-3 z-10 flex gap-3 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5 text-[11px]">
+        <div className="absolute top-2.5 right-3 z-10 flex gap-2 lg:gap-3 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-2 py-1 lg:px-3 lg:py-1.5 text-[10px] lg:text-[11px]">
           {legend.map((l) => (
-            <span key={l.label} className="flex items-center gap-1.5 text-kn-ink-1">
+            <span key={l.label} className="flex items-center gap-1 lg:gap-1.5 text-kn-ink-1">
               <span className="w-2.5 h-2.5 rounded-sm" style={{ background: l.color }} />
               {l.label}
             </span>
@@ -460,7 +491,7 @@ export function Stage({
         <g
           ref={contentRef}
           transform={`translate(${pan.x} ${pan.y}) scale(${scale})`}
-          style={{ transition: drag.current ? "none" : "transform 0.15s ease" }}
+          style={{ transition: drag.current || pinch.current ? "none" : "transform 0.15s ease" }}
         >
           {isCombined ? (
             <>
@@ -542,20 +573,21 @@ export function Stage({
 
       {/* zoom controls */}
       <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1.5">
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2.6, s + 0.15))} className="h-8 w-8 border-kn-border-0 bg-kn-surface-0">
+        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2.6, s + 0.15))} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Plus className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.15))} className="h-8 w-8 border-kn-border-0 bg-kn-surface-0">
+        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.15))} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Minus className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="outline" onClick={reset} className="h-8 w-8 border-kn-border-0 bg-kn-surface-0">
+        <Button size="icon" variant="outline" onClick={reset} className="h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Maximize className="h-4 w-4" />
         </Button>
       </div>
 
       {/* zoom caption */}
       <span className="absolute bottom-3 left-3 z-10 font-mono text-[11px] text-kn-ink-2 pointer-events-none">
-        {Math.round(scale * 100)}% · drag to pan · scroll to zoom
+        {Math.round(scale * 100)}%<span className="max-lg:hidden"> · drag to pan · scroll to zoom</span>
+        <span className="lg:hidden"> · pinch to zoom · drag to pan</span>
       </span>
     </div>
   );
