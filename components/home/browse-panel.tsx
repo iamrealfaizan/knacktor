@@ -9,6 +9,7 @@ import {
   type BrowseState,
 } from "@/lib/home-url";
 import { BrowseSidebar, type FilterGroup, type SheetFilter } from "./browse-sidebar";
+import { MobileFilterSheet } from "./mobile-filter-sheet";
 import { ProblemToolbar } from "./problem-toolbar";
 import { ProblemTable } from "./problem-table";
 import { PaginationBar } from "./pagination-bar";
@@ -52,7 +53,12 @@ export function BrowsePanel({
   const [rows, setRows] = useState<Problem[]>(initialRows);
   const [total, setTotal] = useState(initialTotal);
   const [pending, setPending] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const firstRender = useRef(true);
+
+  // Active facet filters (status/sheets are inert placeholders — not counted).
+  const activeFilterCount =
+    state.difficulties.length + state.topics.length + state.patterns.length;
 
   useEffect(() => {
     // Initial state already matches the server-rendered rows — skip that fetch.
@@ -157,6 +163,8 @@ export function BrowsePanel({
           order={state.order}
           onSearchChange={onSearchChange}
           onSortChange={onSortChange}
+          onOpenFilters={() => setFiltersOpen(true)}
+          activeFilterCount={activeFilterCount}
         />
         <ProblemTable rows={rows} pending={pending} />
         <PaginationBar
@@ -166,6 +174,28 @@ export function BrowsePanel({
           onPageChange={onPageChange}
         />
       </div>
+
+      {/* Mobile (< lg) filter + sort bottom sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        status={status}
+        difficulties={difficulties}
+        topics={topics}
+        patterns={patterns}
+        sheets={sheets}
+        selected={{
+          difficulties: state.difficulties,
+          topics: state.topics,
+          patterns: state.patterns,
+        }}
+        activeCount={activeFilterCount}
+        onToggle={onToggle}
+        onClearAll={onClearAll}
+        sort={state.sort}
+        order={state.order}
+        onSortChange={onSortChange}
+      />
     </div>
   );
 }

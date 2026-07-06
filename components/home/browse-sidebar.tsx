@@ -42,6 +42,9 @@ interface BrowseSidebarProps {
   selected: Selected;
   onToggle: (group: FilterGroup, value: string | null) => void;
   onClearAll: () => void;
+  /** When true, drop the sticky bordered <aside> chrome so the same filter
+   *  sections can live inside the mobile bottom sheet. */
+  bare?: boolean;
 }
 
 function Section({
@@ -172,15 +175,24 @@ export function BrowseSidebar({
   selected,
   onToggle,
   onClearAll,
+  bare = false,
 }: BrowseSidebarProps) {
   const catalogTotal = status[0]?.count ?? 0;
   const summary = (n: number) => (n > 0 ? `${n} selected` : "All");
   const anyActive =
     selected.difficulties.length + selected.topics.length + selected.patterns.length > 0;
 
+  const Wrapper = bare ? "div" : "aside";
+
   return (
-    <aside className="sticky top-[76px] flex flex-col border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden">
-      {anyActive && (
+    <Wrapper
+      className={cn(
+        "flex flex-col overflow-hidden",
+        !bare &&
+          "sticky top-[76px] border border-kn-border-0 rounded-[14px] bg-kn-surface-0"
+      )}
+    >
+      {!bare && anyActive && (
         <div className="px-4 pt-3">
           <Button
             variant="ghost"
@@ -283,6 +295,6 @@ export function BrowseSidebar({
           ))}
         </div>
       </Section>
-    </aside>
+    </Wrapper>
   );
 }
