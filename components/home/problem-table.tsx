@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import type { Problem } from "./home-data";
 import { DIFFICULTY_STYLE, STATUS_STYLE } from "./home-data";
 
-const GRID = "grid grid-cols-[44px_52px_1fr_96px] gap-3.5 items-center";
+const GRID =
+  "grid grid-cols-[36px_40px_1fr_auto] lg:grid-cols-[44px_52px_1fr_96px] gap-2.5 lg:gap-3.5 items-center";
 
 /**
  * Presentational problem table. `rows` is the current page; `pending` dims the
@@ -67,18 +68,18 @@ export function ProblemTable({
                 {String(p.num).padStart(2, "0")}
               </span>
               <span className="min-w-0">
-                <span className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-[15px] font-semibold text-kn-ink-0">{p.title}</span>
+                <span className="flex items-center gap-2.5 min-w-0 lg:flex-wrap">
+                  <span className="text-[15px] font-semibold text-kn-ink-0 truncate lg:whitespace-normal">{p.title}</span>
                   {p.viz && (
                     <Badge
                       title="Has visualizer"
-                      className="rounded-full font-mono text-[9px] tracking-[0.06em] bg-kn-result-subtle text-kn-result px-1.5"
+                      className="hidden lg:inline-flex rounded-full font-mono text-[9px] tracking-[0.06em] bg-kn-result-subtle text-kn-result px-1.5"
                     >
                       ▸ VIZ
                     </Badge>
                   )}
                 </span>
-                <span className="flex gap-1.5 flex-wrap mt-1.5">
+                <span className="hidden lg:flex gap-1.5 flex-wrap mt-1.5">
                   {p.topics.map((t) => (
                     <Badge
                       key={t}

@@ -106,7 +106,7 @@ export default async function HomeDashboardPage({
   return (
     <div className="min-h-screen bg-kn-bg text-kn-ink-0">
       <HomeHeader user={user} />
-      <main className="max-w-[1280px] mx-auto px-6 pt-[26px] pb-16">
+      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 pt-[26px] pb-16">
         <Greeting name={user.name} />
 
         {/* dashboard band */}

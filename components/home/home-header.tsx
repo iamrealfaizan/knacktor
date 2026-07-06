@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { Search, Flame, LogOut } from "lucide-react";
+import { Search, Flame, LogOut, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -12,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -32,8 +35,49 @@ function getInitials(name: string): string {
 }
 
 export function HomeHeader({ user }: { user: HeaderUser }) {
+  const [navOpen, setNavOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-50 flex items-center gap-5 h-[60px] px-5 sm:px-6 border-b border-kn-border-0 bg-kn-bg/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 flex items-center gap-3 sm:gap-5 h-[60px] px-4 sm:px-6 border-b border-kn-border-0 bg-kn-bg/85 backdrop-blur-xl">
+      {/* Mobile hamburger — appears exactly where the inline nav disappears */}
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={() => setNavOpen(true)}
+        aria-label="Menu"
+        className="md:hidden shrink-0 h-9 w-9 text-kn-ink-0 touch-manipulation"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      <Sheet open={navOpen} onOpenChange={setNavOpen}>
+        <SheetContent side="left" className="gap-0 p-0 pt-2 max-w-[80vw] sm:max-w-xs">
+          <div className="px-5 py-4 border-b border-kn-border-0">
+            <Logo variant="dashboard" href="/home" />
+          </div>
+          <SheetTitle className="px-5 pt-4 pb-2 text-[10px] tracking-widest text-kn-ink-2">
+            NAVIGATION
+          </SheetTitle>
+          <nav className="flex flex-col px-3 pb-3">
+            {NAV_LINKS.map(({ label, href, active }) => (
+              <Link
+                key={label}
+                href={href}
+                onClick={() => setNavOpen(false)}
+                className={cn(
+                  "min-h-11 flex items-center px-3 rounded-lg text-sm font-medium transition-colors touch-manipulation",
+                  active
+                    ? "text-kn-ink-0 bg-kn-surface-2 font-semibold"
+                    : "text-kn-ink-1 hover:text-kn-ink-0 hover:bg-kn-surface-2"
+                )}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </SheetContent>
+      </Sheet>
+
       <Logo variant="dashboard" href="/home" />
 
       <nav className="hidden md:flex items-center gap-0.5">
