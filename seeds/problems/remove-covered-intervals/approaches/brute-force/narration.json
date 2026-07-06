@@ -1,0 +1,145 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We set count to 0.",
+      "why": "count will hold how many intervals are not covered by any other.",
+      "invariant": "No interval has been counted yet."
+    },
+    "4": {
+      "happening": "We store n = {len(intervals)}, the number of intervals.",
+      "why": "Both the outer and inner loops range over all n intervals.",
+      "invariant": "n never changes during the algorithm."
+    },
+    "5": {
+      "happening": "Outer pointer i = {i} selects the interval we are testing.",
+      "why": "We must check every interval to decide whether some other interval covers it.",
+      "invariant": "Every interval before i has already been decided."
+    },
+    "6": {
+      "happening": "We assume interval i is not covered yet.",
+      "why": "covered will flip to True only if we find an interval that covers i.",
+      "invariant": "covered describes only interval i's status this round."
+    },
+    "7": {
+      "happening": "We read a = {intervals[i][0]}, interval i's start.",
+      "why": "The covering test needs interval i's own endpoints.",
+      "invariant": "a is interval i's left endpoint."
+    },
+    "8": {
+      "happening": "We read b = {intervals[i][1]}, interval i's end.",
+      "why": "Interval i is the half-open range [a, b).",
+      "invariant": "b is interval i's right endpoint."
+    },
+    "9": {
+      "happening": "Inner pointer j = {j} scans candidate covering intervals.",
+      "why": "Any other interval in the list might cover interval i.",
+      "invariant": "j visits every index, including i, which is skipped next."
+    },
+    "10": [
+      {
+        "when": "i == j",
+        "happening": "j has reached interval i itself.",
+        "why": "An interval is never treated as covering itself here.",
+        "invariant": "We only ever compare two distinct intervals."
+      },
+      {
+        "happening": "j ({j}) is a different interval from i ({i}).",
+        "why": "Only other intervals can cover interval i.",
+        "invariant": "i and j point at two distinct intervals here."
+      }
+    ],
+    "11": {
+      "happening": "We skip the self-comparison and advance j.",
+      "why": "Comparing interval i with itself would always look like a cover and is meaningless.",
+      "invariant": "Only distinct pairs of intervals are ever tested."
+    },
+    "12": {
+      "happening": "We read c = {intervals[j][0]}, the candidate's start.",
+      "why": "A covering interval must start at or before a.",
+      "invariant": "c is interval j's left endpoint."
+    },
+    "13": {
+      "happening": "We read d = {intervals[j][1]}, the candidate's end.",
+      "why": "A covering interval must end at or after b.",
+      "invariant": "d is interval j's right endpoint."
+    },
+    "14": [
+      {
+        "when": "c <= a && b <= d",
+        "happening": "c ({c}) <= a ({a}) and b ({b}) <= d ({d}) — interval j covers interval i.",
+        "why": "This is the exact definition: [a, b) is covered by [c, d) when c <= a and b <= d.",
+        "invariant": "A covered interval will not be added to count."
+      },
+      {
+        "happening": "Interval j (start {c}, end {d}) does not cover interval i (start {a}, end {b}).",
+        "why": "At least one of c <= a or b <= d fails, so j cannot swallow interval i.",
+        "invariant": "covered stays False until some interval covers i."
+      }
+    ],
+    "15": {
+      "happening": "We mark interval i as covered.",
+      "why": "We found an interval j whose range fully contains interval i.",
+      "invariant": "Once covered is True, interval i will not be counted."
+    },
+    "16": {
+      "happening": "We stop the inner scan; one covering interval is enough.",
+      "why": "There is no need to look further once interval i is known to be covered.",
+      "invariant": "The inner loop ends early for a covered interval."
+    },
+    "17": [
+      {
+        "when": "!covered",
+        "happening": "No interval covered interval i, so we keep it.",
+        "why": "An interval survives only if nothing in the list covers it.",
+        "invariant": "Kept intervals are covered by no other interval."
+      },
+      {
+        "happening": "Interval i was covered, so we do not count it.",
+        "why": "Covered intervals are removed from the answer.",
+        "invariant": "count grows only for surviving intervals."
+      }
+    ],
+    "18": {
+      "happening": "Interval i survived, so count becomes {count + 1}.",
+      "why": "It passed the test: no other interval covers it.",
+      "invariant": "count equals the number of surviving intervals so far."
+    },
+    "19": {
+      "happening": "We return count = {count}.",
+      "why": "Every interval has now been tested against all the others.",
+      "invariant": "count is the number of intervals not covered by any other."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set up the counter and interval count.",
+      "why": "The algorithm needs a survivor counter and the total number of intervals.",
+      "invariant": "No interval has been tested yet."
+    },
+    "loop": {
+      "happening": "Advance one of the two pointers over the intervals.",
+      "why": "Every interval is tested against every other interval.",
+      "invariant": "The pair (i, j) describes the two intervals currently compared."
+    },
+    "update": {
+      "happening": "Read interval endpoints or record a decision.",
+      "why": "Each comparison needs the endpoints of both intervals.",
+      "invariant": "State always reflects the concrete pair being examined."
+    },
+    "check": {
+      "happening": "Test whether one interval covers another.",
+      "why": "An interval is removed exactly when some other interval covers it.",
+      "invariant": "Only distinct intervals are compared."
+    },
+    "move": {
+      "happening": "Skip or break out of the inner scan.",
+      "why": "We ignore self-comparisons and stop early once a cover is found.",
+      "invariant": "The inner loop only spends work on useful comparisons."
+    },
+    "return": {
+      "happening": "Return the final survivor count.",
+      "why": "All intervals have been checked.",
+      "invariant": "count is the number of intervals not covered by any other."
+    }
+  }
+}
