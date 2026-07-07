@@ -39,13 +39,13 @@ export function FeaturedProblems() {
             <Link
               key={f.num + f.title}
               href={f.href}
-              className="flex items-center gap-4 px-5 py-3.5 border-b border-kn-border-0 last:border-b-0 hover:bg-kn-surface-2 transition-colors"
+              className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-kn-border-0 last:border-b-0 hover:bg-kn-surface-2 transition-colors touch-manipulation"
             >
-              <span className="font-mono text-[13px] font-semibold text-kn-ink-2 w-9 shrink-0">{f.num}</span>
+              <span className="font-mono text-[13px] font-semibold text-kn-ink-2 w-8 sm:w-9 shrink-0">{f.num}</span>
               <span className="w-5 shrink-0 grid place-items-center">
                 <StatusIcon status={f.status} />
               </span>
-              <span className="font-semibold text-[15.5px] text-kn-ink-0 shrink-0 min-w-[160px] sm:min-w-[190px]">
+              <span className="font-semibold text-[15.5px] text-kn-ink-0 truncate min-w-0 sm:shrink-0 sm:min-w-[190px]">
                 {f.title}
               </span>
               <span className="hidden md:flex gap-1.5 flex-wrap">

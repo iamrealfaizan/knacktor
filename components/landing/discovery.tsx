@@ -17,9 +17,11 @@ export function Discovery() {
           aria-hidden
           className="max-w-[680px] mx-auto mb-7 flex items-center gap-3 h-14 px-4 border border-kn-border-0 rounded-2xl bg-kn-surface-0 shadow-sm"
         >
-          <Search className="h-[18px] w-[18px] text-kn-current" />
-          <span className="text-base text-kn-ink-2">Search “Two Sum”, “sliding window”, “binary tree”…</span>
-          <span className="ml-auto font-mono text-[11px] font-semibold text-kn-ink-2 border border-kn-border-0 rounded-md px-2 py-1">
+          <Search className="h-[18px] w-[18px] shrink-0 text-kn-current" />
+          <span className="min-w-0 truncate text-sm sm:text-base text-kn-ink-2">
+            Search “Two Sum”, “sliding window”, “binary tree”…
+          </span>
+          <span className="ml-auto shrink-0 font-mono text-[11px] font-semibold text-kn-ink-2 border border-kn-border-0 rounded-md px-2 py-1">
             ⌘K
           </span>
         </div>
