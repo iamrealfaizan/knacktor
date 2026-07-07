@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "kth-smallest-element-in-a-bst",
+  "number": 230,
+  "title": "Kth Smallest Element in a BST",
+  "difficulty": "medium",
+  "topics": [
+    "tree",
+    "binary-tree",
+    "bst"
+  ],
+  "patterns": [
+    "dfs"
+  ],
+  "statement": "Given the `root` of a binary search tree, and an integer `k`, return the *k*th smallest value (**1-indexed**) of all the values of the nodes in the tree.\n\n> The tree is provided in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples).\n\n**Example 1:**\n\n```\nInput: root = [3,1,4,null,2], k = 1\nOutput: 1\n```\n\n**Example 2:**\n\n```\nInput: root = [5,3,6,2,4,null,null,1], k = 3\nOutput: 3\n```\n\n**Constraints:**\n\n- The number of nodes in the tree is `n`.\n- `1 <= k <= n <= 10^4`\n- `0 <= Node.val <= 10^4`\n\n**Follow up:** If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the *k*th smallest frequently, how would you optimize?",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "inorder-early-stop",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "BST (level-order, null for gaps)",
+        "placeholder": "3,1,4,null,2",
+        "min": 0,
+        "max": 10000,
+        "minLen": 1,
+        "maxLen": 10000
+      },
+      {
+        "name": "k",
+        "type": "int",
+        "label": "k (1-indexed)",
+        "placeholder": "1",
+        "min": 1,
+        "max": 10000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

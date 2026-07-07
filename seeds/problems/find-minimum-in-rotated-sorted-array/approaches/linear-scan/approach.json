@@ -1,0 +1,47 @@
+{
+  "id": "linear-scan",
+  "name": "Linear Scan",
+  "kind": "brute",
+  "summary": "Walk every element and keep the smallest seen — correct but O(n), ignoring the sorted-rotated structure.",
+  "visualizationIntent": "init: show the whole array; i starts at index 0 and ans holds the first element as the running minimum. loop: i walks left to right, one cell at a time (the current cell). check: compare nums[i] against the running minimum ans. update: when nums[i] is smaller, ans drops to it and that cell becomes the new highlighted minimum. return: the cell holding ans is the answer; every cell has been visited.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.findMin",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "ans",
+    "label": "MINIMUM",
+    "suffix": "· smallest so far",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "ans": "result"
+  },
+  "lineExplanations": {
+    "3": "Count the elements in the array.",
+    "4": "Start the running minimum as the first element.",
+    "5": "Start the scan index at 0.",
+    "6": "Keep scanning while there are elements left.",
+    "7": "Is the current element smaller than the best seen so far?",
+    "8": "If so, update the running minimum to this element.",
+    "9": "Advance to the next element.",
+    "10": "Return the smallest element found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the class wrapper LeetCode expects.",
+    "2": "def findMin(self, nums): nums is the rotated sorted array.",
+    "3": "len(nums) counts the elements.",
+    "4": "ans = nums[0] seeds the running minimum with the first element.",
+    "5": "i = 0 starts the scan at the first index.",
+    "6": "while i < n: loops until every element is checked.",
+    "7": "if nums[i] < ans: compares the current element to the best so far.",
+    "8": "ans = nums[i] lowers the running minimum.",
+    "9": "i = i + 1 moves to the next element.",
+    "10": "return ans hands back the minimum."
+  }
+}

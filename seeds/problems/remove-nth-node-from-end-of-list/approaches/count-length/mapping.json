@@ -1,0 +1,120 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "disp_vals",
+  "linksFrom": "nextp",
+  "changedLinksFrom": "changed",
+  "pointers": [
+    {
+      "name": "curr",
+      "var": "curr"
+    },
+    {
+      "name": "out",
+      "var": "cur2"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "error",
+      "when": "node_idx == removed"
+    },
+    {
+      "state": "special",
+      "when": "node_idx == dummy"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == curr || node_idx == cur2"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "length != null && phase != 'return'",
+    "expr": "length = {length} · remove #{n} from the end"
+  },
+  "counters": [
+    {
+      "name": "steps walked",
+      "onLines": [
+        21,
+        26
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        19,
+        25,
+        34
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        21,
+        22,
+        26,
+        31,
+        33,
+        36
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        20,
+        23,
+        24,
+        27,
+        28,
+        29,
+        30,
+        32,
+        35
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        37
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 29,
+      "label": "Unlink the node",
+      "kind": "match"
+    },
+    {
+      "line": 37,
+      "label": "Return the list",
+      "kind": "return"
+    }
+  ]
+}

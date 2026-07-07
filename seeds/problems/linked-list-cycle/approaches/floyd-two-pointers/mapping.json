@@ -1,0 +1,101 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "values",
+  "linksFrom": "nxt",
+  "pointers": [
+    {
+      "name": "slow",
+      "var": "slow"
+    },
+    {
+      "name": "fast",
+      "var": "fast"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "node_idx == fast && node_idx == slow && found"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == fast || node_idx == slow"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "slow != null && phase != 'return'",
+    "expr": "slow at node {slow} · fast at node {fast}"
+  },
+  "counters": [
+    {
+      "name": "slow moves",
+      "onLines": [
+        15
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        13
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        14,
+        15
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        16
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        17
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        18,
+        19
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 17,
+      "label": "Pointers met — cycle!",
+      "kind": "match"
+    },
+    {
+      "line": 19,
+      "label": "Return answer",
+      "kind": "return"
+    }
+  ]
+}

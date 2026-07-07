@@ -1,0 +1,146 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "values",
+  "linksFrom": "nextp",
+  "changedLinksFrom": "changed",
+  "pointers": [
+    {
+      "name": "slow",
+      "var": "slow"
+    },
+    {
+      "name": "fast",
+      "var": "fast"
+    },
+    {
+      "name": "prev",
+      "var": "prev"
+    },
+    {
+      "name": "curr",
+      "var": "curr"
+    },
+    {
+      "name": "first",
+      "var": "first"
+    },
+    {
+      "name": "second",
+      "var": "second"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == first || node_idx == second || node_idx == curr || node_idx == slow || node_idx == fast"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "counters": [
+    {
+      "name": "links rewired",
+      "onLines": [
+        18,
+        24,
+        33
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        13,
+        22,
+        30,
+        40
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        17
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        14,
+        15,
+        21,
+        26,
+        27,
+        28,
+        29,
+        36,
+        37,
+        39,
+        42
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        16,
+        18,
+        19,
+        20,
+        23,
+        24,
+        25,
+        31,
+        32,
+        33,
+        34,
+        35,
+        38,
+        41
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        43
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 18,
+      "label": "Split at the middle",
+      "kind": "boundary"
+    },
+    {
+      "line": 24,
+      "label": "Reverse a link",
+      "kind": "match"
+    },
+    {
+      "line": 33,
+      "label": "Merge a node",
+      "kind": "match"
+    },
+    {
+      "line": 43,
+      "label": "Reordered",
+      "kind": "return"
+    }
+  ]
+}

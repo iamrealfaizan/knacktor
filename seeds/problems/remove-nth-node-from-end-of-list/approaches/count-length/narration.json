@@ -1,0 +1,233 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the real nodes ({sz}).",
+      "why": "We need sizes to wire the chain and the dummy.",
+      "invariant": "sz is the number of real nodes."
+    },
+    "4": {
+      "happening": "Start the next-pointer array.",
+      "why": "nextp[i] holds the id node i points to.",
+      "invariant": "nextp describes the chain."
+    },
+    "5": {
+      "happening": "Loop over every real node to wire the chain.",
+      "why": "Each node links to the next.",
+      "invariant": "Nodes below i are wired."
+    },
+    "6": [
+      {
+        "when": "i < sz - 1",
+        "happening": "Node {i} is not the tail — point it forward.",
+        "why": "Interior nodes link to the next.",
+        "invariant": "Only the tail ends the list."
+      },
+      {
+        "happening": "Node {i} is the tail.",
+        "why": "The last node points at nothing.",
+        "invariant": "The tail terminates the chain."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Build the chain.",
+      "invariant": "nextp[i] = i + 1."
+    },
+    "9": {
+      "happening": "The tail points at nothing (-1).",
+      "why": "The list ends here.",
+      "invariant": "nextp[sz-1] = -1."
+    },
+    "10": {
+      "happening": "Start the display-values array.",
+      "why": "It parallels the nodes and adds the dummy value.",
+      "invariant": "disp_vals[i] is node i's shown value."
+    },
+    "11": {
+      "happening": "Copy each real node's value for display.",
+      "why": "The renderer draws these values.",
+      "invariant": "Values below i are copied."
+    },
+    "12": {
+      "happening": "Append node {i}'s value.",
+      "why": "Display value for node {i}.",
+      "invariant": "disp_vals grows by one."
+    },
+    "13": {
+      "happening": "Append the dummy sentinel's value (0).",
+      "why": "The dummy is drawn before the head.",
+      "invariant": "The last display slot is the dummy."
+    },
+    "14": {
+      "happening": "The dummy's id ({dummy}) sits just past the real nodes.",
+      "why": "A dummy before the head simplifies removing the first node.",
+      "invariant": "dummy is a stable sentinel id."
+    },
+    "15": {
+      "happening": "Point the dummy at the head (node 0).",
+      "why": "The dummy leads into the real list.",
+      "invariant": "dummy → head."
+    },
+    "16": {
+      "happening": "Prepare the changed-link marker.",
+      "why": "It flashes the link we rewire.",
+      "invariant": "changed holds the last rewired node id."
+    },
+    "17": {
+      "happening": "Start the length counter at 0.",
+      "why": "Pass one counts the nodes.",
+      "invariant": "length counts nodes seen."
+    },
+    "18": {
+      "happening": "Start curr at the head to count.",
+      "why": "We walk the whole list first.",
+      "invariant": "curr walks the list."
+    },
+    "19": [
+      {
+        "when": "curr != -1",
+        "happening": "Still nodes to count — continue.",
+        "why": "We need the total length before locating the target.",
+        "invariant": "length equals the nodes counted so far."
+      },
+      {
+        "happening": "Reached the end — length is final ({length}).",
+        "why": "curr fell off the end.",
+        "invariant": "length is the node count."
+      }
+    ],
+    "20": {
+      "happening": "Count one more node.",
+      "why": "Each visit increments the length.",
+      "invariant": "length grows by one."
+    },
+    "21": {
+      "happening": "Advance curr to the next node.",
+      "why": "Continue counting.",
+      "invariant": "curr moves forward."
+    },
+    "22": {
+      "happening": "Reset curr to the dummy for pass two.",
+      "why": "We now locate the node before the target.",
+      "invariant": "curr restarts at the dummy."
+    },
+    "23": {
+      "happening": "The target sits length - n = {steps} steps past the dummy.",
+      "why": "Removing the nth-from-end means stopping just before it.",
+      "invariant": "steps is the walk length for pass two."
+    },
+    "24": {
+      "happening": "Start the step counter at 0.",
+      "why": "We walk exactly steps nodes.",
+      "invariant": "moved counts pass-two steps."
+    },
+    "25": [
+      {
+        "when": "moved < steps",
+        "happening": "More steps to walk — advance curr.",
+        "why": "curr must land just before the target.",
+        "invariant": "curr is moved nodes past the dummy."
+      },
+      {
+        "happening": "curr is now just before the target node.",
+        "why": "We've walked steps nodes.",
+        "invariant": "curr.next is the node to remove."
+      }
+    ],
+    "26": {
+      "happening": "Advance curr one node.",
+      "why": "Walking toward the target.",
+      "invariant": "curr moves forward."
+    },
+    "27": {
+      "happening": "Count the step.",
+      "why": "Track progress toward steps.",
+      "invariant": "moved grows by one."
+    },
+    "28": {
+      "happening": "removed = the node right after curr — the one to delete.",
+      "why": "That's the nth node from the end.",
+      "invariant": "removed is the target."
+    },
+    "29": {
+      "happening": "Unlink it: curr's next skips over the removed node.",
+      "why": "Bypassing the node removes it from the list.",
+      "invariant": "curr now points past the removed node."
+    },
+    "30": {
+      "happening": "Flash the rewired link (from curr).",
+      "why": "Highlight the removal.",
+      "invariant": "changed marks curr."
+    },
+    "31": {
+      "happening": "The new head is whatever the dummy points to.",
+      "why": "If the head itself was removed, this reflects it.",
+      "invariant": "head is the first remaining node (or -1)."
+    },
+    "32": {
+      "happening": "Start an empty list to read out the result.",
+      "why": "We traverse the final chain.",
+      "invariant": "order will hold the remaining values."
+    },
+    "33": {
+      "happening": "Begin the read-out at the head.",
+      "why": "The list starts at head.",
+      "invariant": "cur2 walks the final chain."
+    },
+    "34": [
+      {
+        "when": "cur2 != -1",
+        "happening": "Still nodes to read — continue.",
+        "why": "Collect every remaining value.",
+        "invariant": "order holds the values read so far."
+      },
+      {
+        "happening": "Reached the end — the result is complete.",
+        "why": "cur2 fell off the end.",
+        "invariant": "order is the remaining list."
+      }
+    ],
+    "35": {
+      "happening": "Record node {cur2}'s value.",
+      "why": "It's a remaining node.",
+      "invariant": "order grows by one."
+    },
+    "36": {
+      "happening": "Follow the next pointer.",
+      "why": "Move to the next remaining node.",
+      "invariant": "cur2 advances."
+    },
+    "37": {
+      "happening": "Return the remaining values: {order}.",
+      "why": "The nth-from-end node has been removed.",
+      "invariant": "order is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the chain, the dummy sentinel, and the counters.",
+      "why": "We need the list and a dummy before counting.",
+      "invariant": "The dummy leads into the list."
+    },
+    "loop": {
+      "happening": "Counting the length, walking to the target, or reading out.",
+      "why": "The brute makes two passes then a read-out.",
+      "invariant": "Each pass walks the chain."
+    },
+    "move": {
+      "happening": "Advancing curr (or the read-out cursor) one node.",
+      "why": "The passes walk node by node.",
+      "invariant": "Pointers move forward."
+    },
+    "update": {
+      "happening": "Counting, computing steps, or unlinking the target node.",
+      "why": "The removal is a single next-pointer rewrite.",
+      "invariant": "changed marks the rewired link."
+    },
+    "return": {
+      "happening": "Returning the remaining values.",
+      "why": "The target node is unlinked.",
+      "invariant": "order is final."
+    }
+  }
+}

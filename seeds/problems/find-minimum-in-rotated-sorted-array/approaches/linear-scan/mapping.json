@@ -1,0 +1,88 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "result",
+      "when": "nums[idx] == ans"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "minimum so far = {ans}"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        7
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        10
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 8,
+      "label": "New minimum",
+      "kind": "best"
+    },
+    {
+      "line": 10,
+      "label": "Return minimum",
+      "kind": "return"
+    }
+  ]
+}

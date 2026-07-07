@@ -1,0 +1,351 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start tree p's node list.",
+      "why": "We build node objects before serializing.",
+      "invariant": "p_nodes holds p's real values."
+    },
+    "4": {
+      "happening": "Start p's id-to-node lookup.",
+      "why": "The walk fetches nodes by id.",
+      "invariant": "p_by[i] is p's node at slot i."
+    },
+    "5": {
+      "happening": "Count p's array slots ({pn}).",
+      "why": "We loop over each slot.",
+      "invariant": "pn is p's slot count."
+    },
+    "6": {
+      "happening": "Start p's child-slot walker.",
+      "why": "Children come from later slots.",
+      "invariant": "pc is p's next slot."
+    },
+    "7": {
+      "happening": "Loop over p's slots.",
+      "why": "Each real value becomes a node.",
+      "invariant": "Slots below i are built."
+    },
+    "8": {
+      "happening": "Skip null slots.",
+      "why": "null marks a missing child.",
+      "invariant": "Only real values become nodes."
+    },
+    "9": {
+      "happening": "Create p node {i} with empty children.",
+      "why": "Children fill from later slots.",
+      "invariant": "A fresh node has no children."
+    },
+    "10": {
+      "happening": "Is a slot left for a left child?",
+      "why": "Children come in array order.",
+      "invariant": "pc points at the candidate."
+    },
+    "11": {
+      "happening": "Is that slot real (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves left empty."
+    },
+    "12": {
+      "happening": "Link slot {pc} as the left child.",
+      "why": "It's the next real node.",
+      "invariant": "left points at a child."
+    },
+    "13": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "pc advances."
+    },
+    "14": {
+      "happening": "Is a slot left for a right child?",
+      "why": "The right follows the left.",
+      "invariant": "pc points at the candidate."
+    },
+    "15": {
+      "happening": "Is that slot real (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves right empty."
+    },
+    "16": {
+      "happening": "Link slot {pc} as the right child.",
+      "why": "It's the next real node.",
+      "invariant": "right points at a child."
+    },
+    "17": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "pc advances."
+    },
+    "18": {
+      "happening": "Add the node to p.",
+      "why": "It has value and children.",
+      "invariant": "p_nodes grows by one."
+    },
+    "19": {
+      "happening": "Store it by id.",
+      "why": "For fast lookup.",
+      "invariant": "p_by maps id to node."
+    },
+    "20": {
+      "happening": "Start tree q's node list.",
+      "why": "Same build for the second tree.",
+      "invariant": "q_nodes holds q's real values."
+    },
+    "21": {
+      "happening": "Start q's id-to-node lookup.",
+      "why": "The walk fetches q's nodes by id.",
+      "invariant": "q_by[i] is q's node at slot i."
+    },
+    "22": {
+      "happening": "Count q's array slots ({qn}).",
+      "why": "We loop over each slot.",
+      "invariant": "qn is q's slot count."
+    },
+    "23": {
+      "happening": "Start q's child-slot walker.",
+      "why": "Children come from later slots.",
+      "invariant": "qc is q's next slot."
+    },
+    "24": {
+      "happening": "Loop over q's slots.",
+      "why": "Each real value becomes a node.",
+      "invariant": "Slots below i are built."
+    },
+    "25": {
+      "happening": "Skip null slots.",
+      "why": "null marks a missing child.",
+      "invariant": "Only real values become nodes."
+    },
+    "26": {
+      "happening": "Create q node {i} with empty children.",
+      "why": "Children fill from later slots.",
+      "invariant": "A fresh node has no children."
+    },
+    "27": {
+      "happening": "Is a slot left for a left child?",
+      "why": "Children come in array order.",
+      "invariant": "qc points at the candidate."
+    },
+    "28": {
+      "happening": "Is that slot real (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves left empty."
+    },
+    "29": {
+      "happening": "Link slot {qc} as the left child.",
+      "why": "It's the next real node.",
+      "invariant": "left points at a child."
+    },
+    "30": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "qc advances."
+    },
+    "31": {
+      "happening": "Is a slot left for a right child?",
+      "why": "The right follows the left.",
+      "invariant": "qc points at the candidate."
+    },
+    "32": {
+      "happening": "Is that slot real (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves right empty."
+    },
+    "33": {
+      "happening": "Link slot {qc} as the right child.",
+      "why": "It's the next real node.",
+      "invariant": "right points at a child."
+    },
+    "34": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "qc advances."
+    },
+    "35": {
+      "happening": "Add the node to q.",
+      "why": "It has value and children.",
+      "invariant": "q_nodes grows by one."
+    },
+    "36": {
+      "happening": "Store it by id.",
+      "why": "For fast lookup.",
+      "invariant": "q_by maps id to node."
+    },
+    "37": {
+      "happening": "Start p's serialization list.",
+      "why": "We flatten p to a preorder list.",
+      "invariant": "sp collects p's preorder with nulls."
+    },
+    "38": {
+      "happening": "Create the preorder stack.",
+      "why": "It drives p's walk.",
+      "invariant": "st holds positions to emit."
+    },
+    "39": {
+      "happening": "Seed the stack with p's root ({pn} nodes).",
+      "why": "Preorder starts at the root.",
+      "invariant": "st starts with the root or None."
+    },
+    "40": {
+      "happening": "Walk until the stack empties.",
+      "why": "Emit every position of p.",
+      "invariant": "sp is p's preorder so far."
+    },
+    "41": {
+      "happening": "Pop the next position.",
+      "why": "Emit it in preorder.",
+      "invariant": "nd is the position to emit."
+    },
+    "42": {
+      "happening": "Is this position empty (a missing child)?",
+      "why": "Missing children become null markers.",
+      "invariant": "Empty positions still emit a slot."
+    },
+    "43": {
+      "happening": "Emit a null marker (∅) into sp.",
+      "why": "It records the gap so structure is captured.",
+      "invariant": "sp grows by one ∅."
+    },
+    "45": {
+      "happening": "Emit this node's value into sp.",
+      "why": "Real nodes emit their value.",
+      "invariant": "sp grows by one value."
+    },
+    "46": {
+      "happening": "Push the right child.",
+      "why": "It comes after the left in preorder.",
+      "invariant": "Right is emitted after the left subtree."
+    },
+    "47": {
+      "happening": "Push the left child.",
+      "why": "It comes first in preorder (popped next).",
+      "invariant": "Left is emitted before the right."
+    },
+    "48": {
+      "happening": "Start q's serialization list.",
+      "why": "Flatten q the same way.",
+      "invariant": "sq collects q's preorder with nulls."
+    },
+    "49": {
+      "happening": "Create q's preorder stack.",
+      "why": "It drives q's walk.",
+      "invariant": "st2 holds q positions to emit."
+    },
+    "50": {
+      "happening": "Seed it with q's root ({qn} nodes).",
+      "why": "Preorder starts at the root.",
+      "invariant": "st2 starts with q's root or None."
+    },
+    "51": {
+      "happening": "Walk until q's stack empties.",
+      "why": "Emit every position of q.",
+      "invariant": "sq is q's preorder so far."
+    },
+    "52": {
+      "happening": "Pop the next q position.",
+      "why": "Emit it in preorder.",
+      "invariant": "nd is the position to emit."
+    },
+    "53": {
+      "happening": "Is this q position empty?",
+      "why": "Missing children become null markers.",
+      "invariant": "Empty positions still emit a slot."
+    },
+    "54": {
+      "happening": "Emit a null marker (∅) into sq.",
+      "why": "Records the gap.",
+      "invariant": "sq grows by one ∅."
+    },
+    "56": {
+      "happening": "Emit this node's value into sq.",
+      "why": "Real nodes emit their value.",
+      "invariant": "sq grows by one value."
+    },
+    "57": {
+      "happening": "Push q's right child.",
+      "why": "After the left in preorder.",
+      "invariant": "Right after left subtree."
+    },
+    "58": {
+      "happening": "Push q's left child.",
+      "why": "First in preorder.",
+      "invariant": "Left before right."
+    },
+    "59": {
+      "happening": "Assume the two serializations are equal.",
+      "why": "We only flip this on a difference.",
+      "invariant": "same holds the running verdict."
+    },
+    "60": {
+      "happening": "Do the two serializations differ in length?",
+      "why": "Different lengths mean different trees.",
+      "invariant": "Equal lengths are required to match."
+    },
+    "61": {
+      "happening": "Lengths differ — the trees are not the same.",
+      "why": "One tree has more positions than the other.",
+      "invariant": "same is now False."
+    },
+    "62": {
+      "happening": "Start the compare cursor at 0.",
+      "why": "We sweep both lists together.",
+      "invariant": "Positions before i are equal."
+    },
+    "63": {
+      "happening": "Sweep both lists while they still agree.",
+      "why": "Any differing cell ends the match.",
+      "invariant": "sp[0..i-1] equals sq[0..i-1]."
+    },
+    "64": {
+      "happening": "Do the cells at position {i} differ?",
+      "why": "Equal serializations match at every position.",
+      "invariant": "A difference ends the sweep."
+    },
+    "65": {
+      "happening": "The cells differ — the trees are not the same.",
+      "why": "A mismatch at position {i} was found.",
+      "invariant": "same is now False."
+    },
+    "66": {
+      "happening": "Advance to the next position.",
+      "why": "Keep comparing.",
+      "invariant": "i moves one step right."
+    },
+    "67": {
+      "happening": "Return whether the two serializations match: {same}.",
+      "why": "Equal lists mean identical trees.",
+      "invariant": "same is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building both trees and starting p's serialization.",
+      "why": "We need node objects before flattening.",
+      "invariant": "Both trees are built."
+    },
+    "loop": {
+      "happening": "Flattening a tree to preorder, or sweeping the two lists.",
+      "why": "Serialize then compare element by element.",
+      "invariant": "Each pass processes the whole structure."
+    },
+    "check": {
+      "happening": "Testing an empty position, a length difference, or a differing cell.",
+      "why": "These decide the match.",
+      "invariant": "A difference makes same false."
+    },
+    "update": {
+      "happening": "Emitting a value or ∅, or recording the verdict.",
+      "why": "The serializations grow; same tracks equality.",
+      "invariant": "sp and sq capture structure + values."
+    },
+    "move": {
+      "happening": "Popping a position or advancing the compare cursor.",
+      "why": "The walks and the sweep move forward.",
+      "invariant": "Progress toward completion."
+    },
+    "return": {
+      "happening": "Returning whether the serializations are equal.",
+      "why": "Equal lists ⇒ same tree.",
+      "invariant": "same is final."
+    }
+  }
+}

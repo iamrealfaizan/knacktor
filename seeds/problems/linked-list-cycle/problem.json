@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "linked-list-cycle",
+  "number": 141,
+  "title": "Linked List Cycle",
+  "difficulty": "easy",
+  "topics": [
+    "linked-list",
+    "two-pointers"
+  ],
+  "patterns": [
+    "fast-slow-pointers",
+    "floyd-cycle"
+  ],
+  "statement": "Given `head`, the head of a linked list, determine if the linked list has a *cycle* in it.\n\nThere is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the `next` pointer. Internally, `pos` is used to denote the index of the node that tail's `next` pointer is connected to. **Note that `pos` is not passed as a parameter.**\n\nReturn `true` if there is a cycle in the linked list. Otherwise, return `false`.\n\n> The list is provided as a value array plus `pos`: `values` are the node values in order, and `pos` is the index the tail's `next` links back to (`-1` for no cycle).\n\n**Example 1:**\n\n```\nInput: head = [3,2,0,-4], pos = 1\nOutput: true\nExplanation: There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed).\n```\n\n**Example 2:**\n\n```\nInput: head = [1,2], pos = 0\nOutput: true\nExplanation: There is a cycle in the linked list, where the tail connects to the 0th node.\n```\n\n**Example 3:**\n\n```\nInput: head = [1], pos = -1\nOutput: false\nExplanation: There is no cycle in the linked list.\n```\n\n**Constraints:**\n\n- The number of the nodes in the list is in the range `[0, 10^4]`.\n- `-10^5 <= Node.val <= 10^5`\n- `pos` is `-1` or a valid index in the linked-list.\n\n**Follow up:** Can you solve it using `O(1)` (i.e. constant) memory?",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "floyd-two-pointers",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Node values (in order)",
+        "placeholder": "3,2,0,-4",
+        "min": -100000,
+        "max": 100000,
+        "minLen": 0,
+        "maxLen": 10000
+      },
+      {
+        "name": "pos",
+        "type": "int",
+        "label": "Cycle index (-1 = none)",
+        "placeholder": "1",
+        "min": -1,
+        "max": 9999
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

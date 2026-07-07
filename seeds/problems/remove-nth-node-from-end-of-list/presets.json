@@ -1,0 +1,67 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "n": 2
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      1,
+      2,
+      3,
+      5
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (single → empty)",
+    "value": {
+      "values": [
+        1
+      ],
+      "n": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "values": [
+        1,
+        2
+      ],
+      "n": 1
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      1
+    ]
+  },
+  {
+    "id": "edge-remove-head",
+    "label": "Remove Head",
+    "value": {
+      "values": [
+        1,
+        2,
+        3
+      ],
+      "n": 3
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      2,
+      3
+    ]
+  }
+]

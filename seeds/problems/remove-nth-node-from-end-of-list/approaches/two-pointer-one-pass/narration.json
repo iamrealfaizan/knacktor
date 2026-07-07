@@ -1,0 +1,223 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the real nodes ({sz}).",
+      "why": "We need sizes to wire the chain and the dummy.",
+      "invariant": "sz is the number of real nodes."
+    },
+    "4": {
+      "happening": "Start the next-pointer array.",
+      "why": "nextp[i] holds the id node i points to.",
+      "invariant": "nextp describes the chain."
+    },
+    "5": {
+      "happening": "Loop over every real node to wire the chain.",
+      "why": "Each node links to the next.",
+      "invariant": "Nodes below i are wired."
+    },
+    "6": [
+      {
+        "when": "i < sz - 1",
+        "happening": "Node {i} is not the tail — point it forward.",
+        "why": "Interior nodes link to the next.",
+        "invariant": "Only the tail ends the list."
+      },
+      {
+        "happening": "Node {i} is the tail.",
+        "why": "The last node points at nothing.",
+        "invariant": "The tail terminates the chain."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Build the chain.",
+      "invariant": "nextp[i] = i + 1."
+    },
+    "9": {
+      "happening": "The tail points at nothing (-1).",
+      "why": "The list ends here.",
+      "invariant": "nextp[sz-1] = -1."
+    },
+    "10": {
+      "happening": "Start the display-values array.",
+      "why": "It parallels the nodes and adds the dummy value.",
+      "invariant": "disp_vals[i] is node i's shown value."
+    },
+    "11": {
+      "happening": "Copy each real node's value for display.",
+      "why": "The renderer draws these values.",
+      "invariant": "Values below i are copied."
+    },
+    "12": {
+      "happening": "Append node {i}'s value.",
+      "why": "Display value for node {i}.",
+      "invariant": "disp_vals grows by one."
+    },
+    "13": {
+      "happening": "Append the dummy sentinel's value (0).",
+      "why": "The dummy is drawn before the head.",
+      "invariant": "The last display slot is the dummy."
+    },
+    "14": {
+      "happening": "The dummy's id ({dummy}) sits just past the real nodes.",
+      "why": "A dummy before the head simplifies removing the first node.",
+      "invariant": "dummy is a stable sentinel id."
+    },
+    "15": {
+      "happening": "Point the dummy at the head (node 0).",
+      "why": "The dummy leads into the real list.",
+      "invariant": "dummy → head."
+    },
+    "16": {
+      "happening": "Prepare the changed-link marker.",
+      "why": "It flashes the link we rewire.",
+      "invariant": "changed holds the last rewired node id."
+    },
+    "17": {
+      "happening": "Start slow on the dummy.",
+      "why": "slow will end just before the target.",
+      "invariant": "slow trails fast by the gap."
+    },
+    "18": {
+      "happening": "Start fast on the dummy too.",
+      "why": "fast opens the gap first.",
+      "invariant": "Both begin together on the dummy."
+    },
+    "19": {
+      "happening": "Track how many nodes fast has advanced.",
+      "why": "We open a gap of exactly n.",
+      "invariant": "moved counts fast's advances."
+    },
+    "20": [
+      {
+        "when": "moved < n",
+        "happening": "Open the gap — advance fast (advanced {moved} of {n}).",
+        "why": "A fixed n-node gap lets slow stop just before the target.",
+        "invariant": "fast leads slow by moved nodes."
+      },
+      {
+        "happening": "The n-node gap is open.",
+        "why": "fast is now n nodes ahead of slow.",
+        "invariant": "fast leads slow by exactly n."
+      }
+    ],
+    "21": {
+      "happening": "Move fast one node.",
+      "why": "Opening the gap.",
+      "invariant": "fast advances."
+    },
+    "22": {
+      "happening": "Count the advance.",
+      "why": "Track progress toward n.",
+      "invariant": "moved grows by one."
+    },
+    "23": [
+      {
+        "when": "nextp[fast] != -1",
+        "happening": "fast isn't at the last node yet — slide both forward.",
+        "why": "Keeping the gap fixed until fast hits the end lands slow before the target.",
+        "invariant": "fast stays n ahead of slow."
+      },
+      {
+        "happening": "fast is at the last node — slow sits just before the target.",
+        "why": "The gap of n means slow.next is the nth from the end.",
+        "invariant": "slow.next is the node to remove."
+      }
+    ],
+    "24": {
+      "happening": "Move slow one node.",
+      "why": "Slide the whole gap forward.",
+      "invariant": "slow stays n behind fast."
+    },
+    "25": {
+      "happening": "Move fast one node.",
+      "why": "Slide the whole gap forward.",
+      "invariant": "fast stays n ahead of slow."
+    },
+    "26": {
+      "happening": "removed = the node right after slow — the one to delete.",
+      "why": "That's the nth node from the end.",
+      "invariant": "removed is the target."
+    },
+    "27": {
+      "happening": "Unlink it: slow's next skips over the removed node.",
+      "why": "Bypassing the node removes it from the list.",
+      "invariant": "slow now points past the removed node."
+    },
+    "28": {
+      "happening": "Flash the rewired link (from slow).",
+      "why": "Highlight the removal.",
+      "invariant": "changed marks slow."
+    },
+    "29": {
+      "happening": "The new head is whatever the dummy points to.",
+      "why": "If the head itself was removed, this reflects it.",
+      "invariant": "head is the first remaining node (or -1)."
+    },
+    "30": {
+      "happening": "Start an empty list to read out the result.",
+      "why": "We traverse the final chain.",
+      "invariant": "order will hold the remaining values."
+    },
+    "31": {
+      "happening": "Begin the read-out at the head.",
+      "why": "The list starts at head.",
+      "invariant": "cur2 walks the final chain."
+    },
+    "32": [
+      {
+        "when": "cur2 != -1",
+        "happening": "Still nodes to read — continue.",
+        "why": "Collect every remaining value.",
+        "invariant": "order holds the values read so far."
+      },
+      {
+        "happening": "Reached the end — the result is complete.",
+        "why": "cur2 fell off the end.",
+        "invariant": "order is the remaining list."
+      }
+    ],
+    "33": {
+      "happening": "Record node {cur2}'s value.",
+      "why": "It's a remaining node.",
+      "invariant": "order grows by one."
+    },
+    "34": {
+      "happening": "Follow the next pointer.",
+      "why": "Move to the next remaining node.",
+      "invariant": "cur2 advances."
+    },
+    "35": {
+      "happening": "Return the remaining values: {order}.",
+      "why": "The nth-from-end node has been removed in one pass.",
+      "invariant": "order is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the chain, the dummy sentinel, and placing slow and fast on the dummy.",
+      "why": "We need the list and both pointers before opening the gap.",
+      "invariant": "slow and fast start together on the dummy."
+    },
+    "loop": {
+      "happening": "Opening the n-gap, sliding both pointers, or reading out.",
+      "why": "One pass: gap then slide then read.",
+      "invariant": "fast leads slow by n during the slide."
+    },
+    "move": {
+      "happening": "Advancing slow, fast, or the read-out cursor.",
+      "why": "The pointers walk the chain.",
+      "invariant": "The gap between slow and fast stays n."
+    },
+    "update": {
+      "happening": "Counting, or unlinking the target node.",
+      "why": "The removal is a single next-pointer rewrite.",
+      "invariant": "changed marks the rewired link."
+    },
+    "return": {
+      "happening": "Returning the remaining values.",
+      "why": "The target node is unlinked.",
+      "invariant": "order is final."
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "reorder-list",
+  "number": 143,
+  "title": "Reorder List",
+  "difficulty": "medium",
+  "topics": [
+    "linked-list",
+    "two-pointers"
+  ],
+  "patterns": [
+    "fast-slow-pointers",
+    "in-place-reversal"
+  ],
+  "statement": "You are given the head of a singly linked-list. The list can be represented as:\n\n```\nL0 → L1 → … → Ln-1 → Ln\n```\n\nReorder the list to be on the following form:\n\n```\nL0 → Ln → L1 → Ln-1 → L2 → Ln-2 → …\n```\n\nYou may not modify the values in the list's nodes. Only nodes themselves may be changed.\n\n> The list is provided as a value array (`values` are the node values in order). The reordered sequence of values is returned so the result can be shown.\n\n**Example 1:**\n\n```\nInput: head = [1,2,3,4]\nOutput: [1,4,2,3]\n```\n\n**Example 2:**\n\n```\nInput: head = [1,2,3,4,5]\nOutput: [1,5,2,4,3]\n```\n\n**Constraints:**\n\n- The number of nodes in the list is in the range `[1, 5 * 10^4]`.\n- `1 <= Node.val <= 1000`",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "reverse-merge",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Node values (in order)",
+        "placeholder": "1,2,3,4",
+        "min": 1,
+        "max": 1000,
+        "minLen": 1,
+        "maxLen": 50000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

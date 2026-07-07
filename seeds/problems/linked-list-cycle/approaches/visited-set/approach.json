@@ -1,0 +1,67 @@
+{
+  "id": "visited-set",
+  "name": "Visited Set",
+  "kind": "brute",
+  "summary": "Walk the list once, marking every node visited; if we ever step onto an already-visited node, there is a cycle.",
+  "visualizationIntent": "init: build the linked list from the values, wiring each node to the next and linking the tail back to pos when there is a cycle (a visible back-edge); the visited marks all start off and cur sits at the head. loop: cur walks one node at a time along the chain. check: before marking, test whether cur is already visited. update: mark the current node visited (it lights up) — if a node is reached that was already visited, flash it and report a cycle. move: cur follows the next pointer to the following node, or the null sentinel when the list ends. return: show the boolean answer; the trail of visited nodes is the O(n) memory this approach spends.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.hasCycle",
+  "primaryPrimitive": "linkedList",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "found",
+    "label": "HAS CYCLE",
+    "suffix": "· cycle detected?",
+    "render": "boolean"
+  },
+  "varColors": {
+    "cur": "current"
+  },
+  "lineExplanations": {
+    "3": "Count how many nodes the list has.",
+    "4": "Start an empty next-pointer array (nxt[i] = the id the i-th node points to).",
+    "5": "Loop over every node to wire up its next pointer.",
+    "6": "For every node except the last, the next node is simply the following index.",
+    "7": "Point node i at node i+1.",
+    "9": "The tail points at pos — the cycle target, or -1 for no cycle.",
+    "10": "Start an empty visited-flag array — this is the extra O(n) memory.",
+    "11": "Loop over every node to give it a visited flag.",
+    "12": "Every node starts unvisited (False).",
+    "13": "cur starts at the head (id 0); -1 marks 'no node' for an empty list.",
+    "14": "found records the answer; it stays False until we revisit a node.",
+    "15": "Keep walking while cur points at a real node.",
+    "16": "If the current node was already visited, we've looped back — a cycle.",
+    "17": "Record that a cycle was found.",
+    "18": "Stop early — the answer is settled.",
+    "19": "Mark the current node visited so a later revisit is detected.",
+    "20": "Follow the next pointer to the next node (or -1 at the end).",
+    "21": "Return whether a cycle was found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the class wrapper LeetCode expects.",
+    "2": "def hasCycle(self, values, pos): values are the node values; pos is the cycle target index (-1 = none).",
+    "3": "len(values) counts the nodes.",
+    "4": "[] creates the next-pointer list.",
+    "5": "for i in range(n): loops i over each node index.",
+    "6": "if i < n - 1: true for every node except the last.",
+    "7": "nxt.append(i + 1) records that node i points to node i+1.",
+    "8": "else: handles the final node (bare else — no step of its own).",
+    "9": "nxt.append(pos) records the tail's next as pos (the cycle link, or -1).",
+    "10": "[] creates the visited-flag list.",
+    "11": "for i in range(n): loops i over each node index.",
+    "12": "visited.append(False) marks node i unvisited to start.",
+    "13": "cur = 0 if n > 0 else -1 — a ternary; -1 is the null sentinel for an empty list.",
+    "14": "found = False initializes the boolean answer.",
+    "15": "while cur != -1: keep walking until we fall off the end.",
+    "16": "if visited[cur]: has this node been seen before?",
+    "17": "found = True marks that we revisited a node — a cycle exists.",
+    "18": "break exits the loop early.",
+    "19": "visited[cur] = True records that this node has now been seen.",
+    "20": "cur = nxt[cur] follows the next pointer to the next node.",
+    "21": "return found hands back the boolean answer."
+  }
+}

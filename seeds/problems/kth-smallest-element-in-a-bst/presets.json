@@ -1,0 +1,68 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [
+        3,
+        1,
+        4,
+        null,
+        2
+      ],
+      "k": 1
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 1
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "values": [
+        5,
+        3,
+        6,
+        2,
+        4,
+        null,
+        null,
+        1
+      ],
+      "k": 3
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-single-node",
+    "label": "Single Node",
+    "value": {
+      "values": [
+        1
+      ],
+      "k": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "edge-largest-k",
+    "label": "Largest (k = n)",
+    "value": {
+      "values": [
+        5,
+        3,
+        6,
+        2,
+        4,
+        null,
+        null,
+        1
+      ],
+      "k": 6
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 6
+  }
+]

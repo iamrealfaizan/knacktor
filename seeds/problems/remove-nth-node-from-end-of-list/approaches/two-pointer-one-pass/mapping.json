@@ -1,0 +1,123 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "disp_vals",
+  "linksFrom": "nextp",
+  "changedLinksFrom": "changed",
+  "pointers": [
+    {
+      "name": "slow",
+      "var": "slow"
+    },
+    {
+      "name": "fast",
+      "var": "fast"
+    },
+    {
+      "name": "out",
+      "var": "cur2"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "error",
+      "when": "node_idx == removed"
+    },
+    {
+      "state": "special",
+      "when": "node_idx == dummy"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == slow || node_idx == fast || node_idx == cur2"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "slow != null && phase != 'return'",
+    "expr": "slow at {slow} · fast at {fast} · gap n = {n}"
+  },
+  "counters": [
+    {
+      "name": "pointer moves",
+      "onLines": [
+        21,
+        24,
+        25
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        20,
+        23,
+        32
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        21,
+        24,
+        25,
+        29,
+        31,
+        34
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        22,
+        26,
+        27,
+        28,
+        30,
+        33
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        35
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 27,
+      "label": "Unlink the node",
+      "kind": "match"
+    },
+    {
+      "line": 35,
+      "label": "Return the list",
+      "kind": "return"
+    }
+  ]
+}

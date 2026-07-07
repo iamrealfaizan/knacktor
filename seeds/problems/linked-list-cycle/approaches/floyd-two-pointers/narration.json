@@ -1,0 +1,140 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the nodes ({n} of them).",
+      "why": "We need the size to wire up next pointers.",
+      "invariant": "n is the number of nodes."
+    },
+    "4": {
+      "happening": "Start an empty next-pointer array.",
+      "why": "nxt[i] will hold the id node i points to.",
+      "invariant": "nxt describes the list's shape."
+    },
+    "5": {
+      "happening": "Loop over every node to set its next pointer.",
+      "why": "Each node needs to know its successor.",
+      "invariant": "Nodes below i are already wired."
+    },
+    "6": [
+      {
+        "when": "i < n - 1",
+        "happening": "Node {i} is not the tail — its next is the following node.",
+        "why": "Interior nodes point at the next index.",
+        "invariant": "Only the tail can start a cycle."
+      },
+      {
+        "happening": "Node {i} is the tail — its next is the cycle target.",
+        "why": "The tail is where a cycle (if any) links back.",
+        "invariant": "The tail's next is pos, or -1."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Interior nodes link to their immediate successor.",
+      "invariant": "nxt[i] = i + 1 for interior nodes."
+    },
+    "9": {
+      "happening": "Point the tail at pos ({pos}).",
+      "why": "pos is the cycle target; -1 means the list simply ends.",
+      "invariant": "A back-edge to pos creates the cycle."
+    },
+    "10": {
+      "happening": "Place slow at the head (node 0).",
+      "why": "Both pointers start together at the head.",
+      "invariant": "slow is the tortoise, moving one step at a time."
+    },
+    "11": {
+      "happening": "Place fast at the head too.",
+      "why": "fast will move twice as quickly as slow.",
+      "invariant": "fast is the hare, moving two steps at a time."
+    },
+    "12": {
+      "happening": "Set found to False.",
+      "why": "No cycle has been detected yet.",
+      "invariant": "found becomes True only if the pointers meet."
+    },
+    "13": [
+      {
+        "when": "fast != -1 && nxt[fast] != -1",
+        "happening": "fast has a node and a next — it can take another double hop.",
+        "why": "Two hops need two edges ahead of fast.",
+        "invariant": "If fast reaches the end, there is no cycle."
+      },
+      {
+        "happening": "fast (or its next) fell off the end — no cycle.",
+        "why": "A pointer that reaches null proves the list terminates.",
+        "invariant": "found is still False."
+      }
+    ],
+    "14": {
+      "happening": "Hop fast two nodes ahead.",
+      "why": "The hare moves twice as fast as the tortoise.",
+      "invariant": "In a cycle, fast gains one node on slow each step."
+    },
+    "15": {
+      "happening": "Hop slow one node ahead.",
+      "why": "The tortoise advances a single node.",
+      "invariant": "slow trails fast by a growing gap inside a cycle."
+    },
+    "16": [
+      {
+        "when": "fast == slow",
+        "happening": "fast and slow landed on the same node ({fast}) — they've met!",
+        "why": "Two pointers at different speeds can only coincide inside a cycle.",
+        "invariant": "A meeting proves a cycle exists."
+      },
+      {
+        "happening": "fast ({fast}) and slow ({slow}) are on different nodes — keep racing.",
+        "why": "No meeting yet; the hare keeps gaining on the tortoise.",
+        "invariant": "If a cycle exists they will eventually coincide."
+      }
+    ],
+    "17": {
+      "happening": "Record that a cycle was found.",
+      "why": "The pointers met, which only happens in a cycle.",
+      "invariant": "found is now True."
+    },
+    "18": {
+      "happening": "Stop early — the answer is settled.",
+      "why": "Once a cycle is confirmed there's nothing left to check.",
+      "invariant": "The loop ends with found = True."
+    },
+    "19": {
+      "happening": "Return found — whether the list has a cycle.",
+      "why": "The search is complete.",
+      "invariant": "found is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the linked list (with any cycle link) and placing both pointers at the head.",
+      "why": "We need the node chain before the race can begin.",
+      "invariant": "slow and fast both start at the head."
+    },
+    "loop": {
+      "happening": "Checking whether fast can take another double hop.",
+      "why": "The race continues while fast has room ahead.",
+      "invariant": "Reaching the end means no cycle."
+    },
+    "move": {
+      "happening": "Advancing the pointers — fast by two, slow by one.",
+      "why": "The speed difference closes any cyclic gap.",
+      "invariant": "fast gains one node on slow per step inside a cycle."
+    },
+    "check": {
+      "happening": "Comparing whether fast and slow share a node.",
+      "why": "A collision is the signature of a cycle.",
+      "invariant": "Equal positions ⇒ cycle."
+    },
+    "update": {
+      "happening": "Recording that the pointers met.",
+      "why": "The collision confirms a cycle.",
+      "invariant": "found becomes True."
+    },
+    "return": {
+      "happening": "Returning whether a cycle was found.",
+      "why": "Either the pointers met or fast reached the end.",
+      "invariant": "found is final."
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the elements — {n} in the array.",
+      "why": "We scan every one of them.",
+      "invariant": "n is the array length."
+    },
+    "4": {
+      "happening": "Seed the running minimum with the first element ({nums[0]}).",
+      "why": "We need a starting candidate before scanning.",
+      "invariant": "ans is the smallest element seen so far."
+    },
+    "5": {
+      "happening": "Start the scan index at 0.",
+      "why": "We walk the array left to right.",
+      "invariant": "Elements before i have all been compared."
+    },
+    "6": [
+      {
+        "when": "i < n",
+        "happening": "There are still elements to check — continue the scan.",
+        "why": "Every element must be inspected in a linear scan.",
+        "invariant": "ans is the minimum of nums[0..i-1]."
+      },
+      {
+        "happening": "All elements checked — the scan is done.",
+        "why": "i has passed the last index.",
+        "invariant": "ans is the global minimum."
+      }
+    ],
+    "7": [
+      {
+        "when": "nums[i] < ans",
+        "happening": "nums[{i}] = {nums[i]} is smaller than the running minimum {ans}.",
+        "why": "A smaller value means we found a new minimum.",
+        "invariant": "ans is about to drop."
+      },
+      {
+        "happening": "nums[{i}] = {nums[i]} is not smaller than {ans} — keep the current minimum.",
+        "why": "This element can't lower the minimum.",
+        "invariant": "ans is unchanged."
+      }
+    ],
+    "8": {
+      "happening": "Lower the running minimum to nums[{i}] = {nums[i]}.",
+      "why": "It's the smallest value seen so far.",
+      "invariant": "ans now equals the smallest of nums[0..i]."
+    },
+    "9": {
+      "happening": "Advance to the next element.",
+      "why": "Continue the linear scan.",
+      "invariant": "i moves one step right."
+    },
+    "10": {
+      "happening": "Return the minimum found: {ans}.",
+      "why": "Every element has been compared.",
+      "invariant": "ans is the global minimum."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Seeding the running minimum and the scan index.",
+      "why": "We need a starting candidate and position.",
+      "invariant": "ans starts as the first element."
+    },
+    "loop": {
+      "happening": "Scanning the array element by element.",
+      "why": "A linear scan inspects every value.",
+      "invariant": "ans is the minimum of the prefix scanned so far."
+    },
+    "check": {
+      "happening": "Comparing the current element to the running minimum.",
+      "why": "Only a smaller value updates the answer.",
+      "invariant": "ans holds the smallest prefix value."
+    },
+    "update": {
+      "happening": "Lowering the running minimum.",
+      "why": "A new smallest value was found.",
+      "invariant": "ans equals the smallest value seen."
+    },
+    "move": {
+      "happening": "Advancing to the next element.",
+      "why": "The scan proceeds left to right.",
+      "invariant": "i increases by one."
+    },
+    "return": {
+      "happening": "Returning the smallest element found.",
+      "why": "The whole array has been scanned.",
+      "invariant": "ans is the global minimum."
+    }
+  }
+}

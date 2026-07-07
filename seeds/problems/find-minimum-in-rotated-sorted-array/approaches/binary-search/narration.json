@@ -1,0 +1,97 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Set the left boundary at index 0.",
+      "why": "The search window starts covering the whole array.",
+      "invariant": "The minimum is always within [left, right]."
+    },
+    "4": {
+      "happening": "Set the right boundary at the last index ({right}).",
+      "why": "The window's right end starts at the array's end.",
+      "invariant": "The minimum is always within [left, right]."
+    },
+    "5": [
+      {
+        "when": "left < right",
+        "happening": "The window still spans more than one element — keep narrowing.",
+        "why": "We halve the range until a single element remains.",
+        "invariant": "The minimum is always within [left, right]."
+      },
+      {
+        "happening": "left has met right — the window is a single element.",
+        "why": "The search space collapsed to the answer.",
+        "invariant": "left == right marks the minimum."
+      }
+    ],
+    "6": {
+      "happening": "Compute the midpoint mid = {mid} of the window.",
+      "why": "We probe the middle to decide which half to keep.",
+      "invariant": "mid is between left and right."
+    },
+    "7": [
+      {
+        "when": "nums[mid] > nums[right]",
+        "happening": "nums[mid] = {nums[mid]} > nums[right] = {nums[right]} — the pivot is to the right of mid.",
+        "why": "A middle larger than the right end means the drop-off (minimum) lies further right.",
+        "invariant": "The minimum is in (mid, right]."
+      },
+      {
+        "happening": "nums[mid] = {nums[mid]} <= nums[right] = {nums[right]} — mid's half is sorted down to it.",
+        "why": "The minimum is at mid or to its left.",
+        "invariant": "The minimum is in [left, mid]."
+      }
+    ],
+    "8": {
+      "happening": "Discard mid and the left half — move left to mid + 1.",
+      "why": "The minimum lies strictly to the right of mid.",
+      "invariant": "The minimum is still within [left, right]."
+    },
+    "10": {
+      "happening": "Discard the right half — pull right in to mid.",
+      "why": "The minimum is at mid or to its left, so mid stays a candidate.",
+      "invariant": "The minimum is still within [left, right]."
+    },
+    "11": {
+      "happening": "left and right have met — read the minimum at nums[left] = {nums[left]}.",
+      "why": "The window collapsed to exactly the smallest element.",
+      "invariant": "answer is the array minimum."
+    },
+    "12": {
+      "happening": "Return the minimum: {answer}.",
+      "why": "The search is complete.",
+      "invariant": "answer is the global minimum."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Placing left and right at the two ends of the array.",
+      "why": "The whole array is the initial search window.",
+      "invariant": "The minimum lies within [left, right]."
+    },
+    "loop": {
+      "happening": "Checking whether the window still spans more than one element.",
+      "why": "We halve until a single element remains.",
+      "invariant": "The minimum stays within [left, right]."
+    },
+    "update": {
+      "happening": "Computing the midpoint of the current window.",
+      "why": "The midpoint is the value we probe.",
+      "invariant": "mid is between left and right."
+    },
+    "check": {
+      "happening": "Comparing nums[mid] with nums[right] to locate the pivot side.",
+      "why": "This tells us which half to discard.",
+      "invariant": "One side of mid is always sorted."
+    },
+    "move": {
+      "happening": "Narrowing the window — discarding the half that can't hold the minimum.",
+      "why": "Each step halves the search space (O(log n)).",
+      "invariant": "The minimum stays within [left, right]."
+    },
+    "return": {
+      "happening": "Returning the minimum once the window collapsed.",
+      "why": "left == right pinpoints the smallest element.",
+      "invariant": "answer is the global minimum."
+    }
+  }
+}

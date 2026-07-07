@@ -1,0 +1,103 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "values",
+  "linksFrom": "nxt",
+  "pointers": [
+    {
+      "name": "cur",
+      "var": "cur"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "node_idx == cur && found"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == cur"
+    },
+    {
+      "state": "visited",
+      "when": "visited[node_idx] == true"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "cur != null && phase != 'return'",
+    "expr": "walking · at node {cur}"
+  },
+  "counters": [
+    {
+      "name": "nodes visited",
+      "onLines": [
+        19
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        15
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        16
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        17,
+        19
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        20
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        18,
+        21
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 17,
+      "label": "Revisited a node — cycle!",
+      "kind": "match"
+    },
+    {
+      "line": 21,
+      "label": "Return answer",
+      "kind": "return"
+    }
+  ]
+}

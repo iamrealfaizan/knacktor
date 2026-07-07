@@ -1,0 +1,118 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    },
+    {
+      "name": "mid",
+      "var": "mid"
+    }
+  ],
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == left && left == right"
+    },
+    {
+      "state": "current",
+      "when": "idx == mid"
+    },
+    {
+      "state": "left",
+      "when": "idx == left"
+    },
+    {
+      "state": "right",
+      "when": "idx == right"
+    },
+    {
+      "state": "dimmed",
+      "when": "idx < left || idx > right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "window": {
+    "from": "left",
+    "to": "right"
+  },
+  "readout": {
+    "when": "mid != null && phase != 'return'",
+    "expr": "window [{left}, {right}] · mid {mid} = {nums[mid]} vs right {nums[right]}"
+  },
+  "counters": [
+    {
+      "name": "probes",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        8,
+        10
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        11,
+        12
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 8,
+      "label": "Discard left half",
+      "kind": "boundary"
+    },
+    {
+      "line": 10,
+      "label": "Discard right half",
+      "kind": "boundary"
+    },
+    {
+      "line": 11,
+      "label": "Minimum found",
+      "kind": "result"
+    }
+  ]
+}

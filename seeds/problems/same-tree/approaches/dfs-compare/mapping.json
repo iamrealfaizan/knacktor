@@ -1,0 +1,162 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "p_nodes",
+  "currentNodeVar": "cur_p",
+  "nodeStateRules": [
+    {
+      "state": "error",
+      "when": "node_idx == cur_p && done"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == cur_p"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Tree q",
+      "primitive": "tree",
+      "nodesFrom": "q_nodes",
+      "currentNodeVar": "cur_q",
+      "nodeStateRules": [
+        {
+          "state": "error",
+          "when": "node_idx == cur_q && done"
+        },
+        {
+          "state": "current",
+          "when": "node_idx == cur_q"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "comparing p[{cur_p}] vs q[{cur_q}]"
+  },
+  "counters": [
+    {
+      "name": "pairs compared",
+      "onLines": [
+        47
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        46
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        47,
+        48
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        49,
+        51,
+        54
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        50,
+        52,
+        53,
+        55,
+        56,
+        58,
+        59,
+        60,
+        61,
+        62
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        63
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 52,
+      "label": "Structure differs",
+      "kind": "boundary"
+    },
+    {
+      "line": 55,
+      "label": "Value differs",
+      "kind": "boundary"
+    },
+    {
+      "line": 63,
+      "label": "Result",
+      "kind": "return"
+    }
+  ]
+}
