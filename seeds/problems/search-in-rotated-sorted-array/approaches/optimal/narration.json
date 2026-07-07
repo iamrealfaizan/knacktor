@@ -1,0 +1,114 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "The left boundary starts at index 0.",
+      "why": "The search window begins as the entire array.",
+      "invariant": "The target, if present, lies between left and right."
+    },
+    "4": {
+      "happening": "The right boundary starts at the last index.",
+      "why": "The window must cover every element at the start.",
+      "invariant": "left and right enclose all candidate positions."
+    },
+    "5": {
+      "happening": "We continue while left has not passed right.",
+      "why": "An empty window means the target is not present.",
+      "invariant": "Each iteration considers a non-empty window."
+    },
+    "6": {
+      "happening": "We compute mid as the middle of the window.",
+      "why": "Comparing the middle element halves the search each step.",
+      "invariant": "mid always lies between left and right."
+    },
+    "7": [
+      {
+        "when": "nums[mid] == target",
+        "happening": "nums[{mid}] equals target, so we have found it.",
+        "why": "A direct hit at the midpoint ends the search immediately.",
+        "invariant": "The returned index holds the target value."
+      },
+      {
+        "happening": "nums[{mid}] ({nums[mid]}) is not the target.",
+        "why": "We must decide which half could still contain target.",
+        "invariant": "The target, if present, is on one side of mid."
+      }
+    ],
+    "8": {
+      "happening": "We return mid, the index of the target.",
+      "why": "The value at mid matches the target.",
+      "invariant": "nums[mid] == target."
+    },
+    "9": {
+      "happening": "We test whether the left half is sorted.",
+      "why": "Exactly one half of a rotated array is always in order, and a sorted half is easy to reason about.",
+      "invariant": "If nums[left] <= nums[mid], the values from left to mid are ascending."
+    },
+    "10": {
+      "happening": "We check whether target falls within the sorted left half.",
+      "why": "If target is inside the ordered range, the answer must be there.",
+      "invariant": "A target between nums[left] and nums[mid] can only be in the left half."
+    },
+    "11": {
+      "happening": "We move right to mid - 1, keeping only the left half.",
+      "why": "The target lies in the sorted left half, so the right half is discarded.",
+      "invariant": "The window still contains the target if it is present."
+    },
+    "13": {
+      "happening": "We move left to mid + 1, keeping only the right half.",
+      "why": "The target is not in the sorted left half, so it must be to the right.",
+      "invariant": "Discarding the left half never drops the target."
+    },
+    "15": {
+      "happening": "The right half is sorted, so we check whether target falls within it.",
+      "why": "A target inside the ordered right range must be on that side.",
+      "invariant": "A target between nums[mid] and nums[right] can only be in the right half."
+    },
+    "16": {
+      "happening": "We move left to mid + 1, keeping only the right half.",
+      "why": "The target lies in the sorted right half, so the left half is discarded.",
+      "invariant": "The window still contains the target if it is present."
+    },
+    "18": {
+      "happening": "We move right to mid - 1, keeping only the left half.",
+      "why": "The target is not in the sorted right half, so it must be to the left.",
+      "invariant": "Discarding the right half never drops the target."
+    },
+    "19": {
+      "happening": "The window is empty, so we return -1.",
+      "why": "Every position has been ruled out without a match.",
+      "invariant": "target does not appear in nums."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set the search window to the whole array.",
+      "why": "Binary search begins by considering every element.",
+      "invariant": "left and right enclose all candidate positions."
+    },
+    "loop": {
+      "happening": "Check that the window still holds elements.",
+      "why": "The search runs until it finds the target or empties the window.",
+      "invariant": "Each pass halves the remaining window."
+    },
+    "update": {
+      "happening": "Compute the midpoint of the window.",
+      "why": "The midpoint is the pivot for every comparison.",
+      "invariant": "mid is always inside the current window."
+    },
+    "check": {
+      "happening": "Compare the midpoint and decide which half is sorted and where target could be.",
+      "why": "In a rotated array, identifying the sorted half tells us which side to keep.",
+      "invariant": "Only a half that could contain the target is ever kept."
+    },
+    "move": {
+      "happening": "Collapse the window to the surviving half.",
+      "why": "Discarding half the elements each step gives logarithmic time.",
+      "invariant": "The retained window still contains the target if it is present."
+    },
+    "return": {
+      "happening": "Report the result — the index found or -1.",
+      "why": "The search has either matched the target or exhausted the window.",
+      "invariant": "The returned value correctly reflects the target's presence."
+    }
+  }
+}

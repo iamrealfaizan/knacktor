@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "longest-substring-without-repeating-characters",
+  "number": 3,
+  "title": "Longest Substring Without Repeating Characters",
+  "difficulty": "medium",
+  "topics": [
+    "string",
+    "hash-map",
+    "sliding-window"
+  ],
+  "patterns": [
+    "sliding-window"
+  ],
+  "statement": "Given a string s, find the length of the longest substring without repeating characters.\n\nExample 1:\nInput: s = \"abcabcbb\"\nOutput: 3\nExplanation: The answer is \"abc\", with the length of 3.\n\nExample 2:\nInput: s = \"bbbbb\"\nOutput: 1\nExplanation: The answer is \"b\", with the length of 1.\n\nExample 3:\nInput: s = \"pwwkew\"\nOutput: 3\nExplanation: The answer is \"wke\", with the length of 3. Notice that the answer must be a substring, \"pwke\" is a subsequence and not a substring.\n\nConstraints:\n0 <= s.length <= 5 * 10^4\ns consists of English letters, digits, symbols and spaces.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "string",
+        "label": "String",
+        "placeholder": "abcabcbb",
+        "minLen": 1,
+        "maxLen": 24
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "anagram",
+      "t": "nagaram"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "rat",
+      "t": "car"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-length-mismatch",
+    "label": "Different lengths",
+    "value": {
+      "s": "a",
+      "t": "ab"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-count-mismatch",
+    "label": "Same letters, wrong counts",
+    "value": {
+      "s": "aab",
+      "t": "abb"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  }
+]

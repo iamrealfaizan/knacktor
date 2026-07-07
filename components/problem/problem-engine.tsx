@@ -7,7 +7,14 @@ import { TopBar } from "./top-bar";
 import { CodePanel } from "./code-panel";
 import { Stage } from "./stage";
 import { Narration } from "./narration";
-import { InsightRail } from "./insight-rail";
+import {
+  InsightRail,
+  VariablesSection,
+  ComplexitySection,
+  ResultSection,
+  CallStackSection,
+  NotesSection,
+} from "./insight-rail";
 import { ControlDock } from "./control-dock";
 import type { ProblemFull, Trace } from "@/lib/trace";
 import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
@@ -226,62 +233,127 @@ export function ProblemEngine({
           onSelectApproach={handleSelectApproach}
         />
 
-        {/* Body — horizontal no-scroll on desktop; vertical scroll stack on mobile (D14) */}
-        <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden">
-          {/* Code panel */}
-          <section
-            className="flex-none border-b lg:border-b-0 lg:border-r border-kn-border-0 min-h-0 relative w-full h-[42vh] lg:h-auto"
-            style={isDesktop ? { width: codeCollapsed ? 48 : codeW } : undefined}
-          >
-            <CodePanel
-              approach={approach}
-              currentLine={step.codeKey}
-              collapsed={isDesktop && codeCollapsed}
-              onToggleCollapse={() => setCodeCollapsed((c) => !c)}
-            />
-            {isDesktop && !codeCollapsed && (
-              <div className="absolute top-0 right-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("code")} />
-            )}
-          </section>
+        {isDesktop ? (
+          /* Body — canonical desktop no-scroll 3-column loop (unchanged) */
+          <div className="flex-1 flex flex-row min-h-0 overflow-hidden">
+            {/* Code panel */}
+            <section
+              className="flex-none border-r border-kn-border-0 min-h-0 relative"
+              style={{ width: codeCollapsed ? 48 : codeW }}
+            >
+              <CodePanel
+                approach={approach}
+                currentLine={step.codeKey}
+                collapsed={codeCollapsed}
+                onToggleCollapse={() => setCodeCollapsed((c) => !c)}
+              />
+              {!codeCollapsed && (
+                <div className="absolute top-0 right-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("code")} />
+              )}
+            </section>
 
-          {/* Center: stage + narration */}
-          <section className="flex-1 min-w-0 flex flex-col min-h-0 h-[60vh] lg:h-auto">
-            <Stage
-              visual={step.visual}
-              vars={step.vars}
-              target={target}
-              caption={`animation stage · ${approach.primaryPrimitive} + pointers`}
-            />
-            <Narration
-              narration={step.narration}
-              lineExplanation={approach.lineExplanations[step.codeKey] ?? ""}
-              open={narrOpen}
-              onToggle={() => setNarrOpen((o) => !o)}
-            />
-          </section>
+            {/* Center: stage + narration */}
+            <section className="flex-1 min-w-0 flex flex-col min-h-0">
+              <Stage
+                visual={step.visual}
+                vars={step.vars}
+                target={target}
+                caption={`animation stage · ${approach.primaryPrimitive} + pointers`}
+              />
+              <Narration
+                narration={step.narration}
+                lineExplanation={approach.lineExplanations[step.codeKey] ?? ""}
+                open={narrOpen}
+                onToggle={() => setNarrOpen((o) => !o)}
+              />
+            </section>
 
-          {/* Insight rail */}
-          <section
-            className="flex-none border-t lg:border-t-0 lg:border-l border-kn-border-0 min-h-0 relative w-full h-[50vh] lg:h-auto"
-            style={isDesktop ? { width: railCollapsed ? 48 : railW } : undefined}
-          >
-            {isDesktop && !railCollapsed && (
-              <div className="absolute top-0 left-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("rail")} />
+            {/* Insight rail */}
+            <section
+              className="flex-none border-l border-kn-border-0 min-h-0 relative"
+              style={{ width: railCollapsed ? 48 : railW }}
+            >
+              {!railCollapsed && (
+                <div className="absolute top-0 left-[-6px] h-full w-3 cursor-col-resize z-10" onMouseDown={() => startResize("rail")} />
+              )}
+              <InsightRail
+                step={step}
+                prevVars={prevVars}
+                idx={player.idx}
+                complexity={approach.complexity}
+                slug={problem.slug}
+                collapsed={railCollapsed}
+                onToggleCollapse={() => setRailCollapsed((c) => !c)}
+                varOrder={varOrder}
+                varColors={approach.varColors}
+                resultSpec={approach.resultSpec}
+              />
+            </section>
+          </div>
+        ) : (
+          /* Body — mobile stacked layout (D14): PINNED stage → scrollable content
+             column. Mode switching lives in the ⋮ overflow sheet, so the stage
+             gets that vertical space. The dock below stays pinned by flex. */
+          <>
+            {/* Pinned stage — fluid: compact clamp in Learn/Compare, fills in Focus */}
+            <div
+              className={
+                mode === "Focus"
+                  ? "flex-1 min-h-0 flex flex-col"
+                  : "flex-none h-[clamp(12rem,34dvh,22rem)] flex flex-col"
+              }
+            >
+              <Stage
+                visual={step.visual}
+                vars={step.vars}
+                target={target}
+                caption={`animation stage · ${approach.primaryPrimitive} + pointers`}
+              />
+            </div>
+
+            {/* Scroll body — hidden in Focus (stage-only, matching desktop Focus semantics).
+                Compare lanes: when dual-lane Compare lands (CompareAndResponsive.md §2.4),
+                this column becomes two stacked lane blocks; single-lane until then. */}
+            {mode !== "Focus" && (
+              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain cs-scroll flex flex-col bg-kn-surface-0">
+                <Narration
+                  narration={step.narration}
+                  lineExplanation={approach.lineExplanations[step.codeKey] ?? ""}
+                  open
+                  onToggle={() => {}}
+                />
+                <div className="border-t border-kn-border-0">
+                  <VariablesSection
+                    step={step}
+                    prevVars={prevVars}
+                    idx={player.idx}
+                    varOrder={varOrder}
+                    varColors={approach.varColors}
+                  />
+                  <ResultSection step={step} resultSpec={approach.resultSpec} />
+                  <CallStackSection step={step} />
+                </div>
+                <div className="border-t border-kn-border-0">
+                  <CodePanel
+                    approach={approach}
+                    currentLine={step.codeKey}
+                    collapsed={false}
+                    onToggleCollapse={() => {}}
+                    mobileExplanation={
+                      approach.syntaxExplanations?.[step.codeKey] ??
+                      approach.lineExplanations[step.codeKey] ??
+                      ""
+                    }
+                  />
+                </div>
+                <div className="border-t border-kn-border-0">
+                  <ComplexitySection complexity={approach.complexity} />
+                  <NotesSection slug={problem.slug} grow={false} />
+                </div>
+              </div>
             )}
-            <InsightRail
-              step={step}
-              prevVars={prevVars}
-              idx={player.idx}
-              complexity={approach.complexity}
-              slug={problem.slug}
-              collapsed={isDesktop && railCollapsed}
-              onToggleCollapse={() => setRailCollapsed((c) => !c)}
-              varOrder={varOrder}
-              varColors={approach.varColors}
-              resultSpec={approach.resultSpec}
-            />
-          </section>
-        </div>
+          </>
+        )}
 
         <ControlDock
           player={player}

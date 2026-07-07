@@ -15,20 +15,37 @@ export function CodePanel({
   currentLine,
   collapsed,
   onToggleCollapse,
+  mobileExplanation,
 }: {
   approach: Approach;
   currentLine: number;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  /** When set (mobile layout), a box below the code always shows the currently
+   *  executing line's explanation — hover doesn't exist on touch. */
+  mobileExplanation?: string;
 }) {
   const lines = approach.source.split("\n");
   const [hover, setHover] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [copied, setCopied] = useState(false);
   const activeRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  // Track the active line by scrolling the internal code box only. scrollIntoView
+  // would also scroll ancestor containers — on mobile that yanks the page's
+  // scroll body every step, so we compute the delta against this box alone.
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    const box = scrollRef.current;
+    const row = activeRef.current;
+    if (!box || !row) return;
+    const boxRect = box.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const PAD = 8;
+    let delta = 0;
+    if (rowRect.top < boxRect.top + PAD) delta = rowRect.top - boxRect.top - PAD;
+    else if (rowRect.bottom > boxRect.bottom - PAD) delta = rowRect.bottom - boxRect.bottom + PAD;
+    if (delta !== 0) box.scrollTo({ top: box.scrollTop + delta, behavior: "smooth" });
   }, [currentLine]);
 
   function copy() {
@@ -85,14 +102,14 @@ export function CodePanel({
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             {copied ? "copied" : "copy"}
           </Button>
-          <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-6 w-6 text-kn-ink-2" title="Collapse code">
+          <Button size="icon" variant="ghost" onClick={onToggleCollapse} className="h-6 w-6 text-kn-ink-2 max-lg:hidden" title="Collapse code">
             <PanelLeftClose className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* code body */}
-      <div className="flex-1 overflow-auto cs-scroll py-2.5">
+      {/* code body — capped on mobile so long files don't dominate the scroll body */}
+      <div ref={scrollRef} className="flex-1 overflow-auto cs-scroll py-2.5 max-lg:max-h-[45dvh]">
         {lines.map((line, i) => {
           const lineNo = i + 1;
           const active = lineNo === currentLine;
@@ -126,10 +143,20 @@ export function CodePanel({
         })}
       </div>
 
-      {/* floating line explainer — fixed to viewport, follows cursor */}
+      {/* mobile line explainer — always shows the executing line (no hover on touch) */}
+      {mobileExplanation !== undefined && (
+        <div className="lg:hidden flex-none mx-3 mb-3 rounded-lg border border-kn-border-0 bg-kn-surface-1 px-3 py-2.5">
+          <p className="font-mono text-[8.5px] font-bold tracking-widest text-kn-current mb-1">
+            ⌕ LINE {currentLine} · CURRENT
+          </p>
+          <p className="text-[12.5px] leading-snug text-kn-ink-1">{mobileExplanation}</p>
+        </div>
+      )}
+
+      {/* floating line explainer — fixed to viewport, follows cursor (desktop hover only) */}
       {showTooltip && (
         <div
-          className="fixed z-50 pointer-events-none rounded-lg border border-kn-compared bg-kn-surface-0 px-3 py-2.5 shadow-md"
+          className="max-lg:hidden fixed z-50 pointer-events-none rounded-lg border border-kn-compared bg-kn-surface-0 px-3 py-2.5 shadow-md"
           style={{ left: tooltipStyle.left, top: tooltipStyle.top, width: TOOLTIP_W }}
         >
           <p className="font-mono text-[8.5px] font-bold tracking-widest text-kn-compared mb-1">

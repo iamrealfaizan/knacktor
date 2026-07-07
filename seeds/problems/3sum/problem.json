@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "3sum",
+  "number": 15,
+  "title": "3Sum",
+  "difficulty": "medium",
+  "topics": [
+    "array",
+    "two-pointers",
+    "sorting"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.\n\nNotice that the solution set must not contain duplicate triplets.\n\nExample 1:\nInput: nums = [-1,0,1,2,-1,-4]\nOutput: [[-1,-1,2],[-1,0,1]]\nExplanation:\nnums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.\nnums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.\nnums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.\nThe distinct triplets are [-1,0,1] and [-1,-1,2].\n\nExample 2:\nInput: nums = [0,1,1]\nOutput: []\nExplanation: The only possible triplet does not sum up to 0.\n\nExample 3:\nInput: nums = [0,0,0]\nOutput: [[0,0,0]]\nExplanation: The only possible triplet sums up to 0.\n\nConstraints:\n3 <= nums.length <= 3000\n-10^5 <= nums[i] <= 10^5",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "nums",
+        "type": "int[]",
+        "label": "Array",
+        "placeholder": "-1, 0, 1, 2, -1, -4",
+        "min": -100000,
+        "max": 100000,
+        "minLen": 3,
+        "maxLen": 20
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "primitive": "array",
+  "valuesFrom": "answer",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "flags": {
+    "secondPass": "suffix != null"
+  },
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "result",
+      "when": "idx > i && secondPass"
+    },
+    {
+      "state": "path",
+      "when": "idx < i && secondPass"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i && !secondPass"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'return'",
+    "expr": "prefix {prefix} · suffix {suffix != null ? suffix : 1} · nums[{i}]={nums[i]}"
+  },
+  "counters": [
+    {
+      "name": "prefix writes",
+      "onLines": [
+        7
+      ]
+    },
+    {
+      "name": "suffix folds",
+      "onLines": [
+        11
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        10
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        9,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        13
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Switch to suffix pass",
+      "kind": "boundary"
+    },
+    {
+      "line": 13,
+      "label": "Products complete",
+      "kind": "return"
+    }
+  ]
+}

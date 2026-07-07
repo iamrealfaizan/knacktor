@@ -1,0 +1,136 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We sort nums from smallest to largest.",
+      "why": "Sorting lets us move pointers by comparing sums and skip duplicates easily.",
+      "invariant": "After this line nums is in non-decreasing order."
+    },
+    "4": {
+      "happening": "We create result as an empty list.",
+      "why": "Each zero-sum triplet we discover will be appended here.",
+      "invariant": "result holds only distinct triplets that sum to zero."
+    },
+    "5": {
+      "happening": "The anchor index i advances to the next value.",
+      "why": "Every triplet is found relative to a fixed first value.",
+      "invariant": "All triplets whose smallest index is below i have already been recorded."
+    },
+    "6": {
+      "happening": "We check whether this anchor equals the previous value.",
+      "why": "Reusing an equal anchor would only reproduce triplets we already found.",
+      "invariant": "Each distinct anchor value is processed at most once."
+    },
+    "7": {
+      "happening": "The anchor repeats the previous value, so we skip it.",
+      "why": "Skipping duplicate anchors keeps the result free of repeated triplets.",
+      "invariant": "No duplicate triplet is ever appended."
+    },
+    "8": {
+      "happening": "The left pointer starts just after the anchor.",
+      "why": "The other two numbers must come from the range to the right of the anchor.",
+      "invariant": "left is always greater than i."
+    },
+    "9": {
+      "happening": "The right pointer starts at the last index.",
+      "why": "Beginning at the extremes lets the sum be tuned by moving inward.",
+      "invariant": "right is always the largest available index for this anchor."
+    },
+    "10": {
+      "happening": "We continue while left and right have not crossed.",
+      "why": "Once the pointers meet, no more pairs remain for this anchor.",
+      "invariant": "left < right for every pair examined."
+    },
+    "11": {
+      "happening": "We add the anchor and both pointer values into total.",
+      "why": "The sign of this sum tells us which pointer to move.",
+      "invariant": "total equals nums[i] + nums[left] + nums[right] for the current pointers."
+    },
+    "12": {
+      "happening": "We test whether total is below zero.",
+      "why": "A sum that is too small needs a larger contribution.",
+      "invariant": "If total is negative, only a larger left value can help."
+    },
+    "13": {
+      "happening": "The sum was too small, so left steps right to a larger value.",
+      "why": "In a sorted array, moving left rightward increases the sum.",
+      "invariant": "Moving left never decreases the running sum."
+    },
+    "14": {
+      "happening": "We test whether total is above zero.",
+      "why": "A sum that is too large needs a smaller contribution.",
+      "invariant": "If total is positive, only a smaller right value can help."
+    },
+    "15": {
+      "happening": "The sum was too large, so right steps left to a smaller value.",
+      "why": "In a sorted array, moving right leftward decreases the sum.",
+      "invariant": "Moving right never increases the running sum."
+    },
+    "17": {
+      "happening": "The sum is exactly zero, so we build the triplet.",
+      "why": "These three values are a valid answer to record.",
+      "invariant": "The three highlighted cells sum to zero."
+    },
+    "18": {
+      "happening": "We append the triplet to result.",
+      "why": "This is one of the distinct triplets the problem asks for.",
+      "invariant": "result now contains this zero-sum triplet."
+    },
+    "19": {
+      "happening": "The left pointer advances past the value just used.",
+      "why": "The current pair is finished, so we look for the next one.",
+      "invariant": "left keeps increasing within this anchor's sweep."
+    },
+    "20": {
+      "happening": "The right pointer retreats past the value just used.",
+      "why": "Both ends of the found pair must change to seek a new pair.",
+      "invariant": "right keeps decreasing within this anchor's sweep."
+    },
+    "21": {
+      "happening": "We check whether the new left value repeats the one just used.",
+      "why": "An identical left value would create a duplicate triplet.",
+      "invariant": "left stops only on a value different from the one just recorded."
+    },
+    "22": {
+      "happening": "The left value repeated, so we skip it.",
+      "why": "Skipping equal values keeps the answer free of duplicate triplets.",
+      "invariant": "Consecutive equal left values are collapsed into one."
+    },
+    "23": {
+      "happening": "We return result.",
+      "why": "Every anchor has been swept, so all triplets are found.",
+      "invariant": "result is the complete set of distinct zero-sum triplets."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Sort the array and prepare the result list.",
+      "why": "Sorting is what makes the two-pointer sweep and duplicate-skipping possible.",
+      "invariant": "nums is sorted and result is empty."
+    },
+    "loop": {
+      "happening": "Advance an anchor or continue the inner sweep.",
+      "why": "The outer loop fixes a first value; the inner loop pairs the rest.",
+      "invariant": "The pointers describe one concrete candidate triplet at a time."
+    },
+    "check": {
+      "happening": "Test a duplicate anchor or the sign of the running sum.",
+      "why": "These tests decide whether to skip, move a pointer, or record a triplet.",
+      "invariant": "Only genuinely new, zero-sum triplets are kept."
+    },
+    "update": {
+      "happening": "Compute the sum or record a triplet.",
+      "why": "Each step either measures the current pair or stores a valid answer.",
+      "invariant": "The recorded triplets always sum to zero."
+    },
+    "move": {
+      "happening": "Slide a pointer inward or over a duplicate.",
+      "why": "Pointer moves tune the sum toward zero and skip repeats.",
+      "invariant": "left only rises and right only falls within one anchor's sweep."
+    },
+    "return": {
+      "happening": "Return the collected triplets.",
+      "why": "The full search is complete.",
+      "invariant": "result contains every distinct zero-sum triplet."
+    }
+  }
+}

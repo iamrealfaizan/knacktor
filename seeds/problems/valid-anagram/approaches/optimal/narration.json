@@ -1,0 +1,101 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We compare the lengths of s and t.",
+      "why": "Two strings of different lengths can never be anagrams of each other.",
+      "invariant": "Anagrams must use exactly the same number of characters."
+    },
+    "4": {
+      "happening": "The lengths differ, so we return False right away.",
+      "why": "No further work is needed once a disqualifying difference is found.",
+      "invariant": "A False result means t is not an anagram of s."
+    },
+    "5": {
+      "happening": "We create counts as an empty dictionary.",
+      "why": "The map will record how many times each character appears in s.",
+      "invariant": "counts holds the frequency of every character seen so far in s."
+    },
+    "6": {
+      "happening": "Index i advances to the next character of s.",
+      "why": "Every character of s must be tallied exactly once.",
+      "invariant": "All characters before index i have already been counted."
+    },
+    "7": {
+      "happening": "We read the current character ch from s.",
+      "why": "This is the character whose tally we are about to increase.",
+      "invariant": "ch is the character of s at index i."
+    },
+    "8": {
+      "happening": "We add one to the tally for character '{ch}'.",
+      "why": "The map must reflect exactly how many of each character s contains.",
+      "invariant": "counts sums to i + 1 once this line finishes."
+    },
+    "9": {
+      "happening": "Index j advances to the next character of t.",
+      "why": "Each character of t should cancel one tally recorded from s.",
+      "invariant": "All characters before index j have already been cancelled."
+    },
+    "10": {
+      "happening": "We read the current character d from t.",
+      "why": "This is the character whose tally we are about to reduce.",
+      "invariant": "d is the character of t at index j."
+    },
+    "11": {
+      "happening": "We check whether '{d}' was ever counted from s.",
+      "why": "If t contains a character s never had, the strings cannot match.",
+      "invariant": "A missing key means t has a character absent from s."
+    },
+    "12": {
+      "happening": "Character '{d}' is missing from the map, so we return False.",
+      "why": "t contains a letter that s does not, which rules out an anagram.",
+      "invariant": "A False result means t is not an anagram of s."
+    },
+    "13": {
+      "happening": "We decrement the tally for '{d}'.",
+      "why": "Each character of t should remove one of the occurrences counted from s.",
+      "invariant": "A tally reaching zero means s and t used that character equally often."
+    },
+    "14": {
+      "happening": "We check whether the tally for '{d}' went below zero.",
+      "why": "A negative tally means t uses this character more times than s did.",
+      "invariant": "Balanced anagrams never drive any tally below zero."
+    },
+    "15": {
+      "happening": "The tally for '{d}' is negative, so we return False.",
+      "why": "t repeats a character more often than s contains it.",
+      "invariant": "A False result means t is not an anagram of s."
+    },
+    "16": {
+      "happening": "Every tally cancelled cleanly, so we return True.",
+      "why": "Matching counts for every character proves t is a rearrangement of s.",
+      "invariant": "A True result means s and t contain the same characters with the same frequencies."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Prepare an empty character-count map.",
+      "why": "The algorithm needs somewhere to record the frequency of each character in s.",
+      "invariant": "No character has been counted yet."
+    },
+    "check": {
+      "happening": "Test a condition against the current data.",
+      "why": "Length, presence, and non-negativity checks each catch a way the strings could differ.",
+      "invariant": "A failed check ends the method with False."
+    },
+    "loop": {
+      "happening": "Advance to the next character to process.",
+      "why": "Both strings are scanned once from left to right.",
+      "invariant": "Characters already passed have been fully accounted for."
+    },
+    "update": {
+      "happening": "Read a character and adjust its tally.",
+      "why": "Counting up for s and down for t makes every character cancel to zero when the strings match.",
+      "invariant": "The map always reflects s's counts minus the part of t processed so far."
+    },
+    "return": {
+      "happening": "Report the final answer.",
+      "why": "The scan has reached a decisive result.",
+      "invariant": "The returned boolean states whether t is an anagram of s."
+    }
+  }
+}

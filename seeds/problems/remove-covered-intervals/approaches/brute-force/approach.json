@@ -1,0 +1,66 @@
+{
+  "id": "brute-force",
+  "name": "Check Every Other Interval",
+  "kind": "brute",
+  "summary": "For each interval, scan all the others to see if any single interval covers it; count the intervals nothing covers.",
+  "visualizationIntent": "init: show the intervals (original order) as cells and count 0. outer-loop: pointer i marks the interval being tested; assume not covered. inner-loop: pointer j scans each other interval as a candidate cover (compared/blue against i/current). check: if candidate j starts at or before i and ends at or after i, mark interval i covered (dimmed) and stop scanning. keep: if no interval covered i, count grows. return: freeze on the final survivor count.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.removeCoveredIntervals",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "count",
+    "label": "REMAINING",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "count": "result",
+    "covered": "error"
+  },
+  "lineExplanations": {
+    "3": "Start the survivor counter at zero.",
+    "4": "Store the number of intervals for both loops.",
+    "5": "Pick each interval i to test for being covered.",
+    "6": "Assume interval i is not covered before scanning.",
+    "7": "Read interval i's start.",
+    "8": "Read interval i's end.",
+    "9": "Scan every other interval j as a possible cover.",
+    "10": "Skip comparing interval i with itself.",
+    "11": "Move to the next candidate when j equals i.",
+    "12": "Read candidate j's start.",
+    "13": "Read candidate j's end.",
+    "14": "Check whether j starts at or before i and ends at or after i, which means j covers i.",
+    "15": "Mark interval i as covered.",
+    "16": "Stop scanning once a covering interval is found.",
+    "17": "If nothing covered interval i, keep it.",
+    "18": "Count interval i as a survivor.",
+    "19": "Return how many intervals survived."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper the platform expects.",
+    "2": "def removeCoveredIntervals(self, intervals): defines the method; intervals is a list of [start, end] pairs.",
+    "3": "count = 0 creates an integer counter starting at zero.",
+    "4": "n = len(intervals) stores how many intervals there are.",
+    "5": "for i in range(n): loops i over each interval to test.",
+    "6": "covered = False assumes interval i is not covered until proven otherwise.",
+    "7": "a = intervals[i][0] reads interval i's start.",
+    "8": "b = intervals[i][1] reads interval i's end.",
+    "9": "for j in range(n): loops j over every possible covering interval.",
+    "10": "if i == j: detects the interval compared with itself.",
+    "11": "continue skips to the next j without comparing.",
+    "12": "c = intervals[j][0] reads candidate interval j's start.",
+    "13": "d = intervals[j][1] reads candidate interval j's end.",
+    "14": "if c <= a and b <= d: is true exactly when interval j covers interval i.",
+    "15": "covered = True marks interval i as covered.",
+    "16": "break stops the inner scan early.",
+    "17": "if not covered: runs when no interval covered interval i.",
+    "18": "count += 1 counts interval i as a survivor.",
+    "19": "return count sends back the number of surviving intervals."
+  }
+}

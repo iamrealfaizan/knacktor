@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { PresetSheet } from "./preset-sheet";
 import type { Player } from "./use-player";
 import type { PresetInput, InputConstraints } from "@/lib/trace";
 import type { CustomInputState } from "./problem-engine";
@@ -36,7 +38,7 @@ const KIND_CLASS: Record<string, string> = {
   return: "bg-kn-current border-kn-current-border",
 };
 
-function formatInputPairs(value: unknown): string {
+export function formatInputPairs(value: unknown): string {
   if (!value || typeof value !== "object") return String(value ?? "");
   return Object.entries(value as Record<string, unknown>)
     .map(([k, v]) => {
@@ -69,6 +71,7 @@ export function ControlDock({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [dropOpen, setDropOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false); // mobile preset bottom sheet
   const [fieldValues, setFieldValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(inputConstraints?.fields.map((f) => [f.name, ""]) ?? [])
   );
@@ -136,45 +139,75 @@ export function ControlDock({
   const globalError = customInput.errors["_"];
 
   return (
-    <footer className="flex-none border-t border-kn-border-0 bg-kn-surface-0 px-4 pt-3 pb-3 flex flex-col gap-2.5">
+    <footer className="flex-none border-t border-kn-border-0 bg-kn-surface-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:pb-3 flex flex-col gap-2.5">
 
-      {/* Scrubber (draggable) */}
+      {/* Mobile input-example chip — opens the preset bottom sheet (desktop uses the inline dropdown below) */}
+      <div className="lg:hidden flex items-center">
+        <button
+          onClick={() => setSheetOpen(true)}
+          className={[
+            "flex items-center gap-1.5 min-h-9 px-3 rounded-lg border font-mono text-[12px] font-semibold whitespace-nowrap max-w-full touch-manipulation",
+            isCustomActive
+              ? "bg-kn-current/10 border-kn-current/40 text-kn-current"
+              : "bg-kn-inset border-kn-border-0 text-kn-ink-0",
+          ].join(" ")}
+        >
+          <span className="truncate">{selectorLabel}</span>
+          <ChevronDown className="h-3.5 w-3.5 text-kn-ink-2 shrink-0" />
+        </button>
+      </div>
+
+      {/* Scrubber (draggable) — taller touch zone below lg, elements vertically centered */}
       <div
         ref={trackRef}
-        className="relative h-[18px] cursor-pointer select-none touch-none"
+        className="relative h-8 lg:h-[18px] cursor-pointer select-none touch-none"
         onPointerDown={onTrackPointerDown}
         onPointerMove={onTrackPointerMove}
         onPointerUp={onTrackPointerUp}
       >
-        <div className="absolute top-1.5 left-0 right-0 h-1.5 rounded bg-kn-track" />
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 rounded bg-kn-track" />
         <div
-          className="absolute top-1.5 left-0 h-1.5 rounded bg-kn-current transition-[width] duration-200"
+          className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 rounded bg-kn-current transition-[width] duration-200"
           style={{ width: `${player.progress * 100}%` }}
         />
         {keyEventIndices.map((k) => {
           const ev = keyEvents?.[k];
           const cls = (ev?.kind && KIND_CLASS[ev.kind]) || "bg-kn-amber border-kn-amber-bd";
           return (
+            /* ≥24px invisible hit wrapper so diamonds are tappable on touch */
             <span
               key={k}
               title={ev ? `${ev.label} · step ${k + 1}` : `Key event · step ${k + 1}`}
               onPointerDown={(e) => { e.stopPropagation(); player.seek(k); }}
-              className={`absolute w-2.5 h-2.5 border cursor-pointer ${cls}`}
-              style={{ left: `${(k / (player.total - 1)) * 100}%`, top: 3, transform: "translateX(-50%) rotate(45deg)" }}
-            />
+              className="absolute top-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 grid place-items-center cursor-pointer"
+              style={{ left: `${(k / (player.total - 1)) * 100}%` }}
+            >
+              <span className={`w-2.5 h-2.5 border rotate-45 ${cls}`} />
+            </span>
           );
         })}
         <span
-          className="absolute w-4 h-4 rounded-full bg-kn-surface-0 border-[2.5px] border-kn-current transition-[left] duration-200 pointer-events-none"
-          style={{ left: `${player.progress * 100}%`, top: -1, transform: "translateX(-50%)" }}
+          className="absolute top-1/2 w-4 h-4 rounded-full bg-kn-surface-0 border-[2.5px] border-kn-current transition-[left] duration-200 pointer-events-none"
+          style={{ left: `${player.progress * 100}%`, transform: "translate(-50%,-50%)" }}
         />
       </div>
 
-      {/* Transport row — left/right are flex; center is absolute so it's always screen-centered */}
+      {/* Transport row — desktop: left/right flex + absolutely-centered transport;
+          mobile: speed | transport | counter with fluid spacing */}
       <div className="relative flex items-center min-h-[44px]">
 
-        {/* LEFT — input selector or custom input fields */}
-        <div className="flex items-center gap-2 min-w-0 pr-4">
+        {/* Mobile speed (left) */}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={player.cycleSpeed}
+          className="lg:hidden h-10 min-w-11 font-mono text-[12px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-0 touch-manipulation select-none"
+        >
+          {player.speed}×
+        </Button>
+
+        {/* LEFT (desktop) — input selector or custom input fields */}
+        <div className="max-lg:hidden flex items-center gap-2 min-w-0 pr-4">
 
           {/* CUSTOM INPUT FIELDS — shown in place of the selector when custom is open (D12: gated off) */}
           {customInput.open && customInputEnabled ? (
@@ -309,17 +342,17 @@ export function ControlDock({
           )}
         </div>
 
-        {/* CENTER — transport controls, absolutely centered to the full row */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+        {/* CENTER — transport controls; absolutely centered on desktop, auto-centered on mobile */}
+        <div className="mx-auto lg:mx-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-1.5 lg:gap-2">
           <Transport label="First" onClick={player.first}><SkipBack className="h-3.5 w-3.5" /></Transport>
-          <Transport label="Prev key event (Shift+←)" onClick={() => player.jumpToKey(-1)}><Diamond className="h-3 w-3 -scale-x-100" /></Transport>
+          <Transport label="Prev key event (Shift+←)" onClick={() => player.jumpToKey(-1)} className="max-lg:hidden"><Diamond className="h-3 w-3 -scale-x-100" /></Transport>
           <Transport label="Step back" onClick={player.prev}><ChevronLeft className="h-4 w-4" /></Transport>
           <Tooltip>
             <TooltipTrigger
               render={
                 <button
                   onClick={player.togglePlay}
-                  className="w-11 h-11 rounded-full bg-kn-current text-white grid place-items-center shadow-[0_3px_10px_var(--kn-accent-soft)]"
+                  className="w-11 h-11 shrink-0 rounded-full bg-kn-current text-white grid place-items-center shadow-[0_3px_10px_var(--kn-accent-soft)] touch-manipulation select-none"
                 >
                   {player.playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                 </button>
@@ -328,28 +361,28 @@ export function ControlDock({
             <TooltipContent>{player.playing ? "Pause" : "Play"} (space)</TooltipContent>
           </Tooltip>
           <Transport label="Step forward" onClick={player.next}><ChevronRight className="h-4 w-4" /></Transport>
-          <Transport label="Next key event (Shift+→)" onClick={() => player.jumpToKey(1)}><Diamond className="h-3 w-3" /></Transport>
+          <Transport label="Next key event (Shift+→)" onClick={() => player.jumpToKey(1)} className="max-lg:hidden"><Diamond className="h-3 w-3" /></Transport>
           <Transport label="Last" onClick={player.last}><SkipForward className="h-3.5 w-3.5" /></Transport>
         </div>
 
-        {/* RIGHT — speed + step counter */}
-        <div className="flex items-center gap-3 ml-auto">
+        {/* RIGHT — speed (desktop) + step counter */}
+        <div className="flex items-center gap-3 lg:ml-auto">
           <Button
             size="sm"
             variant="outline"
             onClick={player.cycleSpeed}
-            className="h-8 font-mono text-[12px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-0"
+            className="max-lg:hidden h-8 font-mono text-[12px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-0"
           >
             {player.speed}×
           </Button>
           <span className="font-mono text-[13px] font-semibold text-kn-ink-0 whitespace-nowrap">
-            Step {player.step} / {player.total}
+            <span className="max-lg:hidden">Step </span>{player.step} / {player.total}
           </span>
         </div>
       </div>
 
-      {/* Input display + key event caption */}
-      <div className="flex items-center justify-between text-[11px] text-kn-ink-2 min-w-0">
+      {/* Input display + key event caption — desktop only (mobile: input lives in the preset sheet) */}
+      <div className="max-lg:hidden flex items-center justify-between text-[11px] text-kn-ink-2 min-w-0">
         <span className="font-mono truncate min-w-0 mr-4">
           {formatInputPairs(presets.find((p) => p.id === activeInputId)?.value)}
         </span>
@@ -358,6 +391,18 @@ export function ControlDock({
           diamonds mark key moments — hover for details · drag the bar to scrub
         </div>
       </div>
+
+      {/* Mobile preset bottom sheet */}
+      <PresetSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        presets={presets}
+        activeInputId={activeInputId}
+        customInputAvailable={!!inputConstraints?.fields.length}
+        customInputEnabled={customInputEnabled}
+        onSelectPreset={onSelectPreset}
+        onOpenCustom={onToggleCustomInput}
+      />
     </footer>
   );
 }
@@ -366,10 +411,12 @@ function Transport({
   label,
   onClick,
   children,
+  className,
 }: {
   label: string;
   onClick: () => void;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Tooltip>
@@ -379,7 +426,10 @@ function Transport({
             size="icon"
             variant="outline"
             onClick={onClick}
-            className="h-8 w-8 border-kn-border-0 bg-kn-surface-0 text-kn-ink-0"
+            className={cn(
+              "h-10 w-10 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 text-kn-ink-0 touch-manipulation select-none",
+              className
+            )}
           >
             {children}
           </Button>

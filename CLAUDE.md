@@ -218,13 +218,14 @@ End with: *"Proceed with [renderer name] for [approach name]? Or would you like 
 
 | Component | File | What it does |
 |---|---|---|
-| `CodePanel` | `components/problem/code-panel.tsx` | Real Python source; per-step line highlight (auto-scroll); hover-line explanations (`syntaxExplanations`); copy; approach tabs |
-| `Stage` + renderers | `components/problem/stage.tsx` + `*-renderer.tsx` | SVG canvas; dispatches to the correct renderer based on `visual.type`; pan/zoom; dot-grid background; caption + pointer legend |
-| `Narration` | `components/problem/narration.tsx` | 2×2 grid: what's happening / why / line explanation / invariant; collapsible |
-| `InsightRail` | `components/problem/insight-rail.tsx` | Live variables (pop-in + change-flash); complexity counters (progress bars); result set (pop-in); call stack; notes (localStorage) |
-| `ControlDock` | `components/problem/control-dock.tsx` | Scrubber with amber key-event diamond markers (seekable); transport (first/prev/play/pause/next/last); preset selector; speed (0.5×/1×/2×); step counter |
+| `CodePanel` | `components/problem/code-panel.tsx` | Real Python source; per-step line highlight (internal auto-scroll); hover-line explanations (`syntaxExplanations`, desktop) + always-on current-line explainer box (mobile); copy |
+| `Stage` + renderers | `components/problem/stage.tsx` + `*-renderer.tsx` | SVG canvas; dispatches to the correct renderer based on `visual.type`; pointer pan + wheel/pinch zoom; dot-grid background; caption + pointer legend |
+| `Narration` | `components/problem/narration.tsx` | 2×2 grid: what's happening / why / line explanation / invariant; collapsible (desktop); always open (mobile) |
+| `InsightRail` | `components/problem/insight-rail.tsx` | Live variables (pop-in + change-flash); complexity counters; result set (pop-in); call stack; notes (localStorage). Sections exported individually for the mobile scroll body |
+| `ControlDock` | `components/problem/control-dock.tsx` | Scrubber with amber key-event diamond markers (seekable, touch-sized on mobile); transport (first/prev/play/pause/next/last); preset selector (dropdown desktop / bottom sheet mobile); speed; step counter; safe-area padding |
 | `usePlayer` | `components/problem/use-player.ts` | Keyboard (space/←/→); autoplay; speed; seek; key-event jump |
-| `ProblemEngine` | `components/problem/problem-engine.tsx` | Mode system (Learn/Focus/Compare); draggable panel resizing; theme toggle; approach switching |
+| `ProblemEngine` | `components/problem/problem-engine.tsx` | Mode system (Learn/Focus/Compare); desktop 3-column vs mobile stacked-1a branch (D14); draggable panel resizing (desktop); approach switching |
+| Mobile shells | `components/problem/mobile-overflow-sheet.tsx`, `preset-sheet.tsx` | D14 mobile-only wrappers: ⋮ overflow bottom sheet (difficulty/topics/statement/approach/strategy/**mode**/theme; statement opens a nested sheet with a back button that returns to it); preset picker bottom sheet. Mode switching is overflow-sheet-only on mobile — no on-screen tab row |
 
 The engine derives motion by **diffing consecutive snapshots**: variable birth (name present in `vars[i]` but not `vars[i-1]`) → chip enters empty; `changedVars` → chip flashes; `ghosts`/pointer/`changedLinks` changes → value/marker glides. Every transition is **interruptible** — seeking cancels and snaps to target step with no queue buildup.
 

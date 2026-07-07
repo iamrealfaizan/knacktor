@@ -1,7 +1,7 @@
 "use client";
 
 import type { ArrayVisualState } from "@/lib/trace";
-import { fitTextSize } from "./renderer-utils";
+import { fitTextSize, formatCellValue } from "./renderer-utils";
 import { cellStateStyle } from "./shared/cell-state";
 import { MOTION } from "./shared/motion";
 import { PointerMarker } from "./shared/pointer-pill";
@@ -86,7 +86,7 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
         ghosts={ghosts}
         posOf={(k) => ({ x: xOf(k) + CELL / 2, y: 0 })}
         size={CELL}
-        labelOf={(g) => (values[g.to] != null ? String(values[g.to]) : undefined)}
+        labelOf={(g) => (values[g.to] != null ? formatCellValue(values[g.to]) : undefined)}
       />
 
       {/* Cells (Layer 1). The slot <g> is keyed by index (an array slot IS a
@@ -95,10 +95,11 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
           (behavior #2). */}
       {values.map((v, k) => {
         const st = cellStateStyle(cellStates[String(k)]);
+        const label = formatCellValue(v);
         return (
           <g key={k} transform={`translate(${xOf(k)}, 0)`} opacity={st.opacity} style={{ transition: MOTION.fade }}>
             <PopIn>
-              <g key={`v-${String(v)}`} className="kn-anim-write-pop">
+              <g key={`v-${label}`} className="kn-anim-write-pop">
                 <rect
                   className={st.pulse ? "kn-anim-cell-pulse" : undefined}
                   x={0}
@@ -118,11 +119,11 @@ export function ArrayRenderer({ visual, vars, target }: ArrayRenderProps) {
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fontFamily="var(--font-mono)"
-                  fontSize={fitTextSize(v, CELL)}
+                  fontSize={fitTextSize(label, CELL)}
                   fontWeight={600}
                   fill="var(--kn-ink-0)"
                 >
-                  {v}
+                  {label}
                 </text>
               </g>
             </PopIn>

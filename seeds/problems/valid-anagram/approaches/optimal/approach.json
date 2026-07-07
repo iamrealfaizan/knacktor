@@ -1,0 +1,56 @@
+{
+  "id": "optimal",
+  "name": "Character Count Map",
+  "kind": "optimal",
+  "summary": "Tally every character of s in a hash map, then subtract each character of t; any missing key or negative count means it is not an anagram.",
+  "visualizationIntent": "init: show an empty character-count map. count phase: scan s left to right, adding one to the current character's tally so the map fills up and each touched key flashes. verify phase: scan t left to right, decrementing the matching key; if a key is missing or its count would drop below zero, freeze on that character as an error. return: if every tally settles back to zero the strings are anagrams.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.isAnagram",
+  "primaryPrimitive": "hashmap",
+  "auxStructures": [],
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "ch": "current",
+    "d": "current",
+    "counts": "special"
+  },
+  "lineExplanations": {
+    "3": "If the two strings have different lengths they cannot be anagrams.",
+    "4": "Return false immediately when the lengths differ.",
+    "5": "Create an empty map that will store how many times each character appears in s.",
+    "6": "Walk through every index of the first string s.",
+    "7": "Read the current character of s.",
+    "8": "Add one to this character's running tally in the map.",
+    "9": "Walk through every index of the second string t.",
+    "10": "Read the current character of t.",
+    "11": "Check whether this character was ever counted from s.",
+    "12": "Return false because t contains a character that s does not have.",
+    "13": "Cancel one occurrence of this character by decrementing its tally.",
+    "14": "Check whether the tally has gone below zero.",
+    "15": "Return false because t uses this character more often than s does.",
+    "16": "Every tally cancelled out cleanly, so t is an anagram of s."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def isAnagram(self, s, t): defines a method that receives the two strings s and t.",
+    "3": "if len(s) != len(t): compares the lengths of the two strings.",
+    "4": "return False sends back the boolean False and stops the method.",
+    "5": "counts = {} creates an empty Python dictionary.",
+    "6": "for i in range(len(s)): loops i over every valid index of s.",
+    "7": "ch = s[i] reads the character of s at index i.",
+    "8": "counts[ch] = counts.get(ch, 0) + 1 reads the current count (0 if absent) and stores one more.",
+    "9": "for j in range(len(t)): loops j over every valid index of t.",
+    "10": "d = t[j] reads the character of t at index j.",
+    "11": "if d not in counts: checks whether the dictionary has no key d.",
+    "12": "return False sends back False and stops the method.",
+    "13": "counts[d] = counts[d] - 1 stores the tally reduced by one.",
+    "14": "if counts[d] < 0: checks whether the stored tally is now negative.",
+    "15": "return False sends back False and stops the method.",
+    "16": "return True sends back True to report a valid anagram."
+  }
+}
