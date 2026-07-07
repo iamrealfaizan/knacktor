@@ -19,12 +19,12 @@ export function WhyVisual() {
     <section className="px-5 sm:px-7 pt-2 pb-[74px]">
       <div className="max-w-[1240px] mx-auto border border-kn-border-0 rounded-[20px] bg-kn-surface-1 overflow-hidden grid md:grid-cols-2">
         {/* old way */}
-        <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-dashed border-kn-border-0">
+        <div className="p-6 sm:p-10 border-b md:border-b-0 md:border-r border-dashed border-kn-border-0">
           <span className="font-mono text-[11px] font-semibold tracking-[0.14em] text-kn-ink-2">THE OLD WAY</span>
           <h3 className="mt-3 mb-4 text-2xl font-bold leading-tight text-kn-ink-1">
             Read it. Simulate it in your head.
           </h3>
-          <div className="border border-kn-border-0 rounded-xl bg-kn-surface-0 p-3.5 opacity-70">
+          <div className="border border-kn-border-0 rounded-xl bg-kn-surface-0 p-3.5 opacity-70 overflow-x-auto">
             {DEAD_CODE.map((ln, i) => (
               <div key={i} className="font-mono text-[12.5px] leading-[1.8] text-kn-ink-2 whitespace-pre">
                 {ln}
@@ -36,7 +36,7 @@ export function WhyVisual() {
           </p>
         </div>
         {/* seeing */}
-        <div className="p-8 sm:p-10 bg-kn-surface-0">
+        <div className="p-6 sm:p-10 bg-kn-surface-0">
           <span className="font-mono text-[11px] font-semibold tracking-[0.14em] text-kn-current">
             THE KNACKTOR WAY
           </span>

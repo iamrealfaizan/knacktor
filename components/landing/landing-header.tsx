@@ -9,7 +9,7 @@ import { NAV_LINKS } from "@/lib/site";
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-50 flex items-center gap-5 h-16 px-5 sm:px-7 border-b border-kn-border-0 bg-kn-bg/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 flex items-center gap-3 sm:gap-5 h-16 px-4 sm:px-7 border-b border-kn-border-0 bg-kn-bg/80 backdrop-blur-xl">
       <Logo variant="marketing" href="/" />
 
       <nav className="hidden md:flex items-center gap-1 ml-2">
@@ -24,7 +24,7 @@ export function LandingHeader() {
         ))}
       </nav>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
         {/* Decorative search (no global search yet) */}
         <div
           aria-hidden
@@ -42,7 +42,7 @@ export function LandingHeader() {
         <Button
           variant="ghost"
           size="sm"
-          className="hidden sm:inline-flex text-kn-ink-1"
+          className="hidden sm:inline-flex text-kn-ink-1 touch-manipulation"
           render={<Link href="/login">Sign in</Link>}
         />
 
@@ -53,7 +53,7 @@ export function LandingHeader() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           }
-          className="bg-kn-current text-white hover:opacity-90 shadow-[0_4px_14px_var(--kn-accent-soft)]"
+          className="touch-manipulation bg-kn-current text-white hover:opacity-90 shadow-[0_4px_14px_var(--kn-accent-soft)]"
         />
       </div>
     </header>

@@ -51,8 +51,8 @@ export function Hero() {
     sum === null || sum === TARGET ? "text-kn-result" : sum < TARGET ? "text-kn-compared" : "text-kn-amber";
 
   return (
-    <section className="relative overflow-hidden px-5 sm:px-7 pt-16 pb-14">
-      <div className="max-w-[1240px] mx-auto grid lg:grid-cols-[1.04fr_1fr] gap-12 lg:gap-14 items-center">
+    <section className="relative overflow-hidden px-5 sm:px-7 pt-10 sm:pt-16 pb-12 sm:pb-14">
+      <div className="max-w-[1240px] mx-auto grid lg:grid-cols-[1.04fr_1fr] gap-10 sm:gap-12 lg:gap-14 items-center">
         {/* Copy */}
         <div>
           <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold tracking-[0.14em] text-kn-current bg-kn-current-subtle px-3 py-1.5 rounded-full">
@@ -112,14 +112,14 @@ export function Hero() {
               </span>
             </div>
             {/* stage */}
-            <div className="relative px-5 pt-7 pb-5" style={DOT_GRID}>
-              <div className="flex justify-center items-center gap-3 mb-5">
-                <span className="font-mono text-sm font-semibold text-kn-ink-0 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5">
+            <div className="relative overflow-x-hidden px-4 sm:px-5 pt-7 pb-5" style={DOT_GRID}>
+              <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1.5 mb-5">
+                <span className="font-mono text-[13px] sm:text-sm font-semibold text-kn-ink-0 bg-kn-surface-0 border border-kn-border-0 rounded-lg px-3 py-1.5">
                   {sumText}
                 </span>
-                <span className={cn("font-mono text-[15px] font-bold", relColor)}>{rel}</span>
+                <span className={cn("font-mono text-[13px] sm:text-[15px] font-bold", relColor)}>{rel}</span>
               </div>
-              <div className="flex justify-center gap-2.5">
+              <div className="flex justify-center gap-1.5 sm:gap-2.5">
                 {NUMS.map((v, i) => {
                   const role = i === step.lo ? "lo" : i === step.hi ? "hi" : null;
                   const isMatch = !!step.match && role !== null;
@@ -139,7 +139,7 @@ export function Hero() {
                     <div key={i} className="flex flex-col items-center gap-1.5">
                       <div
                         className={cn(
-                          "w-[50px] h-[50px] border-2 rounded-[10px] grid place-items-center font-mono text-lg font-semibold text-kn-ink-0 transition-all duration-300",
+                          "w-[clamp(34px,11vw,50px)] h-[clamp(34px,11vw,50px)] border-2 rounded-[10px] grid place-items-center font-mono text-base sm:text-lg font-semibold text-kn-ink-0 transition-all duration-300",
                           cellTone
                         )}
                         style={isMatch ? { animation: "kn-pulse 1s ease-out" } : undefined}
@@ -163,11 +163,11 @@ export function Hero() {
               </div>
             </div>
             {/* mini dock */}
-            <div className="flex items-center gap-3.5 px-4 py-3 border-t border-kn-border-0 bg-kn-surface-0">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 px-3 sm:px-4 py-3 border-t border-kn-border-0 bg-kn-surface-0">
               <button
                 onClick={() => setPlaying((p) => !p)}
                 aria-label={playing ? "Pause" : "Play"}
-                className="w-[34px] h-[34px] shrink-0 rounded-full bg-kn-current text-white grid place-items-center shadow-[0_3px_10px_var(--kn-accent-soft)]"
+                className="w-[34px] h-[34px] shrink-0 rounded-full bg-kn-current text-white grid place-items-center shadow-[0_3px_10px_var(--kn-accent-soft)] touch-manipulation"
               >
                 {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
               </button>
@@ -177,7 +177,7 @@ export function Hero() {
                   style={{ width: `${Math.round((idx / (STEPS.length - 1)) * 100)}%` }}
                 />
               </div>
-              <span className="font-mono text-xs font-semibold text-kn-ink-0 whitespace-nowrap">
+              <span className="font-mono text-[11px] sm:text-xs font-semibold text-kn-ink-0 whitespace-nowrap shrink-0">
                 Step {idx + 1} / {STEPS.length}
               </span>
             </div>
