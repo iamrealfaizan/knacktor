@@ -1,0 +1,164 @@
+{
+  "primitive": "array",
+  "valuesFrom": "sp",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "q serialized",
+      "primitive": "array",
+      "valuesFrom": "sq",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == i"
+        },
+        {
+          "state": "visited",
+          "when": "idx < i"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "i != null && phase != 'return'",
+    "expr": "comparing position {i}"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        64
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        40,
+        51,
+        63
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        42,
+        53,
+        60,
+        64
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        43,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        54,
+        56,
+        57,
+        58,
+        59,
+        61,
+        65
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        41,
+        52,
+        62,
+        66
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        67
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 65,
+      "label": "Mismatch found",
+      "kind": "boundary"
+    },
+    {
+      "line": 67,
+      "label": "Result",
+      "kind": "return"
+    }
+  ]
+}

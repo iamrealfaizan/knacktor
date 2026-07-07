@@ -1,0 +1,198 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the nodes ({n}).",
+      "why": "We need the size to wire the chain and set the right end.",
+      "invariant": "n is the number of nodes."
+    },
+    "4": {
+      "happening": "Start the next-pointer array.",
+      "why": "nextp[i] holds the id node i points to.",
+      "invariant": "nextp describes the current chain."
+    },
+    "5": {
+      "happening": "Loop over every node to wire the original chain.",
+      "why": "Each node links to the next in order.",
+      "invariant": "Nodes below i are wired."
+    },
+    "6": [
+      {
+        "when": "i < n - 1",
+        "happening": "Node {i} is not the tail — point it at the next node.",
+        "why": "Interior nodes link forward.",
+        "invariant": "Only the tail ends the list."
+      },
+      {
+        "happening": "Node {i} is the tail.",
+        "why": "The last node points at nothing.",
+        "invariant": "The tail terminates the chain."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Build the original left-to-right chain.",
+      "invariant": "nextp[i] = i + 1."
+    },
+    "9": {
+      "happening": "The tail points at nothing (-1).",
+      "why": "The original list ends here.",
+      "invariant": "nextp[n-1] = -1."
+    },
+    "10": {
+      "happening": "Prepare the changed-link marker.",
+      "why": "It flashes whichever link we just rewired.",
+      "invariant": "changed holds the last rewired node id."
+    },
+    "11": {
+      "happening": "Place left at the head.",
+      "why": "We weave starting from the front.",
+      "invariant": "left is the next front node to place."
+    },
+    "12": {
+      "happening": "Place right at the tail.",
+      "why": "We weave from the back in parallel.",
+      "invariant": "right is the next back node to place."
+    },
+    "13": [
+      {
+        "when": "left < right",
+        "happening": "The ends haven't met — weave another pair.",
+        "why": "We interleave front and back until they converge.",
+        "invariant": "Nodes outside [left, right] are already reordered."
+      },
+      {
+        "happening": "left and right have met — the weave is complete.",
+        "why": "Every node has been placed.",
+        "invariant": "The list is fully reordered."
+      }
+    ],
+    "14": {
+      "happening": "Rewire node {left}'s next to point at the far node {right}.",
+      "why": "The reordered form alternates front, back, front, back…",
+      "invariant": "node {left} now precedes node {right}."
+    },
+    "15": {
+      "happening": "Flash the link that just changed (from node {left}).",
+      "why": "Highlight the rewire for the learner.",
+      "invariant": "changed marks node {left}."
+    },
+    "16": {
+      "happening": "Advance left one step inward.",
+      "why": "The next front node moves right.",
+      "invariant": "left approaches right."
+    },
+    "17": [
+      {
+        "when": "left == right",
+        "happening": "left has reached right — only the middle node remains.",
+        "why": "There is no back node left to interleave.",
+        "invariant": "The middle node will end the list."
+      },
+      {
+        "happening": "left and right are still apart — keep weaving.",
+        "why": "There is still a back node to place.",
+        "invariant": "The weave continues."
+      }
+    ],
+    "18": {
+      "happening": "Stop — the ends have met.",
+      "why": "No more pairs to interleave.",
+      "invariant": "Only the final cap remains."
+    },
+    "19": {
+      "happening": "Rewire node {right}'s next to point back at the new left {left}.",
+      "why": "After the far node comes the next front node.",
+      "invariant": "node {right} now precedes node {left}."
+    },
+    "20": {
+      "happening": "Flash the link that just changed (from node {right}).",
+      "why": "Highlight the rewire.",
+      "invariant": "changed marks node {right}."
+    },
+    "21": {
+      "happening": "Advance right one step inward.",
+      "why": "The next back node moves left.",
+      "invariant": "right approaches left."
+    },
+    "22": {
+      "happening": "Cap node {left} so the reordered list ends there.",
+      "why": "The middle node is the new tail.",
+      "invariant": "The reordered chain terminates cleanly."
+    },
+    "23": {
+      "happening": "Flash that final link change.",
+      "why": "Highlight the cap.",
+      "invariant": "changed marks node {left}."
+    },
+    "24": {
+      "happening": "Start an empty list to read out the result.",
+      "why": "We traverse the rewired chain to produce the answer.",
+      "invariant": "order will hold the reordered values."
+    },
+    "25": {
+      "happening": "Begin the read-out at the head.",
+      "why": "The reordered list starts at node 0.",
+      "invariant": "cur walks the final chain."
+    },
+    "26": [
+      {
+        "when": "cur != -1",
+        "happening": "Still nodes to read — continue the traversal.",
+        "why": "We collect every value in the new order.",
+        "invariant": "order holds the values read so far."
+      },
+      {
+        "happening": "Reached the end of the reordered list.",
+        "why": "cur has fallen off the end.",
+        "invariant": "order is the full reordered sequence."
+      }
+    ],
+    "27": {
+      "happening": "Record node {cur}'s value.",
+      "why": "It's the next value in the reordered list.",
+      "invariant": "order grows by one."
+    },
+    "28": {
+      "happening": "Follow node {cur}'s rewired next pointer.",
+      "why": "Move to the next node in the new order.",
+      "invariant": "cur advances along the reordered chain."
+    },
+    "29": {
+      "happening": "Return the reordered value sequence: {order}.",
+      "why": "The list has been fully reordered and read out.",
+      "invariant": "order is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Wiring the original chain and placing left at the head, right at the tail.",
+      "why": "We need the chain and both ends before weaving.",
+      "invariant": "left starts at the head, right at the tail."
+    },
+    "loop": {
+      "happening": "Weaving the list — or reading out the result.",
+      "why": "Interleave front and back until the ends meet, then traverse.",
+      "invariant": "Nodes outside [left, right] are reordered."
+    },
+    "check": {
+      "happening": "Checking whether left has caught up to right.",
+      "why": "When they meet, only the middle node remains.",
+      "invariant": "left <= right throughout the weave."
+    },
+    "update": {
+      "happening": "Rewiring a next pointer (and flashing it) or collecting a value.",
+      "why": "Each rewire places the next node in the reordered form.",
+      "invariant": "changed marks the just-rewired link."
+    },
+    "move": {
+      "happening": "Advancing left inward, right inward, or the read-out cursor.",
+      "why": "The ends close in; the cursor walks the result.",
+      "invariant": "Pointers move toward completion."
+    },
+    "return": {
+      "happening": "Returning the reordered value sequence.",
+      "why": "The weave and read-out are done.",
+      "invariant": "order is final."
+    }
+  }
+}

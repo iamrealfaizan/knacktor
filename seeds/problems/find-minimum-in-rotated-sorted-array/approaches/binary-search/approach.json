@@ -1,0 +1,52 @@
+{
+  "id": "binary-search",
+  "name": "Binary Search on the Rotation",
+  "kind": "optimal",
+  "summary": "One side of the pivot is always sorted; compare nums[mid] to nums[right] to discard half the range each step — O(log n).",
+  "visualizationIntent": "init: show the whole rotated array with left at index 0 and right at the last index; the search window covers everything. loop: each step compute mid and probe nums[mid] against nums[right]. check: if nums[mid] > nums[right] the minimum must be to the right of mid, so discard the left half (left = mid + 1); otherwise the minimum is at mid or to its left (right = mid). update/move: the window shrinks by half and left/right glide inward, dimming the discarded side. return: left and right meet on the minimum, which flashes as the result.",
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.findMin",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "answer",
+    "label": "MINIMUM",
+    "suffix": "· smallest element",
+    "render": "scalar"
+  },
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi",
+    "mid": "current",
+    "answer": "result"
+  },
+  "lineExplanations": {
+    "3": "Start the left boundary at the first index.",
+    "4": "Start the right boundary at the last index.",
+    "5": "Keep narrowing while the window still spans more than one element.",
+    "6": "Look at the middle index of the current window.",
+    "7": "Compare the middle value with the rightmost value to see which half is sorted.",
+    "8": "nums[mid] > nums[right]: the minimum is to the right of mid, so move left past mid.",
+    "10": "Otherwise the minimum is at mid or to its left, so pull right in to mid.",
+    "11": "The window has collapsed onto one index — read the minimum there.",
+    "12": "Return the minimum element."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the class wrapper LeetCode expects.",
+    "2": "def findMin(self, nums): nums is the rotated sorted array.",
+    "3": "left = 0 starts the search window at the first index.",
+    "4": "right = len(nums) - 1 sets the window's right end to the last index.",
+    "5": "while left < right: continues until the window holds a single element.",
+    "6": "mid = (left + right) // 2 is the integer midpoint of the window.",
+    "7": "if nums[mid] > nums[right]: tests whether the right half is unsorted (holds the pivot).",
+    "8": "left = mid + 1 discards mid and everything left of it.",
+    "9": "else: the complementary case (bare else — no step of its own).",
+    "10": "right = mid keeps mid as a candidate and discards everything to its right.",
+    "11": "answer = nums[left] reads the minimum once left meets right.",
+    "12": "return answer hands back the minimum."
+  }
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [
+        3,
+        2,
+        0,
+        -4
+      ],
+      "pos": 1
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "values": [
+        1,
+        2
+      ],
+      "pos": 0
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3 (single node)",
+    "value": {
+      "values": [
+        1
+      ],
+      "pos": -1
+    },
+    "isEdgeCase": false,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-no-cycle-chain",
+    "label": "No Cycle",
+    "value": {
+      "values": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "pos": -1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  }
+]

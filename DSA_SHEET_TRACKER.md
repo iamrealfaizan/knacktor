@@ -35,8 +35,10 @@ authoring time (the `add-problem-staged` pipeline sources from LeetCode directly
 
 | | Tier 4 (all 4) | Tier 3 (3 of 4) | Tier 2 (2 of 4) | Tier 1 (1 of 4) |
 |---|---|---|---|---|
-| In system | 10 | 1 | 1 | 1 |
-| To add | 22 | 24 | ~40 | ~70 |
+| In system | 17 | 5 | 2 | 3 |
+| To add | 15 | 20 | ~40 | ~70 |
+
+_Reconciled against the live `seeds/problems/` directory on 2026-07-07: 26 problems present. Tier-4 in-system rose from 10 → 15 (#3, #15, #33, #238, #242 authored); #217 added to Tier 2; #167 and #695 added to Tier 1 (NeetCode-only)._
 
 Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 22 to-add
 problems in Tier 4 alone each count toward **all four** sheets.
@@ -57,11 +59,11 @@ problems in Tier 4 alone each count toward **all four** sheets.
 | 102 | Binary Tree Level Order Traversal | Medium | Tree (BFS) | B N T G | 4 | tree | — | Yes | ✅ |
 | 200 | Number of Islands | Medium | Graph | B N T G | 4 | grid | — | Yes | ✅ |
 | 207 | Course Schedule | Medium | Graph (topo) | B N T G | 4 | graph | — | Yes | ✅ |
-| 242 | Valid Anagram | Easy | Hash | B N T G | 4 | hashmap | — | Yes | ⬜ |
-| 3 | Longest Substring Without Repeating Chars | Medium | Sliding Window | B N T G | 4 | array | — | Yes | ⬜ |
-| 15 | 3Sum | Medium | Two Pointers | B N T G | 4 | array | — | Yes | ⬜ |
-| 238 | Product of Array Except Self | Medium | Array | B N T G | 4 | array | — | Yes | ⬜ |
-| 33 | Search in Rotated Sorted Array | Medium | Binary Search | B N T G | 4 | array | — | Yes | ⬜ |
+| 242 | Valid Anagram | Easy | Hash | B N T G | 4 | hashmap | — | Yes | ✅ |
+| 3 | Longest Substring Without Repeating Chars | Medium | Sliding Window | B N T G | 4 | array | — | Yes | ✅ |
+| 15 | 3Sum | Medium | Two Pointers | B N T G | 4 | array | — | Yes | ✅ |
+| 238 | Product of Array Except Self | Medium | Array | B N T G | 4 | array | — | Yes | ✅ |
+| 33 | Search in Rotated Sorted Array | Medium | Binary Search | B N T G | 4 | array | — | Yes | ✅ |
 | 5 | Longest Palindromic Substring | Medium | DP / String | B N T G | 4 | array | — | Yes | ⬜ |
 | 70 | Climbing Stairs | Easy | DP (1-D) | B N T G | 4 | recursion | — | Yes | ⬜ |
 | 322 | Coin Change | Medium | DP (1-D) | B N T G | 4 | array | — | Yes | ⬜ |
@@ -72,11 +74,11 @@ problems in Tier 4 alone each count toward **all four** sheets.
 | 54 | Spiral Matrix | Medium | Matrix | B N T G | 4 | grid | — | Yes | ⬜ |
 | 79 | Word Search | Medium | Backtracking / Matrix | B N T G | 4 | grid | — | Yes | ⬜ |
 | 133 | Clone Graph | Medium | Graph | B N T G | 4 | graph | — | Yes | ⬜ |
-| 141 | Linked List Cycle | Easy | Linked List | B N T G | 4 | linkedList | — | Yes | ⬜ |
+| 141 | Linked List Cycle | Easy | Linked List | B N T G | 4 | linkedList | — | Yes | ✅ |
 | 226 | Invert Binary Tree | Easy | Tree | B N T G | 4 | tree | — | Yes | ⬜ |
 | 104 | Maximum Depth of Binary Tree | Easy | Tree | B N T G | 4 | tree | — | Yes | ⬜ |
 | 98 | Validate Binary Search Tree | Medium | BST | B N T G | 4 | tree | — | Yes | ⬜ |
-| 230 | Kth Smallest Element in a BST | Medium | BST | B N T G | 4 | tree | — | Yes | ⬜ |
+| 230 | Kth Smallest Element in a BST | Medium | BST | B N T G | 4 | tree | — | Yes | ✅ |
 | 105 | Construct Binary Tree (Preorder+Inorder) | Medium | Tree | B N T G | 4 | tree | — | Yes | ⬜ |
 | 208 | Implement Trie (Prefix Tree) | Medium | Trie | B N T G | 4 | tree | — | Yes | ⬜ |
 
@@ -89,15 +91,15 @@ problems in Tier 4 alone each count toward **all four** sheets.
 | 128 | Longest Consecutive Sequence | Medium | Hash | B N T | 3 | hashmap | — | Yes | ⬜ |
 | 48 | Rotate Image | Medium | Matrix | B N T | 3 | grid | — | Yes | ⬜ |
 | 73 | Set Matrix Zeroes | Medium | Matrix | B N T | 3 | grid | — | Yes | ⬜ |
-| 153 | Find Minimum in Rotated Sorted Array | Medium | Binary Search | B N T | 3 | array | — | Yes | ⬜ |
-| 100 | Same Tree | Easy | Tree | B N T | 3 | tree | — | Yes | ⬜ |
+| 153 | Find Minimum in Rotated Sorted Array | Medium | Binary Search | B N T | 3 | array | — | Yes | ✅ |
+| 100 | Same Tree | Easy | Tree | B N T | 3 | tree | — | Yes | ✅ |
 | 235 | Lowest Common Ancestor of a BST | Medium | BST | B N G | 3 | tree | — | Yes | ⬜ |
 | 199 | Binary Tree Right Side View | Medium | Tree (BFS) | N T G | 3 | tree | — | Yes | ⬜ |
 | 211 | Design Add and Search Words | Medium | Trie | B N T | 3 | tree | — | Yes | ⬜ |
 | 155 | Min Stack | Medium | Stack | N T G | 3 | stack | — | Yes | ⬜ |
 | 150 | Evaluate Reverse Polish Notation | Medium | Stack | N T G | 3 | stack | — | Yes | ⬜ |
-| 143 | Reorder List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ⬜ |
-| 19 | Remove Nth Node From End of List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ⬜ |
+| 143 | Reorder List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ✅ |
+| 19 | Remove Nth Node From End of List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ✅ |
 | 146 | LRU Cache | Medium | Design | N T G | 3 | (hashmap+list) | 🆕 custom | Yes | ⬜ |
 | 55 | Jump Game | Medium | Greedy / DP | B N T | 3 | array | — | Yes | ⬜ |
 | 198 | House Robber | Medium | DP (1-D) | B N T | 3 | array | — | Yes | ⬜ |
@@ -116,6 +118,7 @@ problems in Tier 4 alone each count toward **all four** sheets.
 | # | Problem | Diff | Topic | Sheets | Ov | Renderer | Engine change | On LC | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | 994 | Rotting Oranges | Medium | Graph (BFS) | N G | 2 | grid | — | Yes | ✅ |
+| 217 | Contains Duplicate | Easy | Array / Hash | B N | 2 | hashmap | — | Yes | ✅ |
 | 424 | Longest Repeating Character Replacement | Medium | Sliding Window | B N | 2 | array | — | Yes | ⬜ |
 | 152 | Maximum Product Subarray | Medium | DP | B N | 2 | array | — | Yes | ⬜ |
 | 213 | House Robber II | Medium | DP (1-D) | B N | 2 | array | — | Yes | ⬜ |
@@ -165,6 +168,8 @@ problems in Tier 4 alone each count toward **all four** sheets.
 
 | # | Problem | Diff | Topic | Renderer | Engine change | On LC | Status |
 |---|---|---|---|---|---|---|---|
+| 167 | Two Sum II - Input Array Is Sorted | Medium | Two Pointers | array | — | Yes | ✅ |
+| 695 | Max Area of Island | Medium | Graph (DFS) | grid | — | Yes | ✅ |
 | 347 | Top K Frequent Elements | Medium | Hash / Heap | hashmap (bucket) | — (heap path 🆕 heap) | Yes | ⬜ |
 | 567 | Permutation in String | Medium | Sliding Window | array | — | Yes | ⬜ |
 | 739 | Daily Temperatures | Medium | Monotonic Stack | stack | — | Yes | ⬜ |

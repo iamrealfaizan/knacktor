@@ -1,0 +1,284 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the nodes ({n}).",
+      "why": "We need the size to wire the chain.",
+      "invariant": "n is the number of nodes."
+    },
+    "4": {
+      "happening": "Start the next-pointer array.",
+      "why": "nextp[i] holds the id node i points to.",
+      "invariant": "nextp describes the current chain."
+    },
+    "5": {
+      "happening": "Loop over every node to wire the original chain.",
+      "why": "Each node links to the next in order.",
+      "invariant": "Nodes below i are wired."
+    },
+    "6": [
+      {
+        "when": "i < n - 1",
+        "happening": "Node {i} is not the tail — point it forward.",
+        "why": "Interior nodes link to the next.",
+        "invariant": "Only the tail ends the list."
+      },
+      {
+        "happening": "Node {i} is the tail.",
+        "why": "The last node points at nothing.",
+        "invariant": "The tail terminates the chain."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Build the original chain.",
+      "invariant": "nextp[i] = i + 1."
+    },
+    "9": {
+      "happening": "The tail points at nothing (-1).",
+      "why": "The original list ends here.",
+      "invariant": "nextp[n-1] = -1."
+    },
+    "10": {
+      "happening": "Prepare the changed-link marker.",
+      "why": "It flashes whichever link we just rewired.",
+      "invariant": "changed holds the last rewired node id."
+    },
+    "11": {
+      "happening": "Place slow at the head.",
+      "why": "slow moves one node at a time.",
+      "invariant": "slow is the tortoise."
+    },
+    "12": {
+      "happening": "Place fast at the head.",
+      "why": "fast moves two nodes at a time.",
+      "invariant": "fast is the hare."
+    },
+    "13": [
+      {
+        "when": "n > 2 && nextp[fast] != -1 && nextp[nextp[fast]] != -1",
+        "happening": "fast can still take two hops — keep finding the middle.",
+        "why": "When fast reaches the end, slow sits at the middle.",
+        "invariant": "slow is halfway to fast."
+      },
+      {
+        "happening": "fast can't hop twice more — slow is now at the middle.",
+        "why": "The list is split here into two halves.",
+        "invariant": "slow marks the end of the first half."
+      }
+    ],
+    "14": {
+      "happening": "Advance slow one node.",
+      "why": "The tortoise moves at half speed.",
+      "invariant": "slow trails fast by half."
+    },
+    "15": {
+      "happening": "Advance fast two nodes.",
+      "why": "The hare moves twice as fast.",
+      "invariant": "When fast ends, slow is the middle."
+    },
+    "16": {
+      "happening": "second = the node just after the middle ({second}).",
+      "why": "It's the head of the second half we'll reverse.",
+      "invariant": "second starts the second half (or -1)."
+    },
+    "17": [
+      {
+        "when": "second != -1",
+        "happening": "There is a second half — split the list after the middle.",
+        "why": "We reverse the second half separately.",
+        "invariant": "The first half will end at slow."
+      },
+      {
+        "happening": "No second half (list too short) — nothing to reverse.",
+        "why": "A 1-node list is already reordered.",
+        "invariant": "The list is unchanged."
+      }
+    ],
+    "18": {
+      "happening": "Cut the list after the middle (node {slow}'s next becomes none).",
+      "why": "This separates the first and second halves.",
+      "invariant": "The first half now ends at slow."
+    },
+    "19": {
+      "happening": "Flash the split link (from node {slow}).",
+      "why": "Highlight where the list was cut.",
+      "invariant": "changed marks node {slow}."
+    },
+    "20": {
+      "happening": "Seed the reversal with an empty tail (prev = none).",
+      "why": "The reversed half will build up behind prev.",
+      "invariant": "prev is the head of the reversed part so far."
+    },
+    "21": {
+      "happening": "Start the reversal walk at second.",
+      "why": "We flip each link of the second half.",
+      "invariant": "curr is the node being reversed."
+    },
+    "22": [
+      {
+        "when": "curr != -1",
+        "happening": "Still nodes in the second half — reverse the next link.",
+        "why": "Each node's next is flipped to point backward.",
+        "invariant": "Everything before curr is already reversed."
+      },
+      {
+        "happening": "The second half is fully reversed.",
+        "why": "curr has run off the end.",
+        "invariant": "prev is the head of the reversed second half."
+      }
+    ],
+    "23": {
+      "happening": "Remember node {curr}'s next before overwriting it.",
+      "why": "We must not lose the rest of the half.",
+      "invariant": "nxt_node saves the continuation."
+    },
+    "24": {
+      "happening": "Flip node {curr}'s next to point backward at prev.",
+      "why": "This reverses one link.",
+      "invariant": "node {curr} now points at the previously-reversed part."
+    },
+    "25": {
+      "happening": "Flash the flipped link (from node {curr}).",
+      "why": "Highlight the reversal step.",
+      "invariant": "changed marks node {curr}."
+    },
+    "26": {
+      "happening": "Move prev forward to node {curr}.",
+      "why": "curr is the new head of the reversed part.",
+      "invariant": "prev leads the reversed half."
+    },
+    "27": {
+      "happening": "Move curr on to the saved next node.",
+      "why": "Continue reversing along the original half.",
+      "invariant": "curr walks the remaining second half."
+    },
+    "28": {
+      "happening": "Start the merge's first pointer at the head.",
+      "why": "We weave from the front half.",
+      "invariant": "first walks the first half."
+    },
+    "29": {
+      "happening": "Start the merge's second pointer at the reversed head ({second}).",
+      "why": "We weave in nodes from the reversed second half.",
+      "invariant": "second walks the reversed half."
+    },
+    "30": [
+      {
+        "when": "second != -1",
+        "happening": "The reversed half still has nodes — weave the next one in.",
+        "why": "We alternate a front node then a back node.",
+        "invariant": "The reordered prefix ends at first."
+      },
+      {
+        "happening": "The reversed half is exhausted — the merge is done.",
+        "why": "Every back node has been interleaved.",
+        "invariant": "The list is fully reordered."
+      }
+    ],
+    "31": {
+      "happening": "Save node {first}'s next (the front continuation).",
+      "why": "We rewire first's next, so save it first.",
+      "invariant": "temp1 keeps the front half's remainder."
+    },
+    "32": {
+      "happening": "Save node {second}'s next (the back continuation).",
+      "why": "We rewire second's next, so save it first.",
+      "invariant": "temp2 keeps the reversed half's remainder."
+    },
+    "33": {
+      "happening": "Splice: node {first}'s next becomes node {second}.",
+      "why": "Interleave a back node right after the front node.",
+      "invariant": "node {first} now precedes node {second}."
+    },
+    "34": {
+      "happening": "Flash the spliced link (from node {first}).",
+      "why": "Highlight the merge step.",
+      "invariant": "changed marks node {first}."
+    },
+    "35": {
+      "happening": "Link node {second}'s next to the saved front continuation.",
+      "why": "Reconnect so the front half continues after the woven node.",
+      "invariant": "node {second} now precedes the next front node."
+    },
+    "36": {
+      "happening": "Advance first to the saved front continuation.",
+      "why": "Move to the next front node.",
+      "invariant": "first walks forward."
+    },
+    "37": {
+      "happening": "Advance second to the saved back continuation.",
+      "why": "Move to the next reversed node.",
+      "invariant": "second walks forward."
+    },
+    "38": {
+      "happening": "Start an empty list to read out the result.",
+      "why": "We traverse the rewired chain to produce the answer.",
+      "invariant": "order will hold the reordered values."
+    },
+    "39": {
+      "happening": "Begin the read-out at the head.",
+      "why": "The reordered list starts at node 0.",
+      "invariant": "cur walks the final chain."
+    },
+    "40": [
+      {
+        "when": "cur != -1",
+        "happening": "Still nodes to read — continue the traversal.",
+        "why": "We collect every value in the new order.",
+        "invariant": "order holds the values read so far."
+      },
+      {
+        "happening": "Reached the end of the reordered list.",
+        "why": "cur has fallen off the end.",
+        "invariant": "order is the full reordered sequence."
+      }
+    ],
+    "41": {
+      "happening": "Record node {cur}'s value.",
+      "why": "It's the next value in the reordered list.",
+      "invariant": "order grows by one."
+    },
+    "42": {
+      "happening": "Follow node {cur}'s rewired next pointer.",
+      "why": "Move to the next node in the new order.",
+      "invariant": "cur advances along the reordered chain."
+    },
+    "43": {
+      "happening": "Return the reordered value sequence: {order}.",
+      "why": "Find-middle, reverse, and merge are complete.",
+      "invariant": "order is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Wiring the original chain and placing slow and fast at the head.",
+      "why": "We need the chain before finding the middle.",
+      "invariant": "slow and fast both start at the head."
+    },
+    "loop": {
+      "happening": "Finding the middle, reversing the second half, or merging — or reading out.",
+      "why": "The algorithm runs in three phases then a traversal.",
+      "invariant": "Each phase preserves the nodes, only relinking them."
+    },
+    "check": {
+      "happening": "Deciding whether a second half exists to reverse.",
+      "why": "A too-short list needs no reordering.",
+      "invariant": "Only lists of 2+ nodes are split."
+    },
+    "move": {
+      "happening": "Advancing a pointer — slow/fast, the reversal cursor, or the merge cursors.",
+      "why": "Each phase walks its pointers along the chain.",
+      "invariant": "Pointers move toward completion."
+    },
+    "update": {
+      "happening": "Rewiring a next pointer (and flashing it) or saving a continuation.",
+      "why": "Splitting, reversing, and merging are all link rewrites.",
+      "invariant": "changed marks the just-rewired link."
+    },
+    "return": {
+      "happening": "Returning the reordered value sequence.",
+      "why": "All three phases and the read-out are done.",
+      "invariant": "order is final."
+    }
+  }
+}

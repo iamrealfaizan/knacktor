@@ -1,0 +1,262 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the array slots describing the tree.",
+      "why": "We need the size to allocate a status slot per node.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The walk needs O(1) access to a node by its id.",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a status list: 0 = unseen, 1 = on the stack, 2 = visited.",
+      "why": "It lets the tree colour each node by its progress.",
+      "invariant": "state_by_id[i] tracks slot i."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its status.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a status."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been reached yet.",
+      "invariant": "All statuses start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order starting at slot 1.",
+      "invariant": "child is the next unassigned array slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds a real value — build a node for it.",
+        "why": "Only non-null slots become nodes.",
+        "invariant": "A null slot is skipped entirely."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "null slots are placeholders for missing children.",
+        "invariant": "No node is created for a null slot."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with its value and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children (None)."
+    },
+    "13": [
+      {
+        "when": "child < n",
+        "happening": "There's a slot ({child}) left to be a left child.",
+        "why": "Children come from the next array slots in order.",
+        "invariant": "child points at the candidate left child."
+      },
+      {
+        "happening": "No slot left for a left child.",
+        "why": "The array is exhausted for this node.",
+        "invariant": "This node's left stays empty."
+      }
+    ],
+    "14": [
+      {
+        "when": "values[child] != null",
+        "happening": "Slot {child} is a real node — it becomes the left child.",
+        "why": "Only non-null slots become actual children.",
+        "invariant": "left will point at a real child id."
+      },
+      {
+        "happening": "Slot {child} is null — no left child.",
+        "why": "A null candidate leaves the left child empty.",
+        "invariant": "left stays None."
+      }
+    ],
+    "15": {
+      "happening": "Link slot {child} as this node's left child.",
+      "why": "It's the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Move past this slot whether or not it was a child.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": [
+      {
+        "when": "child < n",
+        "happening": "There's a slot ({child}) left to be a right child.",
+        "why": "The right child is the slot right after the left one.",
+        "invariant": "child points at the candidate right child."
+      },
+      {
+        "happening": "No slot left for a right child.",
+        "why": "The array is exhausted for this node.",
+        "invariant": "This node's right stays empty."
+      }
+    ],
+    "18": [
+      {
+        "when": "values[child] != null",
+        "happening": "Slot {child} is a real node — it becomes the right child.",
+        "why": "Only non-null slots become actual children.",
+        "invariant": "right will point at a real child id."
+      },
+      {
+        "happening": "Slot {child} is null — no right child.",
+        "why": "A null candidate leaves the right child empty.",
+        "invariant": "right stays None."
+      }
+    ],
+    "19": {
+      "happening": "Link slot {child} as this node's right child.",
+      "why": "It's the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Move past this slot too.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Record the node under its id for fast lookup.",
+      "why": "The walk fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "Start an empty order list.",
+      "why": "It will collect every value in ascending (inorder) order.",
+      "invariant": "order is the sorted sequence built so far."
+    },
+    "24": {
+      "happening": "Create the empty stack that drives the inorder walk.",
+      "why": "The stack remembers ancestors while we dive left.",
+      "invariant": "The stack holds the path back up from cur."
+    },
+    "25": {
+      "happening": "Start cur at the root (id 0).",
+      "why": "Inorder begins by diving from the root.",
+      "invariant": "cur is the node we're about to descend from; None means none."
+    },
+    "26": [
+      {
+        "when": "cur != null || len(stack) > 0",
+        "happening": "There's still a node to descend into or ancestors on the stack — keep going.",
+        "why": "Inorder is done only when both cur is None and the stack is empty.",
+        "invariant": "order holds every value visited so far, in ascending order."
+      },
+      {
+        "happening": "cur is None and the stack is empty — the whole tree is flattened.",
+        "why": "No nodes remain to visit.",
+        "invariant": "order is the full sorted list of values."
+      }
+    ],
+    "27": [
+      {
+        "when": "cur != null",
+        "happening": "cur points at a node — push it and keep diving left.",
+        "why": "The smallest unvisited value is the leftmost remaining node.",
+        "invariant": "Everything left of cur is smaller and collected first."
+      },
+      {
+        "happening": "cur is None — the left spine ends here; time to pop.",
+        "why": "There is no smaller node down this path.",
+        "invariant": "The stack top is the next node in order."
+      }
+    ],
+    "28": {
+      "happening": "Push cur ({cur}) onto the stack.",
+      "why": "We must return to it after finishing its left subtree.",
+      "invariant": "The stack holds the path from the root to cur."
+    },
+    "29": {
+      "happening": "Mark node {cur} as on-the-stack (frontier).",
+      "why": "It is waiting to be visited after its left subtree.",
+      "invariant": "Frontier nodes sit on the stack, not yet collected."
+    },
+    "30": {
+      "happening": "Move cur to its left child.",
+      "why": "We keep diving toward the smallest remaining value.",
+      "invariant": "cur is None when there's no smaller node left."
+    },
+    "31": {
+      "happening": "Pop the top of the stack — the next node in ascending order.",
+      "why": "With no smaller node left, the top is the next-smallest.",
+      "invariant": "cur is now the smallest uncollected node."
+    },
+    "32": {
+      "happening": "Mark node {cur} visited.",
+      "why": "Its value is about to join the sorted sequence.",
+      "invariant": "Visited nodes are never popped again."
+    },
+    "33": {
+      "happening": "Read the value of the popped node.",
+      "why": "We need it to append to the sorted order.",
+      "invariant": "value is the current node's value."
+    },
+    "34": {
+      "happening": "Append the value to order.",
+      "why": "order grows into the fully sorted sequence of values.",
+      "invariant": "order holds the ascending values visited so far."
+    },
+    "35": {
+      "happening": "Move cur to the popped node's right subtree.",
+      "why": "Inorder continues with values larger than the node just collected.",
+      "invariant": "The next-smallest uncollected node lies to the right (or up the stack)."
+    },
+    "36": {
+      "happening": "Take order[k - 1] as the answer.",
+      "why": "order is fully sorted, so the (k-1)th index is the kth-smallest value.",
+      "invariant": "answer now holds the final result."
+    },
+    "37": {
+      "happening": "Return answer — the kth-smallest value.",
+      "why": "The sorted order has been fully built and indexed.",
+      "invariant": "answer is the final result."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the BST from the array and preparing the stack and order list.",
+      "why": "We need node objects, links, and status before the walk begins.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "loop": {
+      "happening": "Driving the inorder walk — dive left, then pop.",
+      "why": "Inorder visits BST values in ascending order.",
+      "invariant": "order holds every value visited so far, in ascending order."
+    },
+    "update": {
+      "happening": "Pushing a node, marking status, or appending to order.",
+      "why": "State must reflect the stack, visited nodes, and the growing sorted list.",
+      "invariant": "Frontier nodes are on the stack; visited values are in order."
+    },
+    "move": {
+      "happening": "Advancing cur — down-left, popping, or into the right subtree.",
+      "why": "The cursor follows the inorder order of the BST.",
+      "invariant": "cur is the next node to process (or None)."
+    },
+    "return": {
+      "happening": "Tree flattened — indexing order[k-1] and returning it.",
+      "why": "The sorted sequence is complete.",
+      "invariant": "answer is final."
+    }
+  }
+}

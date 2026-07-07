@@ -1,0 +1,141 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "cur",
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "node_idx == cur && count == k"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == cur"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Inorder stack (node ids)",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == len(stack) - 1"
+        },
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "count != null && phase != 'return'",
+    "expr": "popped {count} in ascending order · need k = {k}"
+  },
+  "counters": [
+    {
+      "name": "nodes popped",
+      "onLines": [
+        32
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        27,
+        28
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        29,
+        30,
+        33,
+        34,
+        36
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        31,
+        32,
+        38
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        35
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        37,
+        39
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 36,
+      "label": "Kth smallest found",
+      "kind": "result"
+    },
+    {
+      "line": 39,
+      "label": "Return answer",
+      "kind": "return"
+    }
+  ]
+}

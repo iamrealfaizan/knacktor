@@ -23,15 +23,45 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
   const n = nodes.length;
   const rowW = n * NODE_W + (n - 1) * GAP;
   const x0 = -rowW / 2;
-  const xOf = (idx: number) => x0 + idx * PITCH; // left edge of node
-
-  // build id → index map for fast lookup
-  const idxOf: Record<string, number> = {};
-  nodes.forEach((nd, i) => { idxOf[nd.id] = i; });
 
   // build link map: from id → to id
   const linkMap: Record<string, string | null> = {};
   links.forEach((lk) => { linkMap[lk.from] = lk.to; });
+
+  // ── Chain-order layout ──────────────────────────────────────────────
+  // Place nodes left→right by FOLLOWING the next-links from the head, not by
+  // their position in the `nodes` array. This keeps every arrow pointing to the
+  // physically-next node (no crossing) even when an algorithm rewires links
+  // (reorder / reverse / merge); nodes GLIDE to their new slot on a relink.
+  // Head = first node with no incoming link; fall back to nodes[0] for a pure
+  // cycle. A visited-guard stops on cycles; unreached nodes append in array order.
+  const nodeIds = new Set<string>(nodes.map((nd) => nd.id));
+  const targets = new Set<string>();
+  links.forEach((lk) => { if (lk.to != null) targets.add(String(lk.to)); });
+
+  let head: string | null = null;
+  for (const nd of nodes) { if (!targets.has(nd.id)) { head = nd.id; break; } }
+  if (head === null && nodes.length) head = nodes[0].id;
+
+  const order: string[] = [];
+  const placed = new Set<string>();
+  let walk: string | null = head;
+  while (walk != null && nodeIds.has(walk) && !placed.has(walk)) {
+    order.push(walk);
+    placed.add(walk);
+    const nx = linkMap[walk];
+    walk = nx == null ? null : String(nx);
+  }
+  for (const nd of nodes) { if (!placed.has(nd.id)) { order.push(nd.id); placed.add(nd.id); } }
+
+  // id → display slot, and slot → x (left edge)
+  const posOf: Record<string, number> = {};
+  order.forEach((id, i) => { posOf[id] = i; });
+  const xOf = (idOrSlot: string | number) =>
+    x0 + (typeof idOrSlot === "number" ? idOrSlot : (posOf[idOrSlot] ?? 0)) * PITCH;
+
+  // build id → index map (kept for any legacy callers; not used for layout)
+  const idxOf: Record<string, number> = posOf;
 
   return (
     <>
@@ -47,9 +77,9 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
 
       {/* Nodes — rendered before arrows so backward arrows appear on top.
           Keyed by id → positional changes GLIDE; PopIn fires on node creation. */}
-      {nodes.map((nd, i) => {
+      {nodes.map((nd) => {
         const s = cellStateStyle(nd.state);
-        const nx = xOf(i);
+        const nx = xOf(nd.id);
         const isNull = nd.value === null || nd.value === undefined;
         const hasNext = linkMap[nd.id] !== undefined;
         return (
@@ -117,11 +147,12 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
       })}
 
       {/* Base link arrows — rendered after nodes so backward arrows show on top */}
-      {nodes.map((nd, i) => {
+      {nodes.map((nd) => {
         const toId = linkMap[nd.id];
         if (toId === undefined || toId === null) return null;
-        const j = idxOf[toId];
-        if (j === undefined) return null;
+        const i = posOf[nd.id];
+        const j = posOf[toId];
+        if (i === undefined || j === undefined) return null;
         const isBackward = j < i;
         const pathD = isBackward
           ? `M ${xOf(i) + NODE_W} 0 L ${xOf(j) + NODE_W + 8} 0`

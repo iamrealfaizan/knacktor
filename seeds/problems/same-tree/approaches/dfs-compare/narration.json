@@ -1,0 +1,368 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start tree p's node list.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "p_nodes holds p's real values."
+    },
+    "4": {
+      "happening": "Start p's id-to-node lookup.",
+      "why": "The walk fetches nodes by id.",
+      "invariant": "p_by[i] is p's node at slot i."
+    },
+    "5": {
+      "happening": "Count p's array slots ({pn}).",
+      "why": "We loop over each slot to build nodes.",
+      "invariant": "pn is p's slot count."
+    },
+    "6": {
+      "happening": "Start p's child-slot walker just past the root.",
+      "why": "Children are handed out in array order.",
+      "invariant": "pc is p's next unassigned slot."
+    },
+    "7": {
+      "happening": "Loop over p's slots to build nodes.",
+      "why": "Each real value becomes a node.",
+      "invariant": "Slots below i are built."
+    },
+    "8": {
+      "happening": "Only real (non-null) slots become nodes.",
+      "why": "null marks a missing child.",
+      "invariant": "A null slot is skipped."
+    },
+    "9": {
+      "happening": "Create p node {i} with empty child links.",
+      "why": "Children are filled from later slots.",
+      "invariant": "A fresh node has no children."
+    },
+    "10": {
+      "happening": "Is a slot left for a left child?",
+      "why": "Children come from the next slots.",
+      "invariant": "pc points at the candidate."
+    },
+    "11": {
+      "happening": "Is that slot a real node?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves left empty."
+    },
+    "12": {
+      "happening": "Link slot {pc} as node {i}'s left child.",
+      "why": "It's the next real node.",
+      "invariant": "left now points at a child."
+    },
+    "13": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "pc advances."
+    },
+    "14": {
+      "happening": "Is a slot left for a right child?",
+      "why": "The right child follows the left.",
+      "invariant": "pc points at the candidate."
+    },
+    "15": {
+      "happening": "Is that slot a real node?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves right empty."
+    },
+    "16": {
+      "happening": "Link slot {pc} as node {i}'s right child.",
+      "why": "It's the next real node.",
+      "invariant": "right now points at a child."
+    },
+    "17": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "pc advances."
+    },
+    "18": {
+      "happening": "Add the finished node to p.",
+      "why": "It has its value and children.",
+      "invariant": "p_nodes grows by one."
+    },
+    "19": {
+      "happening": "Store the node by id.",
+      "why": "For fast lookup during the walk.",
+      "invariant": "p_by maps id to node."
+    },
+    "20": {
+      "happening": "Start tree q's node list.",
+      "why": "Same build, for the second tree.",
+      "invariant": "q_nodes holds q's real values."
+    },
+    "21": {
+      "happening": "Start q's id-to-node lookup.",
+      "why": "The walk fetches q's nodes by id.",
+      "invariant": "q_by[i] is q's node at slot i."
+    },
+    "22": {
+      "happening": "Count q's array slots ({qn}).",
+      "why": "We loop over each slot to build nodes.",
+      "invariant": "qn is q's slot count."
+    },
+    "23": {
+      "happening": "Start q's child-slot walker just past the root.",
+      "why": "Children are handed out in array order.",
+      "invariant": "qc is q's next unassigned slot."
+    },
+    "24": {
+      "happening": "Loop over q's slots to build nodes.",
+      "why": "Each real value becomes a node.",
+      "invariant": "Slots below i are built."
+    },
+    "25": {
+      "happening": "Only real (non-null) slots become nodes.",
+      "why": "null marks a missing child.",
+      "invariant": "A null slot is skipped."
+    },
+    "26": {
+      "happening": "Create q node {i} with empty child links.",
+      "why": "Children are filled from later slots.",
+      "invariant": "A fresh node has no children."
+    },
+    "27": {
+      "happening": "Is a slot left for a left child?",
+      "why": "Children come from the next slots.",
+      "invariant": "qc points at the candidate."
+    },
+    "28": {
+      "happening": "Is that slot a real node?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves left empty."
+    },
+    "29": {
+      "happening": "Link slot {qc} as node {i}'s left child.",
+      "why": "It's the next real node.",
+      "invariant": "left now points at a child."
+    },
+    "30": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "qc advances."
+    },
+    "31": {
+      "happening": "Is a slot left for a right child?",
+      "why": "The right child follows the left.",
+      "invariant": "qc points at the candidate."
+    },
+    "32": {
+      "happening": "Is that slot a real node?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null leaves right empty."
+    },
+    "33": {
+      "happening": "Link slot {qc} as node {i}'s right child.",
+      "why": "It's the next real node.",
+      "invariant": "right now points at a child."
+    },
+    "34": {
+      "happening": "Consume the slot.",
+      "why": "Each slot is claimed once.",
+      "invariant": "qc advances."
+    },
+    "35": {
+      "happening": "Add the finished node to q.",
+      "why": "It has its value and children.",
+      "invariant": "q_nodes grows by one."
+    },
+    "36": {
+      "happening": "Store the node by id.",
+      "why": "For fast lookup during the walk.",
+      "invariant": "q_by maps id to node."
+    },
+    "37": {
+      "happening": "Assume the trees are the same to start.",
+      "why": "We only flip this on a real difference.",
+      "invariant": "same holds the running verdict."
+    },
+    "38": {
+      "happening": "done is False — the walk is still going.",
+      "why": "It flips true on the first difference.",
+      "invariant": "done stops the loop early."
+    },
+    "39": {
+      "happening": "matched starts at 0.",
+      "why": "It counts positions that agree.",
+      "invariant": "matched counts agreements."
+    },
+    "40": {
+      "happening": "Create the p-position stack.",
+      "why": "It drives the walk over p.",
+      "invariant": "stack_p holds p positions to compare."
+    },
+    "41": {
+      "happening": "Create the parallel q-position stack.",
+      "why": "It always mirrors stack_p.",
+      "invariant": "stack_q holds the matching q positions."
+    },
+    "42": {
+      "happening": "Seed p's root ({pn} nodes).",
+      "why": "The comparison starts at the roots.",
+      "invariant": "stack_p starts with p's root or None."
+    },
+    "43": {
+      "happening": "Seed q's root ({qn} nodes).",
+      "why": "Paired with p's root.",
+      "invariant": "stack_q starts with q's root or None."
+    },
+    "44": {
+      "happening": "cur_p starts empty.",
+      "why": "No position is being compared yet.",
+      "invariant": "cur_p is the current p position."
+    },
+    "45": {
+      "happening": "cur_q starts empty.",
+      "why": "No position is being compared yet.",
+      "invariant": "cur_q is the current q position."
+    },
+    "46": [
+      {
+        "when": "len(stack_p) > 0 && !done",
+        "happening": "Positions remain and no difference yet — compare the next pair.",
+        "why": "We walk both trees in lockstep.",
+        "invariant": "Everything compared so far agrees."
+      },
+      {
+        "happening": "The walk is over — either all matched or a difference stopped it.",
+        "why": "No positions left, or done was set.",
+        "invariant": "same holds the final verdict."
+      }
+    ],
+    "47": {
+      "happening": "Pop the next p position ({cur_p}).",
+      "why": "This is the p node to compare now.",
+      "invariant": "cur_p is the current p position."
+    },
+    "48": {
+      "happening": "Pop the matching q position ({cur_q}).",
+      "why": "Same position in q.",
+      "invariant": "cur_p and cur_q are the same location."
+    },
+    "49": [
+      {
+        "when": "cur_p == null && cur_q == null",
+        "happening": "Both positions are empty — they agree here.",
+        "why": "Two missing children match.",
+        "invariant": "No difference at this position."
+      },
+      {
+        "happening": "At least one node exists here.",
+        "why": "We must inspect further.",
+        "invariant": "Fall through to the structure/value checks."
+      }
+    ],
+    "50": {
+      "happening": "Count this matching empty position.",
+      "why": "Two nulls are a valid match.",
+      "invariant": "matched grows by one."
+    },
+    "51": [
+      {
+        "when": "cur_p == null || cur_q == null",
+        "happening": "Exactly one side is empty — the structures differ!",
+        "why": "One tree has a node where the other has a gap.",
+        "invariant": "The trees are not the same."
+      },
+      {
+        "happening": "Both nodes exist — compare their values next.",
+        "why": "Structure agrees here.",
+        "invariant": "Values decide this position."
+      }
+    ],
+    "52": {
+      "happening": "Mark the trees as NOT the same.",
+      "why": "A structural mismatch was found.",
+      "invariant": "same is now False."
+    },
+    "53": {
+      "happening": "Stop the walk.",
+      "why": "One difference is enough to decide.",
+      "invariant": "done ends the loop."
+    },
+    "54": [
+      {
+        "when": "p_by[cur_p][\"value\"] != q_by[cur_q][\"value\"]",
+        "happening": "Both nodes exist but their values differ ({p_by[cur_p][\"value\"]} vs {q_by[cur_q][\"value\"]}).",
+        "why": "Same tree needs equal values at every position.",
+        "invariant": "The trees are not the same."
+      },
+      {
+        "happening": "The two values are equal — this position matches.",
+        "why": "Structure and value both agree here.",
+        "invariant": "Descend into the children."
+      }
+    ],
+    "55": {
+      "happening": "Mark the trees as NOT the same.",
+      "why": "A value mismatch was found.",
+      "invariant": "same is now False."
+    },
+    "56": {
+      "happening": "Stop the walk.",
+      "why": "One difference is enough to decide.",
+      "invariant": "done ends the loop."
+    },
+    "58": {
+      "happening": "The pair matches — count it.",
+      "why": "This position agrees in both trees.",
+      "invariant": "matched grows by one."
+    },
+    "59": {
+      "happening": "Queue p's left child.",
+      "why": "Descend p's left subtree next.",
+      "invariant": "stack_p gains p's left child."
+    },
+    "60": {
+      "happening": "Queue q's left child alongside it.",
+      "why": "Compare the same position in q.",
+      "invariant": "stack_q mirrors stack_p."
+    },
+    "61": {
+      "happening": "Queue p's right child.",
+      "why": "Descend p's right subtree.",
+      "invariant": "stack_p gains p's right child."
+    },
+    "62": {
+      "happening": "Queue q's right child alongside it.",
+      "why": "Compare the same position in q.",
+      "invariant": "stack_q mirrors stack_p."
+    },
+    "63": {
+      "happening": "Return whether the trees are the same: {same}.",
+      "why": "Every position agreed, or a difference was found.",
+      "invariant": "same is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building both trees and seeding the paired stacks with the roots.",
+      "why": "We need node objects before comparing.",
+      "invariant": "p on top, q below; roots paired."
+    },
+    "loop": {
+      "happening": "Popping the next matching position from both stacks.",
+      "why": "We walk both trees in lockstep.",
+      "invariant": "Positions compared so far agree."
+    },
+    "move": {
+      "happening": "Landing the two cursors on the corresponding nodes.",
+      "why": "Each pop is one position in both trees.",
+      "invariant": "cur_p and cur_q are the same position."
+    },
+    "check": {
+      "happening": "Comparing the pair of nodes.",
+      "why": "Same tree needs same structure and values.",
+      "invariant": "A mismatch ends the walk."
+    },
+    "update": {
+      "happening": "Recording a match and queueing the children of both.",
+      "why": "Descend both trees together.",
+      "invariant": "Children are pushed in the same order."
+    },
+    "return": {
+      "happening": "Returning whether the trees are the same.",
+      "why": "Either all positions matched or one differed.",
+      "invariant": "same is final."
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "floyd-two-pointers",
+  "name": "Floyd's Fast & Slow Pointers",
+  "kind": "optimal",
+  "summary": "Advance a slow pointer one node and a fast pointer two nodes each step; if they ever meet there is a cycle, and O(1) extra memory is used.",
+  "visualizationIntent": "init: build the linked list from the values, wiring each node to the next and linking the tail back to pos when there is a cycle (a visible back-edge); slow and fast both start at the head. loop: each step fast hops two nodes and slow hops one, both pointers gliding along the chain. check: after each move, compare whether fast and slow landed on the same node. update: if they coincide, flash that node and report a cycle; if fast runs off the end (reaches the null sentinel) the loop ends with no cycle. return: show the boolean answer.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.hasCycle",
+  "primaryPrimitive": "linkedList",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "found",
+    "label": "HAS CYCLE",
+    "suffix": "· cycle detected?",
+    "render": "boolean"
+  },
+  "varColors": {
+    "fast": "ptr-hi",
+    "slow": "ptr-lo"
+  },
+  "lineExplanations": {
+    "3": "Count how many nodes the list has.",
+    "4": "Start an empty next-pointer array (nxt[i] = the id the i-th node points to).",
+    "5": "Loop over every node to wire up its next pointer.",
+    "6": "For every node except the last, the next node is simply the following index.",
+    "7": "Point node i at node i+1.",
+    "9": "The tail points at pos — the cycle target, or -1 for no cycle.",
+    "10": "slow starts at the head (id 0); -1 marks 'no node' for an empty list.",
+    "11": "fast also starts at the head — both pointers begin together.",
+    "12": "found records the answer; it stays False until the pointers meet.",
+    "13": "Keep going while fast has a node and a next node to hop to.",
+    "14": "Move fast two nodes ahead (nxt of nxt).",
+    "15": "Move slow one node ahead.",
+    "16": "If fast and slow now sit on the same node, they've collided inside a cycle.",
+    "17": "Record that a cycle was found.",
+    "18": "Stop early — the answer is settled.",
+    "19": "Return whether a cycle was found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the class wrapper LeetCode expects.",
+    "2": "def hasCycle(self, values, pos): values are the node values; pos is the cycle target index (-1 = none).",
+    "3": "len(values) counts the nodes.",
+    "4": "[] creates the next-pointer list.",
+    "5": "for i in range(n): loops i over each node index.",
+    "6": "if i < n - 1: true for every node except the last.",
+    "7": "nxt.append(i + 1) records that node i points to node i+1.",
+    "8": "else: handles the final node (bare else — no step of its own).",
+    "9": "nxt.append(pos) records the tail's next as pos (the cycle link, or -1).",
+    "10": "slow = 0 if n > 0 else -1 — a ternary; -1 is the null sentinel for an empty list.",
+    "11": "fast = 0 if n > 0 else -1 — fast also starts at the head.",
+    "12": "found = False initializes the boolean answer.",
+    "13": "while fast != -1 and nxt[fast] != -1: fast needs both a node and a next to take two hops.",
+    "14": "fast = nxt[nxt[fast]] hops fast forward by two nodes.",
+    "15": "slow = nxt[slow] hops slow forward by one node.",
+    "16": "if fast == slow: are both pointers on the same node?",
+    "17": "found = True marks that the pointers met — a cycle exists.",
+    "18": "break exits the loop early.",
+    "19": "return found hands back the boolean answer."
+  }
+}

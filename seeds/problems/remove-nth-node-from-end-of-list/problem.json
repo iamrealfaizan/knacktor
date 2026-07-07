@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "remove-nth-node-from-end-of-list",
+  "number": 19,
+  "title": "Remove Nth Node From End of List",
+  "difficulty": "medium",
+  "topics": [
+    "linked-list",
+    "two-pointers"
+  ],
+  "patterns": [
+    "fast-slow-pointers"
+  ],
+  "statement": "Given the `head` of a linked list, remove the `nth` node from the end of the list and return its head.\n\n> The list is provided as a value array (`values` are the node values in order) plus `n`. The remaining node values are returned so the result can be shown. A dummy sentinel node is drawn before the head to simplify removing the first node.\n\n**Example 1:**\n\n```\nInput: head = [1,2,3,4,5], n = 2\nOutput: [1,2,3,5]\n```\n\n**Example 2:**\n\n```\nInput: head = [1], n = 1\nOutput: []\n```\n\n**Example 3:**\n\n```\nInput: head = [1,2], n = 1\nOutput: [1]\n```\n\n**Constraints:**\n\n- The number of nodes in the list is `sz`.\n- `1 <= sz <= 30`\n- `0 <= Node.val <= 100`\n- `1 <= n <= sz`\n\n**Follow up:** Could you do this in one pass?",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "two-pointer-one-pass",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Node values (in order)",
+        "placeholder": "1,2,3,4,5",
+        "min": 0,
+        "max": 100,
+        "minLen": 1,
+        "maxLen": 30
+      },
+      {
+        "name": "n",
+        "type": "int",
+        "label": "n (from the end)",
+        "placeholder": "2",
+        "min": 1,
+        "max": 30
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

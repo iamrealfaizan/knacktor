@@ -1,0 +1,150 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the nodes ({n} of them).",
+      "why": "We need the size to wire up next pointers and visited flags.",
+      "invariant": "n is the number of nodes."
+    },
+    "4": {
+      "happening": "Start an empty next-pointer array.",
+      "why": "nxt[i] will hold the id node i points to.",
+      "invariant": "nxt describes the list's shape."
+    },
+    "5": {
+      "happening": "Loop over every node to set its next pointer.",
+      "why": "Each node needs to know its successor.",
+      "invariant": "Nodes below i are already wired."
+    },
+    "6": [
+      {
+        "when": "i < n - 1",
+        "happening": "Node {i} is not the tail — its next is the following node.",
+        "why": "Interior nodes point at the next index.",
+        "invariant": "Only the tail can start a cycle."
+      },
+      {
+        "happening": "Node {i} is the tail — its next is the cycle target.",
+        "why": "The tail is where a cycle (if any) links back.",
+        "invariant": "The tail's next is pos, or -1."
+      }
+    ],
+    "7": {
+      "happening": "Point node {i} at node {i} + 1.",
+      "why": "Interior nodes link to their immediate successor.",
+      "invariant": "nxt[i] = i + 1 for interior nodes."
+    },
+    "9": {
+      "happening": "Point the tail at pos ({pos}).",
+      "why": "pos is the cycle target; -1 means the list simply ends.",
+      "invariant": "A back-edge to pos creates the cycle."
+    },
+    "10": {
+      "happening": "Start an empty visited-flag array.",
+      "why": "This is the extra O(n) memory that records which nodes we've seen.",
+      "invariant": "visited[i] tells whether node i was reached before."
+    },
+    "11": {
+      "happening": "Loop over every node to initialize its flag.",
+      "why": "Every node begins unvisited.",
+      "invariant": "Flags below i are already set."
+    },
+    "12": {
+      "happening": "Mark node {i} unvisited (False).",
+      "why": "Nothing has been reached yet.",
+      "invariant": "All flags start False."
+    },
+    "13": {
+      "happening": "Place cur at the head (node 0).",
+      "why": "We walk the list starting from the head.",
+      "invariant": "cur is the node we're currently standing on; -1 means none."
+    },
+    "14": {
+      "happening": "Set found to False.",
+      "why": "No revisit has happened yet.",
+      "invariant": "found becomes True only on a revisit."
+    },
+    "15": [
+      {
+        "when": "cur != -1",
+        "happening": "cur points at a real node — keep walking.",
+        "why": "We continue until we either revisit a node or fall off the end.",
+        "invariant": "Every node before cur has been marked visited."
+      },
+      {
+        "happening": "cur is -1 — we walked off the end with no revisit.",
+        "why": "Reaching null proves the list terminates.",
+        "invariant": "found is still False — no cycle."
+      }
+    ],
+    "16": [
+      {
+        "when": "visited[cur] == true",
+        "happening": "Node {cur} was already visited — we've looped back!",
+        "why": "Reaching a node twice can only happen inside a cycle.",
+        "invariant": "A revisit proves a cycle exists."
+      },
+      {
+        "happening": "Node {cur} is new — we haven't seen it before.",
+        "why": "A first visit doesn't prove anything yet; keep walking.",
+        "invariant": "cur has not been marked visited yet."
+      }
+    ],
+    "17": {
+      "happening": "Record that a cycle was found.",
+      "why": "We stepped onto an already-visited node.",
+      "invariant": "found is now True."
+    },
+    "18": {
+      "happening": "Stop early — the answer is settled.",
+      "why": "Once a revisit is seen there's nothing left to check.",
+      "invariant": "The loop ends with found = True."
+    },
+    "19": {
+      "happening": "Mark node {cur} as visited.",
+      "why": "So that stepping onto it again later is detected as a cycle.",
+      "invariant": "Every node walked so far is marked visited."
+    },
+    "20": {
+      "happening": "Follow the next pointer from node {cur}.",
+      "why": "We advance to the successor node (or -1 at the end).",
+      "invariant": "cur becomes the next node in the chain."
+    },
+    "21": {
+      "happening": "Return found — whether the list has a cycle.",
+      "why": "The walk is complete.",
+      "invariant": "found is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the linked list (with any cycle link), clearing visited flags, and placing cur at the head.",
+      "why": "We need the chain and empty flags before the walk.",
+      "invariant": "cur starts at the head; no node is visited yet."
+    },
+    "loop": {
+      "happening": "Checking whether cur still points at a real node.",
+      "why": "The walk continues until a revisit or the end.",
+      "invariant": "Every node before cur is marked visited."
+    },
+    "check": {
+      "happening": "Testing whether the current node was already visited.",
+      "why": "A repeat visit is the signature of a cycle.",
+      "invariant": "Seen-before ⇒ cycle."
+    },
+    "update": {
+      "happening": "Recording a revisit, or marking the current node visited.",
+      "why": "The visited trail is how a future repeat is detected.",
+      "invariant": "Walked nodes stay marked visited."
+    },
+    "move": {
+      "happening": "Following the next pointer to the next node.",
+      "why": "cur advances one node at a time along the chain.",
+      "invariant": "cur is the next node (or -1 at the end)."
+    },
+    "return": {
+      "happening": "Returning whether a cycle was found.",
+      "why": "Either we revisited a node or reached the end.",
+      "invariant": "found is final."
+    }
+  }
+}

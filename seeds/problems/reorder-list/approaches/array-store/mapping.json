@@ -1,0 +1,114 @@
+{
+  "primitive": "linkedList",
+  "nodesFrom": "values",
+  "linksFrom": "nextp",
+  "changedLinksFrom": "changed",
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    },
+    {
+      "name": "cur",
+      "var": "cur"
+    }
+  ],
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == cur || node_idx == left || node_idx == right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "left != null && phase != 'return'",
+    "expr": "left at node {left} · right at node {right}"
+  },
+  "counters": [
+    {
+      "name": "links rewired",
+      "onLines": [
+        14,
+        19,
+        22
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        13,
+        26
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        17
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        14,
+        15,
+        19,
+        20,
+        22,
+        23,
+        24,
+        27
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        16,
+        21,
+        25,
+        28
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        18,
+        29
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 14,
+      "label": "Weave in the far node",
+      "kind": "match"
+    },
+    {
+      "line": 29,
+      "label": "Reordered",
+      "kind": "return"
+    }
+  ]
+}
