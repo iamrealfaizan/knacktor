@@ -1,0 +1,80 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "numCourses": 2,
+      "prerequisites": [
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (cycle)",
+    "value": {
+      "numCourses": 2,
+      "prerequisites": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-no-prereqs",
+    "label": "All Independent",
+    "value": {
+      "numCourses": 3,
+      "prerequisites": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": true
+  },
+  {
+    "id": "edge-shared-prereq",
+    "label": "Two Prereqs, One Course",
+    "value": {
+      "numCourses": 3,
+      "prerequisites": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": true
+  },
+  {
+    "id": "edge-self-loop",
+    "label": "Self Prerequisite",
+    "value": {
+      "numCourses": 1,
+      "prerequisites": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  }
+]

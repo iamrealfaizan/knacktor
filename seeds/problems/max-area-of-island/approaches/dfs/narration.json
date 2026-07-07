@@ -1,0 +1,220 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the grid — how many rows it has.",
+      "why": "We need the bounds to scan every cell and test neighbors.",
+      "invariant": "The grid's dimensions are fixed for the whole run."
+    },
+    "4": {
+      "happening": "Measure how many columns each row has.",
+      "why": "Column count bounds our left/right moves.",
+      "invariant": "Every row has the same width."
+    },
+    "5": {
+      "happening": "Create the empty 'state' tracker.",
+      "why": "We must remember which cells we've reached so an island isn't measured twice.",
+      "invariant": "state starts entirely unseen (all 0)."
+    },
+    "6": {
+      "happening": "Loop over each row to give it a fresh tracker row.",
+      "why": "state must mirror the grid's shape.",
+      "invariant": "Each built row holds exactly {cols} zeros."
+    },
+    "7": {
+      "happening": "Add a row of zeros — every cell starts unseen (0).",
+      "why": "0 means 'not yet reached'.",
+      "invariant": "No cell is marked before the search begins."
+    },
+    "8": {
+      "happening": "Set the best area to 0.",
+      "why": "We haven't seen any island yet.",
+      "invariant": "best is the largest island area found so far."
+    },
+    "9": {
+      "happening": "Reset the current-row marker to -1 (no active cell).",
+      "why": "There's an active cell only while flooding an island.",
+      "invariant": "-1 keeps the cursor hidden."
+    },
+    "10": {
+      "happening": "Reset the current-column marker to -1.",
+      "why": "Same — no cell is being processed yet.",
+      "invariant": "cur_r and cur_c together locate the active cell."
+    },
+    "11": {
+      "happening": "List the four orthogonal moves (up, down, right, left).",
+      "why": "Islands connect only horizontally or vertically, never diagonally.",
+      "invariant": "Only these four directions are ever tried."
+    },
+    "12": {
+      "happening": "Scan rows from top to bottom looking for land.",
+      "why": "Every cell must be checked to find all islands.",
+      "invariant": "Rows above sr are fully scanned."
+    },
+    "13": {
+      "happening": "Scan columns left to right within row {sr}.",
+      "why": "We inspect each cell exactly once.",
+      "invariant": "Cells left of sc in this row are already handled."
+    },
+    "14": [
+      {
+        "when": "grid[sr][sc] == 1 && state[sr][sc] == 0",
+        "happening": "Cell ({sr},{sc}) is land we haven't reached — a new island begins here.",
+        "why": "Any unvisited land cell must belong to a brand-new island.",
+        "invariant": "Every island is measured from its first-scanned cell."
+      },
+      {
+        "happening": "Cell ({sr},{sc}) is water or already flooded — skip it.",
+        "why": "Water starts no island, and flooded land is already measured.",
+        "invariant": "We never measure the same island twice."
+      }
+    ],
+    "15": {
+      "happening": "Start this island's area count at 0.",
+      "why": "We'll add one for each land cell we flood.",
+      "invariant": "area counts cells in the current island only."
+    },
+    "16": {
+      "happening": "Make an empty stack for this island's flood.",
+      "why": "The stack holds discovered cells not yet explored.",
+      "invariant": "Depth-first: we always explore the most recent cell next."
+    },
+    "17": {
+      "happening": "Push the seed cell ({sr},{sc}) onto the stack.",
+      "why": "Flooding starts from this cell.",
+      "invariant": "The stack holds only this island's frontier."
+    },
+    "18": {
+      "happening": "Mark the seed cell as seen (1).",
+      "why": "So it can never be pushed again.",
+      "invariant": "A cell enters the stack at most once."
+    },
+    "19": [
+      {
+        "when": "len(stack) > 0",
+        "happening": "The stack holds {len(stack)} cell(s) still to explore — keep flooding.",
+        "why": "Unexplored frontier remains in this island.",
+        "invariant": "The stack empties as the island fills."
+      },
+      {
+        "happening": "The stack is empty — this island is completely flooded.",
+        "why": "No reachable frontier cells remain.",
+        "invariant": "area now holds this island's full size."
+      }
+    ],
+    "20": {
+      "happening": "Pop the top cell off the stack.",
+      "why": "Depth-first explores the most recently discovered cell first.",
+      "invariant": "The popped cell is about to become the active cell."
+    },
+    "21": {
+      "happening": "Read the popped cell's row.",
+      "why": "We need its coordinates to reach neighbors.",
+      "invariant": "cell holds a [row, col] pair."
+    },
+    "22": {
+      "happening": "Read the popped cell's column.",
+      "why": "Row and column together locate the active cell.",
+      "invariant": "cur_r, cur_c now point at the cell being flooded."
+    },
+    "23": {
+      "happening": "Mark the active cell ({cur_r},{cur_c}) fully done (2).",
+      "why": "It now firmly belongs to the current island.",
+      "invariant": "Done cells are never revisited."
+    },
+    "24": {
+      "happening": "Count this cell — the island's area grows to include it.",
+      "why": "Area is the number of land cells in the island.",
+      "invariant": "area equals the cells flooded in this island so far."
+    },
+    "25": {
+      "happening": "Try each of the four directions from this cell.",
+      "why": "To find land connected to it.",
+      "invariant": "All four neighbors are examined before moving on."
+    },
+    "26": {
+      "happening": "Compute the neighbor's row.",
+      "why": "The direction's row offset added to the active cell.",
+      "invariant": "nr may be off-grid — we check next."
+    },
+    "27": {
+      "happening": "Compute the neighbor's column.",
+      "why": "The direction's column offset added to the active cell.",
+      "invariant": "nc may be off-grid — we check next."
+    },
+    "28": [
+      {
+        "when": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1 && state[nr][nc] == 0",
+        "happening": "Neighbor ({nr},{nc}) is fresh land — add it to the frontier.",
+        "why": "It's in-bounds, is land, and hasn't been seen.",
+        "invariant": "Only new land ever joins the stack."
+      },
+      {
+        "happening": "Neighbor ({nr},{nc}) is off-grid, water, or already seen — ignore it.",
+        "why": "Only in-bounds unseen land can extend the island.",
+        "invariant": "Out-of-range and visited cells are never re-added."
+      }
+    ],
+    "29": {
+      "happening": "Mark the new land neighbor ({nr},{nc}) as seen (1).",
+      "why": "Claim it before pushing so it can't be queued twice.",
+      "invariant": "Seen cells are waiting in the stack."
+    },
+    "30": {
+      "happening": "Push the neighbor onto the stack.",
+      "why": "So we'll explore it and its own neighbors later.",
+      "invariant": "The island keeps growing outward."
+    },
+    "31": {
+      "happening": "Island fully measured (area {area}) — keep it if it beats the best.",
+      "why": "The answer is the maximum area over all islands.",
+      "invariant": "best holds the largest island area found so far."
+    },
+    "32": {
+      "happening": "Clear the current-row marker.",
+      "why": "No active cell while we resume scanning.",
+      "invariant": "cur_r back to -1 hides the cursor."
+    },
+    "33": {
+      "happening": "Clear the current-column marker too.",
+      "why": "The cursor is fully hidden until the next island.",
+      "invariant": "The next land cell found starts a new flood."
+    },
+    "34": {
+      "happening": "Return the largest island area: {best}.",
+      "why": "Every cell has been scanned and every island measured.",
+      "invariant": "best is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: measuring the grid and preparing an empty visited-tracker.",
+      "why": "We need dimensions and a way to remember reached cells before searching.",
+      "invariant": "Nothing is marked yet."
+    },
+    "loop": {
+      "happening": "Scanning the grid for the next piece of unvisited land.",
+      "why": "Each unvisited land cell reveals a new island to measure.",
+      "invariant": "Already-scanned cells are settled."
+    },
+    "check": {
+      "happening": "Deciding whether this cell starts or extends an island.",
+      "why": "Only in-bounds unseen land matters.",
+      "invariant": "Every island is measured exactly once."
+    },
+    "update": {
+      "happening": "Recording progress — counting a cell or updating the best area.",
+      "why": "State must reflect what we've discovered.",
+      "invariant": "A claimed cell stays claimed; best only grows."
+    },
+    "move": {
+      "happening": "Advancing the flood — popping a cell and reaching toward neighbors.",
+      "why": "Depth-first exploration walks the connected land.",
+      "invariant": "Each cell is processed once."
+    },
+    "return": {
+      "happening": "Search complete — reporting the largest area: {best}.",
+      "why": "All cells scanned, all islands measured.",
+      "invariant": "best is final."
+    }
+  }
+}

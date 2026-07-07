@@ -1,0 +1,263 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty list of course nodes.",
+      "why": "Each course becomes a node in the dependency graph.",
+      "invariant": "nodes will hold one entry per course."
+    },
+    "4": {
+      "happening": "Loop over every course number.",
+      "why": "We draw a node for each course.",
+      "invariant": "Courses below i already have a node."
+    },
+    "5": {
+      "happening": "Add a node for course {i}.",
+      "why": "The graph needs a vertex per course.",
+      "invariant": "Each node is labeled with its course id."
+    },
+    "6": {
+      "happening": "Start the in-degree list.",
+      "why": "A course's in-degree is how many prerequisites it still needs.",
+      "invariant": "indegree[c] = unmet prerequisites of course c."
+    },
+    "7": {
+      "happening": "Loop over every course to prepare its in-degree.",
+      "why": "Every course begins with a known prerequisite count.",
+      "invariant": "Courses below i are initialized."
+    },
+    "8": {
+      "happening": "Course starts with in-degree 0.",
+      "why": "We add to it as prerequisites are read.",
+      "invariant": "No prerequisites counted yet."
+    },
+    "9": {
+      "happening": "Create an empty edge list.",
+      "why": "Each prerequisite is a directed edge in the graph.",
+      "invariant": "edges will hold one arrow per prerequisite."
+    },
+    "10": {
+      "happening": "Loop over every prerequisite pair.",
+      "why": "Each pair defines a 'must come before' relationship.",
+      "invariant": "Pairs below p are already recorded."
+    },
+    "11": {
+      "happening": "Read the course that has the prerequisite (a).",
+      "why": "a can't be taken until its prerequisite is done.",
+      "invariant": "a is the dependent course."
+    },
+    "12": {
+      "happening": "Read the prerequisite course (b).",
+      "why": "b must be finished before a.",
+      "invariant": "b comes before a."
+    },
+    "13": {
+      "happening": "Add the directed edge {b} → {a}.",
+      "why": "The arrow points from prerequisite to dependent.",
+      "invariant": "Each edge encodes one ordering constraint."
+    },
+    "14": {
+      "happening": "Course {a} now has one more prerequisite.",
+      "why": "Its in-degree counts unmet prerequisites.",
+      "invariant": "indegree[a] rises by one."
+    },
+    "15": {
+      "happening": "Start a status list for the courses.",
+      "why": "It tracks each course: blocked, ready, or taken.",
+      "invariant": "status[c] is course c's state."
+    },
+    "16": {
+      "happening": "Loop over every course to set its status.",
+      "why": "Every course starts blocked.",
+      "invariant": "Courses below i are initialized."
+    },
+    "17": {
+      "happening": "Course starts blocked/unseen (0).",
+      "why": "Nothing has been taken yet.",
+      "invariant": "All statuses start at 0."
+    },
+    "18": {
+      "happening": "Create the ready-queue.",
+      "why": "It holds courses whose prerequisites are all met.",
+      "invariant": "Courses are taken front to back."
+    },
+    "19": {
+      "happening": "Set the queue's front marker to 0.",
+      "why": "It points at the next course to take.",
+      "invariant": "Courses before head are already taken."
+    },
+    "20": {
+      "happening": "Loop over every course to find the ready ones.",
+      "why": "Courses with no prerequisites can be taken immediately.",
+      "invariant": "Courses below i are checked."
+    },
+    "21": [
+      {
+        "when": "indegree[i] == 0",
+        "happening": "Course {i} has no prerequisites — it's ready.",
+        "why": "Nothing blocks it, so it can be taken first.",
+        "invariant": "Only in-degree-0 courses seed the queue."
+      },
+      {
+        "happening": "Course {i} still has prerequisites — leave it blocked.",
+        "why": "It can't be taken until they're cleared.",
+        "invariant": "Blocked courses wait in status 0."
+      }
+    ],
+    "22": {
+      "happening": "Queue course {i} — it's ready to take.",
+      "why": "All its prerequisites (none) are satisfied.",
+      "invariant": "The queue holds only ready courses."
+    },
+    "23": {
+      "happening": "Mark course {i} ready (1).",
+      "why": "So it isn't queued twice.",
+      "invariant": "A course enters the queue at most once."
+    },
+    "24": {
+      "happening": "Reset the current-course marker to -1.",
+      "why": "No course is being taken yet.",
+      "invariant": "-1 keeps the cursor hidden."
+    },
+    "25": {
+      "happening": "Start the taken-course count at 0.",
+      "why": "We compare it to numCourses at the end.",
+      "invariant": "taken counts fully completed courses."
+    },
+    "26": [
+      {
+        "when": "head < len(queue)",
+        "happening": "{len(queue)} course(s) are ready — take the next one.",
+        "why": "Any ready course can be completed now.",
+        "invariant": "head advances as courses are taken."
+      },
+      {
+        "happening": "No courses are ready — the process stops.",
+        "why": "Either all courses are taken, or a cycle blocks the rest.",
+        "invariant": "A leftover blocked course means a cycle."
+      }
+    ],
+    "27": {
+      "happening": "Look at the course at the front of the queue.",
+      "why": "We take courses in the order they became ready.",
+      "invariant": "queue[head] is the current front."
+    },
+    "28": {
+      "happening": "Advance the front marker (take it off the queue).",
+      "why": "This course is being completed now.",
+      "invariant": "head only ever increases."
+    },
+    "29": {
+      "happening": "Remember course {node_id} as the one being taken.",
+      "why": "The cursor highlights the active course.",
+      "invariant": "cur points at the current course."
+    },
+    "30": {
+      "happening": "Mark course {node_id} taken (2).",
+      "why": "Its prerequisites were all met.",
+      "invariant": "Taken courses are never revisited."
+    },
+    "31": {
+      "happening": "One more course completed.",
+      "why": "We're counting toward all numCourses.",
+      "invariant": "taken rises by one per completed course."
+    },
+    "32": {
+      "happening": "Scan every edge to find courses that needed this one.",
+      "why": "Completing a course can unblock its dependents.",
+      "invariant": "Every outgoing edge is checked."
+    },
+    "33": [
+      {
+        "when": "edges[e]['from'] == node_id",
+        "happening": "This edge starts at the course just taken — it unblocks a dependent.",
+        "why": "The dependent loses one prerequisite.",
+        "invariant": "Only outgoing edges matter here."
+      },
+      {
+        "happening": "This edge doesn't start at the current course — skip it.",
+        "why": "It concerns other courses.",
+        "invariant": "Unrelated edges are ignored."
+      }
+    ],
+    "34": {
+      "happening": "Find the dependent course at the edge's far end.",
+      "why": "It was waiting on the course we just took.",
+      "invariant": "nb depended on node_id."
+    },
+    "35": {
+      "happening": "Clear one prerequisite from course {nb}.",
+      "why": "One of its blockers is now done.",
+      "invariant": "indegree[nb] drops by one."
+    },
+    "36": [
+      {
+        "when": "indegree[nb] == 0",
+        "happening": "Course {nb} has no prerequisites left — it's now ready.",
+        "why": "Every course it depended on is taken.",
+        "invariant": "It can now be queued."
+      },
+      {
+        "happening": "Course {nb} still has prerequisites remaining.",
+        "why": "Other blockers must be cleared first.",
+        "invariant": "It stays blocked for now."
+      }
+    ],
+    "37": {
+      "happening": "Add the freed course {nb} to the ready-queue.",
+      "why": "It can now be taken.",
+      "invariant": "Newly-ready courses join the frontier."
+    },
+    "38": {
+      "happening": "Mark course {nb} ready (1).",
+      "why": "So it isn't queued twice.",
+      "invariant": "A course enters the queue at most once."
+    },
+    "39": {
+      "happening": "Done taking this course — hide the cursor.",
+      "why": "We move on to the next ready course.",
+      "invariant": "cur back to -1 until the next course."
+    },
+    "40": {
+      "happening": "We can finish only if all {numCourses} courses were taken.",
+      "why": "A cycle would leave some course permanently blocked.",
+      "invariant": "result is true exactly when taken equals numCourses."
+    },
+    "41": {
+      "happening": "Return the answer: {result}.",
+      "why": "It tells whether every course can be completed.",
+      "invariant": "result is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the dependency graph and finding courses with no prerequisites.",
+      "why": "Kahn's algorithm starts from every in-degree-0 course.",
+      "invariant": "The queue is seeded with all ready courses."
+    },
+    "loop": {
+      "happening": "Taking a ready course and scanning its dependents.",
+      "why": "Completing a course can unblock others.",
+      "invariant": "Each course is taken at most once."
+    },
+    "check": {
+      "happening": "Deciding which dependents an edge unblocks, and whether one is now ready.",
+      "why": "A course becomes ready only when all its prerequisites are done.",
+      "invariant": "In-degree never goes negative."
+    },
+    "move": {
+      "happening": "Advancing — dequeuing the next ready course.",
+      "why": "Courses are taken in the order they became ready.",
+      "invariant": "Each course is processed once."
+    },
+    "update": {
+      "happening": "Recording a taken course and clearing prerequisites from its dependents.",
+      "why": "State must reflect progress and newly-freed courses.",
+      "invariant": "taken grows; in-degrees only shrink."
+    },
+    "return": {
+      "happening": "Process complete — reporting whether all courses can be finished.",
+      "why": "All ready courses are exhausted.",
+      "invariant": "result is final."
+    }
+  }
+}

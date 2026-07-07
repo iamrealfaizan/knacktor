@@ -1,0 +1,119 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "mid",
+      "var": "mid"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "flags": {
+    "found": "nums[mid] == target",
+    "searching": "left <= right"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == mid",
+      "onlyWhen": "found"
+    },
+    {
+      "state": "current",
+      "when": "idx == mid && searching"
+    },
+    {
+      "state": "compared",
+      "when": "(idx == left || idx == right) && searching"
+    },
+    {
+      "state": "path",
+      "when": "idx > left && idx < right && searching"
+    },
+    {
+      "state": "dimmed",
+      "when": "idx < left || idx > right"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "mid != null && searching",
+    "expr": "window [{left}..{right}] · mid nums[{mid}]={nums[mid]} vs target {target}"
+  },
+  "counters": [
+    {
+      "name": "midpoints tested",
+      "onLines": [
+        7
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7,
+        9,
+        10,
+        15
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        11,
+        13,
+        16,
+        18
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        8,
+        19
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 8,
+      "label": "Target found",
+      "kind": "match"
+    },
+    {
+      "line": 19,
+      "label": "Target absent",
+      "kind": "return"
+    }
+  ]
+}

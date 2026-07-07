@@ -1,0 +1,116 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "flags": {
+    "scanning": "phase != 'return'"
+  },
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == right && scanning"
+    },
+    {
+      "state": "path",
+      "when": "idx >= left && idx <= right && scanning"
+    },
+    {
+      "state": "visited",
+      "when": "idx < left && scanning"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "scanning",
+    "expr": "window s[{left}..{right}] length {window}",
+    "relation": "best {best}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "characters scanned",
+      "onLines": [
+        7
+      ]
+    },
+    {
+      "name": "window jumps",
+      "onLines": [
+        9
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        10,
+        11,
+        13
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8,
+        12
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        14
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Window shrinks past a repeat",
+      "kind": "boundary"
+    },
+    {
+      "line": 13,
+      "label": "New longest window",
+      "kind": "best"
+    },
+    {
+      "line": 14,
+      "label": "Longest length",
+      "kind": "return"
+    }
+  ]
+}

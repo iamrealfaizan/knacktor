@@ -1,0 +1,79 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        3
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        15,
+        7
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (single node)",
+    "value": {
+      "values": [
+        1
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3 (empty)",
+    "value": {
+      "values": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "edge-left-skew",
+    "label": "Left-Leaning",
+    "value": {
+      "values": [
+        1,
+        2,
+        null,
+        3
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ]
+    ]
+  }
+]

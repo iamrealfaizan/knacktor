@@ -1,0 +1,144 @@
+{
+  "primitive": "grid",
+  "gridFrom": "grid",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "r == cur_r && c == cur_c"
+    },
+    {
+      "state": "visited",
+      "when": "state[r][c] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state[r][c] == 1"
+    },
+    {
+      "state": "dimmed",
+      "when": "grid[r][c] == 0"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Stack (frontier)",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "biggest island so far: {best}",
+    "when": "phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "cells filled",
+      "onLines": [
+        24
+      ],
+      "when": "true"
+    },
+    {
+      "name": "cells scanned",
+      "onLines": [
+        14
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        12,
+        13,
+        19,
+        25
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        14,
+        28
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        15,
+        16,
+        17,
+        18,
+        23,
+        24,
+        29,
+        30,
+        31
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        20,
+        21,
+        22,
+        26,
+        27,
+        32,
+        33
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        34
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 15,
+      "label": "New island found",
+      "kind": "boundary"
+    },
+    {
+      "line": 31,
+      "label": "Island area measured",
+      "kind": "best"
+    },
+    {
+      "line": 34,
+      "label": "Largest area returned",
+      "kind": "return"
+    }
+  ]
+}

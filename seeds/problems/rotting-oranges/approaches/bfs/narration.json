@@ -1,0 +1,220 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the grid — how many rows it has.",
+      "why": "We need the bounds to scan every cell and test neighbors.",
+      "invariant": "The grid's dimensions are fixed for the whole run."
+    },
+    "4": {
+      "happening": "Measure how many columns each row has.",
+      "why": "Column count bounds our left/right moves.",
+      "invariant": "Every row has the same width."
+    },
+    "5": {
+      "happening": "Create the empty BFS queue.",
+      "why": "It will hold rotten oranges whose neighbors still need to rot.",
+      "invariant": "Every rotten orange is processed exactly once."
+    },
+    "6": {
+      "happening": "Start the fresh-orange counter at 0.",
+      "why": "We must know how many fresh oranges exist to detect leftovers.",
+      "invariant": "fresh equals the number of fresh oranges not yet rotted."
+    },
+    "7": {
+      "happening": "Loop over each row to inspect its cells.",
+      "why": "We must find every rotten orange (a BFS source) and count fresh ones.",
+      "invariant": "Rows above r are fully inspected."
+    },
+    "8": {
+      "happening": "Loop over each column in row {r}.",
+      "why": "We inspect each cell exactly once.",
+      "invariant": "Cells left of c in this row are done."
+    },
+    "9": {
+      "happening": "Is cell ({r},{c}) an already-rotten orange?",
+      "why": "Rotten oranges are the starting points of the spread.",
+      "invariant": "Every rotten orange becomes a BFS source at minute 0."
+    },
+    "10": {
+      "happening": "Seed the queue with rotten orange ({r},{c}) at minute 0.",
+      "why": "The spread begins from all rotten oranges simultaneously.",
+      "invariant": "Sources all carry minute 0."
+    },
+    "11": {
+      "happening": "Is cell ({r},{c}) a fresh orange?",
+      "why": "Fresh oranges are the targets that must rot.",
+      "invariant": "Each fresh orange is counted once."
+    },
+    "12": {
+      "happening": "Count this fresh orange.",
+      "why": "We track how many still need to rot.",
+      "invariant": "fresh rises by one for each fresh orange found."
+    },
+    "13": {
+      "happening": "Start the elapsed-minutes answer at 0.",
+      "why": "No time has passed yet.",
+      "invariant": "minutes is the latest rot-time seen so far."
+    },
+    "14": {
+      "happening": "List the four orthogonal moves (up, down, right, left).",
+      "why": "Rotting spreads only horizontally or vertically.",
+      "invariant": "Only these four directions are ever tried."
+    },
+    "15": {
+      "happening": "Set the queue's front marker head to 0.",
+      "why": "It points at the next orange to process.",
+      "invariant": "Oranges before head are already processed."
+    },
+    "16": {
+      "happening": "Reset the current-row marker to -1 (no active orange).",
+      "why": "There's an active orange only while spreading.",
+      "invariant": "-1 keeps the cursor hidden."
+    },
+    "17": {
+      "happening": "Reset the current-column marker to -1.",
+      "why": "Same — nothing is spreading yet.",
+      "invariant": "cur_r and cur_c together locate the active orange."
+    },
+    "18": [
+      {
+        "when": "head < len(queue)",
+        "happening": "The queue still holds {len(queue)} rotten orange(s) — keep spreading.",
+        "why": "Each queued orange can still rot its neighbors.",
+        "invariant": "head advances toward the back as oranges are processed."
+      },
+      {
+        "happening": "The queue is drained — the rot has spread as far as it can.",
+        "why": "No rotten orange has any unprocessed neighbor left.",
+        "invariant": "Every reachable fresh orange has rotted."
+      }
+    ],
+    "19": {
+      "happening": "Look at the orange at the front of the queue.",
+      "why": "BFS processes the earliest-rotted orange next.",
+      "invariant": "queue[head] is the current front."
+    },
+    "20": {
+      "happening": "Advance the front marker (dequeue this orange).",
+      "why": "This orange is now spreading, so move on to the next.",
+      "invariant": "head only ever increases."
+    },
+    "21": {
+      "happening": "Read the orange's row.",
+      "why": "We need its coordinates to reach neighbors.",
+      "invariant": "cell holds a [row, col, minute] triple."
+    },
+    "22": {
+      "happening": "Read the orange's column.",
+      "why": "Row and column locate the active orange.",
+      "invariant": "cur_r, cur_c now point at the spreading orange."
+    },
+    "23": {
+      "happening": "Read the minute at which this orange rotted.",
+      "why": "Its neighbors will rot one minute later.",
+      "invariant": "t is when this orange became rotten."
+    },
+    "24": {
+      "happening": "The answer is the latest rot-minute seen so far.",
+      "why": "The elapsed time is when the last orange rots.",
+      "invariant": "minutes never decreases."
+    },
+    "25": {
+      "happening": "Try each of the four directions from this orange.",
+      "why": "To find fresh oranges it can rot.",
+      "invariant": "All four neighbors are checked before moving on."
+    },
+    "26": {
+      "happening": "Compute the neighbor's row.",
+      "why": "The direction's row offset added to the active orange.",
+      "invariant": "nr may be off-grid — we check next."
+    },
+    "27": {
+      "happening": "Compute the neighbor's column.",
+      "why": "The direction's column offset added to the active orange.",
+      "invariant": "nc may be off-grid — we check next."
+    },
+    "28": [
+      {
+        "when": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1",
+        "happening": "Neighbor ({nr},{nc}) is a fresh orange — it's about to rot.",
+        "why": "A fresh orange next to a rotten one rots this minute.",
+        "invariant": "Only in-bounds fresh oranges get infected."
+      },
+      {
+        "happening": "Neighbor ({nr},{nc}) is off-grid, empty, or already rotten — skip it.",
+        "why": "Only fresh oranges can rot.",
+        "invariant": "Empty cells and rotten oranges are never re-queued."
+      }
+    ],
+    "29": {
+      "happening": "Rot the fresh orange at ({nr},{nc}) — set it to 2.",
+      "why": "It has just been infected by its rotten neighbor.",
+      "invariant": "A cell rots at most once."
+    },
+    "30": {
+      "happening": "One fewer fresh orange remains.",
+      "why": "We track the count to detect any that can never rot.",
+      "invariant": "fresh drops by one each time an orange rots."
+    },
+    "31": {
+      "happening": "Queue the newly-rotten orange for minute {t}+1.",
+      "why": "Next minute it will rot its own fresh neighbors.",
+      "invariant": "Each orange enters the queue exactly once."
+    },
+    "32": [
+      {
+        "when": "fresh > 0",
+        "happening": "{fresh} fresh orange(s) never rotted — they were unreachable.",
+        "why": "Some fresh orange has no path from any rotten one.",
+        "invariant": "An unreachable fresh orange makes the task impossible."
+      },
+      {
+        "happening": "No fresh oranges remain — every one rotted.",
+        "why": "The spread reached the entire grid of fresh oranges.",
+        "invariant": "The elapsed time is a valid answer."
+      }
+    ],
+    "33": {
+      "happening": "Return -1 — not all oranges can rot.",
+      "why": "At least one fresh orange is unreachable.",
+      "invariant": "The result reports impossibility."
+    },
+    "34": {
+      "happening": "Return the elapsed minutes: {minutes}.",
+      "why": "Every orange rotted; this is when the last one did.",
+      "invariant": "minutes is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: seeding the queue with all rotten oranges and counting fresh ones.",
+      "why": "Multi-source BFS starts from every rotten orange at once.",
+      "invariant": "All sources begin at minute 0."
+    },
+    "loop": {
+      "happening": "Spreading the rot outward from a rotten orange.",
+      "why": "Each rotten orange infects its fresh 4-neighbors.",
+      "invariant": "Oranges rot in waves of increasing minutes."
+    },
+    "check": {
+      "happening": "Deciding whether a neighbor can rot, or whether any fresh orange survived.",
+      "why": "Only in-bounds fresh oranges rot; leftovers mean -1.",
+      "invariant": "Each fresh orange rots at most once."
+    },
+    "update": {
+      "happening": "Recording the spread — rotting an orange and queuing it for next minute.",
+      "why": "State must reflect which oranges have rotted and when.",
+      "invariant": "fresh drops as oranges rot; minutes only grows."
+    },
+    "move": {
+      "happening": "Advancing the wavefront — dequeuing an orange and reaching toward neighbors.",
+      "why": "Breadth-first spreads the rot minute by minute.",
+      "invariant": "Each orange is processed once."
+    },
+    "return": {
+      "happening": "Spread complete — reporting the elapsed minutes (or -1).",
+      "why": "Either all oranges rotted, or some were unreachable.",
+      "invariant": "The result is final."
+    }
+  }
+}

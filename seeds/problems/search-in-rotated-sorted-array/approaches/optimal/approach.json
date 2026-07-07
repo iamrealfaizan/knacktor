@@ -1,0 +1,58 @@
+{
+  "id": "optimal",
+  "name": "Modified Binary Search",
+  "kind": "optimal",
+  "summary": "Binary search where, at each midpoint, one side is guaranteed sorted; decide whether the target lies in that sorted side and discard the other half.",
+  "visualizationIntent": "init: the full array is the active window with left at the start and right at the end. update: mid is computed and highlighted as current. check: the code decides which half is sorted and whether the target lives there. move: the window collapses to one half, dimming the discarded cells. match: when nums[mid] equals target the cell turns result-green and the index is returned. return: on an exhausted window the search reports -1.",
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.search",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi",
+    "mid": "current",
+    "target": "special"
+  },
+  "lineExplanations": {
+    "3": "Start the left boundary at the first index.",
+    "4": "Start the right boundary at the last index.",
+    "5": "Keep searching while the window still contains at least one element.",
+    "6": "Pick the middle index of the current window.",
+    "7": "Check whether the middle element is the target.",
+    "8": "Return the middle index because the target was found.",
+    "9": "Decide whether the left half of the window is the sorted one.",
+    "10": "In a sorted left half, check whether the target lies inside it.",
+    "11": "Discard the right half by moving the right boundary left of mid.",
+    "13": "Otherwise discard the left half by moving the left boundary right of mid.",
+    "15": "In a sorted right half, check whether the target lies inside it.",
+    "16": "Discard the left half by moving the left boundary right of mid.",
+    "18": "Otherwise discard the right half by moving the right boundary left of mid.",
+    "19": "Return -1 because the window emptied without finding the target."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def search(self, nums, target): defines the method receiving nums and target.",
+    "3": "left = 0 sets the left boundary to the first index.",
+    "4": "right = len(nums) - 1 sets the right boundary to the last index.",
+    "5": "while left <= right: repeats while the window is non-empty.",
+    "6": "mid = (left + right) // 2 computes the middle index using integer division.",
+    "7": "if nums[mid] == target: is true when the middle value equals the target.",
+    "8": "return mid sends back the found index and stops.",
+    "9": "if nums[left] <= nums[mid]: is true when the left half is sorted.",
+    "10": "if nums[left] <= target and target < nums[mid]: tests whether target is inside the sorted left half.",
+    "11": "right = mid - 1 shrinks the window to the left half.",
+    "12": "else: runs when the target is not in the sorted left half.",
+    "13": "left = mid + 1 shrinks the window to the right half.",
+    "14": "else: runs when the right half is the sorted one.",
+    "15": "if nums[mid] < target and target <= nums[right]: tests whether target is inside the sorted right half.",
+    "16": "left = mid + 1 shrinks the window to the right half.",
+    "17": "else: runs when the target is not in the sorted right half.",
+    "18": "right = mid - 1 shrinks the window to the left half.",
+    "19": "return -1 reports that the target is absent."
+  }
+}

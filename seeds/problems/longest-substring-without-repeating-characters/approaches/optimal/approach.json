@@ -1,0 +1,60 @@
+{
+  "id": "optimal",
+  "name": "Sliding Window with Last-Seen Map",
+  "kind": "optimal",
+  "summary": "Grow a window to the right one character at a time; when a repeat inside the window appears, jump the left edge just past the previous occurrence.",
+  "visualizationIntent": "init: show the whole string with an empty window at the left. loop: the right edge extends to include the next character, which flashes as current, and the highlighted window band grows. move: on a repeat, the left edge leaps to just after the earlier copy, collapsing the window and marking the skipped-over cells as visited. update: whenever the window is the longest so far, record its length as the new best. return: report the largest window length seen.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(min(n, alphabet))"
+  },
+  "language": "python",
+  "entrypoint": "Solution.lengthOfLongestSubstring",
+  "primaryPrimitive": "array",
+  "auxStructures": [
+    "hashmap"
+  ],
+  "resultSpec": {
+    "varName": "best",
+    "label": "LONGEST",
+    "render": "scalar"
+  },
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-i",
+    "ch": "current",
+    "window": "compared",
+    "best": "result",
+    "seen": "special"
+  },
+  "lineExplanations": {
+    "3": "Create a map remembering the most recent index where each character was seen.",
+    "4": "Start the left edge of the window at the beginning of the string.",
+    "5": "Track the length of the longest valid window found so far.",
+    "6": "Extend the right edge across every character of the string.",
+    "7": "Read the character now entering the window on the right.",
+    "8": "Check whether this character already sits inside the current window.",
+    "9": "Jump the left edge to just after the earlier copy so the window has no repeats.",
+    "10": "Record this character's latest index in the map.",
+    "11": "Measure the current window's length.",
+    "12": "Check whether this window is the longest seen so far.",
+    "13": "Update the best length to this new, longer window.",
+    "14": "Return the length of the longest substring without repeats."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def lengthOfLongestSubstring(self, s): defines the method receiving the string s.",
+    "3": "seen = {} creates an empty dictionary of character to last index.",
+    "4": "left = 0 sets the left window edge to the first index.",
+    "5": "best = 0 initializes the largest window length found.",
+    "6": "for right in range(len(s)): loops right over every index of s.",
+    "7": "ch = s[right] reads the character at the right edge.",
+    "8": "if ch in seen and seen[ch] >= left: is true when ch already lies within the window.",
+    "9": "left = seen[ch] + 1 moves the left edge past the earlier duplicate.",
+    "10": "seen[ch] = right stores the current index as this character's latest position.",
+    "11": "window = right - left + 1 computes the number of characters in the window.",
+    "12": "if window > best: checks whether this window beats the record.",
+    "13": "best = window stores the new record length.",
+    "14": "return best sends back the answer."
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "flags": {
+    "isMatch": "left < right && nums[i] + nums[left] + nums[right] == 0",
+    "sweeping": "left < right"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == i || idx == left || idx == right",
+      "onlyWhen": "isMatch"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "compared",
+      "when": "(idx == left || idx == right) && sweeping"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "sweeping",
+    "expr": "nums[i]({nums[i]}) + nums[left]({nums[left]}) + nums[right]({nums[right]}) = {nums[i] + nums[left] + nums[right]}",
+    "relation": "triples found {len(result)}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "sums tested",
+      "onLines": [
+        11
+      ]
+    },
+    {
+      "name": "triples found",
+      "onLines": [
+        18
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        10
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6,
+        12,
+        14
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        11,
+        17,
+        18
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        8,
+        9,
+        13,
+        15,
+        19,
+        20,
+        21,
+        22
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        23
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 18,
+      "label": "Triplet found",
+      "kind": "match"
+    },
+    {
+      "line": 23,
+      "label": "All triplets",
+      "kind": "return"
+    }
+  ]
+}
