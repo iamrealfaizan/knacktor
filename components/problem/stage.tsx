@@ -140,8 +140,10 @@ export function getLeafViewBox(visual: LeafVisualState): { x: number; y: number;
 
 // ── Multi-structure layout (D19) ──────────────────────────────────────────────
 
-const DIVIDER_H = 28;
-const SIDE_GAP = 40;
+// Gap between the primary and an aux structure. GAP_STACK also has to leave
+// room for the section label that sits in the whitespace above each aux.
+const GAP_SIDE = 40;
+const GAP_STACK = 30;
 
 function isHorizontalPrimitive(type: string): boolean {
   return ["array", "bar-container", "linkedList", "queue"].includes(type);
@@ -151,14 +153,24 @@ function isVerticalPrimitive(type: string): boolean {
   return ["stack", "hashmap", "recursion"].includes(type);
 }
 
+/** Side-by-side vs stacked decision (unchanged rule): a horizontal primary with
+ *  a single vertical aux sits side-by-side; every other combo stacks. */
+function combinedMode(
+  primary: LeafVisualState,
+  aux: { visual: LeafVisualState }[]
+): "side-by-side" | "stacked" {
+  return isHorizontalPrimitive(primary.type) &&
+    aux.length === 1 &&
+    isVerticalPrimitive(aux[0].visual.type)
+    ? "side-by-side"
+    : "stacked";
+}
+
 interface AuxOffset {
   tx: number;
   ty: number;
-  /** y-coord of horizontal divider line (stacked) or x-coord of vertical divider line (side-by-side) */
-  dividerCoord: number;
   labelX: number;
   labelY: number;
-  label: string;
 }
 
 interface CombinedLayout {
@@ -169,94 +181,103 @@ interface CombinedLayout {
   auxOffsets: AuxOffset[];
 }
 
-export function computeCombinedLayout(
-  primary: LeafVisualState,
-  aux: { label: string; visual: LeafVisualState }[]
+/**
+ * Pack the primary + aux structures from their REAL bounding boxes (measured
+ * `getBBox` on the client; trimmed estimates on the SSR/first-paint fallback).
+ * Because positions derive from actual content extents, structures sit close
+ * together with a consistent gap, stay centered, and never overlap — and they
+ * re-pack automatically when a structure grows or shrinks between steps.
+ */
+export function packCombinedLayout(
+  mode: "side-by-side" | "stacked",
+  primaryBox: Box,
+  auxBoxes: Box[]
 ): CombinedLayout {
-  const pvb = getLeafViewBox(primary);
-  const avbs = aux.map((a) => getLeafViewBox(a.visual));
+  const pb = primaryBox;
 
-  const sideBySide =
-    isHorizontalPrimitive(primary.type) &&
-    aux.length === 1 &&
-    isVerticalPrimitive(aux[0].visual.type);
+  if (mode === "side-by-side") {
+    const ab = auxBoxes[0];
+    const halfW = (pb.w + GAP_SIDE + ab.w) / 2;
+    const maxH = Math.max(pb.h, ab.h);
 
-  if (sideBySide) {
-    const avb = avbs[0];
-    const halfW = (pvb.w + SIDE_GAP + avb.w) / 2;
-    const maxH = Math.max(pvb.h, avb.h);
+    // Center each structure vertically at combined y=0.
+    const primaryTy = -(pb.y + pb.h / 2);
+    const auxTy = -(ab.y + ab.h / 2);
+    // Primary left-aligned, aux right-aligned, combined centered at x=0.
+    const primaryTx = -halfW - pb.x;
+    const auxTx = -halfW + pb.w + GAP_SIDE - ab.x;
 
-    // Center each component vertically at combined y=0
-    const primaryTy = -(pvb.y + pvb.h / 2);
-    const auxTy = -(avb.y + avb.h / 2);
-
-    // Place primary left-aligned, aux right-aligned, combined centered at x=0
-    const primaryTx = -halfW - pvb.x;
-    const auxTx = -halfW + pvb.w + SIDE_GAP - avb.x;
-
-    const dividerX = -halfW + pvb.w + SIDE_GAP / 2;
-    // Label centered over aux area, near the top of the combined viewBox
-    const auxAreaCenterX = -halfW + pvb.w + SIDE_GAP + avb.w / 2;
-
+    const auxLeft = -halfW + pb.w + GAP_SIDE;
     return {
       viewBox: { x: -halfW, y: -maxH / 2, w: halfW * 2, h: maxH },
       mode: "side-by-side",
       primaryTx,
       primaryTy,
       auxOffsets: [
-        {
-          tx: auxTx,
-          ty: auxTy,
-          dividerCoord: dividerX,
-          labelX: auxAreaCenterX,
-          labelY: -maxH / 2 + 14,
-          label: aux[0].label,
-        },
+        { tx: auxTx, ty: auxTy, labelX: auxLeft, labelY: -ab.h / 2 - 8 },
       ],
     };
   }
 
-  // Stacked: center everything at x=0, stack top-to-bottom.
-  // Use per-type content bounds (not full viewbox bounds) to avoid large dead-space gaps.
-  const primaryCx = pvb.x + pvb.w / 2;
-  const maxW = Math.max(pvb.w, ...avbs.map((v) => v.w));
+  // Stacked: center everything horizontally at x=0, pack top→bottom by real
+  // content bottoms — no per-type estimate tables, so no dead-space gaps.
+  const maxW = Math.max(pb.w, ...auxBoxes.map((v) => v.w));
+  const primaryCx = pb.x + pb.w / 2;
 
-  // Content bottom: where actual rendered content ends (not viewbox bottom).
-  const CONTENT_BOTTOM: Partial<Record<string, number>> = {
-    linkedList: 100, array: 80, stack: 80, queue: 44,
-  };
-  // Content top: where actual rendered content starts inside the aux viewbox.
-  const CONTENT_TOP: Partial<Record<string, number>> = {
-    array: -36, linkedList: -70, stack: -24, queue: -24,
-  };
-
-  let curY = CONTENT_BOTTOM[primary.type] ?? (pvb.y + pvb.h);
+  let curY = pb.y + pb.h; // measured bottom of the primary
   const auxOffsets: AuxOffset[] = [];
-
-  for (let i = 0; i < aux.length; i++) {
-    const avb = avbs[i];
-    const auxCx = avb.x + avb.w / 2;
-    const contentTop = CONTENT_TOP[aux[i].visual.type] ?? avb.y;
-    const dividerCoord = curY + DIVIDER_H / 2;
-    const ty = curY + DIVIDER_H - contentTop;
+  for (const ab of auxBoxes) {
+    const auxTop = curY + GAP_STACK;             // aux content top sits below the gap
+    const ty = auxTop - ab.y;                     // translate so ab.y lands at auxTop
     auxOffsets.push({
-      tx: -auxCx,
+      tx: -(ab.x + ab.w / 2),                     // center this aux on x=0
       ty,
-      dividerCoord,
-      labelX: -maxW / 2 + 12,
-      labelY: dividerCoord - 6,
-      label: aux[i].label,
+      labelX: -maxW / 2,                          // left-aligned label
+      labelY: auxTop - 6,                         // in the whitespace just above the aux
     });
-    curY = ty + avb.y + avb.h;
+    curY = auxTop + ab.h;                          // advance to this aux's bottom
   }
 
   return {
-    viewBox: { x: -maxW / 2, y: pvb.y, w: maxW, h: curY - pvb.y },
+    viewBox: { x: -maxW / 2, y: pb.y, w: maxW, h: curY - pb.y },
     mode: "stacked",
     primaryTx: -primaryCx,
     primaryTy: 0,
     auxOffsets,
   };
+}
+
+/**
+ * Trimmed per-type content box for the pre-measurement fallback (SSR + first
+ * paint). `getLeafViewBox` reserves fixed over-tall boxes for tree/graph/etc.;
+ * these trims keep the fallback frame reasonable until the client re-measures
+ * the real `getBBox`. Types not listed use their estimate as-is.
+ */
+function estimateContentBox(v: LeafVisualState): Box {
+  const vb = getLeafViewBox(v);
+  const TRIM: Partial<Record<string, { top: number; h: number }>> = {
+    array: { top: -40, h: 120 },
+    linkedList: { top: -72, h: 180 },
+    queue: { top: -30, h: 110 },
+    tree: { top: -40, h: 280 },
+    graph: { top: -40, h: 320 },
+  };
+  const t = TRIM[v.type];
+  return t ? { x: vb.x, y: t.top, w: vb.w, h: t.h } : vb;
+}
+
+/** Estimate-based combined layout — the SSR / first-paint fallback. The client
+ *  overrides this with a measured layout after mount (see Stage). */
+export function computeCombinedLayout(
+  primary: LeafVisualState,
+  aux: { label: string; visual: LeafVisualState }[]
+): CombinedLayout {
+  const mode = combinedMode(primary, aux);
+  return packCombinedLayout(
+    mode,
+    estimateContentBox(primary),
+    aux.map((a) => estimateContentBox(a.visual))
+  );
 }
 
 // ── Render a single leaf primitive (SVG elements) ─────────────────────────────
@@ -286,16 +307,68 @@ export function LeafRenderer({
 type Box = { x: number; y: number; w: number; h: number };
 
 const FIT_PAD = 44;
+/** Ignore sub-pixel center drift so the camera doesn't jitter step-to-step. */
+const CAM_DEADZONE = 8;
 
-function unionBox(a: Box, b: Box): Box {
-  const x = Math.min(a.x, b.x);
-  const y = Math.min(a.y, b.y);
+type Size = { w: number; h: number };
+interface Camera {
+  /** Auto-center translate: brings the content's center to the viewBox origin. */
+  autoT: { x: number; y: number };
+  /** Grow-only frame size (governs zoom); viewBox is derived, centered on origin. */
+  camSize: Size;
+}
+
+/**
+ * Compute the next auto-centering camera from the measured content box.
+ * - `autoT` tracks the content center (so it stays centered), guarded by a
+ *   deadzone so a barely-moving center doesn't cause jitter.
+ * - `camSize` is GROW-ONLY per dimension: the frame only widens when content
+ *   outgrows it, never snaps tighter — so the zoom level stays stable ("no
+ *   breathing"). `reset()` bypasses this to snap to an exact fit.
+ * Returns the previous camera unchanged when nothing moved materially.
+ */
+export function nextCamera(prev: Camera | null, content: Box): Camera {
+  const cx = content.x + content.w / 2;
+  const cy = content.y + content.h / 2;
+  const wantT = { x: -cx, y: -cy };
+  const needW = content.w + FIT_PAD * 2;
+  const needH = content.h + FIT_PAD * 2;
+
+  if (!prev) return { autoT: wantT, camSize: { w: needW, h: needH } };
+
+  const moved =
+    Math.abs(wantT.x - prev.autoT.x) > CAM_DEADZONE ||
+    Math.abs(wantT.y - prev.autoT.y) > CAM_DEADZONE;
+  const w = Math.max(prev.camSize.w, needW);
+  const h = Math.max(prev.camSize.h, needH);
+  const grew = w !== prev.camSize.w || h !== prev.camSize.h;
+
+  if (!moved && !grew) return prev;
   return {
-    x,
-    y,
-    w: Math.max(a.x + a.w, b.x + b.w) - x,
-    h: Math.max(a.y + a.h, b.y + b.h) - y,
+    autoT: moved ? wantT : prev.autoT,
+    camSize: grew ? { w, h } : prev.camSize,
   };
+}
+
+/** viewBox derived from a grow-only frame size, centered on the origin. */
+function cameraViewBox(camSize: Size): Box {
+  return { x: -camSize.w / 2, y: -camSize.h / 2, w: camSize.w, h: camSize.h };
+}
+
+/** Whole-pixel equality of two combined layouts — avoids re-render churn when a
+ *  re-measure yields the same geometry. */
+function layoutsClose(a: CombinedLayout | null, b: CombinedLayout): boolean {
+  if (!a || a.mode !== b.mode || a.auxOffsets.length !== b.auxOffsets.length) return false;
+  const r = Math.round;
+  const boxEq = (p: Box, q: Box) =>
+    r(p.x) === r(q.x) && r(p.y) === r(q.y) && r(p.w) === r(q.w) && r(p.h) === r(q.h);
+  if (!boxEq(a.viewBox, b.viewBox)) return false;
+  if (r(a.primaryTx) !== r(b.primaryTx) || r(a.primaryTy) !== r(b.primaryTy)) return false;
+  return a.auxOffsets.every((o, i) => {
+    const p = b.auxOffsets[i];
+    return r(o.tx) === r(p.tx) && r(o.ty) === r(p.ty) &&
+      r(o.labelX) === r(p.labelX) && r(o.labelY) === r(p.labelY);
+  });
 }
 
 export function Stage({
@@ -316,44 +389,75 @@ export function Stage({
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinch = useRef<{ dist: number; scale: number } | null>(null);
 
-  // ── Measured auto-fit ──────────────────────────────────────────────────────
-  // The heuristic getLeafViewBox() is only the SSR/first-paint estimate; after
-  // mount we measure the real content bbox. The box GROWS whenever content
-  // exceeds it (never shrinks per step — "animate state, not layout"), and the
-  // Reset button snaps it back to an exact fit of the current content.
-  const contentRef = useRef<SVGGElement | null>(null);
-  const [fitBox, setFitBox] = useState<Box | null>(null);
+  // ── Measured combined layout ────────────────────────────────────────────
+  // Positions of the primary vs aux structures come from their REAL rendered
+  // size, not fixed per-type estimates. We measure each leaf's intrinsic
+  // getBBox (which ignores the leaf group's own transform, so measurement is
+  // independent of the applied layout — no feedback loop), then re-pack so the
+  // structures sit close with a consistent gap and never overlap. The estimate
+  // layout is only the first-paint fallback until this runs.
+  const primaryLeafRef = useRef<SVGGElement | null>(null);
+  const auxLeafRefs = useRef<(SVGGElement | null)[]>([]);
+  const [measuredLayout, setMeasuredLayout] = useState<CombinedLayout | null>(null);
 
-  const measure = (): Box | null => {
+  useLayoutEffect(() => {
+    if (visual.type !== "combined") {
+      setMeasuredLayout((prev) => (prev === null ? prev : null));
+      return;
+    }
+    const cv = visual as CombinedVisualState;
+    const bboxOf = (el: SVGGElement | null): Box | null => {
+      if (!el) return null;
+      try {
+        const b = el.getBBox();
+        if (!isFinite(b.width) || b.width <= 0 || b.height <= 0) return null;
+        return { x: b.x, y: b.y, w: b.width, h: b.height };
+      } catch {
+        return null; // getBBox throws on a detached/hidden SVG
+      }
+    };
+    const pBox = bboxOf(primaryLeafRef.current);
+    const aBoxes = cv.aux.map((_, i) => bboxOf(auxLeafRefs.current[i]));
+    if (!pBox || aBoxes.some((b) => b === null)) return; // wait for a clean read
+    const next = packCombinedLayout(
+      combinedMode(cv.primary, cv.aux),
+      pBox,
+      aBoxes as Box[]
+    );
+    setMeasuredLayout((prev) => (layoutsClose(prev, next) ? prev : next));
+  }, [visual]);
+
+  // ── Auto-centering camera ───────────────────────────────────────────────
+  // Each step we measure the real content bbox and glide the camera so the
+  // content stays CENTERED. The frame size is grow-only (zoom stays stable —
+  // no "breathing"); the recenter is expressed as an animated translate on the
+  // camera <g> (its transform is CSS-transitioned). Auto-centering YIELDS once
+  // the user pans/zooms (manualCam) until Reset, which snaps to an exact fit.
+  const contentRef = useRef<SVGGElement | null>(null);
+  const [camera, setCamera] = useState<Camera | null>(null);
+  const manualCam = useRef(false);
+
+  /** Raw world-space content box (getBBox ignores the group's own transform). */
+  const measureContent = (): Box | null => {
     const el = contentRef.current;
     if (!el) return null;
     try {
       const b = el.getBBox();
       if (!isFinite(b.width) || b.width <= 0 || b.height <= 0) return null;
-      return {
-        x: b.x - FIT_PAD,
-        y: b.y - FIT_PAD,
-        w: b.width + FIT_PAD * 2,
-        h: b.height + FIT_PAD * 2,
-      };
+      return { x: b.x, y: b.y, w: b.width, h: b.height };
     } catch {
       return null; // getBBox throws on detached/hidden SVG
     }
   };
 
   useLayoutEffect(() => {
-    const m = measure();
-    if (!m) return;
-    setFitBox((prev) => {
-      if (!prev) return m;
-      const grown = unionBox(prev, m);
-      // Only update when content actually outgrew the box (avoids re-render churn).
-      return grown.x !== prev.x || grown.y !== prev.y || grown.w !== prev.w || grown.h !== prev.h
-        ? grown
-        : prev;
-    });
-    // Re-measure on every step's visual — content can grow at any step.
-  }, [visual]);
+    if (manualCam.current) return; // user is driving the camera — don't fight them
+    const b = measureContent();
+    if (!b) return;
+    setCamera((prev) => nextCamera(prev, b));
+    // Re-measure per step, and again after a combined re-pack settles, so the
+    // camera re-centers on the final rendered content.
+  }, [visual, measuredLayout]);
 
   // ── Custom HTML renderer bypass (D17) — skips SVG canvas entirely ─────────
   if (visual.type === "custom") {
@@ -382,11 +486,13 @@ export function Stage({
   }
 
   function onWheel(e: React.WheelEvent) {
+    manualCam.current = true; // user took the camera — stop auto-centering until Reset
     const next = Math.max(0.5, Math.min(2.6, scale - e.deltaY * 0.0012));
     setScale(next);
   }
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("button")) return;
+    manualCam.current = true; // drag/pinch = manual camera control
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
@@ -428,23 +534,30 @@ export function Stage({
   function reset() {
     setScale(1);
     setPan({ x: 0, y: 0 });
-    // Refit exactly to the CURRENT content (discard grow-only history).
-    const m = measure();
-    if (m) setFitBox(m);
+    manualCam.current = false; // re-enable auto-centering
+    // Snap to an EXACT fit of the current content (allowed to shrink here only).
+    const b = measureContent();
+    if (b) setCamera(nextCamera(null, b));
   }
 
   const isCombined = visual.type === "combined";
-  const combinedLayout = isCombined
-    ? computeCombinedLayout(
+  // Measured layout wins once available; the estimate layout is the
+  // SSR/first-paint fallback until the leaves are measured.
+  const layout = isCombined
+    ? measuredLayout ??
+      computeCombinedLayout(
         (visual as CombinedVisualState).primary,
         (visual as CombinedVisualState).aux
       )
     : null;
 
-  // Measured fit wins once available; heuristic box is the SSR/first-paint estimate.
+  // Auto-centering camera wins once measured; heuristic box is the
+  // SSR/first-paint estimate (autoT is 0 until the first measure, pre-paint).
   const vb =
-    fitBox ??
-    (isCombined ? combinedLayout!.viewBox : getLeafViewBox(visual as LeafVisualState));
+    camera
+      ? cameraViewBox(camera.camSize)
+      : isCombined ? layout!.viewBox : getLeafViewBox(visual as LeafVisualState);
+  const autoT = camera?.autoT ?? { x: 0, y: 0 };
 
   const legendType = isCombined
     ? (visual as CombinedVisualState).primary.type
@@ -490,13 +603,17 @@ export function Stage({
       >
         <g
           ref={contentRef}
-          transform={`translate(${pan.x} ${pan.y}) scale(${scale})`}
-          style={{ transition: drag.current || pinch.current ? "none" : "transform 0.15s ease" }}
+          transform={`translate(${pan.x} ${pan.y}) scale(${scale}) translate(${autoT.x} ${autoT.y})`}
+          style={{ transition: drag.current || pinch.current ? "none" : "transform 0.25s ease" }}
         >
           {isCombined ? (
             <>
-              {/* Primary */}
-              <g transform={`translate(${combinedLayout!.primaryTx} ${combinedLayout!.primaryTy})`}>
+              {/* Primary — ref carries the layout translate; getBBox on it
+                  ignores that transform, giving the intrinsic content box. */}
+              <g
+                ref={primaryLeafRef}
+                transform={`translate(${layout!.primaryTx} ${layout!.primaryTy})`}
+              >
                 <LeafRenderer
                   visual={(visual as CombinedVisualState).primary}
                   vars={vars}
@@ -504,61 +621,28 @@ export function Stage({
                 />
               </g>
 
-              {/* Each aux structure with divider */}
+              {/* Each aux structure — no drawn divider; a left-aligned label
+                  sits in the whitespace just above the structure. */}
               {(visual as CombinedVisualState).aux.map((a, i) => {
-                const off = combinedLayout!.auxOffsets[i];
-                const lyt = combinedLayout!;
+                const off = layout!.auxOffsets[i];
                 return (
                   <g key={i}>
-                    {lyt.mode === "stacked" && (
-                      <>
-                        <line
-                          x1={lyt.viewBox.x}
-                          y1={off.dividerCoord}
-                          x2={lyt.viewBox.x + lyt.viewBox.w}
-                          y2={off.dividerCoord}
-                          stroke="var(--kn-border-0)"
-                          strokeWidth={1}
-                        />
-                        <text
-                          x={off.labelX}
-                          y={off.labelY}
-                          fill="var(--kn-ink-2)"
-                          fontSize={10}
-                          fontFamily="JetBrains Mono, monospace"
-                          fontWeight="700"
-                          letterSpacing="0.1em"
-                          textAnchor="start"
-                        >
-                          {off.label.toUpperCase()}
-                        </text>
-                      </>
-                    )}
-                    {lyt.mode === "side-by-side" && (
-                      <>
-                        <line
-                          x1={off.dividerCoord}
-                          y1={lyt.viewBox.y}
-                          x2={off.dividerCoord}
-                          y2={lyt.viewBox.y + lyt.viewBox.h}
-                          stroke="var(--kn-border-0)"
-                          strokeWidth={1}
-                        />
-                        <text
-                          x={off.labelX}
-                          y={off.labelY}
-                          fill="var(--kn-ink-2)"
-                          fontSize={10}
-                          fontFamily="JetBrains Mono, monospace"
-                          fontWeight="700"
-                          letterSpacing="0.1em"
-                          textAnchor="middle"
-                        >
-                          {off.label.toUpperCase()}
-                        </text>
-                      </>
-                    )}
-                    <g transform={`translate(${off.tx} ${off.ty})`}>
+                    <text
+                      x={off.labelX}
+                      y={off.labelY}
+                      fill="var(--kn-ink-2)"
+                      fontSize={10}
+                      fontFamily="JetBrains Mono, monospace"
+                      fontWeight="700"
+                      letterSpacing="0.1em"
+                      textAnchor="start"
+                    >
+                      {a.label.toUpperCase()}
+                    </text>
+                    <g
+                      ref={(el) => { auxLeafRefs.current[i] = el; }}
+                      transform={`translate(${off.tx} ${off.ty})`}
+                    >
                       <LeafRenderer visual={a.visual} vars={vars} target={target} />
                     </g>
                   </g>
@@ -573,10 +657,10 @@ export function Stage({
 
       {/* zoom controls — +/- are desktop-only; mobile zooms via pinch */}
       <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1.5">
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2.6, s + 0.15))} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
+        <Button size="icon" variant="outline" onClick={() => { manualCam.current = true; setScale((s) => Math.min(2.6, s + 0.15)); }} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Plus className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.15))} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
+        <Button size="icon" variant="outline" onClick={() => { manualCam.current = true; setScale((s) => Math.max(0.5, s - 0.15)); }} className="max-lg:hidden h-8 w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">
           <Minus className="h-4 w-4" />
         </Button>
         <Button size="icon" variant="outline" onClick={reset} className="h-9 w-9 lg:h-8 lg:w-8 border-kn-border-0 bg-kn-surface-0 touch-manipulation">

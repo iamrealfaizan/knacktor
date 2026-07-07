@@ -25,7 +25,7 @@ Animation classes live in `app/globals.css`: `kn-anim-pop-in`, `kn-anim-write-po
 
 **Reduced motion**: inline SVG `transition`s are neutralized globally by the `.kn-stage-root` rule (stage container carries the class) — do NOT thread a hook through render paths; use `useReducedMotion()` only for `setTimeout`/stagger-delay logic.
 
-**Stage auto-fit**: `stage.tsx` measures the camera group's `getBBox()` after mount (grow-only per step; Reset refits exactly). `getLeafViewBox()` remains only the SSR/first-paint estimate — don't tune magic numbers to fix clipping.
+**Stage camera (auto-centering)**: `stage.tsx` measures the camera group's `getBBox()` each step and glides the camera so content stays **centered** (`nextCamera` → `autoT` translate on the camera `<g>`, CSS-transitioned). The frame **size** is grow-only (zoom stays stable — never snaps tighter, only widens when content outgrows it), with an ~8px deadzone against jitter. Auto-centering **yields to manual pan/zoom** (`manualCam` ref) until **Reset**, which snaps to an exact fit. `getLeafViewBox()` remains only the SSR/first-paint estimate — don't tune magic numbers to fix clipping.
 
 ---
 
