@@ -10,6 +10,7 @@ import { cellStateStyle } from "./shared/cell-state";
 import { MOTION } from "./shared/motion";
 import { PointerPill, ptrColor } from "./shared/pointer-pill";
 import { PopIn } from "./shared/atoms";
+import { orthogonalDetourPath } from "./shared/edge-path";
 
 const NODE_W = 84;      // value box (52) + pointer box (32)
 const VAL_W = 52;
@@ -62,6 +63,73 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
 
   // build id → index map (kept for any legacy callers; not used for layout)
   const idxOf: Record<string, number> = posOf;
+
+  // ── Orthogonal detour routing ───────────────────────────────────────
+  // Adjacent-forward links (j === i+1) stay as straight horizontal arrows.
+  // Any link that SKIPS nodes — a forward jump, a backward/cycle link, or a
+  // transient mid-rewire — would slice straight through intervening nodes, so
+  // it is routed up/down into a dedicated horizontal lane instead. Lanes are
+  // auto-assigned (greedy interval coloring) so overlapping detours never
+  // share a lane, and alternate above/below the row to balance the two sides.
+  const NODE_TOP = -NODE_H / 2;
+  const NODE_BOTTOM = NODE_H / 2;
+  const LANE_GAP = 16;   // clearance from the row edge to the first lane
+  const LANE_PITCH = 22; // vertical spacing between stacked lanes on a side
+  // Reserve a band below the row for the pointer pills (prev/curr/slow/fast…)
+  // so below-row detours never collide with them.
+  const nPtr = pointers.length;
+  const pillBottom = nPtr > 0 ? NODE_BOTTOM + 10 + (nPtr - 1) * 22 + 18 : NODE_BOTTOM;
+  const BELOW_RESERVE = (nPtr > 0 ? pillBottom + 14 : NODE_BOTTOM + LANE_GAP);
+
+  const isAdjacentForward = (i: number, j: number) => j === i + 1;
+
+  type Detour = { key: string; lo: number; hi: number };
+  const detours: Detour[] = [];
+  nodes.forEach((nd) => {
+    const toId = linkMap[nd.id];
+    if (toId === undefined || toId === null) return;
+    const i = posOf[nd.id];
+    const j = posOf[String(toId)];
+    if (i === undefined || j === undefined) return;
+    if (isAdjacentForward(i, j)) return;
+    detours.push({ key: `${nd.id}->${toId}`, lo: Math.min(i, j), hi: Math.max(i, j) });
+  });
+
+  // Greedy interval coloring → global lane index. A detour joins the lowest
+  // lane whose last-placed interval ends strictly before this one begins
+  // (strict, so two detours touching at a node column don't overlap verticals).
+  const laneEnds: number[] = [];
+  const globalLane: Record<string, number> = {};
+  [...detours]
+    .sort((a, b) => a.lo - b.lo || a.hi - b.hi)
+    .forEach((d) => {
+      let k = 0;
+      for (; k < laneEnds.length; k++) if (d.lo > laneEnds[k]) break;
+      laneEnds[k] = d.hi;
+      globalLane[d.key] = k;
+    });
+
+  // Map a global lane to a concrete horizontal lane Y (even → above, odd → below).
+  const laneYForGlobal = (k: number): number => {
+    const sub = Math.floor(k / 2);
+    return k % 2 === 0
+      ? NODE_TOP - LANE_GAP - sub * LANE_PITCH
+      : BELOW_RESERVE + sub * LANE_PITCH;
+  };
+
+  // Build the routed (or straight) path string for a link from slot i → slot j.
+  // `key` selects the assigned lane; a link not in the base set (rare, e.g. a
+  // changedLink being cleared) falls back to lane 0 (above).
+  const linkPathFor = (i: number, j: number, key: string): string => {
+    if (isAdjacentForward(i, j)) {
+      return `M ${xOf(i) + NODE_W} 0 L ${xOf(j) - 8} 0`;
+    }
+    const laneY = laneYForGlobal(globalLane[key] ?? 0);
+    const y0 = laneY < 0 ? NODE_TOP : NODE_BOTTOM;
+    const sx = xOf(i) + VAL_W + PTR_W / 2; // depart from the source pointer box
+    const tx = xOf(j) + NODE_W / 2;        // arrive at the target node center
+    return orthogonalDetourPath(sx, tx, y0, laneY);
+  };
 
   return (
     <>
@@ -146,21 +214,19 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
         );
       })}
 
-      {/* Base link arrows — rendered after nodes so backward arrows show on top */}
+      {/* Base link arrows — rendered after nodes so detour arrows show on top.
+          Adjacent-forward links are straight; skip/backward links route through
+          an assigned orthogonal lane (see linkPathFor). */}
       {nodes.map((nd) => {
         const toId = linkMap[nd.id];
         if (toId === undefined || toId === null) return null;
         const i = posOf[nd.id];
-        const j = posOf[toId];
+        const j = posOf[String(toId)];
         if (i === undefined || j === undefined) return null;
-        const isBackward = j < i;
-        const pathD = isBackward
-          ? `M ${xOf(i) + NODE_W} 0 L ${xOf(j) + NODE_W + 8} 0`
-          : `M ${xOf(i) + NODE_W} 0 L ${xOf(j) - 8} 0`;
         return (
           <path
             key={`arrow-${nd.id}`}
-            d={pathD}
+            d={linkPathFor(i, j, `${nd.id}->${toId}`)}
             stroke="var(--kn-ink-2)"
             strokeWidth={1.5}
             fill="none"
@@ -171,20 +237,18 @@ export function LinkedListRenderer({ visual }: { visual: LinkedListVisualState }
       })}
 
       {/* changedLinks — the re-link crux (B-4): the NEW arrow visibly DRAWS
-          from source to destination (stroke-dashoffset), green, on top. */}
+          from source to destination (stroke-dashoffset), green, on top. Routes
+          through the same assigned lane as its base link when non-adjacent, so
+          the draw-in plays along the routed path. */}
       {(visual.changedLinks ?? []).map((lk) => {
         const fi = idxOf[lk.from];
         if (fi === undefined) return null;
-        const ti = idxOf[lk.to];
+        const ti = idxOf[String(lk.to)];
         if (ti === undefined) return null;
-        const isBackward = ti < fi;
-        const pathD = isBackward
-          ? `M ${xOf(fi) + NODE_W} 0 L ${xOf(ti) + NODE_W + 8} 0`
-          : `M ${xOf(fi) + NODE_W} 0 L ${xOf(ti) - 8} 0`;
         return (
           <path
             key={`changed-arrow-${lk.from}-${lk.to}`}
-            d={pathD}
+            d={linkPathFor(fi, ti, `${lk.from}->${lk.to}`)}
             pathLength={1}
             className="kn-anim-draw-in"
             stroke="var(--kn-result)"

@@ -73,18 +73,11 @@ export function renderStageSvg(visual: VisualState): string {
     ];
     c.aux.forEach((a, i) => {
       const off = layout.auxOffsets[i];
-      if (layout.mode === "stacked") {
-        parts.push(
-          `<line x1="${layout.viewBox.x}" y1="${off.dividerCoord}" x2="${layout.viewBox.x + layout.viewBox.w}" y2="${off.dividerCoord}" stroke="var(--kn-border-0)" stroke-width="1"/>`,
-          `<text x="${off.labelX}" y="${off.labelY}" fill="var(--kn-ink-2)" font-size="10" font-weight="700" text-anchor="start">${off.label.toUpperCase()}</text>`
-        );
-      } else {
-        parts.push(
-          `<line x1="${off.dividerCoord}" y1="${layout.viewBox.y}" x2="${off.dividerCoord}" y2="${layout.viewBox.y + layout.viewBox.h}" stroke="var(--kn-border-0)" stroke-width="1"/>`,
-          `<text x="${off.labelX}" y="${off.labelY}" fill="var(--kn-ink-2)" font-size="10" font-weight="700" text-anchor="middle">${off.label.toUpperCase()}</text>`
-        );
-      }
-      parts.push(`<g transform="translate(${off.tx} ${off.ty})">${leafMarkup(a.visual)}</g>`);
+      // No drawn divider — a left-aligned label sits in the whitespace above.
+      parts.push(
+        `<text x="${off.labelX}" y="${off.labelY}" fill="var(--kn-ink-2)" font-size="10" font-weight="700" text-anchor="start">${a.label.toUpperCase()}</text>`,
+        `<g transform="translate(${off.tx} ${off.ty})">${leafMarkup(a.visual)}</g>`
+      );
     });
     return svgWrap(layout.viewBox, parts.join(""));
   }
