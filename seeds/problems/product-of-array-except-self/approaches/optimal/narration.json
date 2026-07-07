@@ -1,0 +1,81 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We record n, the number of elements.",
+      "why": "Both passes iterate over exactly n indices.",
+      "invariant": "n is the length of nums."
+    },
+    "4": {
+      "happening": "We build answer as a list of n ones.",
+      "why": "Starting from one lets us multiply products in without special cases.",
+      "invariant": "answer currently holds a neutral value in every cell."
+    },
+    "5": {
+      "happening": "The running prefix product starts at one.",
+      "why": "Before index 0 there are no elements to the left, so the product is one.",
+      "invariant": "prefix equals the product of all elements strictly left of index i."
+    },
+    "6": {
+      "happening": "The pointer i sweeps forward to the next index.",
+      "why": "The forward pass fills each cell with the product of everything to its left.",
+      "invariant": "Cells before i already hold their left-side products."
+    },
+    "7": {
+      "happening": "We write the current prefix into answer[{i}].",
+      "why": "answer[i] should equal the product of all elements to the left of i.",
+      "invariant": "answer[i] now equals the product of elements strictly left of i."
+    },
+    "8": {
+      "happening": "We multiply nums[{i}] into prefix.",
+      "why": "The next cell needs a prefix that includes the current element.",
+      "invariant": "prefix now equals the product of all elements up to and including i."
+    },
+    "9": {
+      "happening": "The running suffix product starts at one.",
+      "why": "Past the last index there are no elements to the right, so the product is one.",
+      "invariant": "suffix equals the product of all elements strictly right of i."
+    },
+    "10": {
+      "happening": "The pointer i sweeps backward to the next index.",
+      "why": "The backward pass multiplies in the product of everything to each cell's right.",
+      "invariant": "Cells after i already hold their finished products."
+    },
+    "11": {
+      "happening": "We multiply answer[{i}] by the running suffix.",
+      "why": "Combining the stored left product with the right product gives the answer for i.",
+      "invariant": "answer[i] now equals the product of every element except nums[i]."
+    },
+    "12": {
+      "happening": "We multiply nums[{i}] into suffix.",
+      "why": "The next cell to the left needs a suffix that includes the current element.",
+      "invariant": "suffix now equals the product of all elements from i to the end."
+    },
+    "13": {
+      "happening": "We return answer.",
+      "why": "Both passes are done, so every cell holds its final product.",
+      "invariant": "answer[i] equals the product of all elements except nums[i] for every i."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Prepare the length, the all-ones answer array, and the prefix product.",
+      "why": "The two passes build on a neutral starting array.",
+      "invariant": "No products have been folded in yet."
+    },
+    "loop": {
+      "happening": "Advance the sweep pointer.",
+      "why": "One pass runs left to right, the other right to left.",
+      "invariant": "Every index is visited exactly once per pass."
+    },
+    "update": {
+      "happening": "Write a product into a cell or fold a value into a running product.",
+      "why": "Each step contributes one factor to the prefix or suffix.",
+      "invariant": "answer and the running products always reflect the elements processed so far."
+    },
+    "return": {
+      "happening": "Return the finished answer array.",
+      "why": "Both passes have completed.",
+      "invariant": "Every cell holds the product of all other elements."
+    }
+  }
+}

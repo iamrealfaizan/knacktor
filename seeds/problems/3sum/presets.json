@@ -1,0 +1,82 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "nums": [
+        -1,
+        0,
+        1,
+        2,
+        -1,
+        -4
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        -1,
+        -1,
+        2
+      ],
+      [
+        -1,
+        0,
+        1
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (no triplet)",
+    "value": {
+      "nums": [
+        0,
+        1,
+        1
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3 (all zero)",
+    "value": {
+      "nums": [
+        0,
+        0,
+        0
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  {
+    "id": "edge-duplicate-inner",
+    "label": "Duplicate inner values",
+    "value": {
+      "nums": [
+        -2,
+        0,
+        0,
+        2,
+        2
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        -2,
+        0,
+        2
+      ]
+    ]
+  }
+]

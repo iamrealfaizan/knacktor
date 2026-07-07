@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "search-in-rotated-sorted-array",
+  "number": 33,
+  "title": "Search in Rotated Sorted Array",
+  "difficulty": "medium",
+  "topics": [
+    "array",
+    "binary-search"
+  ],
+  "patterns": [
+    "modified-binary-search"
+  ],
+  "statement": "There is an integer array nums sorted in ascending order (with distinct values).\n\nPrior to being passed to your function, nums is possibly rotated at an unknown pivot index k (1 <= k < nums.length) such that the resulting array is [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]] (0-indexed). For example, [0,1,2,4,5,6,7] might be rotated at pivot index 3 and become [4,5,6,7,0,1,2].\n\nGiven the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.\n\nYou must write an algorithm with O(log n) runtime complexity.\n\nExample 1:\nInput: nums = [4,5,6,7,0,1,2], target = 0\nOutput: 4\n\nExample 2:\nInput: nums = [4,5,6,7,0,1,2], target = 3\nOutput: -1\n\nExample 3:\nInput: nums = [1], target = 0\nOutput: -1\n\nConstraints:\n1 <= nums.length <= 5000\n-10^4 <= nums[i] <= 10^4\nAll values of nums are unique.\nnums is an ascending array that is possibly rotated.\n-10^4 <= target <= 10^4",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "nums",
+        "type": "int[]",
+        "label": "Array",
+        "placeholder": "4, 5, 6, 7, 0, 1, 2",
+        "min": -10000,
+        "max": 10000,
+        "minLen": 1,
+        "maxLen": 20
+      },
+      {
+        "name": "target",
+        "type": "int",
+        "label": "Target",
+        "placeholder": "0",
+        "min": -10000,
+        "max": 10000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

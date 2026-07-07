@@ -1,0 +1,96 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We create seen as an empty map from character to its latest index.",
+      "why": "Knowing where a character last appeared lets us jump the window instantly on a repeat.",
+      "invariant": "seen holds the most recent index of every character encountered so far."
+    },
+    "4": {
+      "happening": "The left edge starts at index 0.",
+      "why": "The window begins empty at the front of the string.",
+      "invariant": "Every character between left and right is currently unique."
+    },
+    "5": {
+      "happening": "best starts at 0.",
+      "why": "No window has been measured yet.",
+      "invariant": "best is the length of the longest repeat-free window seen so far."
+    },
+    "6": {
+      "happening": "The right edge advances to the next character.",
+      "why": "Extending right tries to grow the window by one more character.",
+      "invariant": "right marks the newest character being added to the window."
+    },
+    "7": {
+      "happening": "We read ch, the character at the right edge.",
+      "why": "We must decide whether ch already lives inside the current window.",
+      "invariant": "ch is the character at index right."
+    },
+    "8": {
+      "happening": "We check whether ch is already inside the window.",
+      "why": "A repeat inside the window would violate the no-duplicate rule.",
+      "invariant": "The window may contain a duplicate only until this check fixes it."
+    },
+    "9": {
+      "happening": "ch repeats inside the window, so left jumps to just past the earlier copy.",
+      "why": "Skipping ahead is the fastest way to make the window valid again without rechecking every character.",
+      "invariant": "After the jump, no character repeats between left and right."
+    },
+    "10": {
+      "happening": "We record that ch was last seen at index right.",
+      "why": "A future repeat of ch will need this position to know where to jump.",
+      "invariant": "seen[ch] always holds the most recent index of ch."
+    },
+    "11": {
+      "happening": "We compute window as right - left + 1.",
+      "why": "The window length is what we are trying to maximize.",
+      "invariant": "window counts the characters currently between left and right inclusive."
+    },
+    "12": {
+      "happening": "We compare the current window against the best so far.",
+      "why": "Only a longer window can improve the answer.",
+      "invariant": "best never decreases."
+    },
+    "13": {
+      "happening": "This window is the longest yet, so best becomes {window}.",
+      "why": "The answer is the maximum window length over the whole scan.",
+      "invariant": "best equals the longest repeat-free substring found up to here."
+    },
+    "14": {
+      "happening": "We return best.",
+      "why": "Every window has been considered, so the maximum is final.",
+      "invariant": "best is the length of the longest substring without repeating characters."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set up the map, the left edge, and the best length.",
+      "why": "The window needs a starting position and memory of seen characters.",
+      "invariant": "The window is empty and no length has been recorded."
+    },
+    "loop": {
+      "happening": "Advance the right edge to the next character.",
+      "why": "The window grows rightward one character per iteration.",
+      "invariant": "right is the newest position under consideration."
+    },
+    "update": {
+      "happening": "Record the character and measure the window.",
+      "why": "Each step refreshes the last-seen index and the current length.",
+      "invariant": "The map and window length always describe the live window."
+    },
+    "check": {
+      "happening": "Test for a repeat or a new record length.",
+      "why": "These decisions keep the window valid and track the maximum.",
+      "invariant": "A window is only counted once it is free of duplicates."
+    },
+    "move": {
+      "happening": "Slide the left edge forward past a duplicate.",
+      "why": "Jumping restores the no-repeat property in constant time.",
+      "invariant": "After moving, the window contains distinct characters only."
+    },
+    "return": {
+      "happening": "Report the longest window length.",
+      "why": "The scan is complete.",
+      "invariant": "The returned value is the maximum repeat-free length."
+    }
+  }
+}

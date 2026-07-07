@@ -1,0 +1,104 @@
+{
+  "primitive": "hashmap",
+  "keysFrom": "counts",
+  "valuesFrom": "counts",
+  "pointers": [],
+  "flags": {
+    "verifying": "d != null"
+  },
+  "highlightRules": [
+    {
+      "state": "current",
+      "whenKey": "k == d"
+    },
+    {
+      "state": "special",
+      "whenKey": "k == ch && !verifying"
+    },
+    {
+      "state": "idle",
+      "whenKey": "true"
+    }
+  ],
+  "readout": {
+    "when": "ch != null || d != null",
+    "expr": "current character = {d != null ? d : ch}"
+  },
+  "counters": [
+    {
+      "name": "letters counted",
+      "onLines": [
+        8
+      ]
+    },
+    {
+      "name": "letters cancelled",
+      "onLines": [
+        13
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        3,
+        11,
+        14
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        9
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        10,
+        13
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        4,
+        12,
+        15,
+        16
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 4,
+      "label": "Length mismatch",
+      "kind": "boundary"
+    },
+    {
+      "line": 12,
+      "label": "Character missing in s",
+      "kind": "boundary"
+    },
+    {
+      "line": 15,
+      "label": "Character over-used in t",
+      "kind": "boundary"
+    },
+    {
+      "line": 16,
+      "label": "Anagram confirmed",
+      "kind": "return"
+    }
+  ]
+}

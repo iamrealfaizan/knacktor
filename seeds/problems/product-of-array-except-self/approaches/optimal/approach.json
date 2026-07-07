@@ -1,0 +1,54 @@
+{
+  "id": "optimal",
+  "name": "Prefix and Suffix Products",
+  "kind": "optimal",
+  "summary": "Fill each answer cell with the running product of everything to its left, then walk back multiplying in the running product of everything to its right.",
+  "visualizationIntent": "init: an answer array of all ones pops in beside the input. forward pass: a pointer sweeps left to right writing the running prefix product into each cell, so cells to the left settle as visited. suffix pass: a pointer sweeps right to left multiplying each cell by the running suffix product, turning finalized cells result-green from the right. return: every cell now holds the product of all other elements.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.productExceptSelf",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "answer",
+    "label": "PRODUCTS",
+    "render": "list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "prefix": "special",
+    "suffix": "gold",
+    "answer": "result"
+  },
+  "lineExplanations": {
+    "3": "Store the length of the array.",
+    "4": "Create the answer array filled with ones, one slot per element.",
+    "5": "Start the running prefix product at one.",
+    "6": "Sweep left to right across every index.",
+    "7": "Write the product of everything to the left into this cell.",
+    "8": "Fold the current value into the running prefix product for later cells.",
+    "9": "Start the running suffix product at one.",
+    "10": "Sweep right to left across every index.",
+    "11": "Multiply this cell by the product of everything to its right.",
+    "12": "Fold the current value into the running suffix product for earlier cells.",
+    "13": "Return the completed answer array."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def productExceptSelf(self, nums): defines the method receiving the array nums.",
+    "3": "n = len(nums) stores how many elements are in nums.",
+    "4": "answer = [1] * n builds a list of n ones.",
+    "5": "prefix = 1 starts the left-to-right running product at one.",
+    "6": "for i in range(n): loops i from 0 up to n - 1.",
+    "7": "answer[i] = prefix stores the current prefix product in this cell.",
+    "8": "prefix = prefix * nums[i] multiplies the current value into the prefix.",
+    "9": "suffix = 1 starts the right-to-left running product at one.",
+    "10": "for i in range(n - 1, -1, -1): loops i from n - 1 down to 0.",
+    "11": "answer[i] = answer[i] * suffix multiplies the stored prefix by the suffix.",
+    "12": "suffix = suffix * nums[i] multiplies the current value into the suffix.",
+    "13": "return answer sends back the finished array."
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "abcabcbb"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (all same)",
+    "value": {
+      "s": "bbbbb"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "s": "pwwkew"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-stale-duplicate",
+    "label": "Duplicate left of window",
+    "value": {
+      "s": "abba"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2
+  }
+]
