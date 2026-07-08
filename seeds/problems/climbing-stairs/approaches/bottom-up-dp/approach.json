@@ -1,0 +1,48 @@
+{
+  "id": "bottom-up-dp",
+  "name": "Bottom-Up DP",
+  "kind": "optimal",
+  "summary": "Fill a table where dp[i] = dp[i-1] + dp[i-2]; each stair's ways come from the two stairs below it.",
+  "visualizationIntent": "init: build the dp table (all zeros), then seed dp[1]=1 and dp[2]=2 with a write flash. loop: a pointer i walks left-to-right from index 3; at each step the two source cells dp[i-1] and dp[i-2] flash compared (blue) and the current cell dp[i] fills with their sum and flashes (the recurrence dp[i]=dp[i-1]+dp[i-2] made visible). return: the final cell dp[n] is marked result (green) — the answer. dp[0] stays dimmed (unused).",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.climbStairs",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "answer",
+    "label": "DISTINCT WAYS",
+    "suffix": "· ways to climb",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i"
+  },
+  "lineExplanations": {
+    "3": "Make a table with one slot per stair, 0 through n.",
+    "4": "If the staircase has at least one stair...",
+    "5": "There is exactly 1 way to stand on stair 1.",
+    "6": "If the staircase has at least two stairs...",
+    "7": "There are exactly 2 ways to reach stair 2 (1+1, or 2).",
+    "8": "Fill stairs 3 through n in increasing order.",
+    "9": "Ways to reach stair i = ways to (i-1) plus ways to (i-2).",
+    "10": "The answer is the number of ways to reach the top stair n.",
+    "11": "Return the total number of distinct climbs."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution(object): the wrapper class LeetCode expects.",
+    "2": "def climbStairs(self, n): the entry method; n is the number of stairs.",
+    "3": "[0] * (n + 1) makes a list of n+1 zeros (indices 0..n).",
+    "4": "if n >= 1: guards writing dp[1].",
+    "5": "dp[1] = 1 seeds the first base case.",
+    "6": "if n >= 2: guards writing dp[2].",
+    "7": "dp[2] = 2 seeds the second base case.",
+    "8": "for i in range(3, n + 1): loops i from 3 up to n.",
+    "9": "dp[i] = dp[i - 1] + dp[i - 2] applies the recurrence.",
+    "10": "answer = dp[n] reads the top stair's count.",
+    "11": "return answer hands back the total."
+  }
+}

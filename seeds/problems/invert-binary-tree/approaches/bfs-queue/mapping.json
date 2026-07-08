@@ -1,0 +1,151 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "cur",
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == cur"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Queue (node ids)",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "cur != -1",
+    "expr": "dequeued node {cur} — {len(queue)} still in queue"
+  },
+  "counters": [
+    {
+      "name": "nodes visited",
+      "onLines": [
+        30
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        28,
+        46,
+        54
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        29,
+        41,
+        47
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        35,
+        38,
+        44,
+        48
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        30,
+        31,
+        32,
+        33,
+        34,
+        36,
+        37,
+        39,
+        40,
+        42,
+        43,
+        45,
+        49,
+        51,
+        52,
+        53,
+        55
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        56
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "when": "cur == 0",
+      "line": 33,
+      "label": "Root's children swapped",
+      "kind": "match"
+    },
+    {
+      "line": 56,
+      "label": "Inverted tree serialized",
+      "kind": "return"
+    }
+  ]
+}

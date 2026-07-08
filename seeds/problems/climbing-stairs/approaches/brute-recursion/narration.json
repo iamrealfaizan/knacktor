@@ -1,0 +1,188 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start an empty list of recursion-tree nodes.",
+      "why": "We record each call as a node so the tree can be drawn.",
+      "invariant": "nodes holds every call made so far."
+    },
+    "4": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "Children link to parents by id.",
+      "invariant": "by_id[k] is the node with id k."
+    },
+    "5": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each call as active, returned, or a leaf — driving the colors.",
+      "invariant": "state_by_id[k] tracks node k's progress."
+    },
+    "6": {
+      "happening": "Explore from stair 0 by calling dfs.",
+      "why": "Every distinct climb is a path from stair 0 that lands on n.",
+      "invariant": "This single call unfolds the entire tree."
+    },
+    "7": {
+      "happening": "Return the total number of distinct ways: {answer}.",
+      "why": "It equals the number of paths that reach the top exactly.",
+      "invariant": "answer is the final count."
+    },
+    "10": {
+      "happening": "This call is at stair {i}; its node id is the next free slot.",
+      "why": "Each call gets a unique node in the tree.",
+      "invariant": "my_id identifies this call."
+    },
+    "11": {
+      "happening": "Create a node labelled with stair {i}.",
+      "why": "The label shows which stair this call is standing on.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "12": {
+      "happening": "Add the node to the tree — it pops in on screen.",
+      "why": "The tree unfolds one call at a time, depth-first.",
+      "invariant": "nodes grows by one."
+    },
+    "13": {
+      "happening": "Register the node under its id.",
+      "why": "So a child can link back to it.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "14": {
+      "happening": "Mark this call active — its frame is on the call stack.",
+      "why": "The amber path from the root shows the live call stack.",
+      "invariant": "Active calls are mid-exploration."
+    },
+    "15": [
+      {
+        "when": "parent_id != null",
+        "happening": "This call has a parent — link it into the tree.",
+        "why": "Every call except the first is a child of the call that made it.",
+        "invariant": "The tree stays connected as it grows."
+      },
+      {
+        "happening": "This is the very first call (stair 0) — it has no parent.",
+        "why": "The root of the recursion tree.",
+        "invariant": "The root has no incoming edge."
+      }
+    ],
+    "16": [
+      {
+        "when": "slot == 0",
+        "happening": "This call came from climbing 1 step — the left branch.",
+        "why": "dfs(i+1) is the parent's first move.",
+        "invariant": "Left children are +1 moves."
+      },
+      {
+        "happening": "This call came from climbing 2 steps — the right branch.",
+        "why": "dfs(i+2) is the parent's second move.",
+        "invariant": "Right children are +2 moves."
+      }
+    ],
+    "17": {
+      "happening": "Link this node as the parent's left child.",
+      "why": "It represents climbing 1 step from the parent's stair.",
+      "invariant": "The +1 branch now has an edge."
+    },
+    "19": {
+      "happening": "Link this node as the parent's right child.",
+      "why": "It represents climbing 2 steps from the parent's stair.",
+      "invariant": "The +2 branch now has an edge."
+    },
+    "20": [
+      {
+        "when": "i == n",
+        "happening": "Stair {i} is exactly the top ({n}) — a complete way!",
+        "why": "Landing on n means this sequence of moves reaches the top.",
+        "invariant": "A success leaf contributes 1."
+      },
+      {
+        "happening": "Stair {i} is not the top yet.",
+        "why": "We must keep climbing to reach n.",
+        "invariant": "Only i == n counts as a way."
+      }
+    ],
+    "21": {
+      "happening": "Tag stair {i} a success leaf — one valid way.",
+      "why": "It turns green to mark a complete climb.",
+      "invariant": "Green leaves are the ways being counted."
+    },
+    "22": {
+      "happening": "Return 1 for this complete way.",
+      "why": "It adds one to the caller's running total.",
+      "invariant": "A valid path contributes exactly 1."
+    },
+    "23": [
+      {
+        "when": "i > n",
+        "happening": "Stair {i} is past the top ({n}) — a dead end.",
+        "why": "A +2 move can jump over the top; that path is invalid.",
+        "invariant": "Overshooting contributes 0."
+      },
+      {
+        "happening": "Stair {i} is still at or below the top.",
+        "why": "There is still room to keep climbing.",
+        "invariant": "Valid calls satisfy i < n here."
+      }
+    ],
+    "24": {
+      "happening": "Tag stair {i} a dead end — it overshot the top.",
+      "why": "It turns red to mark an invalid path.",
+      "invariant": "Red leaves count as 0."
+    },
+    "25": {
+      "happening": "Return 0 — overshooting is not a valid climb.",
+      "why": "It adds nothing to the caller's total.",
+      "invariant": "Dead ends contribute 0."
+    },
+    "26": {
+      "happening": "From stair {i}, try climbing 1 step: recurse to {i+1}.",
+      "why": "Exploring the +1 branch first (depth-first).",
+      "invariant": "The left subtree is fully explored before the right."
+    },
+    "27": {
+      "happening": "From stair {i}, try climbing 2 steps: recurse to {i+2}.",
+      "why": "Exploring the +2 branch after the +1 branch.",
+      "invariant": "Both branches are explored from this stair."
+    },
+    "28": {
+      "happening": "Ways from stair {i} = ways via +1 ({left_val}) + ways via +2 ({right_val}).",
+      "why": "Every path from here starts with a 1-step or a 2-step move.",
+      "invariant": "total sums the two subtrees."
+    },
+    "29": {
+      "happening": "Mark stair {i}'s call finished — it turns blue.",
+      "why": "Both branches are counted; the frame is about to pop.",
+      "invariant": "Returned nodes never change again."
+    },
+    "30": {
+      "happening": "Return {total} ways from stair {i} to the caller.",
+      "why": "The parent adds this into its own total.",
+      "invariant": "Each call reports its subtree's count."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up empty structures for the recursion tree.",
+      "why": "We record each call as a node to visualize it.",
+      "invariant": "Nothing has been explored yet."
+    },
+    "recurse": {
+      "happening": "Making a recursive call — descending into a subtree.",
+      "why": "Each stair branches into a +1 and a +2 move.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Testing whether this stair is the top, past it, or linking it in.",
+      "why": "Leaves stop the recursion; internal calls keep branching.",
+      "invariant": "Only i == n counts as a valid way."
+    },
+    "update": {
+      "happening": "Recording a node, its links, or its result.",
+      "why": "State drives the node colors and the running count.",
+      "invariant": "The tree reflects every call made."
+    },
+    "return": {
+      "happening": "Returning a subtree's count up to the caller.",
+      "why": "Totals bubble up from leaves to the root.",
+      "invariant": "The root's total is the answer."
+    }
+  }
+}
