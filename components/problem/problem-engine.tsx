@@ -255,6 +255,7 @@ export function ProblemEngine({
             {/* Center: stage + narration */}
             <section className="flex-1 min-w-0 flex flex-col min-h-0">
               <Stage
+                key={`${approachId}:${activeInputId}`}
                 visual={step.visual}
                 vars={step.vars}
                 target={target}
@@ -304,6 +305,7 @@ export function ProblemEngine({
               }
             >
               <Stage
+                key={`${approachId}:${activeInputId}`}
                 visual={step.visual}
                 vars={step.vars}
                 target={target}
