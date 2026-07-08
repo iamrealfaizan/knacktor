@@ -384,10 +384,41 @@ export function Stage({
 }) {
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  // Refs mirror the latest committed pan/scale so gesture math never reads a
+  // stale render closure mid-gesture.
+  const panRef = useRef(pan);
+  panRef.current = pan;
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+  // Drag = one-finger pan: anchor the grabbed viewBox point + pan at drag start.
+  const drag = useRef<{ startVB: { x: number; y: number }; startPan: { x: number; y: number } } | null>(null);
   // Pointer-event gesture state: 1 active pointer = pan, 2 = pinch-zoom (touch).
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const pinch = useRef<{ dist: number; scale: number } | null>(null);
+  // Pinch: anchor the initial finger-midpoint (in viewBox coords) + pan/scale.
+  const pinch = useRef<{ startDist: number; startMidVB: { x: number; y: number }; startPan: { x: number; y: number }; startScale: number } | null>(null);
+
+  // The <svg> element and a mirror of the current viewBox, so screen↔viewBox
+  // conversion (for focal-point zoom / 1:1 pan) works from event handlers.
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const vbRef = useRef<Box>({ x: 0, y: 0, w: 1, h: 1 });
+
+  /** Map a screen point to viewBox coordinates, accounting for the
+   *  `xMidYMid meet` uniform fit + centering. viewBox is stable during a
+   *  gesture (manualCam freezes the camera), so this is exact for anchoring. */
+  const screenToViewBox = (clientX: number, clientY: number) => {
+    const vb = vbRef.current;
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) {
+      return { x: vb.x + vb.w / 2, y: vb.y + vb.h / 2 };
+    }
+    const pxPerUnit = Math.min(rect.width / vb.w, rect.height / vb.h); // meet
+    const offX = (rect.width - vb.w * pxPerUnit) / 2;
+    const offY = (rect.height - vb.h * pxPerUnit) / 2;
+    return {
+      x: vb.x + (clientX - rect.left - offX) / pxPerUnit,
+      y: vb.y + (clientY - rect.top - offY) / pxPerUnit,
+    };
+  };
 
   // ── Measured combined layout ────────────────────────────────────────────
   // Positions of the primary vs aux structures come from their REAL rendered
@@ -485,9 +516,16 @@ export function Stage({
     );
   }
 
+  const clampScale = (s: number) => Math.max(0.5, Math.min(2.6, s));
+
   function onWheel(e: React.WheelEvent) {
     manualCam.current = true; // user took the camera — stop auto-centering until Reset
-    const next = Math.max(0.5, Math.min(2.6, scale - e.deltaY * 0.0012));
+    const cur = scaleRef.current;
+    const next = clampScale(cur - e.deltaY * 0.0012);
+    // Zoom toward the cursor: keep the world point under it fixed.
+    const c = screenToViewBox(e.clientX, e.clientY);
+    const p = panRef.current;
+    setPan({ x: c.x - (next / cur) * (c.x - p.x), y: c.y - (next / cur) * (c.y - p.y) });
     setScale(next);
   }
   function onPointerDown(e: React.PointerEvent) {
@@ -496,28 +534,41 @@ export function Stage({
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
+      drag.current = { startVB: screenToViewBox(e.clientX, e.clientY), startPan: { ...panRef.current } };
       pinch.current = null;
     } else if (pointers.current.size === 2) {
-      const [a, b] = [...pointers.current.values()];
-      pinch.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale };
+      startPinch();
       drag.current = null;
     }
+  }
+  function startPinch() {
+    const [a, b] = [...pointers.current.values()];
+    pinch.current = {
+      startDist: Math.hypot(a.x - b.x, a.y - b.y),
+      startMidVB: screenToViewBox((a.x + b.x) / 2, (a.y + b.y) / 2),
+      startPan: { ...panRef.current },
+      startScale: scaleRef.current,
+    };
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!pointers.current.has(e.pointerId)) return;
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pinch.current && pointers.current.size >= 2) {
+    if (pinch.current && pointers.current.size >= 2 && pinch.current.startDist > 0) {
+      // Zoom by the finger-distance ratio AND pan by the midpoint, keeping the
+      // initially-grabbed point anchored under the fingers (focal-point pinch).
       const [a, b] = [...pointers.current.values()];
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinch.current.dist > 0) {
-        setScale(Math.max(0.5, Math.min(2.6, pinch.current.scale * (dist / pinch.current.dist))));
-      }
+      const { startDist, startScale, startMidVB, startPan } = pinch.current;
+      const newScale = clampScale(startScale * (dist / startDist));
+      const curMidVB = screenToViewBox((a.x + b.x) / 2, (a.y + b.y) / 2);
+      const k = newScale / startScale;
+      setPan({ x: curMidVB.x - k * (startMidVB.x - startPan.x), y: curMidVB.y - k * (startMidVB.y - startPan.y) });
+      setScale(newScale);
     } else if (drag.current) {
-      setPan({
-        x: drag.current.px + (e.clientX - drag.current.x) / scale,
-        y: drag.current.py + (e.clientY - drag.current.y) / scale,
-      });
+      // One-finger pan: content tracks the finger 1:1 (viewBox-space delta).
+      const cur = screenToViewBox(e.clientX, e.clientY);
+      const { startVB, startPan } = drag.current;
+      setPan({ x: startPan.x + (cur.x - startVB.x), y: startPan.y + (cur.y - startVB.y) });
     }
   }
   function onPointerUp(e: React.PointerEvent) {
@@ -526,7 +577,7 @@ export function Stage({
     if (pointers.current.size === 1) {
       // pinch ended with one finger still down — resume panning from it
       const [p] = [...pointers.current.values()];
-      drag.current = { x: p.x, y: p.y, px: pan.x, py: pan.y };
+      drag.current = { startVB: screenToViewBox(p.x, p.y), startPan: { ...panRef.current } };
     } else if (pointers.current.size === 0) {
       drag.current = null;
     }
@@ -558,6 +609,7 @@ export function Stage({
       ? cameraViewBox(camera.camSize)
       : isCombined ? layout!.viewBox : getLeafViewBox(visual as LeafVisualState);
   const autoT = camera?.autoT ?? { x: 0, y: 0 };
+  vbRef.current = vb; // mirror for screen↔viewBox conversion in gesture handlers
 
   const legendType = isCombined
     ? (visual as CombinedVisualState).primary.type
@@ -597,6 +649,7 @@ export function Stage({
 
       {/* SVG canvas */}
       <svg
+        ref={svgRef}
         className="w-full h-full"
         viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
         preserveAspectRatio="xMidYMid meet"

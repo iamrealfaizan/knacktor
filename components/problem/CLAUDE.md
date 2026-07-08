@@ -27,6 +27,8 @@ Animation classes live in `app/globals.css`: `kn-anim-pop-in`, `kn-anim-write-po
 
 **Stage camera (auto-centering)**: `stage.tsx` measures the camera group's `getBBox()` each step and glides the camera so content stays **centered** (`nextCamera` → `autoT` translate on the camera `<g>`, CSS-transitioned). The frame **size** is grow-only (zoom stays stable — never snaps tighter, only widens when content outgrows it), with an ~8px deadzone against jitter. Auto-centering **yields to manual pan/zoom** (`manualCam` ref) until **Reset**, which snaps to an exact fit. `getLeafViewBox()` remains only the SSR/first-paint estimate — don't tune magic numbers to fix clipping.
 
+**Zoom/pan gestures** are focal-point based via `screenToViewBox` (accounts for `xMidYMid meet` centering): pinch zooms toward the fingers + two-finger pans; wheel zooms toward the cursor; one-finger drag tracks the finger 1:1. **Framing resets on view switch** — `<Stage>` is keyed by `approachId:inputId` in `problem-engine.tsx`, so every problem/approach/preset opens at a fresh centered auto-fit (stepping within a trace keeps the same Stage instance + per-step glide).
+
 ---
 
 ## D17 — Visualization Decision Rule (mandatory before choosing a renderer)

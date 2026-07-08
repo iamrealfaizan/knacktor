@@ -101,6 +101,11 @@ beneath, and a pinned bottom dock. One responsive `ProblemEngine` — no separat
    Touch: **pointer-event pan + two-finger pinch-zoom** (`touch-none` on stage root); NO
    tap-to-play gesture — playback is dock-only. The **+/− zoom buttons are desktop-only** (pinch
    replaces them on mobile); only the auto-fit/reset button remains on mobile (slightly smaller).
+   Pinch is **focal-point** (zooms toward the fingers) and **pans while pinching**; one-finger drag
+   tracks the finger 1:1 (via `screenToViewBox`) — so a large structure is read by zooming into a
+   region rather than shrinking it. Framing **resets to a centered auto-fit on every
+   problem/approach/preset switch** (`<Stage>` keyed by `approachId:inputId`), so zoom/pan never
+   carries over between views.
 3. **Scroll body** (`flex-1 min-h-0 overflow-y-auto overscroll-contain`), reference order:
    Narration (2×2 grid, always open — collapse chevron is desktop-only) → Variables → Result →
    Call stack → **CodePanel** (body capped `max-h-[45dvh]` with internal scroll; an always-on
