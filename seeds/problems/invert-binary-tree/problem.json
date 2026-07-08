@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "invert-binary-tree",
+  "number": 226,
+  "title": "Invert Binary Tree",
+  "difficulty": "easy",
+  "topics": [
+    "tree",
+    "binary-tree"
+  ],
+  "patterns": [
+    "dfs",
+    "bfs"
+  ],
+  "statement": "Given the `root` of a binary tree, invert the tree, and return its root.\n\n> The tree is provided in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples). The function returns the inverted tree in the same level-order array form.\n\n**Example 1:**\n\n```\nInput: root = [4,2,7,1,3,6,9]\nOutput: [4,7,2,9,6,3,1]\n```\n\n**Example 2:**\n\n```\nInput: root = [2,1,3]\nOutput: [2,3,1]\n```\n\n**Example 3:**\n\n```\nInput: root = []\nOutput: []\n```\n\n**Constraints:**\n\n- The number of nodes in the tree is in the range `[0, 100]`.\n- `-100 <= Node.val <= 100`",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "recursive-dfs",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Tree (level-order, null for gaps)",
+        "placeholder": "4,2,7,1,3,6,9",
+        "min": -100,
+        "max": 100,
+        "minLen": 0,
+        "maxLen": 100
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

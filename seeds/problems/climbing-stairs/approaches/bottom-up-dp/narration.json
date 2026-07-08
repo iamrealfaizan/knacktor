@@ -1,0 +1,79 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Make a table dp with one slot per stair, 0 through {n}.",
+      "why": "dp[i] will hold the number of ways to reach stair i.",
+      "invariant": "Every entry starts at 0."
+    },
+    "4": {
+      "happening": "Check there is at least one stair.",
+      "why": "We only seed dp[1] when stair 1 exists.",
+      "invariant": "n is at least 1 by the constraints."
+    },
+    "5": {
+      "happening": "There is exactly 1 way to reach stair 1.",
+      "why": "A single 1-step climb.",
+      "invariant": "dp[1] = 1 is a base case."
+    },
+    "6": [
+      {
+        "when": "n >= 2",
+        "happening": "There are at least two stairs — seed dp[2].",
+        "why": "Stair 2 has its own base case.",
+        "invariant": "dp[2] is set only when stair 2 exists."
+      },
+      {
+        "happening": "There is only one stair — skip dp[2].",
+        "why": "Stair 2 does not exist here.",
+        "invariant": "For n = 1 the answer is already dp[1]."
+      }
+    ],
+    "7": {
+      "happening": "There are 2 ways to reach stair 2: (1+1) or (2).",
+      "why": "Both climbs are distinct.",
+      "invariant": "dp[2] = 2 is a base case."
+    },
+    "8": {
+      "happening": "Walk i through stairs 3 up to {n}.",
+      "why": "Each higher stair is built from the two below it.",
+      "invariant": "Stairs below i are already solved."
+    },
+    "9": {
+      "happening": "dp[{i}] = dp[{i-1}] + dp[{i-2}] = {dp[i-1]} + {dp[i-2]}.",
+      "why": "Every climb to stair i ends with a 1-step (from i-1) or a 2-step (from i-2).",
+      "invariant": "dp[i] now holds the ways to reach stair i."
+    },
+    "10": {
+      "happening": "Read the ways to reach the top stair {n}: {dp[n]}.",
+      "why": "The top stair's count is the answer.",
+      "invariant": "answer holds the final total."
+    },
+    "11": {
+      "happening": "Return {answer} distinct ways to climb {n} stairs.",
+      "why": "The table is fully filled up to the top.",
+      "invariant": "answer is the final count."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the table and seeding the base cases.",
+      "why": "Stairs 1 and 2 have known counts to build from.",
+      "invariant": "dp[1] and dp[2] are the starting points."
+    },
+    "loop": {
+      "happening": "Sweeping upward, one stair at a time.",
+      "why": "Each stair depends only on the two below it.",
+      "invariant": "Every stair below i is already computed."
+    },
+    "update": {
+      "happening": "Filling a stair from its two predecessors.",
+      "why": "dp[i] = dp[i-1] + dp[i-2].",
+      "invariant": "The current cell fills from its two neighbors."
+    },
+    "return": {
+      "happening": "Returning the ways to reach the top stair.",
+      "why": "The table is complete.",
+      "invariant": "dp[n] is the answer."
+    }
+  }
+}

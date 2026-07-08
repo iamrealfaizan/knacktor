@@ -1,0 +1,108 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "my_id",
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == my_id"
+    },
+    {
+      "state": "result",
+      "when": "state_by_id[node_idx] == 3"
+    },
+    {
+      "state": "error",
+      "when": "state_by_id[node_idx] == 4"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "my_id != null",
+    "expr": "exploring stair {i} of {n}"
+  },
+  "counters": [
+    {
+      "name": "recursive calls",
+      "onLines": [
+        10
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "recurse",
+      "lines": [
+        6,
+        26,
+        27
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        15,
+        16,
+        20,
+        23
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        17,
+        19,
+        21,
+        24,
+        28,
+        29
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        7,
+        22,
+        25,
+        30
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 21,
+      "label": "Reached the top — a valid way",
+      "kind": "match"
+    },
+    {
+      "line": 7,
+      "label": "Total distinct ways",
+      "kind": "return"
+    }
+  ]
+}

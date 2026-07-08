@@ -1,0 +1,324 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The recursion fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, on-stack, or done — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been inverted yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The recursion fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "The root is slot 0 (or nothing if the tree is empty).",
+      "why": "Inversion starts at the root.",
+      "invariant": "root identifies where the recursion begins."
+    },
+    "24": {
+      "happening": "Recursively invert the whole tree from the root.",
+      "why": "Inverting = swap a node's children, then invert each subtree.",
+      "invariant": "After this call every node's children are swapped."
+    },
+    "25": {
+      "happening": "Start the empty level-order output.",
+      "why": "We serialize the inverted tree to return it.",
+      "invariant": "result will hold the answer array."
+    },
+    "26": {
+      "happening": "Start a queue to walk the inverted tree.",
+      "why": "A breadth-first walk emits nodes in level order.",
+      "invariant": "out_q drives the serialization sweep."
+    },
+    "27": [
+      {
+        "when": "root != null",
+        "happening": "The tree is non-empty — seed the walk with the root.",
+        "why": "Level order starts at the root.",
+        "invariant": "Slot 0 is always the root."
+      },
+      {
+        "happening": "The tree is empty — nothing to serialize.",
+        "why": "An empty tree serializes to an empty array.",
+        "invariant": "result stays empty."
+      }
+    ],
+    "28": {
+      "happening": "Enqueue the root id to begin the walk.",
+      "why": "The root is emitted first.",
+      "invariant": "The root leads the level-order output."
+    },
+    "29": [
+      {
+        "when": "len(out_q) > 0",
+        "happening": "Ids remain — emit the next one.",
+        "why": "We serialize until the walk queue empties.",
+        "invariant": "Every reachable node is emitted once."
+      },
+      {
+        "happening": "The walk queue is empty — serialization is done.",
+        "why": "No ids remain to emit.",
+        "invariant": "result now holds every node in level order."
+      }
+    ],
+    "30": {
+      "happening": "Dequeue the next id from the front.",
+      "why": "Breadth-first emits the earliest-queued id next.",
+      "invariant": "out_q[0] was the current front."
+    },
+    "31": [
+      {
+        "when": "emit_id == null",
+        "happening": "This slot is a missing child.",
+        "why": "Level order records holes as null.",
+        "invariant": "Missing children still take a slot."
+      },
+      {
+        "happening": "This id points at a real node.",
+        "why": "Real nodes contribute their value.",
+        "invariant": "A real id has a value and two child links."
+      }
+    ],
+    "32": {
+      "happening": "Emit null for the missing child.",
+      "why": "The level-order format keeps holes explicit.",
+      "invariant": "result gains a null placeholder."
+    },
+    "34": {
+      "happening": "Emit this node's value into the result.",
+      "why": "Level order lists values top-down, left-to-right.",
+      "invariant": "result grows by one value."
+    },
+    "35": {
+      "happening": "Queue this node's left child to emit next.",
+      "why": "Children follow their parent in level order.",
+      "invariant": "Left is emitted before right."
+    },
+    "36": {
+      "happening": "Queue this node's right child after the left.",
+      "why": "Right follows left within a level.",
+      "invariant": "Children keep left-to-right order."
+    },
+    "37": [
+      {
+        "when": "len(result) > 0 && result[len(result) - 1] == null",
+        "happening": "The output ends in a null — trim it.",
+        "why": "Level order omits trailing null holes.",
+        "invariant": "No trailing nulls remain in the answer."
+      },
+      {
+        "happening": "No trailing null to trim — the answer is clean.",
+        "why": "The array already ends in a real value (or is empty).",
+        "invariant": "result is the final level-order form."
+      }
+    ],
+    "38": {
+      "happening": "Drop the trailing null.",
+      "why": "Trailing holes are not part of the level-order answer.",
+      "invariant": "result shrinks by one null."
+    },
+    "39": {
+      "happening": "Return the inverted tree in level-order form: {result}.",
+      "why": "Every node's children have been swapped and serialized.",
+      "invariant": "result is the final answer."
+    },
+    "42": [
+      {
+        "when": "node_id == null",
+        "happening": "A missing child — nothing to invert here.",
+        "why": "The recursion bottoms out at absent children.",
+        "invariant": "Null subtrees need no work."
+      },
+      {
+        "happening": "A real node — invert it.",
+        "why": "Every real node has its children swapped.",
+        "invariant": "This node is about to be processed."
+      }
+    ],
+    "43": {
+      "happening": "Return immediately for the missing child.",
+      "why": "There is nothing below to swap.",
+      "invariant": "The recursion unwinds one level."
+    },
+    "44": {
+      "happening": "Mark node {node_id} active — its frame is on the call stack.",
+      "why": "Amber nodes are the current root-to-node path being processed.",
+      "invariant": "On-stack nodes are mid-inversion."
+    },
+    "45": {
+      "happening": "Remember node {node_id}'s current left child.",
+      "why": "We need the old left before overwriting it.",
+      "invariant": "left holds the pre-swap left child."
+    },
+    "46": {
+      "happening": "Remember node {node_id}'s current right child.",
+      "why": "We need the old right before overwriting it.",
+      "invariant": "right holds the pre-swap right child."
+    },
+    "47": {
+      "happening": "Set node {node_id}'s left to its old right child.",
+      "why": "This is half of swapping the two children.",
+      "invariant": "The left link now points where right did."
+    },
+    "48": {
+      "happening": "Set node {node_id}'s right to its old left child.",
+      "why": "The two children are now swapped — this node is mirrored.",
+      "invariant": "This node's subtrees have traded sides."
+    },
+    "49": {
+      "happening": "Recurse into node {node_id}'s new left subtree.",
+      "why": "Depth-first: fully mirror one side before the other.",
+      "invariant": "The left subtree is inverted before the right."
+    },
+    "50": {
+      "happening": "Recurse into node {node_id}'s new right subtree.",
+      "why": "Its whole subtree is inverted in turn.",
+      "invariant": "Both subtrees are inverted after these calls."
+    },
+    "51": {
+      "happening": "Both subtrees done — mark node {node_id} fully inverted.",
+      "why": "Blue nodes are finished; the frame is about to pop.",
+      "invariant": "Done nodes never change again."
+    },
+    "52": {
+      "happening": "Return to the parent call.",
+      "why": "This subtree is fully mirrored.",
+      "invariant": "Control unwinds one level up the stack."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree from the level-order array.",
+      "why": "We need node objects and links before inverting.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "recurse": {
+      "happening": "Descending into a subtree with a recursive call.",
+      "why": "DFS inverts each subtree in turn.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Testing a condition before acting.",
+      "why": "Null slots and empty walks are handled specially.",
+      "invariant": "Only real nodes are processed."
+    },
+    "move": {
+      "happening": "Unwinding a completed call back up the tree.",
+      "why": "A finished subtree returns control to its parent.",
+      "invariant": "Each node returns exactly once."
+    },
+    "update": {
+      "happening": "Swapping children or recording state.",
+      "why": "Inverting a node is swapping its two child links.",
+      "invariant": "State and links reflect the work done."
+    },
+    "loop": {
+      "happening": "Sweeping the inverted tree to serialize it.",
+      "why": "A breadth-first walk emits level-order output.",
+      "invariant": "Each node is emitted once."
+    },
+    "return": {
+      "happening": "Returning the inverted tree in level-order form.",
+      "why": "Every node has been swapped and serialized.",
+      "invariant": "result is final."
+    }
+  }
+}
