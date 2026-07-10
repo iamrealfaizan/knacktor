@@ -1,0 +1,38 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "babad"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": "bab"
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "cbbd"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": "bb"
+  },
+  {
+    "id": "edge-all-same",
+    "label": "All Same Characters",
+    "value": {
+      "s": "aaaa"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": "aaaa"
+  },
+  {
+    "id": "edge-no-long-palindrome",
+    "label": "No Long Palindrome",
+    "value": {
+      "s": "abcd"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": "a"
+  }
+]

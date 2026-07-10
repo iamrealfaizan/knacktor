@@ -1,0 +1,84 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "candidates": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "target": 7
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        2,
+        2,
+        3
+      ],
+      [
+        7
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "candidates": [
+        2,
+        3,
+        5
+      ],
+      "target": 8
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        3,
+        3
+      ],
+      [
+        3,
+        5
+      ]
+    ]
+  },
+  {
+    "id": "example-3",
+    "label": "No Combination",
+    "value": {
+      "candidates": [
+        2
+      ],
+      "target": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "edge-single-candidate",
+    "label": "Exact Single",
+    "value": {
+      "candidates": [
+        7
+      ],
+      "target": 7
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        7
+      ]
+    ]
+  }
+]

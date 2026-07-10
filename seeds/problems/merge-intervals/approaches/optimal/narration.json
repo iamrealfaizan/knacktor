@@ -1,0 +1,120 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Sorting the intervals by start so overlapping ones sit next to each other.",
+      "why": "A single left-to-right sweep only works when intervals are ordered by start.",
+      "invariant": "After sorting, any overlap is between neighbours."
+    },
+    "4": {
+      "happening": "Creating the empty merged list.",
+      "why": "It will collect the final non-overlapping intervals.",
+      "invariant": "merged is always sorted and non-overlapping."
+    },
+    "5": {
+      "happening": "Sweeping to interval {i}.",
+      "why": "Each interval either extends the last merge or begins a new one.",
+      "invariant": "Everything before i has already been merged."
+    },
+    "6": {
+      "happening": "Reading the start of interval {i}: {intervals[i][0]}.",
+      "why": "The start decides whether this interval overlaps the last merged one.",
+      "invariant": "start is the left edge of the current interval."
+    },
+    "7": {
+      "happening": "Reading the end of interval {i}: {intervals[i][1]}.",
+      "why": "The end decides how far a merge would stretch.",
+      "invariant": "end is the right edge of the current interval."
+    },
+    "8": [
+      {
+        "when": "len(merged) == 0",
+        "happening": "Nothing has been merged yet — this is the first interval.",
+        "why": "The first interval has nothing to overlap with.",
+        "invariant": "merged is still empty."
+      },
+      {
+        "happening": "The merged list already has intervals — compare against the last one.",
+        "why": "Only the most recent merged interval can overlap the current one.",
+        "invariant": "merged holds at least one interval."
+      }
+    ],
+    "9": {
+      "happening": "Adding the first interval [{start}, {end}] to the merged list.",
+      "why": "It seeds the result; later intervals merge into or after it.",
+      "invariant": "merged now has exactly one interval."
+    },
+    "11": {
+      "happening": "Looking up where the last merged interval ends.",
+      "why": "Overlap is decided by comparing the current start to that end.",
+      "invariant": "last_end is the right edge of the most recent merge."
+    },
+    "12": [
+      {
+        "when": "start > last_end",
+        "happening": "Current start {start} is past the last end {last_end} — no overlap.",
+        "why": "A gap means the current interval must stand on its own.",
+        "invariant": "Disjoint intervals are never merged."
+      },
+      {
+        "happening": "Current start {start} is within the last end {last_end} — they overlap.",
+        "why": "Overlapping intervals fold into the last merged one.",
+        "invariant": "The merge can only extend rightward."
+      }
+    ],
+    "13": {
+      "happening": "No overlap — starting a new merged interval [{start}, {end}].",
+      "why": "The gap means this interval begins a fresh block.",
+      "invariant": "merged stays sorted and non-overlapping."
+    },
+    "15": [
+      {
+        "when": "end > last_end",
+        "happening": "Overlap: current end {end} reaches past {last_end} — stretch the merge.",
+        "why": "The union of two overlapping intervals ends at the larger end.",
+        "invariant": "The last merged interval only ever grows."
+      },
+      {
+        "happening": "Overlap, but current end {end} is within {last_end} — fully contained, nothing changes.",
+        "why": "The current interval adds no new coverage.",
+        "invariant": "The last merged interval already covers it."
+      }
+    ],
+    "16": {
+      "happening": "Stretching the last merged interval's end to {end}.",
+      "why": "This absorbs the overlapping interval into the merge.",
+      "invariant": "The last merged interval now covers both."
+    },
+    "17": {
+      "happening": "Returning {len(merged)} merged intervals.",
+      "why": "Every interval has been swept and merged.",
+      "invariant": "merged is the minimal non-overlapping cover."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Sorting the intervals and preparing the merged list.",
+      "why": "Sorting brings overlapping intervals next to each other.",
+      "invariant": "merged holds non-overlapping intervals in order."
+    },
+    "loop": {
+      "happening": "Sweeping through the sorted intervals.",
+      "why": "Each interval either extends the last merge or starts a new one.",
+      "invariant": "merged stays sorted and non-overlapping."
+    },
+    "check": {
+      "happening": "Comparing the current interval to the last merged one.",
+      "why": "Overlap depends on the start versus the last end.",
+      "invariant": "Only the last merged interval can grow."
+    },
+    "update": {
+      "happening": "Adding or extending a merged interval.",
+      "why": "Overlaps stretch the last interval; gaps start a new one.",
+      "invariant": "merged always covers everything swept so far."
+    },
+    "return": {
+      "happening": "Returning the merged intervals.",
+      "why": "Every interval has been swept.",
+      "invariant": "merged is the minimal non-overlapping cover."
+    }
+  }
+}

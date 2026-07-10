@@ -1,0 +1,150 @@
+{
+  "primitive": "grid",
+  "gridFrom": "board",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "r == cr && c == cc"
+    },
+    {
+      "state": "path",
+      "when": "board[r][c] == '#'"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "cursor",
+      "rowVar": "cr",
+      "colVar": "cc"
+    }
+  ],
+  "readout": {
+    "expr": "need word[{k}] = '{word[k]}'",
+    "relation": "matched {k} letters",
+    "relationColor": "result",
+    "when": "k != null && k < len(word)"
+  },
+  "counters": [
+    {
+      "name": "cells-explored",
+      "onLines": [
+        20
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        7
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8,
+        14,
+        16,
+        18,
+        20,
+        25,
+        28,
+        31,
+        34
+      ]
+    },
+    {
+      "phase": "recurse",
+      "lines": [
+        26,
+        29,
+        32,
+        35
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9,
+        22,
+        23,
+        24,
+        27,
+        30,
+        33,
+        36,
+        37
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        10,
+        11,
+        15,
+        17,
+        19,
+        21,
+        38
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 15,
+      "label": "Word fully matched",
+      "kind": "match"
+    },
+    {
+      "line": 10,
+      "label": "Word found in grid",
+      "kind": "result"
+    },
+    {
+      "line": 11,
+      "label": "Word not in grid",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Word",
+      "primitive": "array",
+      "valuesFrom": "word",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == k"
+        },
+        {
+          "state": "visited",
+          "when": "idx < k"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ],
+      "pointers": [
+        {
+          "name": "k",
+          "var": "k"
+        }
+      ]
+    }
+  ]
+}

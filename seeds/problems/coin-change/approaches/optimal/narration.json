@@ -1,0 +1,118 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Building the dp table: every amount from 0 to {amount} starts at the infinity sentinel {amount + 1}.",
+      "why": "A sentinel larger than any real answer means 'not reachable yet'.",
+      "invariant": "dp[i] always holds the fewest coins known to make amount i."
+    },
+    "4": {
+      "happening": "Base case: dp[0] = 0 — zero coins are needed to make amount 0.",
+      "why": "Making nothing needs no coins; every other amount builds on this.",
+      "invariant": "dp[0] is fixed at 0."
+    },
+    "5": [
+      {
+        "when": "a != null",
+        "happening": "Solving amount {a} next.",
+        "why": "Amounts are solved smallest first, so smaller amounts are ready when larger ones need them.",
+        "invariant": "Every amount below a already holds its fewest-coins count."
+      },
+      {
+        "happening": "No amounts to solve — the target is 0.",
+        "why": "The base case dp[0] already holds the answer.",
+        "invariant": "dp[0] is the answer when the target is 0."
+      }
+    ],
+    "6": {
+      "happening": "Trying coin {coin} for amount {a}.",
+      "why": "Any coin no larger than a could be the last coin used to reach it.",
+      "invariant": "We keep the fewest coins across every coin choice."
+    },
+    "7": [
+      {
+        "when": "coin <= a",
+        "happening": "Coin {coin} fits inside amount {a} — consider using it.",
+        "why": "A coin larger than the amount cannot be the last coin.",
+        "invariant": "Only coins no larger than a are candidates."
+      },
+      {
+        "happening": "Coin {coin} is larger than amount {a} — skip it.",
+        "why": "It cannot be used to make this smaller amount.",
+        "invariant": "Only coins no larger than a are candidates."
+      }
+    ],
+    "8": [
+      {
+        "when": "dp[a - coin] + 1 < dp[a]",
+        "happening": "Using coin {coin} gives {dp[a - coin] + 1} coins, beating the current {dp[a]}.",
+        "why": "Fewer coins for this amount is an improvement worth recording.",
+        "invariant": "dp[a] shrinks toward the true minimum."
+      },
+      {
+        "happening": "Using coin {coin} gives {dp[a - coin] + 1} coins, not better than {dp[a]}.",
+        "why": "The existing count is already at least as good.",
+        "invariant": "dp[a] never increases."
+      }
+    ],
+    "9": {
+      "happening": "Recording the improved count: dp[{a}] becomes {dp[a - coin] + 1}.",
+      "why": "This coin choice reaches amount a with fewer coins than before.",
+      "invariant": "dp[a] holds the fewest coins found so far."
+    },
+    "10": [
+      {
+        "when": "dp[amount] > amount",
+        "happening": "dp[{amount}] is still the sentinel — the amount cannot be made.",
+        "why": "No coin combination ever reached the target.",
+        "invariant": "An unreachable amount stays at the sentinel."
+      },
+      {
+        "happening": "dp[{amount}] holds a real count — the amount is reachable.",
+        "why": "Some coin combination reached the target.",
+        "invariant": "dp[amount] is the fewest coins for the target."
+      }
+    ],
+    "11": {
+      "happening": "Setting the answer to -1 — the amount is impossible to make.",
+      "why": "The target was never reached by any coins.",
+      "invariant": "-1 signals an impossible amount."
+    },
+    "13": {
+      "happening": "Reading the answer {dp[amount]} from dp[{amount}].",
+      "why": "The table's target slot holds the fewest coins.",
+      "invariant": "dp[amount] is the minimum coin count."
+    },
+    "14": {
+      "happening": "Returning {result} — the fewest coins to make {amount}.",
+      "why": "The table is complete, so the count is final.",
+      "invariant": "The answer is the minimum coins, or -1 if impossible."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the table with a sentinel and the zero base case.",
+      "why": "The recurrence needs a starting point and an 'infinity' for unreachable amounts.",
+      "invariant": "dp[i] means the fewest coins to make amount i."
+    },
+    "loop": {
+      "happening": "Sweeping amounts and trying each coin.",
+      "why": "Every amount is built from smaller amounts already solved.",
+      "invariant": "Amounts below the pointer are final."
+    },
+    "check": {
+      "happening": "Testing whether a coin fits and whether it improves the count.",
+      "why": "Only fitting, improving coins matter.",
+      "invariant": "dp[a] holds the best count seen so far."
+    },
+    "update": {
+      "happening": "Recording a smaller coin count for this amount.",
+      "why": "A better coin choice was found.",
+      "invariant": "dp[a] moves toward its true minimum."
+    },
+    "return": {
+      "happening": "Reading out the final answer.",
+      "why": "The table is complete.",
+      "invariant": "dp[amount] is the fewest coins, or -1 if unreachable."
+    }
+  }
+}

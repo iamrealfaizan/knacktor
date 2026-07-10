@@ -1,0 +1,128 @@
+{
+  "primitive": "array",
+  "valuesFrom": "intervals",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "i"
+    ]
+  },
+  "readout": {
+    "expr": "new interval [{new_start}, {new_end}]",
+    "relation": "scanning interval {i}",
+    "relationColor": "special",
+    "when": "i != null"
+  },
+  "counters": [
+    {
+      "name": "appends",
+      "onLines": [
+        9,
+        15,
+        17
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        8,
+        11,
+        16
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9,
+        12,
+        13,
+        15,
+        17
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        10,
+        14,
+        18
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        19
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 12,
+      "label": "Absorbing an overlap",
+      "kind": "match"
+    },
+    {
+      "line": 15,
+      "label": "New interval placed",
+      "kind": "result"
+    },
+    {
+      "line": 19,
+      "label": "Insertion complete",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Result",
+      "primitive": "array",
+      "valuesFrom": "result",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "idx == len(result) - 1"
+        },
+        {
+          "state": "visited",
+          "when": "idx < len(result) - 1"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

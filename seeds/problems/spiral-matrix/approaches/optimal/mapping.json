@@ -1,0 +1,134 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "r == row && c == col"
+    },
+    {
+      "state": "frontier",
+      "when": "r == next_row && c == next_col"
+    },
+    {
+      "state": "visited",
+      "when": "seen[r][c]"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "cursor",
+      "rowVar": "row",
+      "colVar": "col"
+    }
+  ],
+  "readout": {
+    "expr": "cell ({row}, {col}) = {matrix[row][col]}",
+    "relation": "collected {len(result)}",
+    "relationColor": "result",
+    "when": "row != null && phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "cells",
+      "onLines": [
+        15
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        7,
+        14
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        15,
+        16,
+        17,
+        18,
+        19,
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        20
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        24,
+        25
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        26
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 20,
+      "when": "out_of_bounds || seen[next_row][next_col]",
+      "label": "Hit a wall — turning",
+      "kind": "boundary"
+    },
+    {
+      "line": 26,
+      "label": "Spiral complete",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Spiral Order",
+      "primitive": "array",
+      "valuesFrom": "result",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "idx == len(result) - 1"
+        },
+        {
+          "state": "visited",
+          "when": "idx < len(result) - 1"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

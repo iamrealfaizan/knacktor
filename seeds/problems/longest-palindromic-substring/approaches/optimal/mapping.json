@@ -1,0 +1,121 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "flags": {
+    "isNewBest": "right - left - 1 > end - start + 1"
+  },
+  "cellStateRules": [
+    {
+      "state": "compared",
+      "when": "idx == left || idx == right"
+    },
+    {
+      "state": "path",
+      "when": "idx > left && idx < right"
+    },
+    {
+      "state": "result",
+      "when": "idx >= start && idx <= end"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "center",
+      "var": "center"
+    },
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "left",
+      "right",
+      "center"
+    ]
+  },
+  "readout": {
+    "expr": "expand around center {center}",
+    "relation": "best length {end - start + 1}",
+    "relationColor": "result",
+    "when": "phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        10
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        7,
+        10
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        8,
+        9,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        13
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "when": "isNewBest",
+      "line": 13,
+      "label": "New longest palindrome",
+      "kind": "best"
+    },
+    {
+      "line": 17,
+      "label": "Longest palindrome returned",
+      "kind": "return"
+    }
+  ]
+}

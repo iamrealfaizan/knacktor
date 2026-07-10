@@ -1,0 +1,81 @@
+{
+  "id": "optimal",
+  "name": "Walk and Turn",
+  "kind": "optimal",
+  "summary": "Walk a single cursor through the grid, turning clockwise whenever the next cell would leave the grid or has already been visited.",
+  "visualizationIntent": "init: draw the matrix as a grid with an empty 'seen' overlay and an empty spiral-order list; the cursor sits at the top-left. loop: a single cursor walks the grid one cell per step, tinting the current cell and appending its value to the spiral list; visited cells stay lit. check: before each move the cursor probes the next cell; if it is off the grid or already visited it turns clockwise. move: the cursor glides to the next cell. return: the spiral-order list holds every element and every grid cell is lit as visited.",
+  "complexity": {
+    "time": "O(m*n)",
+    "space": "O(m*n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.spiralOrder",
+  "primaryPrimitive": "grid",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "result",
+    "label": "SPIRAL ORDER",
+    "render": "list"
+  },
+  "varColors": {
+    "row": "ptr-i",
+    "col": "ptr-j",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Create the list that will hold the elements in spiral order.",
+    "4": "Count the rows of the matrix.",
+    "5": "Count the columns of the matrix.",
+    "6": "Prepare a grid of 'seen' flags to remember which cells were visited.",
+    "7": "Build one flag row for every matrix row.",
+    "8": "Start that flag row as all-false (nothing visited yet).",
+    "9": "Add the flag row to the seen grid.",
+    "10": "List the four clockwise directions: right, down, left, up.",
+    "11": "Start the cursor on the top row.",
+    "12": "Start the cursor on the left column.",
+    "13": "Start facing right (direction 0).",
+    "14": "Take exactly m*n steps — one per cell.",
+    "15": "Record the value at the current cell.",
+    "16": "Mark the current cell as visited.",
+    "17": "Compute the row we would move to if we keep going straight.",
+    "18": "Compute the column we would move to if we keep going straight.",
+    "19": "Test whether that next cell would leave the grid.",
+    "20": "If the next cell is off the grid or already visited, we must turn.",
+    "21": "Turn clockwise to the next direction, wrapping around after 'up'.",
+    "22": "Recompute the next row after turning.",
+    "23": "Recompute the next column after turning.",
+    "24": "Move the cursor to the chosen next row.",
+    "25": "Move the cursor to the chosen next column.",
+    "26": "Return the collected spiral order."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def spiralOrder(self, matrix): receives the 2-D matrix.",
+    "3": "result = [] creates an empty list.",
+    "4": "len(matrix) is the number of rows.",
+    "5": "len(matrix[0]) is the number of columns.",
+    "6": "seen = [] starts an empty list of flag rows.",
+    "7": "for ri in range(m): loops over each matrix row.",
+    "8": "[False] * n makes a row of n False flags.",
+    "9": "seen.append(seen_row) adds the flag row.",
+    "10": "directions holds [row-step, col-step] pairs for right, down, left, up.",
+    "11": "row = 0 puts the cursor on the top row.",
+    "12": "col = 0 puts the cursor on the left column.",
+    "13": "d = 0 selects the first direction (right).",
+    "14": "for step in range(m * n): one iteration per cell.",
+    "15": "matrix[row][col] reads the current value; append adds it.",
+    "16": "seen[row][col] = True marks the cell visited.",
+    "17": "row + directions[d][0] is the next row in the current direction.",
+    "18": "col + directions[d][1] is the next column in the current direction.",
+    "19": "the comparisons with 'or' test whether the next cell is outside the grid.",
+    "20": "if out_of_bounds or seen[...]: 'or' short-circuits so seen is only read when in bounds.",
+    "21": "(d + 1) % 4 rotates to the next direction and wraps from 3 back to 0.",
+    "22": "recompute next_row for the new direction.",
+    "23": "recompute next_col for the new direction.",
+    "24": "row = next_row commits the vertical move.",
+    "25": "col = next_col commits the horizontal move.",
+    "26": "return result hands back the spiral order."
+  }
+}

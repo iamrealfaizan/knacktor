@@ -1,0 +1,135 @@
+{
+  "primitive": "stack",
+  "itemsFrom": "path",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "remaining == 0"
+    },
+    {
+      "state": "current",
+      "when": "idx == len(path) - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "flags": {
+    "solved": "remaining == 0",
+    "pruned": "remaining < 0"
+  },
+  "readout": {
+    "expr": "remaining {remaining}",
+    "relation": "found {len(result)} so far",
+    "relationColor": "result",
+    "when": "remaining != null"
+  },
+  "counters": [
+    {
+      "name": "choices",
+      "onLines": [
+        15
+      ],
+      "when": "true"
+    },
+    {
+      "name": "backtracks",
+      "onLines": [
+        17
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "recurse",
+      "lines": [
+        5,
+        16
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        14
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9,
+        12
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10,
+        15,
+        17
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        6,
+        11,
+        13
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "when": "remaining == 0",
+      "line": 10,
+      "label": "Combination found",
+      "kind": "match"
+    },
+    {
+      "when": "remaining < 0",
+      "line": 13,
+      "label": "Branch pruned",
+      "kind": "boundary"
+    },
+    {
+      "line": 6,
+      "label": "All combinations returned",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Candidates",
+      "primitive": "array",
+      "valuesFrom": "candidates",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == i"
+        },
+        {
+          "state": "dimmed",
+          "when": "idx < start"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ],
+      "pointers": [
+        {
+          "name": "i",
+          "var": "i"
+        }
+      ]
+    }
+  ]
+}
