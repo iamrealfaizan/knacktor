@@ -1,0 +1,69 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Building the dp table with {n} + 1 slots, all starting at zero.",
+      "why": "Each slot i will hold the number of distinct ways to reach step i.",
+      "invariant": "dp[i] always means the number of ways to reach step i."
+    },
+    "4": {
+      "happening": "Seeding the base case dp[0] = 1.",
+      "why": "There is exactly one way to be at the bottom — take no steps at all.",
+      "invariant": "The base cases anchor every later value."
+    },
+    "5": {
+      "happening": "Seeding the base case dp[1] = 1.",
+      "why": "There is exactly one way to reach step 1 — a single 1-step.",
+      "invariant": "Steps 0 and 1 are now known for certain."
+    },
+    "6": [
+      {
+        "when": "i != null",
+        "happening": "Advancing the pointer to fill step {i} of the table.",
+        "why": "Each step's count is built from the two steps just below it.",
+        "invariant": "Every step below i is already final."
+      },
+      {
+        "happening": "No steps left to fill — the table is already complete.",
+        "why": "n is small enough that the base cases already hold the answer.",
+        "invariant": "dp[n] is ready to read."
+      }
+    ],
+    "7": {
+      "happening": "Combining the two ways below: dp[{i - 1}] ({dp[i - 1]}) + dp[{i - 2}] ({dp[i - 2]}).",
+      "why": "Every path to step i ends with either a 1-step from step i-1 or a 2-step from step i-2.",
+      "invariant": "dp[i] counts every distinct path to step i."
+    },
+    "8": {
+      "happening": "Reading the final count from the last slot, dp[{n}].",
+      "why": "The last slot holds the number of ways to reach the very top.",
+      "invariant": "dp[n] is the answer."
+    },
+    "9": {
+      "happening": "Returning {result} distinct ways to climb {n} stairs.",
+      "why": "The table is fully built, so the count is final.",
+      "invariant": "The answer counts every distinct climb to the top."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the table and its two base cases.",
+      "why": "The recurrence needs the two smallest cases to start from.",
+      "invariant": "dp[i] means the number of ways to reach step i."
+    },
+    "loop": {
+      "happening": "Walking up the staircase one step at a time.",
+      "why": "Each new step depends only on the two steps below it.",
+      "invariant": "Steps below the pointer are already final."
+    },
+    "update": {
+      "happening": "Filling a step's count from the two steps below it.",
+      "why": "Paths to step i arrive from step i-1 or step i-2.",
+      "invariant": "dp[i] counts all distinct paths to step i."
+    },
+    "return": {
+      "happening": "Returning the total number of distinct climbs.",
+      "why": "The table is complete.",
+      "invariant": "dp[n] holds the final answer."
+    }
+  }
+}

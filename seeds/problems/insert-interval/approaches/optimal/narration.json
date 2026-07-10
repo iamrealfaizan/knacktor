@@ -1,0 +1,116 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Creating an empty result list.",
+      "why": "The answer is built left to right in sorted order.",
+      "invariant": "result stays sorted and non-overlapping."
+    },
+    "4": {
+      "happening": "The new interval starts at {newInterval[0]}.",
+      "why": "This start may shrink as overlaps to its left are absorbed.",
+      "invariant": "new_start is the left edge of the interval being inserted."
+    },
+    "5": {
+      "happening": "The new interval ends at {newInterval[1]}.",
+      "why": "This end may grow as overlaps to its right are absorbed.",
+      "invariant": "new_end is the right edge of the interval being inserted."
+    },
+    "6": {
+      "happening": "Starting the scan at interval 0.",
+      "why": "We walk the existing intervals once, in order.",
+      "invariant": "i marks the interval under consideration."
+    },
+    "7": {
+      "happening": "There are {len(intervals)} existing intervals to scan.",
+      "why": "The scan stops when i reaches n.",
+      "invariant": "n is fixed for the whole scan."
+    },
+    "8": {
+      "happening": "Phase 1: skipping intervals that end before the new interval starts.",
+      "why": "Intervals entirely to the left never overlap the new one.",
+      "invariant": "These intervals are copied unchanged."
+    },
+    "9": {
+      "happening": "Copying earlier interval [{intervals[i][0]}, {intervals[i][1]}] into result.",
+      "why": "It ends before the new interval, so it stays as-is.",
+      "invariant": "result holds the untouched left intervals."
+    },
+    "10": {
+      "happening": "Advancing to the next interval.",
+      "why": "Phase 1 continues until an interval reaches the new one.",
+      "invariant": "i only ever moves forward."
+    },
+    "11": {
+      "happening": "Phase 2: absorbing intervals that overlap the new one.",
+      "why": "Any interval starting on or before new_end overlaps it.",
+      "invariant": "The merged interval only grows."
+    },
+    "12": {
+      "happening": "Pulling the merged start left to the smaller of {new_start} and {intervals[i][0]}.",
+      "why": "The union starts at the earliest of the two starts.",
+      "invariant": "new_start never increases here."
+    },
+    "13": {
+      "happening": "Pushing the merged end right to the larger of {new_end} and {intervals[i][1]}.",
+      "why": "The union ends at the latest of the two ends.",
+      "invariant": "new_end never decreases here."
+    },
+    "14": {
+      "happening": "Advancing past the absorbed interval.",
+      "why": "It is now folded into the merged new interval.",
+      "invariant": "i only ever moves forward."
+    },
+    "15": {
+      "happening": "Placing the merged new interval [{new_start}, {new_end}] into result.",
+      "why": "Every overlap is folded in, so the interval is final.",
+      "invariant": "result now contains the inserted interval."
+    },
+    "16": {
+      "happening": "Phase 3: copying the remaining later intervals.",
+      "why": "Everything left sits entirely after the new interval.",
+      "invariant": "These never overlap the new one."
+    },
+    "17": {
+      "happening": "Copying later interval [{intervals[i][0]}, {intervals[i][1]}] into result.",
+      "why": "It starts after the new interval ends.",
+      "invariant": "result stays sorted."
+    },
+    "18": {
+      "happening": "Advancing to the next interval.",
+      "why": "Phase 3 copies until the scan ends.",
+      "invariant": "i only ever moves forward."
+    },
+    "19": {
+      "happening": "Returning {len(result)} intervals with the new one merged in.",
+      "why": "The scan is complete.",
+      "invariant": "result is sorted and non-overlapping."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Reading the new interval and preparing the scan.",
+      "why": "We need its start, end, and a place to build the answer.",
+      "invariant": "result will be sorted and non-overlapping."
+    },
+    "loop": {
+      "happening": "Scanning the existing intervals in three phases.",
+      "why": "Before, overlapping, and after the new interval.",
+      "invariant": "i sweeps forward through the intervals."
+    },
+    "update": {
+      "happening": "Copying an interval or absorbing an overlap.",
+      "why": "Overlaps grow the new interval; others are copied unchanged.",
+      "invariant": "result holds everything processed so far."
+    },
+    "move": {
+      "happening": "Advancing the scan pointer.",
+      "why": "Each interval is visited exactly once.",
+      "invariant": "i only ever moves forward."
+    },
+    "return": {
+      "happening": "Returning the merged interval list.",
+      "why": "Every interval has been placed.",
+      "invariant": "result is the sorted, non-overlapping answer."
+    }
+  }
+}

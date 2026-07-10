@@ -1,0 +1,56 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "leetcode",
+      "wordDict": [
+        "leet",
+        "code"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "applepenapple",
+      "wordDict": [
+        "apple",
+        "pen"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-3",
+    "label": "Cannot Segment",
+    "value": {
+      "s": "catsandog",
+      "wordDict": [
+        "cats",
+        "dog",
+        "sand",
+        "and",
+        "cat"
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  },
+  {
+    "id": "edge-single-word",
+    "label": "Single Word",
+    "value": {
+      "s": "a",
+      "wordDict": [
+        "a"
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": true
+  }
+]

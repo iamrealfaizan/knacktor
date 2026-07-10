@@ -1,0 +1,110 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "intervals": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        1,
+        6
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        15,
+        18
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "intervals": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        1,
+        5
+      ]
+    ]
+  },
+  {
+    "id": "example-3",
+    "label": "Unsorted Input",
+    "value": {
+      "intervals": [
+        [
+          4,
+          7
+        ],
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "id": "edge-contained",
+    "label": "Fully Contained",
+    "value": {
+      "intervals": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        1,
+        5
+      ]
+    ]
+  }
+]

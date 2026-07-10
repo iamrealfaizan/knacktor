@@ -1,0 +1,99 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Loading the dictionary words into a set for instant lookup.",
+      "why": "Membership tests must be O(1) inside the double loop.",
+      "invariant": "words holds every allowed dictionary word."
+    },
+    "4": {
+      "happening": "Measuring the length of the string.",
+      "why": "The dp table needs one cell per cut position from 0 to n.",
+      "invariant": "n is fixed for the whole run."
+    },
+    "5": {
+      "happening": "Creating the reachability table with every prefix not-yet-reachable (0).",
+      "why": "dp[i] will record whether the first i characters split into words.",
+      "invariant": "dp[i] means the first i characters are segmentable."
+    },
+    "6": {
+      "happening": "Base case: dp[0] = 1 — the empty prefix is trivially reachable.",
+      "why": "Segmenting zero characters needs no words.",
+      "invariant": "dp[0] stays reachable."
+    },
+    "7": {
+      "happening": "Deciding whether prefix length {i} is reachable.",
+      "why": "A prefix is reachable if some earlier cut plus a word lands exactly here.",
+      "invariant": "All shorter prefixes are already decided."
+    },
+    "8": {
+      "happening": "Scanning earlier cut {j} as the possible start of the last word.",
+      "why": "The last word could begin at any earlier cut.",
+      "invariant": "j ranges over every cut before i."
+    },
+    "9": {
+      "happening": "Slicing out the candidate last word from cut {j} to cut {i}.",
+      "why": "This piece is the word that would finish the prefix.",
+      "invariant": "piece is the substring between the two cuts."
+    },
+    "10": {
+      "happening": "Looking up whether the piece '{piece}' is in the dictionary.",
+      "why": "Only a real dictionary word can be the last word of a segmentation.",
+      "invariant": "fits is true only for dictionary words."
+    },
+    "11": [
+      {
+        "when": "dp[j] == 1 && fits",
+        "happening": "Prefix at cut {j} is reachable and '{piece}' is a word — prefix {i} is reachable!",
+        "why": "A reachable prefix followed by a dictionary word extends reachability.",
+        "invariant": "dp[i] is about to become reachable."
+      },
+      {
+        "happening": "Cut {j} reachable? dp[{j}] = {dp[j]}; is '{piece}' a word? {fits} — no extension from here.",
+        "why": "Both a reachable prefix and a real word are required to extend.",
+        "invariant": "dp[i] stays as it was."
+      }
+    ],
+    "12": {
+      "happening": "Marking prefix length {i} as reachable (dp[{i}] = 1).",
+      "why": "We found a reachable cut plus a word ending exactly at i.",
+      "invariant": "dp[i] is now reachable and stays reachable."
+    },
+    "13": {
+      "happening": "Reading the final answer: is the full length {n} reachable? dp[{n}] = {dp[n]}.",
+      "why": "The whole string is segmentable exactly when dp[n] is reachable.",
+      "invariant": "dp[n] decides the answer."
+    },
+    "14": {
+      "happening": "Returning {result}: whether the string splits into dictionary words.",
+      "why": "The table is complete, so dp[n] is final.",
+      "invariant": "The answer reflects full-string reachability."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the word set and the reachability table.",
+      "why": "The DP needs fast word lookup and a base case.",
+      "invariant": "dp[i] means the first i characters are segmentable."
+    },
+    "loop": {
+      "happening": "Deciding each prefix by scanning earlier cuts.",
+      "why": "Reachability of a prefix depends on shorter reachable prefixes.",
+      "invariant": "Shorter prefixes are already decided."
+    },
+    "update": {
+      "happening": "Forming the candidate last word and testing it.",
+      "why": "The last word of a segmentation is a substring ending here.",
+      "invariant": "piece and fits describe the candidate word."
+    },
+    "check": {
+      "happening": "Testing whether a reachable prefix plus a word reaches here.",
+      "why": "Both a reachable prefix and a real word are required.",
+      "invariant": "dp holds decided reachability so far."
+    },
+    "return": {
+      "happening": "Reading out whether the whole string is reachable.",
+      "why": "The table is complete.",
+      "invariant": "dp[n] is the final answer."
+    }
+  }
+}

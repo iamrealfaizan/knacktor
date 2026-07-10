@@ -1,0 +1,117 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Creating the empty result list for finished combinations.",
+      "why": "Every valid combination discovered will be collected here.",
+      "invariant": "result holds only combinations that sum to the target."
+    },
+    "4": {
+      "happening": "Creating the empty path — the combination being built right now.",
+      "why": "We push and pop candidates on path as we explore.",
+      "invariant": "path plus remaining always accounts for the full target."
+    },
+    "5": {
+      "happening": "Starting the search from candidate 0 with the full target {target} remaining.",
+      "why": "Backtracking will explore every choice of candidates from here.",
+      "invariant": "The search begins with an empty path."
+    },
+    "6": {
+      "happening": "Returning all {len(result)} combinations found.",
+      "why": "The search has explored and unwound every branch.",
+      "invariant": "result contains exactly the combinations summing to the target."
+    },
+    "9": [
+      {
+        "when": "remaining == 0",
+        "happening": "Remaining is 0 — the path sums exactly to the target!",
+        "why": "A remaining of zero means the chosen numbers hit the target.",
+        "invariant": "path is now a valid combination."
+      },
+      {
+        "happening": "Remaining is {remaining}, not zero — keep exploring.",
+        "why": "The path does not sum to the target yet.",
+        "invariant": "More candidates may still complete it."
+      }
+    ],
+    "10": {
+      "happening": "Recording the combination {path}.",
+      "why": "A snapshot copy is saved so later pops do not change it.",
+      "invariant": "result gains one finished combination."
+    },
+    "11": {
+      "happening": "Returning from this successful branch.",
+      "why": "Once a combination is complete, this branch is done.",
+      "invariant": "The caller will undo its last choice and try the next candidate."
+    },
+    "12": [
+      {
+        "when": "remaining < 0",
+        "happening": "Remaining is {remaining}, below zero — this branch overshot.",
+        "why": "Adding any more candidates can only overshoot further.",
+        "invariant": "A negative remaining can never reach the target."
+      },
+      {
+        "happening": "Remaining is {remaining}, still positive — this branch is alive.",
+        "why": "There is still room to add more candidates.",
+        "invariant": "Only a non-negative remaining can still succeed."
+      }
+    ],
+    "13": {
+      "happening": "Pruning: abandoning this overshot branch.",
+      "why": "No combination down this path can sum to the target.",
+      "invariant": "Pruned branches add nothing to result."
+    },
+    "14": {
+      "happening": "Trying candidates from index {start} onward.",
+      "why": "Starting at {start} avoids counting the same combination in a different order.",
+      "invariant": "Only candidates at or after start are considered here."
+    },
+    "15": {
+      "happening": "Choosing candidate {candidates[i]} — pushing it onto the path.",
+      "why": "We commit to this number and will reduce the remaining target by it.",
+      "invariant": "path now ends with candidate {candidates[i]}."
+    },
+    "16": {
+      "happening": "Recursing with {remaining} - {candidates[i]} = {remaining - candidates[i]} remaining, candidate {candidates[i]} still allowed.",
+      "why": "The same candidate may repeat, so the recursion starts again at i.",
+      "invariant": "The deeper call explores extensions of the current path."
+    },
+    "17": {
+      "happening": "Backtracking: popping candidate {candidates[i]} off the path.",
+      "why": "We undo the last choice so the loop can try the next candidate.",
+      "invariant": "path returns to its state before this choice."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the empty result and path.",
+      "why": "Backtracking needs somewhere to build and to collect combinations.",
+      "invariant": "path is the current combination; result holds finished ones."
+    },
+    "recurse": {
+      "happening": "Descending into a deeper choice.",
+      "why": "Each recursive call fixes one more candidate in the combination.",
+      "invariant": "The call stack mirrors the current path."
+    },
+    "loop": {
+      "happening": "Iterating over candidate choices.",
+      "why": "Every candidate from start onward is a possible next number.",
+      "invariant": "start prevents duplicate combinations."
+    },
+    "check": {
+      "happening": "Testing whether the path hit or overshot the target.",
+      "why": "Zero remaining is a solution; negative is a dead end.",
+      "invariant": "Only remaining == 0 records a combination."
+    },
+    "update": {
+      "happening": "Choosing, recording, or undoing a candidate.",
+      "why": "Backtracking commits to each choice and later reverts it.",
+      "invariant": "path grows and shrinks by one candidate at a time."
+    },
+    "return": {
+      "happening": "Ending a branch and handing results upward.",
+      "why": "A branch ends on success, on a prune, or when candidates run out.",
+      "invariant": "result accumulates across every branch."
+    }
+  }
+}

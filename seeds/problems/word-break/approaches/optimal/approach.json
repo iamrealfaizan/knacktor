@@ -1,0 +1,55 @@
+{
+  "id": "optimal",
+  "name": "Bottom-Up DP",
+  "kind": "optimal",
+  "summary": "dp[i] is true when the first i characters split into dictionary words; extend any reachable prefix by a word that follows it.",
+  "visualizationIntent": "init: draw a reachability cell for every cut position 0..n; dp[0] = 1 (empty prefix is reachable), the rest 0. loop: pointer i marks the prefix end being decided, pointer j scans every earlier cut. check: dp[j] (blue) is the reachable prefix we rely on and the readout shows the piece s[j:i] and whether it is a dictionary word. update: when a reachable prefix is followed by a real word, dp[i] flips to 1 and flashes. return: dp[n] turns green if the whole string is segmentable, red if not.",
+  "complexity": {
+    "time": "O(n^2 * k)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.wordBreak",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "CAN SEGMENT",
+    "render": "boolean"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Put the dictionary into a set so word lookups are instant.",
+    "4": "Measure the length of the string.",
+    "5": "Create a reachability flag for every cut position 0..n, all starting false (0).",
+    "6": "Base case: the empty prefix (length 0) is always reachable.",
+    "7": "Decide reachability for every prefix length i from 1 up to n.",
+    "8": "Try every earlier cut j as the start of the last word ending at i.",
+    "9": "Take the substring piece from cut j to cut i — the candidate last word.",
+    "10": "Check whether that piece is a word in the dictionary.",
+    "11": "If the prefix ending at j is reachable AND the piece is a real word, then i is reachable too.",
+    "12": "Mark prefix length i as reachable.",
+    "13": "The whole string is segmentable exactly when the full length n is reachable.",
+    "14": "Return whether the string can be segmented into dictionary words."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def wordBreak(self, s, wordDict): defines the method receiving the string and dictionary.",
+    "3": "set(wordDict) builds a set for O(1) membership tests.",
+    "4": "len(s) returns the number of characters in s.",
+    "5": "[0] * (n + 1) builds a list of n+1 zeros (all 'not reachable').",
+    "6": "dp[0] = 1 marks the empty prefix reachable.",
+    "7": "for i in range(1, n + 1): loops i over 1, 2, ..., n.",
+    "8": "for j in range(i): loops j over 0, 1, ..., i-1.",
+    "9": "s[j:i] slices the substring between cut j and cut i.",
+    "10": "piece in words is a boolean: is the piece a dictionary word?",
+    "11": "if dp[j] == 1 and fits: both the prefix must be reachable and the piece a word.",
+    "12": "dp[i] = 1 marks prefix length i as reachable.",
+    "13": "dp[n] == 1 is true when the full string is reachable.",
+    "14": "return result hands the boolean answer back to the caller."
+  }
+}

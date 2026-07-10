@@ -1,0 +1,220 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "The graph has {len(adjList)} nodes.",
+      "why": "We clone each of them exactly once.",
+      "invariant": "n is the node count."
+    },
+    "4": {
+      "happening": "Preparing the node list for the drawing.",
+      "why": "Each node will be drawn as a labelled circle.",
+      "invariant": "nodes describes the graph's vertices."
+    },
+    "5": {
+      "happening": "Walking through every node to draw it.",
+      "why": "Each node becomes a labelled circle.",
+      "invariant": "nodes will hold all vertices."
+    },
+    "6": {
+      "happening": "Adding node {i + 1} to the drawing.",
+      "why": "Each node's label is its 1-based value.",
+      "invariant": "nodes grows by one."
+    },
+    "7": {
+      "happening": "Preparing the edge list for the drawing.",
+      "why": "Edges connect neighbouring nodes.",
+      "invariant": "edges describes the connections."
+    },
+    "8": {
+      "happening": "Scanning each node's neighbours to build edges.",
+      "why": "Every adjacency becomes a drawn edge.",
+      "invariant": "Each edge is added once."
+    },
+    "9": {
+      "happening": "Taking node {i + 1}'s neighbour list.",
+      "why": "These are the nodes it connects to.",
+      "invariant": "neighbors holds node i+1's adjacency."
+    },
+    "10": {
+      "happening": "Looking at each neighbour in turn.",
+      "why": "Each adjacency may become an edge.",
+      "invariant": "j indexes the neighbour list."
+    },
+    "11": {
+      "happening": "This neighbour is node {neighbors[j]}.",
+      "why": "It is one endpoint of a potential edge.",
+      "invariant": "nb is the neighbour's value."
+    },
+    "12": [
+      {
+        "when": "i + 1 < nb",
+        "happening": "Edge {i + 1}-{nb} is new (smaller endpoint first) — draw it.",
+        "why": "Adding each undirected edge once avoids duplicates.",
+        "invariant": "edges stays free of duplicates."
+      },
+      {
+        "happening": "Edge {i + 1}-{nb} was already added from the other side — skip it.",
+        "why": "The reverse direction was recorded earlier.",
+        "invariant": "Each edge appears once."
+      }
+    ],
+    "13": {
+      "happening": "Recording the edge between {i + 1} and {nb}.",
+      "why": "The drawing now shows this connection.",
+      "invariant": "edges grows by one."
+    },
+    "14": {
+      "happening": "Preparing the cloned adjacency list.",
+      "why": "The clone will mirror the original's connections.",
+      "invariant": "result will hold each clone's neighbours."
+    },
+    "15": {
+      "happening": "Making an empty neighbour slot for every clone.",
+      "why": "Each clone starts with no edges.",
+      "invariant": "result grows to n slots."
+    },
+    "16": {
+      "happening": "Adding an empty neighbour list for a clone.",
+      "why": "Its edges are filled during the BFS.",
+      "invariant": "result[i] starts empty."
+    },
+    "17": {
+      "happening": "Creating the original-to-clone map.",
+      "why": "It records which nodes already have a clone.",
+      "invariant": "cloned pairs each original with its copy."
+    },
+    "18": [
+      {
+        "when": "n == 0",
+        "happening": "The graph is empty — nothing to clone.",
+        "why": "An empty graph clones to an empty graph.",
+        "invariant": "result is already the answer."
+      },
+      {
+        "happening": "The graph has nodes — begin the breadth-first clone.",
+        "why": "BFS visits every node starting from node 1.",
+        "invariant": "Every reachable node will be cloned."
+      }
+    ],
+    "19": {
+      "happening": "Returning the empty clone.",
+      "why": "There were no nodes to copy.",
+      "invariant": "The clone is empty."
+    },
+    "20": {
+      "happening": "Starting the BFS queue with node 1.",
+      "why": "Node 1 is the entry point of the graph.",
+      "invariant": "The queue holds nodes waiting to be processed."
+    },
+    "21": {
+      "happening": "head points at the front of the queue.",
+      "why": "Processing advances head instead of removing items.",
+      "invariant": "Nodes before head are already processed."
+    },
+    "22": {
+      "happening": "Cloning node 1 and recording the pairing.",
+      "why": "The clone has the same label but is a brand-new node.",
+      "invariant": "cloned now contains node 1."
+    },
+    "23": {
+      "happening": "Processing the queue until every node is handled.",
+      "why": "BFS explores the graph outward from node 1.",
+      "invariant": "The queue drains as nodes are processed."
+    },
+    "24": {
+      "happening": "Taking node {queue[head]} from the front of the queue.",
+      "why": "This node's edges will be copied next.",
+      "invariant": "node is the one being processed."
+    },
+    "25": {
+      "happening": "Advancing the queue front past it.",
+      "why": "This node is now being processed.",
+      "invariant": "head only moves forward."
+    },
+    "26": {
+      "happening": "Looking at node {node}'s neighbours.",
+      "why": "Each neighbour's edge is copied to the clone.",
+      "invariant": "neighbors is node's adjacency."
+    },
+    "27": {
+      "happening": "Copying each neighbour edge in turn.",
+      "why": "The clone gets the same connections.",
+      "invariant": "j indexes the neighbours."
+    },
+    "28": {
+      "happening": "This neighbour is node {neighbors[j]}.",
+      "why": "Its edge into the clone is copied next.",
+      "invariant": "nb is the neighbour's value."
+    },
+    "29": {
+      "happening": "Copying edge {node}-{nb} into the clone.",
+      "why": "The clone mirrors the original's edges.",
+      "invariant": "result for this node gains a neighbour."
+    },
+    "30": {
+      "happening": "Has node {nb} been cloned already?",
+      "why": "Each node must be cloned exactly once.",
+      "invariant": "already records whether a clone exists."
+    },
+    "31": [
+      {
+        "when": "!already",
+        "happening": "Node {nb} is new — clone it and queue it.",
+        "why": "First sight of a node triggers its clone.",
+        "invariant": "Every node is cloned exactly once."
+      },
+      {
+        "happening": "Node {nb} already has a clone — just reuse the pairing.",
+        "why": "A cycle led back to an already-cloned node.",
+        "invariant": "No duplicate clones are made."
+      }
+    ],
+    "32": {
+      "happening": "Cloning node {nb} and recording the pairing.",
+      "why": "A brand-new node is created for the clone.",
+      "invariant": "cloned now includes node {nb}."
+    },
+    "33": {
+      "happening": "Queueing node {nb} to copy its edges later.",
+      "why": "BFS will visit it and copy its edges.",
+      "invariant": "The queue grows by one."
+    },
+    "34": {
+      "happening": "Returning the fully cloned graph.",
+      "why": "Every node and edge has been copied.",
+      "invariant": "The clone is a deep copy of the original."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Reading the graph size.",
+      "why": "We need the node count before cloning.",
+      "invariant": "n drives the whole process."
+    },
+    "loop": {
+      "happening": "Iterating over nodes, neighbours, or the BFS queue.",
+      "why": "Each pass builds part of the clone.",
+      "invariant": "Every node and edge is handled once."
+    },
+    "check": {
+      "happening": "Testing an edge, emptiness, or whether a node is already cloned.",
+      "why": "These decisions avoid duplicates and handle empty graphs.",
+      "invariant": "Each node is cloned exactly once."
+    },
+    "move": {
+      "happening": "Advancing the BFS front.",
+      "why": "The processed node is left behind.",
+      "invariant": "head only moves forward."
+    },
+    "update": {
+      "happening": "Building nodes, edges, clones, or copying an edge.",
+      "why": "The clone and its map grow step by step.",
+      "invariant": "cloned mirrors which originals are copied."
+    },
+    "return": {
+      "happening": "Returning the cloned graph.",
+      "why": "Every reachable node has been copied.",
+      "invariant": "The clone is a deep copy."
+    }
+  }
+}

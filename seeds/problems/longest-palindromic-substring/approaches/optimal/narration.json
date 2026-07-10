@@ -1,0 +1,127 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Reading the length of the string into n.",
+      "why": "The pointers need to know the last valid index before they can expand.",
+      "invariant": "n stays fixed for the whole search."
+    },
+    "4": {
+      "happening": "Setting start to 0 — the best palindrome begins as just the first character.",
+      "why": "We need a running best to compare every new palindrome against.",
+      "invariant": "The span from start to end is always a real palindrome."
+    },
+    "5": {
+      "happening": "Setting end to 0 — so far the best palindrome is a single character.",
+      "why": "A one-character substring is always a palindrome, so it is a safe starting best.",
+      "invariant": "start and end always describe the best palindrome found so far."
+    },
+    "6": {
+      "happening": "Choosing index {center} as the next palindrome center.",
+      "why": "Every palindrome has a center, so trying all centers is guaranteed to find the longest.",
+      "invariant": "Centers already tried cannot hide a longer palindrome."
+    },
+    "7": [
+      {
+        "when": "offset == 0",
+        "happening": "First pass for this center: offset 0 tests an odd-length palindrome.",
+        "why": "An odd-length palindrome has a single middle character.",
+        "invariant": "Both pointers will start on the same cell."
+      },
+      {
+        "happening": "Second pass: offset 1 tests an even-length palindrome centered in the gap.",
+        "why": "An even-length palindrome has its center between two characters.",
+        "invariant": "The right pointer will start one cell past the left."
+      }
+    ],
+    "8": {
+      "happening": "Placing the left pointer on the center at index {center}.",
+      "why": "Both pointers begin at the center and grow outward together.",
+      "invariant": "left never moves right during a single expansion."
+    },
+    "9": {
+      "happening": "Placing the right pointer at index {center + offset}.",
+      "why": "For an odd center it equals the center; for an even center it is the next cell.",
+      "invariant": "left and right stay symmetric around the center."
+    },
+    "10": {
+      "happening": "Testing the pointers at indices {left} and {right}: still in bounds and matching?",
+      "why": "While the characters match, the substring between the pointers is a palindrome that can still grow.",
+      "invariant": "Everything strictly between left and right is already a confirmed palindrome."
+    },
+    "11": {
+      "happening": "Match confirmed — moving the left pointer outward from index {left}.",
+      "why": "Expanding left grows the palindrome by one character on the left side.",
+      "invariant": "The characters just inside the pointers are equal in pairs."
+    },
+    "12": {
+      "happening": "Match confirmed — moving the right pointer outward from index {right}.",
+      "why": "Expanding right grows the palindrome by one character on the right side.",
+      "invariant": "left and right remain symmetric about the center."
+    },
+    "13": [
+      {
+        "when": "right - left - 1 > end - start + 1",
+        "happening": "This palindrome (length {right - left - 1}) beats the best so far (length {end - start + 1}) — record it.",
+        "why": "A longer palindrome should replace the current champion.",
+        "invariant": "start and end are about to point at the new best."
+      },
+      {
+        "happening": "This palindrome (length {right - left - 1}) is not longer than the best so far (length {end - start + 1}) — keep the current champion.",
+        "why": "The recorded best already covers at least as many characters.",
+        "invariant": "start and end keep pointing at the previous best."
+      }
+    ],
+    "14": {
+      "happening": "New best — recording the start index as {left + 1}.",
+      "why": "The palindrome sits just inside where the left pointer stopped.",
+      "invariant": "start now points at the first character of the best palindrome."
+    },
+    "15": {
+      "happening": "Recording the end index as {right - 1}.",
+      "why": "The right pointer overshot by one, so the palindrome ends one cell inside it.",
+      "invariant": "The span from start to end is the longest palindrome found so far."
+    },
+    "16": {
+      "happening": "Slicing out the champion palindrome from index {start} to {end}.",
+      "why": "start and end mark the best palindrome discovered across every center.",
+      "invariant": "No untried center could contain a longer palindrome."
+    },
+    "17": {
+      "happening": "Returning the longest palindromic substring.",
+      "why": "Every center has been expanded, so the recorded best is the final answer.",
+      "invariant": "The search space is exhausted."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the length and the running best palindrome.",
+      "why": "We need bounds and a best-so-far before expanding.",
+      "invariant": "The span from start to end is always a valid palindrome."
+    },
+    "loop": {
+      "happening": "Iterating through centers and expansion passes.",
+      "why": "Trying every center guarantees the longest palindrome is found.",
+      "invariant": "The best palindrome so far is remembered in start and end."
+    },
+    "move": {
+      "happening": "Positioning or advancing the expansion pointers.",
+      "why": "The pointers grow the palindrome outward from its center.",
+      "invariant": "left and right stay symmetric about the center."
+    },
+    "check": {
+      "happening": "Comparing the new palindrome's length to the best.",
+      "why": "Only a longer palindrome should replace the champion.",
+      "invariant": "start and end always hold the longest palindrome seen."
+    },
+    "update": {
+      "happening": "Recording a new best palindrome.",
+      "why": "A longer palindrome was found and must be remembered.",
+      "invariant": "start and end describe the current best."
+    },
+    "return": {
+      "happening": "Returning the longest palindromic substring.",
+      "why": "The search is complete.",
+      "invariant": "The answer is the best palindrome across all centers."
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "optimal",
+  "name": "Sort then Sweep",
+  "kind": "optimal",
+  "summary": "Sort by start, then sweep once: if the next interval overlaps the last merged one, stretch its end; otherwise start a new merged interval.",
+  "visualizationIntent": "init: the intervals sort into ascending order and an empty merged list appears. loop: pointer i sweeps the sorted intervals; each one becomes current. check: compare the current interval's start to the last merged interval's end. update: a non-overlapping interval is appended to merged (a new cell pops in); an overlapping one stretches the last merged interval's end (its cell flashes). return: merged holds the non-overlapping cover.",
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.merge",
+  "primaryPrimitive": "array",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "merged",
+    "label": "MERGED INTERVALS",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "merged": "result",
+    "last_end": "amber"
+  },
+  "lineExplanations": {
+    "3": "Sort the intervals so overlapping ones sit next to each other, ordered by start.",
+    "4": "Create an empty list to hold the merged, non-overlapping intervals.",
+    "5": "Sweep through every interval in sorted order.",
+    "6": "Read the start of the current interval.",
+    "7": "Read the end of the current interval.",
+    "8": "If nothing has been merged yet, this is the first interval.",
+    "9": "Add the first interval to the merged list as-is.",
+    "11": "Look at the end of the most recently merged interval.",
+    "12": "If the current interval starts after that end, the two do not overlap.",
+    "13": "No overlap, so start a fresh merged interval.",
+    "15": "They overlap; only stretch the merged interval if the current one reaches further right.",
+    "16": "Extend the last merged interval's end to cover the current interval.",
+    "17": "Return the merged list of non-overlapping intervals."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def merge(self, intervals): defines the method receiving the list of intervals.",
+    "3": "intervals.sort() sorts the list in place; pairs sort by first element then second.",
+    "4": "merged = [] creates an empty list.",
+    "5": "for i in range(len(intervals)): loops i over every interval index.",
+    "6": "intervals[i][0] reads the start of interval i.",
+    "7": "intervals[i][1] reads the end of interval i.",
+    "8": "if len(merged) == 0: is true when nothing has been merged yet.",
+    "9": "merged.append([start, end]) adds a copy of the interval.",
+    "11": "merged[-1][1] reads the end of the last merged interval.",
+    "12": "if start > last_end: is true when the current interval is disjoint.",
+    "13": "merged.append([start, end]) starts a new merged interval.",
+    "15": "if end > last_end: is true when the current interval extends further right.",
+    "16": "merged[-1][1] = end stretches the last merged interval's end.",
+    "17": "return merged hands back the merged intervals."
+  }
+}
