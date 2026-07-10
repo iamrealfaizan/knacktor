@@ -1,0 +1,222 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measuring the board: {len(board)} rows.",
+      "why": "The search needs the grid bounds to detect edges.",
+      "invariant": "m stays fixed for the whole search."
+    },
+    "4": {
+      "happening": "Measuring the board: {len(board[0])} columns.",
+      "why": "The search needs the grid bounds to detect edges.",
+      "invariant": "n stays fixed for the whole search."
+    },
+    "5": {
+      "happening": "No match found yet — the answer starts false.",
+      "why": "It flips to true only if some search succeeds.",
+      "invariant": "answer is true only once the word is found."
+    },
+    "6": {
+      "happening": "Trying start row {sr}.",
+      "why": "The word could begin at any cell.",
+      "invariant": "Every start cell is tried until one works."
+    },
+    "7": {
+      "happening": "Trying start cell ({sr}, {sc}) as the first letter.",
+      "why": "Each cell is a candidate first letter of the word.",
+      "invariant": "The scan covers every cell."
+    },
+    "8": {
+      "happening": "Launching a depth-first search from ({sr}, {sc}).",
+      "why": "It tries to match the whole word starting here.",
+      "invariant": "A true result means the word was found from this cell."
+    },
+    "9": {
+      "happening": "The search succeeded — setting the answer to true.",
+      "why": "A start cell led to a full match.",
+      "invariant": "answer is now true."
+    },
+    "10": {
+      "happening": "Returning true — the word exists in the grid.",
+      "why": "A matching path was found.",
+      "invariant": "The search is complete."
+    },
+    "11": {
+      "happening": "Returning false — no start cell matched the word.",
+      "why": "Every cell was tried without success.",
+      "invariant": "The word is not in the grid."
+    },
+    "14": [
+      {
+        "when": "k == len(word)",
+        "happening": "All {len(word)} letters matched — this path spells the word!",
+        "why": "Reaching k equal to the length means the word is complete.",
+        "invariant": "A completed path is a success."
+      },
+      {
+        "happening": "Matched {k} of {len(word)} letters so far — keep searching neighbours.",
+        "why": "There are still letters left to place.",
+        "invariant": "k counts how many letters are matched on this path."
+      }
+    ],
+    "15": {
+      "happening": "Reporting a full match back up the search.",
+      "why": "This path found the entire word.",
+      "invariant": "Success propagates back toward the start cell."
+    },
+    "16": {
+      "happening": "Checking whether the cursor stepped off the top or bottom edge.",
+      "why": "A move outside the grid can never match a letter.",
+      "invariant": "Only in-grid cells are considered."
+    },
+    "17": {
+      "happening": "Off the grid vertically — this path fails.",
+      "why": "There is no cell here to match against.",
+      "invariant": "Out-of-grid paths return failure."
+    },
+    "18": {
+      "happening": "Checking whether the cursor stepped off the left or right edge.",
+      "why": "A move outside the grid can never match a letter.",
+      "invariant": "Only in-grid cells are considered."
+    },
+    "19": {
+      "happening": "Off the grid horizontally — this path fails.",
+      "why": "There is no cell here to match against.",
+      "invariant": "Out-of-grid paths return failure."
+    },
+    "20": [
+      {
+        "when": "board[cr][cc] != word[k]",
+        "happening": "Cell letter '{board[cr][cc]}' does not match needed '{word[k]}' — dead end.",
+        "why": "The path can only continue on the exact next letter.",
+        "invariant": "A mismatch prunes this branch."
+      },
+      {
+        "happening": "Cell letter '{board[cr][cc]}' matches needed '{word[k]}' — extend the path.",
+        "why": "The letters line up, so this cell joins the path.",
+        "invariant": "Matching letters grow the path."
+      }
+    ],
+    "21": {
+      "happening": "Letter mismatch — this path fails.",
+      "why": "This cell cannot be the next letter.",
+      "invariant": "Mismatched paths return failure."
+    },
+    "22": {
+      "happening": "Saving this cell's letter '{board[cr][cc]}' before marking it.",
+      "why": "It must be restored when we backtrack.",
+      "invariant": "temp holds the original letter."
+    },
+    "23": {
+      "happening": "Marking cell ({cr}, {cc}) as used with '#'.",
+      "why": "A used cell cannot be reused within the same path.",
+      "invariant": "The current path is marked on the board."
+    },
+    "24": {
+      "happening": "No success yet from this cell.",
+      "why": "We will try each of the four neighbours in turn.",
+      "invariant": "found stays false until a direction works."
+    },
+    "25": {
+      "happening": "If still unfound, try the cell below.",
+      "why": "Down is the first direction explored.",
+      "invariant": "We stop early once found is true."
+    },
+    "26": {
+      "happening": "Searching downward for the next letter.",
+      "why": "The path extends to the cell below.",
+      "invariant": "Depth-first: fully explore down before other directions."
+    },
+    "27": {
+      "happening": "Down led to a full match.",
+      "why": "The path completes through the cell below.",
+      "invariant": "found becomes true."
+    },
+    "28": {
+      "happening": "If still unfound, try the cell above.",
+      "why": "Up is explored after down.",
+      "invariant": "We stop early once found is true."
+    },
+    "29": {
+      "happening": "Searching upward for the next letter.",
+      "why": "The path extends to the cell above.",
+      "invariant": "Depth-first: fully explore up before the rest."
+    },
+    "30": {
+      "happening": "Up led to a full match.",
+      "why": "The path completes through the cell above.",
+      "invariant": "found becomes true."
+    },
+    "31": {
+      "happening": "If still unfound, try the cell to the right.",
+      "why": "Right is explored after up.",
+      "invariant": "We stop early once found is true."
+    },
+    "32": {
+      "happening": "Searching rightward for the next letter.",
+      "why": "The path extends to the cell on the right.",
+      "invariant": "Depth-first: fully explore right before left."
+    },
+    "33": {
+      "happening": "Right led to a full match.",
+      "why": "The path completes through the cell to the right.",
+      "invariant": "found becomes true."
+    },
+    "34": {
+      "happening": "If still unfound, try the cell to the left.",
+      "why": "Left is the final direction.",
+      "invariant": "We stop early once found is true."
+    },
+    "35": {
+      "happening": "Searching leftward for the next letter.",
+      "why": "The path extends to the cell on the left.",
+      "invariant": "Depth-first: explore left last."
+    },
+    "36": {
+      "happening": "Left led to a full match.",
+      "why": "The path completes through the cell to the left.",
+      "invariant": "found becomes true."
+    },
+    "37": {
+      "happening": "Backtracking: restoring '{temp}' to cell ({cr}, {cc}).",
+      "why": "The cell is freed so other paths can use it.",
+      "invariant": "The board returns to its earlier state."
+    },
+    "38": {
+      "happening": "Reporting this cell's result to the caller.",
+      "why": "found tells the caller whether this branch matched.",
+      "invariant": "Success or failure propagates upward."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the board size and the answer flag.",
+      "why": "The scan needs bounds and a result to update.",
+      "invariant": "answer is true only when the word is found."
+    },
+    "loop": {
+      "happening": "Scanning start cells for the first letter.",
+      "why": "The word can start anywhere in the grid.",
+      "invariant": "Every start cell is tried."
+    },
+    "check": {
+      "happening": "Testing a cell: in bounds, matching, or a dead end.",
+      "why": "Each check can prune the current path.",
+      "invariant": "Only matching, in-grid cells extend the path."
+    },
+    "recurse": {
+      "happening": "Searching a neighbouring cell for the next letter.",
+      "why": "Depth-first explores one direction fully before the next.",
+      "invariant": "The recursion depth equals the matched-letter count."
+    },
+    "update": {
+      "happening": "Marking the path, recording success, or restoring a cell.",
+      "why": "The board is marked while on a path and restored on backtrack.",
+      "invariant": "found tracks whether this cell's branch matched."
+    },
+    "return": {
+      "happening": "Reporting success or failure up the search.",
+      "why": "Each call returns whether its branch matched.",
+      "invariant": "Results propagate back to the start cell."
+    }
+  }
+}

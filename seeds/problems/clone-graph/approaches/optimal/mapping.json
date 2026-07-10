@@ -1,0 +1,160 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "edges",
+  "directed": false,
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_id == node"
+    },
+    {
+      "state": "visited",
+      "when": "cloned[node_id] == node_id"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "node",
+      "var": "node"
+    }
+  ],
+  "readout": {
+    "expr": "cloning node {node}",
+    "relation": "{len(cloned)} of {n} cloned",
+    "relationColor": "result",
+    "when": "node != null"
+  },
+  "counters": [
+    {
+      "name": "edges-copied",
+      "onLines": [
+        29
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        8,
+        10,
+        15,
+        23,
+        27
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        12,
+        18,
+        31
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        25
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        7,
+        9,
+        11,
+        13,
+        14,
+        16,
+        17,
+        20,
+        21,
+        22,
+        24,
+        26,
+        28,
+        29,
+        30,
+        32,
+        33
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        19,
+        34
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 22,
+      "label": "First node cloned",
+      "kind": "result"
+    },
+    {
+      "line": 32,
+      "label": "New node cloned",
+      "kind": "match"
+    },
+    {
+      "line": 34,
+      "label": "Graph fully cloned",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Clones (original -> clone)",
+      "primitive": "hashmap",
+      "keysFrom": "cloned",
+      "valuesFrom": "cloned",
+      "highlightRules": [
+        {
+          "state": "current",
+          "whenKey": "k == node"
+        },
+        {
+          "state": "idle",
+          "whenKey": "true"
+        }
+      ]
+    },
+    {
+      "label": "BFS Queue",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "frontVar": "head",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == head"
+        },
+        {
+          "state": "visited",
+          "when": "idx < head"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

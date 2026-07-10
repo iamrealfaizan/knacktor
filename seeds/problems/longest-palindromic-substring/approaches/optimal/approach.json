@@ -1,0 +1,61 @@
+{
+  "id": "optimal",
+  "name": "Expand Around Center",
+  "kind": "optimal",
+  "summary": "Treat every index (and every gap) as a palindrome center and grow two pointers outward while the characters match.",
+  "visualizationIntent": "init: draw the string as a row of character cells with start and end both at index 0. loop: a purple center pointer walks left to right; for each center the left (blue) and right (amber) pointers begin together. move: left and right glide outward one cell at a time while the characters match, tinting the growing palindrome interior gold and flashing the compared pair. check: compare the length of the palindrome just grown to the best found so far. update: when it is longer, the best span from start to end turns green. return: the longest palindromic substring appears in the result panel.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.longestPalindrome",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "LONGEST PALINDROME",
+    "render": "string"
+  },
+  "varColors": {
+    "center": "special",
+    "left": "ptr-lo",
+    "right": "ptr-hi"
+  },
+  "lineExplanations": {
+    "3": "Measure the length of the string so the pointers know their bounds.",
+    "4": "start marks the beginning index of the best palindrome found so far.",
+    "5": "end marks the last index of the best palindrome found so far.",
+    "6": "Try every index in the string as a possible palindrome center.",
+    "7": "Run the expansion twice per center: offset 0 for an odd-length center, offset 1 for an even-length gap.",
+    "8": "Place the left pointer on the center character.",
+    "9": "Place the right pointer on the center (odd) or the very next character (even).",
+    "10": "Keep expanding while both pointers stay in bounds and the characters they point at are equal.",
+    "11": "The characters matched, so move the left pointer one step further out.",
+    "12": "The characters matched, so move the right pointer one step further out.",
+    "13": "Check whether the palindrome we just grew is longer than the best one so far.",
+    "14": "It is longer, so record its start index, just inside where the left pointer stopped.",
+    "15": "Record its end index, just inside where the right pointer stopped.",
+    "16": "Slice out the best palindrome using its recorded start and end indices.",
+    "17": "Return the longest palindromic substring."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def longestPalindrome(self, s): defines the method; s is the input string.",
+    "3": "len(s) returns the number of characters in s.",
+    "4": "start = 0 initializes an integer variable to 0.",
+    "5": "end = 0 initializes another integer variable to 0.",
+    "6": "for center in range(n): loops center over 0, 1, ..., n-1.",
+    "7": "for offset in range(2): loops offset over 0 then 1.",
+    "8": "left = center copies the center index into the variable left.",
+    "9": "right = center + offset sets right to the center or the next index.",
+    "10": "while A and B and C: repeats while every condition is true; 'and' stops early if one is false.",
+    "11": "left -= 1 decreases left by one.",
+    "12": "right += 1 increases right by one.",
+    "13": "if condition: runs the indented block only when the condition is true.",
+    "14": "start = left + 1 assigns a new value to start.",
+    "15": "end = right - 1 assigns a new value to end.",
+    "16": "s[start:end + 1] slices out the substring from start to end inclusive.",
+    "17": "return result hands the answer back to the caller."
+  }
+}

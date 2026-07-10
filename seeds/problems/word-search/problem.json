@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "word-search",
+  "number": 79,
+  "title": "Word Search",
+  "difficulty": "medium",
+  "topics": [
+    "matrix",
+    "backtracking",
+    "string"
+  ],
+  "patterns": [
+    "dfs"
+  ],
+  "statement": "Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.\n\nThe word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.\n\n**Example 1:**\n\nInput: board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"\nOutput: true\n\n**Example 2:**\n\nInput: board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"\nOutput: true\n\n**Example 3:**\n\nInput: board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCB\"\nOutput: false\n\n**Constraints:**\n\n- `m == board.length`\n- `n == board[i].length`\n- `1 <= m, n <= 6`\n- `1 <= word.length <= 15`\n- `board` and `word` consist of only lowercase and uppercase English letters.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "board",
+        "type": "char[][]",
+        "label": "Board",
+        "placeholder": "[[\"A\",\"B\"],[\"C\",\"D\"]]"
+      },
+      {
+        "name": "word",
+        "type": "string",
+        "label": "Word",
+        "placeholder": "ABCCED"
+      }
+    ],
+    "maxSteps": 4000
+  }
+}

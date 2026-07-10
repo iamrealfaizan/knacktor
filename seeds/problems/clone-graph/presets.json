@@ -1,0 +1,106 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "adjList": [
+        [
+          2,
+          4
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        2,
+        4
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Path Graph",
+    "value": {
+      "adjList": [
+        [
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3
+      ]
+    ]
+  },
+  {
+    "id": "edge-single-node",
+    "label": "Single Node",
+    "value": {
+      "adjList": [
+        []
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      []
+    ]
+  },
+  {
+    "id": "edge-empty",
+    "label": "Empty Graph",
+    "value": {
+      "adjList": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  }
+]

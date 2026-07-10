@@ -1,0 +1,53 @@
+{
+  "id": "optimal",
+  "name": "Bottom-Up DP",
+  "kind": "optimal",
+  "summary": "For every amount from 1 up to the target, try each coin and keep the fewest coins that reach it.",
+  "visualizationIntent": "init: draw a dp cell for every amount 0..amount; every cell starts at the 'infinity' sentinel amount+1 except dp[0] which is 0. loop: a blue pointer a sweeps left to right over the amounts; for each amount every coin is tried. check: when a coin fits, the source cell dp[a-coin] flashes blue and the readout shows dp[a-coin]+1 compared to the current dp[a]. update: if that is fewer coins, dp[a] drops to the new value and flashes. return: dp[amount] turns green; if it is still the sentinel the amount is unreachable and the answer is -1, otherwise it is the fewest coins.",
+  "complexity": {
+    "time": "O(amount * coins)",
+    "space": "O(amount)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.coinChange",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "FEWEST COINS",
+    "render": "scalar"
+  },
+  "varColors": {
+    "a": "ptr-i",
+    "coin": "amber",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Create a table of fewest-coin counts for every amount from 0 to the target, all set to a large 'infinity' sentinel (amount+1) meaning unreachable.",
+    "4": "Base case: it takes zero coins to make the amount 0.",
+    "5": "Solve every amount from 1 up to the target, smallest first.",
+    "6": "Try each available coin denomination for this amount.",
+    "7": "Only use a coin that is not larger than the amount we are making.",
+    "8": "Check whether taking this coin (one more than the count for amount-coin) beats the best count so far for this amount.",
+    "9": "It is better, so record the smaller coin count for this amount.",
+    "10": "After filling the table, check whether the target amount was ever reached.",
+    "11": "The target is still the infinity sentinel — it cannot be made, so the answer is -1.",
+    "13": "The target was reached, so read the fewest-coins count from dp[amount].",
+    "14": "Return the fewest number of coins (or -1 if impossible)."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def coinChange(self, coins, amount): defines the method receiving the coin list and target.",
+    "3": "[amount + 1] * (amount + 1) builds a list of amount+1 copies of the sentinel value.",
+    "4": "dp[0] = 0 stores 0 in the first slot.",
+    "5": "for a in range(1, amount + 1): loops a over 1, 2, ..., amount.",
+    "6": "for coin in coins: loops coin over each denomination in the list.",
+    "7": "if coin <= a: runs the block only when the coin fits inside the amount.",
+    "8": "if dp[a - coin] + 1 < dp[a]: compares the candidate count to the current best.",
+    "9": "dp[a] = dp[a - coin] + 1 stores the improved coin count.",
+    "10": "if dp[amount] > amount: is true only when dp[amount] is still the sentinel.",
+    "11": "result = -1 marks the amount as impossible to make.",
+    "13": "result = dp[amount] reads the answer from the last relevant slot.",
+    "14": "return result hands the answer back to the caller."
+  }
+}

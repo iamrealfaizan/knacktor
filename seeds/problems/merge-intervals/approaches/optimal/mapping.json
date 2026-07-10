@@ -1,0 +1,127 @@
+{
+  "primitive": "array",
+  "valuesFrom": "intervals",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "i"
+    ]
+  },
+  "readout": {
+    "expr": "current interval [{start}, {end}]",
+    "relation": "merged so far: {len(merged)}",
+    "relationColor": "result",
+    "when": "start != null"
+  },
+  "counters": [
+    {
+      "name": "merges",
+      "onLines": [
+        16
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8,
+        12,
+        15
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        7,
+        9,
+        11,
+        13,
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "First interval starts the result",
+      "kind": "result"
+    },
+    {
+      "line": 13,
+      "label": "New disjoint interval",
+      "kind": "result"
+    },
+    {
+      "line": 16,
+      "label": "Intervals merged",
+      "kind": "match"
+    },
+    {
+      "line": 17,
+      "label": "Merge complete",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Merged",
+      "primitive": "array",
+      "valuesFrom": "merged",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "idx == len(merged) - 1"
+        },
+        {
+          "state": "visited",
+          "when": "idx < len(merged) - 1"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

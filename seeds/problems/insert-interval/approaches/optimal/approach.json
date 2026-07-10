@@ -1,0 +1,68 @@
+{
+  "id": "optimal",
+  "name": "Three-Phase Sweep",
+  "kind": "optimal",
+  "summary": "Copy intervals that end before the new one, absorb every interval that overlaps it into a growing merged interval, place it, then copy the rest.",
+  "visualizationIntent": "init: the sorted intervals appear alongside an empty result and the new interval's start/end. loop 1: pointer i copies intervals that end before the new interval starts into result. loop 2: intervals whose start is within the new interval's end are absorbed, growing new_start and new_end. update: the merged new interval is appended into result. loop 3: pointer i copies the remaining intervals. return: result is the sorted, non-overlapping list with the new interval merged in.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.insert",
+  "primaryPrimitive": "array",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "result",
+    "label": "RESULT INTERVALS",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "result": "result",
+    "new_start": "special",
+    "new_end": "amber"
+  },
+  "lineExplanations": {
+    "3": "Create an empty result list to build the answer in order.",
+    "4": "Take the start of the interval we are inserting.",
+    "5": "Take the end of the interval we are inserting.",
+    "6": "Start scanning the existing intervals from the first one.",
+    "7": "Remember how many existing intervals there are.",
+    "8": "Phase 1: while an interval ends before the new interval starts, it stays untouched.",
+    "9": "Copy that entirely-earlier interval straight into the result.",
+    "10": "Advance to the next interval.",
+    "11": "Phase 2: while an interval starts on or before the new interval's end, it overlaps.",
+    "12": "Absorb it: pull the merged start left to the smaller of the two starts.",
+    "13": "Absorb it: push the merged end right to the larger of the two ends.",
+    "14": "Advance past the absorbed interval.",
+    "15": "Place the fully merged new interval into the result.",
+    "16": "Phase 3: copy every remaining interval, which all sit after the new one.",
+    "17": "Copy the later interval into the result.",
+    "18": "Advance to the next interval.",
+    "19": "Return the intervals with the new one inserted and merged."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def insert(self, intervals, newInterval): receives the sorted intervals and the interval to insert.",
+    "3": "result = [] creates an empty list.",
+    "4": "newInterval[0] reads the new interval's start.",
+    "5": "newInterval[1] reads the new interval's end.",
+    "6": "i = 0 starts the scan index at the first interval.",
+    "7": "n = len(intervals) counts the existing intervals.",
+    "8": "while i < n and intervals[i][1] < new_start: 'and' short-circuits so intervals[i] is only read when i < n.",
+    "9": "result.append(intervals[i]) copies interval i.",
+    "10": "i += 1 moves to the next interval.",
+    "11": "while i < n and intervals[i][0] <= new_end: keeps going while intervals overlap the new one.",
+    "12": "min(new_start, intervals[i][0]) keeps the smaller start.",
+    "13": "max(new_end, intervals[i][1]) keeps the larger end.",
+    "14": "i += 1 moves past the absorbed interval.",
+    "15": "result.append([new_start, new_end]) adds the merged new interval.",
+    "16": "while i < n: copies the remaining intervals.",
+    "17": "result.append(intervals[i]) copies interval i.",
+    "18": "i += 1 moves to the next interval.",
+    "19": "return result hands back the final list."
+  }
+}

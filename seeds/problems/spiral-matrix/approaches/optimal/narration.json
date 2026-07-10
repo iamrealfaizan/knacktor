@@ -1,0 +1,164 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Creating an empty list for the spiral order.",
+      "why": "Elements are collected as the cursor walks the grid.",
+      "invariant": "result holds the elements in visit order."
+    },
+    "4": {
+      "happening": "Counting the {len(matrix)} rows.",
+      "why": "The cursor needs the grid's height to detect walls.",
+      "invariant": "m stays fixed for the whole walk."
+    },
+    "5": {
+      "happening": "Counting the {len(matrix[0])} columns.",
+      "why": "The cursor needs the grid's width to detect walls.",
+      "invariant": "n stays fixed for the whole walk."
+    },
+    "6": {
+      "happening": "Preparing the 'seen' grid of visited flags.",
+      "why": "Turning depends on knowing which cells were already visited.",
+      "invariant": "seen mirrors the matrix shape."
+    },
+    "7": {
+      "happening": "Building a flag row for matrix row {ri}.",
+      "why": "Each matrix row needs its own row of flags.",
+      "invariant": "seen grows toward m rows."
+    },
+    "8": {
+      "happening": "Starting the flag row as all not-visited.",
+      "why": "No cell has been visited before the walk begins.",
+      "invariant": "Every flag starts false."
+    },
+    "9": {
+      "happening": "Adding the flag row to the seen grid.",
+      "why": "seen now covers one more matrix row.",
+      "invariant": "seen stays rectangular."
+    },
+    "10": {
+      "happening": "Listing the four clockwise directions: right, down, left, up.",
+      "why": "Turning clockwise cycles through these in order.",
+      "invariant": "directions never changes."
+    },
+    "11": {
+      "happening": "Placing the cursor on the top row.",
+      "why": "The spiral starts at the top-left corner.",
+      "invariant": "row is the cursor's current row."
+    },
+    "12": {
+      "happening": "Placing the cursor on the left column.",
+      "why": "The spiral starts at the top-left corner.",
+      "invariant": "col is the cursor's current column."
+    },
+    "13": {
+      "happening": "Facing right to begin (direction 0).",
+      "why": "The spiral first runs along the top row.",
+      "invariant": "d indexes the current direction."
+    },
+    "14": {
+      "happening": "Step {step} of the walk — one step per cell.",
+      "why": "Exactly m*n steps fills the whole grid.",
+      "invariant": "Every cell is visited exactly once."
+    },
+    "15": {
+      "happening": "Visiting cell ({row}, {col}) = {matrix[row][col]} and adding it to the spiral.",
+      "why": "The current cell's value joins the output in order.",
+      "invariant": "result grows by one each step."
+    },
+    "16": {
+      "happening": "Marking cell ({row}, {col}) as visited.",
+      "why": "A visited cell must never be entered again.",
+      "invariant": "seen[row][col] is now true."
+    },
+    "17": {
+      "happening": "Looking ahead: the next row would be {row} + {directions[d][0]}.",
+      "why": "We probe the next cell before committing to move.",
+      "invariant": "next_row is only a candidate here."
+    },
+    "18": {
+      "happening": "Looking ahead: the next column would be {col} + {directions[d][1]}.",
+      "why": "We probe the next cell before committing to move.",
+      "invariant": "next_col is only a candidate here."
+    },
+    "19": {
+      "happening": "Testing whether ({next_row}, {next_col}) is outside the grid.",
+      "why": "A cell off the grid means the cursor hit a wall.",
+      "invariant": "out_of_bounds is true only past an edge."
+    },
+    "20": [
+      {
+        "when": "out_of_bounds || seen[next_row][next_col]",
+        "happening": "The next cell is off the grid or already visited — turn clockwise.",
+        "why": "The spiral turns exactly when it cannot continue straight.",
+        "invariant": "Turning keeps the path on unvisited cells."
+      },
+      {
+        "happening": "The next cell is open — keep moving straight.",
+        "why": "No wall ahead, so the direction is unchanged.",
+        "invariant": "The cursor continues along the current edge."
+      }
+    ],
+    "21": {
+      "happening": "Turning clockwise to direction {(d + 1) % 4}.",
+      "why": "Right becomes down, down becomes left, and so on, wrapping around.",
+      "invariant": "d advances by one, modulo four."
+    },
+    "22": {
+      "happening": "Recomputing the next row after the turn.",
+      "why": "The new direction points at a different candidate cell.",
+      "invariant": "next_row now follows the turned direction."
+    },
+    "23": {
+      "happening": "Recomputing the next column after the turn.",
+      "why": "The new direction points at a different candidate cell.",
+      "invariant": "next_col now follows the turned direction."
+    },
+    "24": {
+      "happening": "Moving the cursor to row {next_row}.",
+      "why": "The chosen next cell becomes the current one.",
+      "invariant": "row advances along the spiral."
+    },
+    "25": {
+      "happening": "Moving the cursor to column {next_col}.",
+      "why": "The chosen next cell becomes the current one.",
+      "invariant": "col advances along the spiral."
+    },
+    "26": {
+      "happening": "Returning the {len(result)} elements in spiral order.",
+      "why": "Every cell has been visited exactly once.",
+      "invariant": "result is the full spiral."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the output, the visited grid, and the cursor.",
+      "why": "The walk needs bounds, visited-tracking, and a starting cell.",
+      "invariant": "seen mirrors the matrix; the cursor starts top-left."
+    },
+    "loop": {
+      "happening": "Walking the cursor cell by cell.",
+      "why": "One step per cell traces the whole spiral.",
+      "invariant": "Each cell is visited exactly once."
+    },
+    "update": {
+      "happening": "Recording a cell, marking it, and probing ahead.",
+      "why": "Every step emits a value and looks for a wall.",
+      "invariant": "result and seen grow together."
+    },
+    "check": {
+      "happening": "Deciding whether to turn or go straight.",
+      "why": "A wall or a visited cell forces a clockwise turn.",
+      "invariant": "The path stays on unvisited cells."
+    },
+    "move": {
+      "happening": "Advancing the cursor to the next cell.",
+      "why": "The cursor follows the current direction.",
+      "invariant": "row and col move by one cell."
+    },
+    "return": {
+      "happening": "Returning the spiral order.",
+      "why": "The whole grid has been visited.",
+      "invariant": "result is the complete spiral."
+    }
+  }
+}

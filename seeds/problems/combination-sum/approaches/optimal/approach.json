@@ -1,0 +1,62 @@
+{
+  "id": "optimal",
+  "name": "Backtracking",
+  "kind": "optimal",
+  "summary": "Build a combination one candidate at a time; when the remaining target hits zero record it, when it goes negative prune, then undo the last choice and try the next.",
+  "visualizationIntent": "init: show candidates as an array and an empty path stack. loop: pointer i marks the candidate being tried; candidates before start dim so combinations are not double-counted. update: choosing a candidate pushes it onto the path stack and lowers the remaining target; undoing pops it back off. check: when remaining hits zero the whole path flashes green and is recorded into result; when remaining goes negative the branch is pruned. return: the result panel holds every combination that sums to the target. The call-stack panel mirrors the recursion depth.",
+  "complexity": {
+    "time": "O(n^(target/min))",
+    "space": "O(target/min)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.combinationSum",
+  "primaryPrimitive": "stack",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "result",
+    "label": "COMBINATIONS",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "path": "special",
+    "result": "result",
+    "remaining": "amber"
+  },
+  "lineExplanations": {
+    "3": "Create the empty result list that will collect every valid combination.",
+    "4": "Create the empty path list — the combination we are currently building.",
+    "5": "Start the recursive search from the first candidate with the full target remaining.",
+    "6": "Return every combination that was found.",
+    "9": "If nothing is left to reach, the current path sums exactly to the target.",
+    "10": "Record a snapshot copy of the current path as a valid combination.",
+    "11": "Stop this branch — a complete combination was found.",
+    "12": "If the running total overshot the target, this branch can never work.",
+    "13": "Prune: abandon this dead-end branch.",
+    "14": "Try each candidate from start onward — starting at start avoids duplicate combinations.",
+    "15": "Choose candidate i by pushing it onto the current path.",
+    "16": "Recurse with the smaller remaining target, allowing candidate i to be reused.",
+    "17": "Undo the choice: pop candidate i off the path and try the next candidate."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def combinationSum(self, candidates, target): the entry method receiving the numbers and target.",
+    "3": "result = [] creates an empty list.",
+    "4": "path = [] creates an empty list used like a stack.",
+    "5": "self.backtrack(...) calls the recursive helper method.",
+    "6": "return result hands back the list of combinations.",
+    "7": "A blank line separates the two methods.",
+    "8": "def backtrack(self, candidates, remaining, start, path, result): the recursive helper.",
+    "9": "if remaining == 0: is true when the path sums exactly to the target.",
+    "10": "result.append(list(path)) stores a copy of the path; list(path) makes a snapshot.",
+    "11": "return ends this recursive call.",
+    "12": "if remaining < 0: is true when the running sum passed the target.",
+    "13": "return ends this recursive call for a pruned branch.",
+    "14": "for i in range(start, len(candidates)): loops i over candidate indices from start.",
+    "15": "path.append(candidates[i]) pushes the chosen candidate onto the path.",
+    "16": "self.backtrack(..., remaining - candidates[i], i, ...) recurses; passing i lets the candidate repeat.",
+    "17": "path.pop() removes the last chosen candidate to backtrack."
+  }
+}

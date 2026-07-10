@@ -1,0 +1,44 @@
+{
+  "id": "optimal",
+  "name": "Bottom-Up DP",
+  "kind": "optimal",
+  "summary": "The ways to reach step i equal the ways to reach step i-1 plus the ways to reach step i-2 — fill a table from the bottom up.",
+  "visualizationIntent": "init: draw the dp table as a row of cells, all zero, with dp[0] and dp[1] seeded to 1. loop: a blue pointer i walks left to right across the table. update: the current cell dp[i] lights up while its two source cells dp[i-1] and dp[i-2] flash blue, and the readout shows the instantiated recurrence dp[i] = dp[i-1] + dp[i-2]; already-filled cells stay pale. return: the answer cell dp[n] turns green and its value is the number of distinct ways.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.climbStairs",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "DISTINCT WAYS",
+    "render": "scalar"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Create a table with one slot for every step from 0 up to n, all starting at zero.",
+    "4": "Base case: there is exactly one way to stand at the bottom (do nothing).",
+    "5": "Base case: there is exactly one way to reach the first step (a single 1-step).",
+    "6": "Fill the table from step 2 up to step n, one step at a time.",
+    "7": "Ways to reach step i = ways to reach step i-1 (take a 1-step) plus ways to reach step i-2 (take a 2-step).",
+    "8": "The answer is the number of ways stored in the last cell, dp[n].",
+    "9": "Return the total number of distinct ways to reach the top."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper LeetCode expects.",
+    "2": "def climbStairs(self, n): defines the method; n is the number of stairs.",
+    "3": "[0] * (n + 1) builds a list of n+1 zeros.",
+    "4": "dp[0] = 1 stores 1 in the first slot of the list.",
+    "5": "dp[1] = 1 stores 1 in the second slot of the list.",
+    "6": "for i in range(2, n + 1): loops i over 2, 3, ..., n.",
+    "7": "dp[i] = dp[i - 1] + dp[i - 2] adds the two previous slots into slot i.",
+    "8": "result = dp[n] reads the last slot into a variable.",
+    "9": "return result hands the answer back to the caller."
+  }
+}

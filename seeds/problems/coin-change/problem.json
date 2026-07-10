@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "coin-change",
+  "number": 322,
+  "title": "Coin Change",
+  "difficulty": "medium",
+  "topics": [
+    "array",
+    "dynamic-programming"
+  ],
+  "patterns": [
+    "dynamic-programming"
+  ],
+  "statement": "You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n**Example 1:**\n\nInput: coins = [1,2,5], amount = 11\nOutput: 3\nExplanation: 11 = 5 + 5 + 1\n\n**Example 2:**\n\nInput: coins = [2], amount = 3\nOutput: -1\n\n**Example 3:**\n\nInput: coins = [1], amount = 0\nOutput: 0\n\n**Constraints:**\n\n- `1 <= coins.length <= 12`\n- `1 <= coins[i] <= 2^31 - 1`\n- `0 <= amount <= 10^4`",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": true,
+  "supportsCompare": false,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "coins",
+        "type": "int[]",
+        "label": "Coins",
+        "placeholder": "1,2,5",
+        "min": 1,
+        "max": 100,
+        "minLen": 1,
+        "maxLen": 12
+      },
+      {
+        "name": "amount",
+        "type": "int",
+        "label": "Amount",
+        "placeholder": "11",
+        "min": 0,
+        "max": 100
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

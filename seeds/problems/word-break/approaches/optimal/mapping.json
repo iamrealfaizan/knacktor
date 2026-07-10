@@ -1,0 +1,112 @@
+{
+  "primitive": "array",
+  "valuesFrom": "dp",
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == n && phase == 'return' && dp[n] == 1"
+    },
+    {
+      "state": "error",
+      "when": "idx == n && phase == 'return' && dp[n] == 0"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "compared",
+      "when": "idx == j"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "i",
+      "j"
+    ]
+  },
+  "readout": {
+    "expr": "piece '{piece}' a word? {fits} — prefix dp[{j}] = {dp[j]}",
+    "relation": "deciding prefix length {i}",
+    "relationColor": "current",
+    "when": "phase == 'check'"
+  },
+  "counters": [
+    {
+      "name": "checks",
+      "onLines": [
+        11
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9,
+        10,
+        12
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        11
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        13,
+        14
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 12,
+      "label": "Prefix is reachable",
+      "kind": "match"
+    },
+    {
+      "line": 14,
+      "label": "Answer returned",
+      "kind": "return"
+    }
+  ]
+}
