@@ -1,0 +1,452 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The recursion fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, on-stack, done, or invalid — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been checked yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The recursion fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "The root is slot 0 (or nothing if the tree is empty).",
+      "why": "Validation starts at the root.",
+      "invariant": "root identifies where the recursion begins."
+    },
+    "24": {
+      "happening": "Validate the whole tree from the root.",
+      "why": "Each node is checked against its subtrees' extremes.",
+      "invariant": "answer becomes True only if every node passes."
+    },
+    "25": {
+      "happening": "Return whether the tree is a valid BST: {answer}.",
+      "why": "No node's subtree scan found a violation.",
+      "invariant": "answer is the final verdict."
+    },
+    "28": [
+      {
+        "when": "node_id == null",
+        "happening": "An absent child — nothing to check.",
+        "why": "An empty subtree is a valid BST.",
+        "invariant": "Null subtrees pass."
+      },
+      {
+        "happening": "A real node — validate it.",
+        "why": "We check its subtrees' extremes against it.",
+        "invariant": "This node is about to be tested."
+      }
+    ],
+    "29": {
+      "happening": "Return True for the missing child.",
+      "why": "An empty subtree can't break the rule.",
+      "invariant": "The recursion unwinds one level."
+    },
+    "30": {
+      "happening": "Mark node {node_id} active — its frame is on the call stack.",
+      "why": "Amber marks the node currently being validated.",
+      "invariant": "On-stack nodes are mid-validation."
+    },
+    "31": {
+      "happening": "Read this node's value.",
+      "why": "Its subtrees' extremes are compared against it.",
+      "invariant": "value is this node's key."
+    },
+    "32": {
+      "happening": "Get this node's left child id.",
+      "why": "We may need to scan the left subtree.",
+      "invariant": "left_id is a real id or None."
+    },
+    "33": {
+      "happening": "Get this node's right child id.",
+      "why": "We may need to scan the right subtree.",
+      "invariant": "right_id is a real id or None."
+    },
+    "34": [
+      {
+        "when": "left_id != null",
+        "happening": "There is a left subtree — scan it.",
+        "why": "Its largest value must stay below this node.",
+        "invariant": "Only real subtrees are scanned."
+      },
+      {
+        "happening": "No left subtree to scan.",
+        "why": "An empty side can't violate the rule.",
+        "invariant": "Skip the left check."
+      }
+    ],
+    "35": {
+      "happening": "Scan the entire left subtree for its maximum.",
+      "why": "The biggest left value decides the left-side rule.",
+      "invariant": "This full scan is the O(n^2) cost."
+    },
+    "36": [
+      {
+        "when": "left_max >= value",
+        "happening": "The left max ({left_max}) is not below the node — rule broken.",
+        "why": "Left subtree values must be strictly smaller.",
+        "invariant": "This node fails."
+      },
+      {
+        "happening": "The left max ({left_max}) is safely below the node.",
+        "why": "Every left value is strictly smaller.",
+        "invariant": "Left side passes."
+      }
+    ],
+    "37": {
+      "happening": "Mark node {node_id} invalid (red).",
+      "why": "Its left subtree contains too large a value.",
+      "invariant": "A red node is why the tree fails."
+    },
+    "38": {
+      "happening": "Return False — not a BST.",
+      "why": "A single violation rejects the whole tree.",
+      "invariant": "The failure propagates upward."
+    },
+    "39": [
+      {
+        "when": "right_id != null",
+        "happening": "There is a right subtree — scan it.",
+        "why": "Its smallest value must stay above this node.",
+        "invariant": "Only real subtrees are scanned."
+      },
+      {
+        "happening": "No right subtree to scan.",
+        "why": "An empty side can't violate the rule.",
+        "invariant": "Skip the right check."
+      }
+    ],
+    "40": {
+      "happening": "Scan the entire right subtree for its minimum.",
+      "why": "The smallest right value decides the right-side rule.",
+      "invariant": "Another full scan on top of the recursion."
+    },
+    "41": [
+      {
+        "when": "right_min <= value",
+        "happening": "The right min ({right_min}) is not above the node — rule broken.",
+        "why": "Right subtree values must be strictly larger.",
+        "invariant": "This node fails."
+      },
+      {
+        "happening": "The right min ({right_min}) is safely above the node.",
+        "why": "Every right value is strictly larger.",
+        "invariant": "Right side passes."
+      }
+    ],
+    "42": {
+      "happening": "Mark node {node_id} invalid (red).",
+      "why": "Its right subtree contains too small a value.",
+      "invariant": "A red node is why the tree fails."
+    },
+    "43": {
+      "happening": "Return False — not a BST.",
+      "why": "A single violation rejects the whole tree.",
+      "invariant": "The failure propagates upward."
+    },
+    "44": {
+      "happening": "Recursively validate the left subtree.",
+      "why": "Every subtree must also be a BST on its own.",
+      "invariant": "left_valid holds the left result."
+    },
+    "45": {
+      "happening": "Recursively validate the right subtree.",
+      "why": "The right subtree must also be a BST.",
+      "invariant": "right_valid holds the right result."
+    },
+    "46": {
+      "happening": "This node holds only if both subtrees held.",
+      "why": "A BST needs every subtree valid.",
+      "invariant": "result combines both sides."
+    },
+    "47": {
+      "happening": "Mark node {node_id} fully validated (blue).",
+      "why": "It and its subtrees obey the rule.",
+      "invariant": "Done nodes never change again."
+    },
+    "48": {
+      "happening": "Return this subtree's verdict.",
+      "why": "The parent needs this result.",
+      "invariant": "Control unwinds one level."
+    },
+    "51": [
+      {
+        "when": "node_id == null",
+        "happening": "Empty subtree — no maximum here.",
+        "why": "There is nothing to measure.",
+        "invariant": "Return a tiny sentinel."
+      },
+      {
+        "happening": "A real node — include it in the max.",
+        "why": "Its value competes to be the maximum.",
+        "invariant": "We scan its whole subtree."
+      }
+    ],
+    "52": {
+      "happening": "Return a value smaller than any real node.",
+      "why": "An empty side never wins the max.",
+      "invariant": "The sentinel keeps the max correct."
+    },
+    "53": {
+      "happening": "Start the max at this node's value.",
+      "why": "A node is at least as big as itself.",
+      "invariant": "best is the largest seen so far."
+    },
+    "54": {
+      "happening": "Find the largest value in the left subtree.",
+      "why": "The left side may hold a bigger value.",
+      "invariant": "left_max is the left subtree's maximum."
+    },
+    "55": [
+      {
+        "when": "left_max > best",
+        "happening": "The left subtree has a bigger value ({left_max}).",
+        "why": "It should become the running maximum.",
+        "invariant": "best must hold the largest."
+      },
+      {
+        "happening": "The left subtree's max ({left_max}) is not bigger.",
+        "why": "The current best still stands.",
+        "invariant": "best unchanged."
+      }
+    ],
+    "56": {
+      "happening": "Adopt {left_max} as the new maximum.",
+      "why": "It is the biggest value seen so far.",
+      "invariant": "best grows or stays."
+    },
+    "57": {
+      "happening": "Find the largest value in the right subtree.",
+      "why": "The right side may hold an even bigger value.",
+      "invariant": "right_max is the right subtree's maximum."
+    },
+    "58": [
+      {
+        "when": "right_max > best",
+        "happening": "The right subtree has a bigger value ({right_max}).",
+        "why": "It should become the running maximum.",
+        "invariant": "best must hold the largest."
+      },
+      {
+        "happening": "The right subtree's max ({right_max}) is not bigger.",
+        "why": "The current best still stands.",
+        "invariant": "best unchanged."
+      }
+    ],
+    "59": {
+      "happening": "Adopt {right_max} as the new maximum.",
+      "why": "It is the biggest value seen so far.",
+      "invariant": "best grows or stays."
+    },
+    "60": {
+      "happening": "Return the subtree's maximum ({best}).",
+      "why": "The caller compares it against the parent node.",
+      "invariant": "best is this subtree's largest value."
+    },
+    "63": [
+      {
+        "when": "node_id == null",
+        "happening": "Empty subtree — no minimum here.",
+        "why": "There is nothing to measure.",
+        "invariant": "Return a huge sentinel."
+      },
+      {
+        "happening": "A real node — include it in the min.",
+        "why": "Its value competes to be the minimum.",
+        "invariant": "We scan its whole subtree."
+      }
+    ],
+    "64": {
+      "happening": "Return a value larger than any real node.",
+      "why": "An empty side never wins the min.",
+      "invariant": "The sentinel keeps the min correct."
+    },
+    "65": {
+      "happening": "Start the min at this node's value.",
+      "why": "A node is at most as small as itself.",
+      "invariant": "best is the smallest seen so far."
+    },
+    "66": {
+      "happening": "Find the smallest value in the left subtree.",
+      "why": "The left side may hold a smaller value.",
+      "invariant": "left_min is the left subtree's minimum."
+    },
+    "67": [
+      {
+        "when": "left_min < best",
+        "happening": "The left subtree has a smaller value ({left_min}).",
+        "why": "It should become the running minimum.",
+        "invariant": "best must hold the smallest."
+      },
+      {
+        "happening": "The left subtree's min ({left_min}) is not smaller.",
+        "why": "The current best still stands.",
+        "invariant": "best unchanged."
+      }
+    ],
+    "68": {
+      "happening": "Adopt {left_min} as the new minimum.",
+      "why": "It is the smallest value seen so far.",
+      "invariant": "best shrinks or stays."
+    },
+    "69": {
+      "happening": "Find the smallest value in the right subtree.",
+      "why": "The right side may hold an even smaller value.",
+      "invariant": "right_min is the right subtree's minimum."
+    },
+    "70": [
+      {
+        "when": "right_min < best",
+        "happening": "The right subtree has a smaller value ({right_min}).",
+        "why": "It should become the running minimum.",
+        "invariant": "best must hold the smallest."
+      },
+      {
+        "happening": "The right subtree's min ({right_min}) is not smaller.",
+        "why": "The current best still stands.",
+        "invariant": "best unchanged."
+      }
+    ],
+    "71": {
+      "happening": "Adopt {right_min} as the new minimum.",
+      "why": "It is the smallest value seen so far.",
+      "invariant": "best shrinks or stays."
+    },
+    "72": {
+      "happening": "Return the subtree's minimum ({best}).",
+      "why": "The caller compares it against the parent node.",
+      "invariant": "best is this subtree's smallest value."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree from the level-order array.",
+      "why": "We need node objects and links before validating.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "recurse": {
+      "happening": "Recursing into a subtree — to validate it or to scan it.",
+      "why": "Both the checks and the min/max scans recurse.",
+      "invariant": "The call stack traces the current work."
+    },
+    "return": {
+      "happening": "Returning the final valid/invalid verdict.",
+      "why": "Every node was checked against its subtree extremes.",
+      "invariant": "answer is final."
+    },
+    "check": {
+      "happening": "Testing a node or a scan comparison.",
+      "why": "Subtree extremes decide whether the BST rule holds.",
+      "invariant": "A violation fails the tree."
+    },
+    "move": {
+      "happening": "Returning a value or verdict up the call stack.",
+      "why": "Scans return extremes; validation returns a verdict.",
+      "invariant": "Each call returns exactly once."
+    },
+    "update": {
+      "happening": "Recording state or updating a running extreme.",
+      "why": "Colors track validation; best tracks the scan.",
+      "invariant": "State reflects the work done."
+    }
+  }
+}

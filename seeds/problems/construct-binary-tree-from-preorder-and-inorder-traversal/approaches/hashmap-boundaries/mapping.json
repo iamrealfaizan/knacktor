@@ -1,0 +1,175 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "node_id",
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == node_id"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "preorder (roots in order)",
+      "primitive": "array",
+      "valuesFrom": "preorder",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == node_id"
+        },
+        {
+          "state": "visited",
+          "when": "idx < pre_idx[0]"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    },
+    {
+      "label": "inorder (window splits at root)",
+      "primitive": "array",
+      "valuesFrom": "inorder",
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == middle"
+        },
+        {
+          "state": "compared",
+          "when": "left <= idx && idx <= right"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "node_id != null",
+    "expr": "building subtree over inorder [{left}..{right}]"
+  },
+  "counters": [
+    {
+      "name": "nodes built",
+      "onLines": [
+        26
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "recurse",
+      "lines": [
+        13,
+        33,
+        34
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        18,
+        27,
+        28
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        19,
+        36
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        29,
+        31,
+        32,
+        35
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        14,
+        15
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 13,
+      "label": "Build from the root",
+      "kind": "boundary"
+    },
+    {
+      "line": 32,
+      "label": "Inorder splits at the root",
+      "kind": "match"
+    },
+    {
+      "line": 15,
+      "label": "Tree constructed",
+      "kind": "return"
+    }
+  ]
+}

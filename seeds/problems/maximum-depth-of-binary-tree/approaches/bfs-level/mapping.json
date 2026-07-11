@@ -1,0 +1,146 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "cur",
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "node_idx == cur"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Queue (node ids)",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "cur != -1",
+    "expr": "level {depth}: expanding node {cur} — {len(queue)} queued"
+  },
+  "counters": [
+    {
+      "name": "levels swept",
+      "onLines": [
+        31
+      ],
+      "when": "true"
+    },
+    {
+      "name": "nodes visited",
+      "onLines": [
+        34
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        29,
+        32
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        33,
+        43
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        37,
+        40
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        30,
+        31,
+        34,
+        35,
+        36,
+        38,
+        39,
+        41,
+        42
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        44
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 31,
+      "label": "New level reached",
+      "kind": "boundary"
+    },
+    {
+      "line": 44,
+      "label": "Return the maximum depth",
+      "kind": "return"
+    }
+  ]
+}

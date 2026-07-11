@@ -1,0 +1,230 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The recursion fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, on-stack, or done — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been measured yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The recursion fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "The root is slot 0 (or nothing if the tree is empty).",
+      "why": "Depth is measured starting at the root.",
+      "invariant": "root identifies where the recursion begins."
+    },
+    "24": {
+      "happening": "Recursively measure the tree's depth from the root.",
+      "why": "A node's depth is 1 + the deeper of its two subtrees.",
+      "invariant": "After this call, answer holds the maximum depth."
+    },
+    "25": {
+      "happening": "Return the maximum depth: {answer}.",
+      "why": "It is the longest root-to-leaf node count.",
+      "invariant": "answer is the final result."
+    },
+    "28": [
+      {
+        "when": "node_id == null",
+        "happening": "A missing child — its depth is zero.",
+        "why": "Absent subtrees add no levels.",
+        "invariant": "Null subtrees contribute 0."
+      },
+      {
+        "happening": "A real node — measure its depth.",
+        "why": "Its depth comes from its two subtrees.",
+        "invariant": "This node is about to be measured."
+      }
+    ],
+    "29": {
+      "happening": "Return 0 for the missing child.",
+      "why": "An absent subtree has no levels.",
+      "invariant": "The recursion unwinds one level."
+    },
+    "30": {
+      "happening": "Mark node {node_id} active — its frame is on the call stack.",
+      "why": "Amber nodes are the current root-to-node path.",
+      "invariant": "On-stack nodes are mid-measurement."
+    },
+    "31": {
+      "happening": "Recurse into node {node_id}'s left subtree to measure its depth.",
+      "why": "We need the left subtree's depth before combining.",
+      "invariant": "left_depth will hold the left side's node count."
+    },
+    "32": {
+      "happening": "Recurse into node {node_id}'s right subtree to measure its depth.",
+      "why": "The right subtree's depth is needed too.",
+      "invariant": "right_depth will hold the right side's node count."
+    },
+    "33": {
+      "happening": "Assume the left subtree ({left_depth}) is the deeper side.",
+      "why": "We start the maximum with the left depth.",
+      "invariant": "best tracks the deeper subtree so far."
+    },
+    "34": [
+      {
+        "when": "right_depth > best",
+        "happening": "The right subtree ({right_depth}) is deeper than {best}.",
+        "why": "The deeper subtree determines this node's depth.",
+        "invariant": "best must hold the larger of the two."
+      },
+      {
+        "happening": "The right subtree ({right_depth}) is not deeper than {best}.",
+        "why": "The left side already gives the maximum here.",
+        "invariant": "best stays the larger of the two."
+      }
+    ],
+    "35": {
+      "happening": "Take the right subtree's depth ({right_depth}) as the deeper one.",
+      "why": "The right side runs deeper at this node.",
+      "invariant": "best now holds the larger subtree depth."
+    },
+    "36": {
+      "happening": "This node's depth is {best} + 1 — the deeper child plus itself.",
+      "why": "Adding one counts this node's own level.",
+      "invariant": "node_depth is this subtree's height."
+    },
+    "37": {
+      "happening": "Both subtrees measured — mark node {node_id} done.",
+      "why": "Blue nodes are finished; the frame is about to pop.",
+      "invariant": "Done nodes never change again."
+    },
+    "38": {
+      "happening": "Return node {node_id}'s depth ({node_depth}) to its parent.",
+      "why": "The parent uses it to compute its own depth.",
+      "invariant": "Control unwinds one level up the stack."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree from the level-order array.",
+      "why": "We need node objects and links before measuring depth.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "recurse": {
+      "happening": "Descending into a subtree with a recursive call.",
+      "why": "DFS measures each subtree's depth in turn.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Testing a condition before acting.",
+      "why": "Null children and the deeper-side test are handled here.",
+      "invariant": "Only real nodes add depth."
+    },
+    "move": {
+      "happening": "Unwinding a completed call back up the tree.",
+      "why": "A finished subtree returns its depth to its parent.",
+      "invariant": "Each node returns exactly once."
+    },
+    "update": {
+      "happening": "Recording state or combining subtree depths.",
+      "why": "A node's depth is 1 + its deeper subtree.",
+      "invariant": "State and counters reflect the work done."
+    },
+    "return": {
+      "happening": "Returning the maximum depth.",
+      "why": "Every node's subtree depths have bubbled up.",
+      "invariant": "answer is final."
+    }
+  }
+}

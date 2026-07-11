@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "maximum-depth-of-binary-tree",
+  "number": 104,
+  "title": "Maximum Depth of Binary Tree",
+  "difficulty": "easy",
+  "topics": [
+    "tree",
+    "binary-tree"
+  ],
+  "patterns": [
+    "dfs",
+    "bfs"
+  ],
+  "statement": "Given the `root` of a binary tree, return its maximum depth.\n\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\n> The tree is provided in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples).\n\n**Example 1:**\n\n```\nInput: root = [3,9,20,null,null,15,7]\nOutput: 3\n```\n\n**Example 2:**\n\n```\nInput: root = [1,null,2]\nOutput: 2\n```\n\n**Constraints:**\n\n- The number of nodes in the tree is in the range `[0, 10^4]`.\n- `-100 <= Node.val <= 100`",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "recursive-dfs",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Tree (level-order, null for gaps)",
+        "placeholder": "3,9,20,null,null,15,7",
+        "min": -100,
+        "max": 100,
+        "minLen": 0,
+        "maxLen": 100
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

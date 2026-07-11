@@ -1,0 +1,276 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The recursion fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, on-stack, done, or invalid — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been visited yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The recursion fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "The root is slot 0 (or nothing if the tree is empty).",
+      "why": "The inorder walk starts at the root.",
+      "invariant": "root identifies where the recursion begins."
+    },
+    "24": {
+      "happening": "Create a one-slot holder for the previous value (empty).",
+      "why": "Inorder must remember the last value it emitted.",
+      "invariant": "prev[0] carries across the whole walk."
+    },
+    "25": {
+      "happening": "Walk the tree in order from the root.",
+      "why": "A valid BST yields strictly increasing values in order.",
+      "invariant": "answer is True only if the order never breaks."
+    },
+    "26": {
+      "happening": "Return whether the inorder order held: {answer}.",
+      "why": "Strictly increasing means a valid BST.",
+      "invariant": "answer is the final verdict."
+    },
+    "29": [
+      {
+        "when": "node_id == null",
+        "happening": "An absent child — trivially in order.",
+        "why": "An empty subtree emits nothing.",
+        "invariant": "Null subtrees pass."
+      },
+      {
+        "happening": "A real node — traverse it in order.",
+        "why": "Visit left, then this node, then right.",
+        "invariant": "This node is checked after its left subtree."
+      }
+    ],
+    "30": {
+      "happening": "Return True for the missing child.",
+      "why": "An empty subtree keeps the order.",
+      "invariant": "The recursion unwinds one level."
+    },
+    "31": {
+      "happening": "Mark node {node_id} active — its frame is on the call stack.",
+      "why": "Amber marks the path currently being walked.",
+      "invariant": "On-stack nodes are mid-traversal."
+    },
+    "32": {
+      "happening": "First, walk all the way into the left subtree.",
+      "why": "Inorder visits smaller values before this node.",
+      "invariant": "The leftmost node is visited first."
+    },
+    "33": [
+      {
+        "when": "left_valid == false",
+        "happening": "The left subtree already broke the order.",
+        "why": "Once order breaks, the tree is not a BST.",
+        "invariant": "Failure short-circuits the walk."
+      },
+      {
+        "happening": "The left subtree stayed in order.",
+        "why": "We can safely visit this node next.",
+        "invariant": "So far values are strictly increasing."
+      }
+    ],
+    "34": {
+      "happening": "Stop and return False.",
+      "why": "A broken order can't be a BST.",
+      "invariant": "The failure propagates upward."
+    },
+    "35": {
+      "happening": "Now visit this node — read its value.",
+      "why": "In order, this node comes right after its left subtree.",
+      "invariant": "value is the next value in the inorder sequence."
+    },
+    "36": {
+      "happening": "Recall the previously visited value.",
+      "why": "We compare this value against the one before it.",
+      "invariant": "previous is the last emitted value (or none)."
+    },
+    "37": [
+      {
+        "when": "previous != null",
+        "happening": "There is a previous value ({previous}) to compare.",
+        "why": "Every value after the first must beat the one before.",
+        "invariant": "The first node has no predecessor."
+      },
+      {
+        "happening": "This is the first node visited — no predecessor.",
+        "why": "Nothing to compare against yet.",
+        "invariant": "The first value always passes."
+      }
+    ],
+    "38": [
+      {
+        "when": "value <= previous",
+        "happening": "This value ({value}) is not larger than {previous} — order broken.",
+        "why": "A BST's inorder must strictly increase.",
+        "invariant": "Equal or smaller means not a BST."
+      },
+      {
+        "happening": "This value ({value}) is larger than {previous} — order holds.",
+        "why": "The sequence is still strictly increasing.",
+        "invariant": "The walk may continue."
+      }
+    ],
+    "39": {
+      "happening": "Mark node {node_id} invalid (red).",
+      "why": "Its value did not exceed the previous one.",
+      "invariant": "A red node is where the order broke."
+    },
+    "40": {
+      "happening": "Return False — not a BST.",
+      "why": "The inorder sequence stopped increasing.",
+      "invariant": "The failure propagates upward."
+    },
+    "41": {
+      "happening": "Record {value} as the new previous.",
+      "why": "The next visited node must exceed this value.",
+      "invariant": "prev[0] always holds the last emitted value."
+    },
+    "42": {
+      "happening": "Mark node {node_id} visited (blue).",
+      "why": "It passed the order check.",
+      "invariant": "Visited nodes are emitted in order."
+    },
+    "43": {
+      "happening": "Now walk into the right subtree.",
+      "why": "Inorder visits larger values after this node.",
+      "invariant": "The right subtree is checked last."
+    },
+    "44": {
+      "happening": "Return whether the right subtree stayed in order.",
+      "why": "The whole subtree is valid only if the right side is.",
+      "invariant": "Control unwinds one level."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree from the level-order array.",
+      "why": "We need node objects and links before walking.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "recurse": {
+      "happening": "Descending left or right in the inorder walk.",
+      "why": "Left is visited before the node, right after.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Comparing this value against the previous one.",
+      "why": "A BST's inorder sequence must strictly increase.",
+      "invariant": "A non-increase fails the tree."
+    },
+    "update": {
+      "happening": "Recording state or the new previous value.",
+      "why": "Colors track the walk; prev carries the last value.",
+      "invariant": "State reflects the work done."
+    },
+    "move": {
+      "happening": "Returning a verdict up the call stack.",
+      "why": "A finished call hands its result to its parent.",
+      "invariant": "Each node returns exactly once."
+    },
+    "return": {
+      "happening": "Returning the final valid/invalid verdict.",
+      "why": "The inorder walk finished.",
+      "invariant": "answer is final."
+    }
+  }
+}

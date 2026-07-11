@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+  "number": 105,
+  "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+  "difficulty": "medium",
+  "topics": [
+    "tree",
+    "binary-tree",
+    "hash-map"
+  ],
+  "patterns": [
+    "dfs"
+  ],
+  "statement": "Given two integer arrays `preorder` and `inorder` where `preorder` is the preorder traversal of a binary tree and `inorder` is the inorder traversal of the same tree, construct and return the binary tree.\n\n> The constructed tree is returned in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples).\n\n**Example 1:**\n\n```\nInput: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]\nOutput: [3,9,20,null,null,15,7]\n```\n\n**Example 2:**\n\n```\nInput: preorder = [-1], inorder = [-1]\nOutput: [-1]\n```\n\n**Constraints:**\n\n- `1 <= preorder.length <= 3000`\n- `inorder.length == preorder.length`\n- `-3000 <= preorder[i], inorder[i] <= 3000`\n- `preorder` and `inorder` consist of **unique** values.\n- Each value of `inorder` also appears in `preorder`.\n- `preorder` is guaranteed to be the preorder traversal of the tree.\n- `inorder` is guaranteed to be the inorder traversal of the tree.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "hashmap-boundaries",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "preorder",
+        "type": "int[]",
+        "label": "Preorder traversal",
+        "placeholder": "3,9,20,15,7",
+        "min": -3000,
+        "max": 3000,
+        "minLen": 1,
+        "maxLen": 3000
+      },
+      {
+        "name": "inorder",
+        "type": "int[]",
+        "label": "Inorder traversal",
+        "placeholder": "9,3,15,20,7",
+        "min": -3000,
+        "max": 3000,
+        "minLen": 1,
+        "maxLen": 3000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

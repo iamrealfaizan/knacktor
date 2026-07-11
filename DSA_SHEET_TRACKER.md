@@ -35,8 +35,8 @@ authoring time (the `add-problem-staged` pipeline sources from LeetCode directly
 
 | | Tier 4 (all 4) | Tier 3 (3 of 4) | Tier 2 (2 of 4) | Tier 1 (1 of 4) |
 |---|---|---|---|---|
-| In system | 28 | 5 | 2 | 3 |
-| To add | 4 | 20 | ~40 | ~70 |
+| In system | 31 | 5 | 2 | 3 |
+| To add | 1 | 20 | ~40 | ~70 |
 
 _Reconciled against the live `seeds/problems/` directory on 2026-07-07: 26 problems present. Tier-4 in-system rose from 10 → 15 (#3, #15, #33, #238, #242 authored); #217 added to Tier 2; #167 and #695 added to Tier 1 (NeetCode-only)._
 
@@ -44,10 +44,10 @@ _Update 2026-07-08: #226 Invert Binary Tree authored (recursive-DFS + BFS-queue,
 
 _Update 2026-07-08: #70 Climbing Stairs authored (brute recursion + bottom-up DP) — Tier-4 in-system 18 → 19. **NOTE:** the brute force renders on the `tree` renderer, not the dedicated `recursion` renderer. `recursion` is still UNPROVEN: `mapRecursion` feeds one `frames` array to both the call-stack panel and the recursion-tree panel, which can't honestly show a live stack + an accumulated tree at once. Fixing it (separate live-stack vs. accumulated-tree data) is a one-time engine task before any problem uses that renderer._
 
-_Update 2026-07-12: **reconciled against the LIVE MongoDB** (`knacktor.problems`, 43 docs / 280 traces), not just `seeds/`. Nine Tier-4 rows were live in the DB but still marked ⬜ — flipped to ✅: #5, #39, #54, #56, #57, #79, #133, #139, #322. Tier-4 in-system 19 → 28. **Only 4 Tier-4 problems remain to add: #104 Maximum Depth of Binary Tree, #98 Validate BST, #105 Construct Binary Tree (Preorder+Inorder), #208 Implement Trie** — these are the highest-priority next adds (each counts toward all 4 sheets). NOTE: #39 Combination Sum's row lists the `recursion` renderer, but per the UNPROVEN-recursion caveat above it was almost certainly authored on the `tree` renderer — verify at `/problems/combination-sum` before relying on that label._
+_Update 2026-07-12: reconciled against the **live MongoDB** (`knacktor.problems` = 44 docs). Ten Tier-4 rows that were live in the DB but still marked ⬜ flipped to ✅: #5, #39, #54, #56, #57, #79, #133, #139, #322, and #104 (Maximum Depth of Binary Tree — authored this session, recursive-DFS + iterative-BFS on `tree`/`tree`+`queue`). **Tier-4 in-system 19 → 30; #98 Validate BST authored this session too (3 approaches: brute-force min/max scans + DFS bounds + inorder, all `tree`). #105 Construct Binary Tree also authored (2 approaches: hashmap+boundaries optimal + linear-search+slicing brute, `tree` primary + preorder/inorder aux arrays). Only 1 Tier-4 problem remains: #208 Implement Trie.** NOTE: #39 Combination Sum's row lists the `recursion` renderer, but per the UNPROVEN-recursion caveat it was almost certainly authored on `tree` — verify at `/problems/combination-sum`._
 
-Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 22 to-add
-problems in Tier 4 alone each count toward **all four** sheets.
+Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 3 remaining
+to-add problems in Tier 4 each count toward **all four** sheets — do them first.
 
 ---
 
@@ -82,10 +82,10 @@ problems in Tier 4 alone each count toward **all four** sheets.
 | 133 | Clone Graph | Medium | Graph | B N T G | 4 | graph | — | Yes | ✅ |
 | 141 | Linked List Cycle | Easy | Linked List | B N T G | 4 | linkedList | — | Yes | ✅ |
 | 226 | Invert Binary Tree | Easy | Tree | B N T G | 4 | tree | — | Yes | ✅ |
-| 104 | Maximum Depth of Binary Tree | Easy | Tree | B N T G | 4 | tree | — | Yes | ⬜ |
-| 98 | Validate Binary Search Tree | Medium | BST | B N T G | 4 | tree | — | Yes | ⬜ |
+| 104 | Maximum Depth of Binary Tree | Easy | Tree | B N T G | 4 | tree | — | Yes | ✅ |
+| 98 | Validate Binary Search Tree | Medium | BST | B N T G | 4 | tree | — | Yes | ✅ |
 | 230 | Kth Smallest Element in a BST | Medium | BST | B N T G | 4 | tree | — | Yes | ✅ |
-| 105 | Construct Binary Tree (Preorder+Inorder) | Medium | Tree | B N T G | 4 | tree | — | Yes | ⬜ |
+| 105 | Construct Binary Tree (Preorder+Inorder) | Medium | Tree | B N T G | 4 | tree | — | Yes | ✅ |
 | 208 | Implement Trie (Prefix Tree) | Medium | Trie | B N T G | 4 | tree | — | Yes | ⬜ |
 
 ## Tier 3 — appears in 3 of 4 sheets
