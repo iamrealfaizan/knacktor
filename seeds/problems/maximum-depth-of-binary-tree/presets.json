@@ -1,0 +1,55 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "values": [
+        1,
+        null,
+        2
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 2
+  },
+  {
+    "id": "edge-left-skew",
+    "label": "Left-Skewed Chain",
+    "value": {
+      "values": [
+        1,
+        2,
+        null,
+        3
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-empty-tree",
+    "label": "Empty Tree",
+    "value": {
+      "values": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  }
+]

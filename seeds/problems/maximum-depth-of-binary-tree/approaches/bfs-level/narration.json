@@ -1,0 +1,286 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The sweep fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, queued, or visited — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been swept yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The sweep fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "Create the empty BFS queue.",
+      "why": "The queue holds the current frontier of node ids.",
+      "invariant": "queue drives the level-order sweep."
+    },
+    "24": {
+      "happening": "No node is current yet (-1).",
+      "why": "cur becomes a real id once we dequeue.",
+      "invariant": "cur = -1 means no node is being expanded."
+    },
+    "25": {
+      "happening": "Start the level counter at zero.",
+      "why": "Each level we finish adds one.",
+      "invariant": "depth counts completed levels."
+    },
+    "26": [
+      {
+        "when": "n > 0",
+        "happening": "The tree is non-empty — seed the sweep.",
+        "why": "BFS starts at the root.",
+        "invariant": "Slot 0 is the root."
+      },
+      {
+        "happening": "The tree is empty — no levels to sweep.",
+        "why": "An empty tree has depth 0.",
+        "invariant": "depth stays 0."
+      }
+    ],
+    "27": {
+      "happening": "Enqueue the root id to start the first level.",
+      "why": "The root is the first frontier.",
+      "invariant": "The sweep begins at the root."
+    },
+    "28": {
+      "happening": "Mark the root queued (frontier).",
+      "why": "Queued nodes glow amber, waiting to be expanded.",
+      "invariant": "The root waits in the queue."
+    },
+    "29": [
+      {
+        "when": "len(queue) > 0",
+        "happening": "Nodes remain queued — sweep another level.",
+        "why": "Each pass drains one whole level.",
+        "invariant": "The queue holds this level's nodes."
+      },
+      {
+        "happening": "The queue is empty — every level has been swept.",
+        "why": "No nodes remain to expand.",
+        "invariant": "depth now equals the tree's height."
+      }
+    ],
+    "30": {
+      "happening": "Snapshot this level's width: {len(queue)} node(s) queued.",
+      "why": "We expand exactly this many before descending a level.",
+      "invariant": "level_size fixes the current level's node count."
+    },
+    "31": {
+      "happening": "A new level begins — bump the depth (currently {depth}).",
+      "why": "Every full level adds one to the depth.",
+      "invariant": "depth counts levels started so far."
+    },
+    "32": {
+      "happening": "Loop once for each of the {level_size} nodes on this level.",
+      "why": "We expand the whole level before going deeper.",
+      "invariant": "k counts nodes handled on this level."
+    },
+    "33": {
+      "happening": "Take the front node off the queue to expand it.",
+      "why": "Breadth-first expands the earliest-queued node next.",
+      "invariant": "The front of the queue is handled first."
+    },
+    "34": {
+      "happening": "Mark node {cur} visited.",
+      "why": "Expanded nodes turn blue and are counted.",
+      "invariant": "Visited nodes are done."
+    },
+    "35": {
+      "happening": "Read node {cur}'s left child.",
+      "why": "Its children join the next level.",
+      "invariant": "left is the left child id or null."
+    },
+    "36": {
+      "happening": "Read node {cur}'s right child.",
+      "why": "Both children may extend the tree deeper.",
+      "invariant": "right is the right child id or null."
+    },
+    "37": [
+      {
+        "when": "left != null",
+        "happening": "Node {cur} has a left child ({left}).",
+        "why": "A real child forms part of the next level.",
+        "invariant": "Only real children are enqueued."
+      },
+      {
+        "happening": "Node {cur} has no left child.",
+        "why": "A null child adds nothing to the next level.",
+        "invariant": "Missing children are skipped."
+      }
+    ],
+    "38": {
+      "happening": "Enqueue the left child ({left}) for the next level.",
+      "why": "It will be expanded one level deeper.",
+      "invariant": "The queue grows by the left child."
+    },
+    "39": {
+      "happening": "Mark the left child queued (frontier).",
+      "why": "It now waits its turn in the queue.",
+      "invariant": "Queued nodes glow amber."
+    },
+    "40": [
+      {
+        "when": "right != null",
+        "happening": "Node {cur} has a right child ({right}).",
+        "why": "A real child forms part of the next level.",
+        "invariant": "Only real children are enqueued."
+      },
+      {
+        "happening": "Node {cur} has no right child.",
+        "why": "A null child adds nothing to the next level.",
+        "invariant": "Missing children are skipped."
+      }
+    ],
+    "41": {
+      "happening": "Enqueue the right child ({right}) for the next level.",
+      "why": "It will be expanded one level deeper.",
+      "invariant": "The queue grows by the right child."
+    },
+    "42": {
+      "happening": "Mark the right child queued (frontier).",
+      "why": "It now waits its turn in the queue.",
+      "invariant": "Queued nodes glow amber."
+    },
+    "43": {
+      "happening": "The level's nodes are all expanded — clear the cursor.",
+      "why": "No node is being expanded between levels.",
+      "invariant": "cur returns to -1."
+    },
+    "44": {
+      "happening": "Return the level count as the maximum depth: {depth}.",
+      "why": "The number of levels equals the longest root-to-leaf path.",
+      "invariant": "depth is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree and seeding the queue with the root.",
+      "why": "BFS needs the tree and a starting frontier.",
+      "invariant": "Nodes pop in; the root enters the queue."
+    },
+    "loop": {
+      "happening": "Sweeping the tree one level at a time.",
+      "why": "Each pass drains a whole level and queues the next.",
+      "invariant": "The queue holds the current frontier."
+    },
+    "move": {
+      "happening": "Dequeuing the next node to expand.",
+      "why": "Breadth-first takes the earliest-queued node.",
+      "invariant": "The front of the queue is handled first."
+    },
+    "check": {
+      "happening": "Testing whether a child exists before queueing it.",
+      "why": "Only real children extend the next level.",
+      "invariant": "Null children are skipped."
+    },
+    "update": {
+      "happening": "Expanding a node and queueing its children.",
+      "why": "Each level's children form the next frontier.",
+      "invariant": "State and counters track the sweep."
+    },
+    "return": {
+      "happening": "Returning the number of levels as the depth.",
+      "why": "The queue is empty; every level is counted.",
+      "invariant": "depth is final."
+    }
+  }
+}
