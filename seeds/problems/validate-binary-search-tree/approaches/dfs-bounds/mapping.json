@@ -1,0 +1,134 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "node_id",
+  "nodeStateRules": [
+    {
+      "state": "error",
+      "when": "state_by_id[node_idx] == 3"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == node_id"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "node_id != null",
+    "expr": "validating node {node_id} against its inherited bounds"
+  },
+  "counters": [
+    {
+      "name": "nodes checked",
+      "onLines": [
+        32
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "phase": "recurse",
+      "lines": [
+        26,
+        40,
+        41
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        30,
+        34,
+        37
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        32,
+        33,
+        35,
+        38,
+        42,
+        43
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        31,
+        36,
+        39,
+        44
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        27
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 26,
+      "label": "Validate from the root",
+      "kind": "boundary"
+    },
+    {
+      "line": 35,
+      "label": "Below lower bound — invalid",
+      "kind": "match"
+    },
+    {
+      "line": 38,
+      "label": "Above upper bound — invalid",
+      "kind": "match"
+    },
+    {
+      "line": 27,
+      "label": "Final verdict",
+      "kind": "return"
+    }
+  ]
+}

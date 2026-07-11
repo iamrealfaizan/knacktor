@@ -1,0 +1,268 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(values)} array slots that describe the tree.",
+      "why": "We need the size before building node objects.",
+      "invariant": "n is the length of the description array."
+    },
+    "4": {
+      "happening": "Start an empty list of real tree nodes.",
+      "why": "We build node objects the visualization can draw.",
+      "invariant": "nodes holds every non-null value as a node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "The recursion fetches nodes by id in O(1).",
+      "invariant": "by_id[i] is the node stored at slot i."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, on-stack, done, or invalid — that drives the colors.",
+      "invariant": "state_by_id[i] tracks slot i's progress."
+    },
+    "7": {
+      "happening": "Loop over every slot to initialize its state.",
+      "why": "Every node begins unseen.",
+      "invariant": "Slots below i already have a state."
+    },
+    "8": {
+      "happening": "Mark this slot unseen (0).",
+      "why": "Nothing has been checked yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start the child-slot walker just past the root.",
+      "why": "Children are handed out in array order from slot 1.",
+      "invariant": "child is the next unassigned slot."
+    },
+    "10": {
+      "happening": "Loop over every slot to build the nodes.",
+      "why": "Each real value becomes a node linked to its children.",
+      "invariant": "Slots below i are already built."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — build a node.",
+        "why": "Only real values become nodes.",
+        "invariant": "null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — skip it.",
+        "why": "A null slot is a placeholder, not a node.",
+        "invariant": "null slots never become nodes."
+      }
+    ],
+    "12": {
+      "happening": "Create node {i} with value {values[i]} and empty child links.",
+      "why": "Children are filled in from the following slots.",
+      "invariant": "A fresh node starts with no children."
+    },
+    "13": {
+      "happening": "Is there a slot left to be the left child?",
+      "why": "Children come from the next slots in order.",
+      "invariant": "child points at the candidate left child."
+    },
+    "14": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the left child empty."
+    },
+    "15": {
+      "happening": "Link slot {child} as node {i}'s left child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "left now points at a real child id."
+    },
+    "16": {
+      "happening": "Advance past the left-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "17": {
+      "happening": "Is there a slot left to be the right child?",
+      "why": "The right child is the slot after the left.",
+      "invariant": "child points at the candidate right child."
+    },
+    "18": {
+      "happening": "Is that candidate slot a real node (not null)?",
+      "why": "Only non-null slots become children.",
+      "invariant": "A null candidate leaves the right child empty."
+    },
+    "19": {
+      "happening": "Link slot {child} as node {i}'s right child.",
+      "why": "It is the next real node in level order.",
+      "invariant": "right now points at a real child id."
+    },
+    "20": {
+      "happening": "Advance past the right-child slot.",
+      "why": "Each slot is claimed exactly once.",
+      "invariant": "child always advances."
+    },
+    "21": {
+      "happening": "Add the finished node to the tree.",
+      "why": "It now has its value and child links.",
+      "invariant": "nodes grows by one built node."
+    },
+    "22": {
+      "happening": "Register node {i} under its id for fast lookup.",
+      "why": "The recursion fetches nodes by id.",
+      "invariant": "by_id maps every id to its node."
+    },
+    "23": {
+      "happening": "The root is slot 0 (or nothing if the tree is empty).",
+      "why": "Validation starts at the root.",
+      "invariant": "root identifies where the recursion begins."
+    },
+    "24": {
+      "happening": "Set the lower bound below any real node value.",
+      "why": "The root may hold any value, so start with no real lower limit.",
+      "invariant": "low stands in for negative infinity."
+    },
+    "25": {
+      "happening": "Set the upper bound above any real node value.",
+      "why": "Start with no real upper limit either.",
+      "invariant": "high stands in for positive infinity."
+    },
+    "26": {
+      "happening": "Validate the tree from the root within the widest range.",
+      "why": "Every node must fall inside the range it inherits.",
+      "invariant": "answer becomes True only if all nodes obey their bounds."
+    },
+    "27": {
+      "happening": "Return whether the tree is a valid BST: {answer}.",
+      "why": "No node broke its inherited bounds.",
+      "invariant": "answer is the final verdict."
+    },
+    "30": [
+      {
+        "when": "node_id == null",
+        "happening": "An absent child — nothing to check here.",
+        "why": "An empty subtree can't violate the rule.",
+        "invariant": "Null subtrees are valid."
+      },
+      {
+        "happening": "A real node — check it against its bounds.",
+        "why": "Every node must sit inside (lower, upper).",
+        "invariant": "This node is about to be tested."
+      }
+    ],
+    "31": {
+      "happening": "Return True for the missing child.",
+      "why": "An empty subtree is a valid BST.",
+      "invariant": "The recursion unwinds one level."
+    },
+    "32": {
+      "happening": "Mark node {node_id} active — its frame is on the call stack.",
+      "why": "Amber nodes are the current root-to-node path being checked.",
+      "invariant": "On-stack nodes are mid-validation."
+    },
+    "33": {
+      "happening": "Read this node's value to test against its bounds.",
+      "why": "The value must lie strictly inside (lower, upper).",
+      "invariant": "value is this node's key."
+    },
+    "34": [
+      {
+        "when": "value <= lower",
+        "happening": "Value {value} is at or below its lower bound — too small.",
+        "why": "A BST node must be strictly greater than its inherited lower bound.",
+        "invariant": "This breaks the range and fails."
+      },
+      {
+        "happening": "Value {value} clears its lower bound.",
+        "why": "It is greater than every left-ancestor it descends from.",
+        "invariant": "Lower bound satisfied."
+      }
+    ],
+    "35": {
+      "happening": "Mark node {node_id} invalid (red) — out of range.",
+      "why": "It violated the lower bound.",
+      "invariant": "A red node is the reason the tree fails."
+    },
+    "36": {
+      "happening": "Return False — not a BST.",
+      "why": "One out-of-range node is enough to reject the tree.",
+      "invariant": "The failure propagates upward."
+    },
+    "37": [
+      {
+        "when": "value >= upper",
+        "happening": "Value {value} is at or above its upper bound — too big.",
+        "why": "A BST node must be strictly less than its inherited upper bound.",
+        "invariant": "This breaks the range and fails."
+      },
+      {
+        "happening": "Value {value} clears its upper bound.",
+        "why": "It is smaller than every right-ancestor it descends from.",
+        "invariant": "Upper bound satisfied — the node is in range."
+      }
+    ],
+    "38": {
+      "happening": "Mark node {node_id} invalid (red) — out of range.",
+      "why": "It violated the upper bound.",
+      "invariant": "A red node is the reason the tree fails."
+    },
+    "39": {
+      "happening": "Return False — not a BST.",
+      "why": "One out-of-range node is enough to reject the tree.",
+      "invariant": "The failure propagates upward."
+    },
+    "40": {
+      "happening": "Validate the left child with upper tightened to {value}.",
+      "why": "Everything left of this node must be smaller than it.",
+      "invariant": "The left subtree inherits (lower, value)."
+    },
+    "41": {
+      "happening": "Validate the right child with lower tightened to {value}.",
+      "why": "Everything right of this node must be larger than it.",
+      "invariant": "The right subtree inherits (value, upper)."
+    },
+    "42": {
+      "happening": "This node holds only if both subtrees held.",
+      "why": "A BST needs every subtree valid.",
+      "invariant": "result combines both sides."
+    },
+    "43": {
+      "happening": "Mark node {node_id} fully validated (blue).",
+      "why": "It and its subtrees obey the BST rule.",
+      "invariant": "Done nodes never change again."
+    },
+    "44": {
+      "happening": "Return this subtree's verdict to the parent.",
+      "why": "The parent needs both children's results.",
+      "invariant": "Control unwinds one level."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the tree from the level-order array.",
+      "why": "We need node objects and links before validating.",
+      "invariant": "Nodes pop in and connect to their parents."
+    },
+    "recurse": {
+      "happening": "Descending into a subtree, carrying tightened bounds.",
+      "why": "Each child inherits a narrower valid range.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Testing a node against its inherited bounds.",
+      "why": "A valid BST node lies strictly inside (lower, upper).",
+      "invariant": "Out-of-range nodes fail immediately."
+    },
+    "update": {
+      "happening": "Recording state or combining subtree results.",
+      "why": "State drives the colors; result combines both sides.",
+      "invariant": "State reflects the work done."
+    },
+    "move": {
+      "happening": "Returning a verdict back up the tree.",
+      "why": "A finished call hands its result to its parent.",
+      "invariant": "Each node returns exactly once."
+    },
+    "return": {
+      "happening": "Returning the final valid/invalid verdict.",
+      "why": "Every node was checked against its bounds.",
+      "invariant": "answer is final."
+    }
+  }
+}

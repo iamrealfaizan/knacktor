@@ -1,0 +1,306 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {len(preorder)} nodes the tree will have.",
+      "why": "preorder lists every node exactly once.",
+      "invariant": "n is the node count."
+    },
+    "4": {
+      "happening": "Start an empty list of tree nodes.",
+      "why": "We create node objects as we go, and draw them.",
+      "invariant": "nodes holds every built node."
+    },
+    "5": {
+      "happening": "Start a lookup from node id to node object.",
+      "why": "Linking children needs O(1) access by id.",
+      "invariant": "by_id[id] is that node."
+    },
+    "6": {
+      "happening": "Start a per-node state tracker.",
+      "why": "It records each node as unseen, building, or done — driving the colors.",
+      "invariant": "state_by_id[id] tracks a node's progress."
+    },
+    "7": {
+      "happening": "Loop over every future node to initialize its state.",
+      "why": "All nodes begin unseen.",
+      "invariant": "Slots below i are already set."
+    },
+    "8": {
+      "happening": "Mark this node-slot unseen (0).",
+      "why": "Nothing is built yet.",
+      "invariant": "All states start at 0."
+    },
+    "9": {
+      "happening": "Start a map from value to its inorder index.",
+      "why": "An O(1) lookup replaces scanning inorder each time.",
+      "invariant": "inorder_index[v] will be v's position."
+    },
+    "10": {
+      "happening": "Loop over the inorder array.",
+      "why": "We record where every value sits.",
+      "invariant": "Positions below i are already mapped."
+    },
+    "11": {
+      "happening": "Record that {inorder[i]} sits at inorder index {i}.",
+      "why": "This lets us split subtrees in O(1) later.",
+      "invariant": "Each value maps to its inorder index."
+    },
+    "12": {
+      "happening": "Create a one-slot holder for the next preorder position.",
+      "why": "Preorder is consumed left-to-right as roots.",
+      "invariant": "pre_idx[0] is the next root's position."
+    },
+    "13": {
+      "happening": "Build the whole tree over the full inorder range.",
+      "why": "The first preorder value is the overall root.",
+      "invariant": "construct returns the root's id."
+    },
+    "14": {
+      "happening": "Serialize the finished tree into level-order form.",
+      "why": "LeetCode expects the tree as a level-order array.",
+      "invariant": "result is the output array."
+    },
+    "15": {
+      "happening": "Return the level-order array: {result}.",
+      "why": "The tree is fully built and serialized.",
+      "invariant": "result is the final answer."
+    },
+    "18": [
+      {
+        "when": "left > right",
+        "happening": "The inorder range is empty ({left} > {right}) — no node here.",
+        "why": "An empty range means a missing child.",
+        "invariant": "Empty ranges make no node."
+      },
+      {
+        "happening": "The inorder range [{left}..{right}] is non-empty — make its root.",
+        "why": "A non-empty range has a subtree root.",
+        "invariant": "This range becomes a subtree."
+      }
+    ],
+    "19": {
+      "happening": "Return None — this child is absent.",
+      "why": "Nothing to build for an empty range.",
+      "invariant": "The parent's link stays None."
+    },
+    "20": {
+      "happening": "The next preorder value (position {pre_idx[0]}) becomes this subtree's root.",
+      "why": "Preorder visits roots before their subtrees.",
+      "invariant": "node_id is the current root's id."
+    },
+    "21": {
+      "happening": "Read the root's value from preorder.",
+      "why": "We need it to place the node and split inorder.",
+      "invariant": "root_value is this node's key."
+    },
+    "22": {
+      "happening": "Advance the preorder pointer past this root.",
+      "why": "The next call takes the following preorder value.",
+      "invariant": "pre_idx always moves forward."
+    },
+    "23": {
+      "happening": "Create root node {node_id} with value {root_value}.",
+      "why": "A new tree node pops in.",
+      "invariant": "A fresh node has no children yet."
+    },
+    "24": {
+      "happening": "Add the new node to the tree.",
+      "why": "It becomes visible in the drawing.",
+      "invariant": "nodes grows by one."
+    },
+    "25": {
+      "happening": "Register node {node_id} for O(1) lookup.",
+      "why": "Children will attach to it by id.",
+      "invariant": "by_id maps id to node."
+    },
+    "26": {
+      "happening": "Mark node {node_id} building (on the call stack).",
+      "why": "Amber marks the active construction path.",
+      "invariant": "Building nodes are mid-construction."
+    },
+    "27": [
+      {
+        "when": "parent_id != -1",
+        "happening": "This node has a parent (id {parent_id}) to attach to.",
+        "why": "Every node except the root links to a parent.",
+        "invariant": "Only the overall root has no parent."
+      },
+      {
+        "happening": "This is the overall root — no parent to attach.",
+        "why": "The root starts the tree.",
+        "invariant": "The root's parent id is -1."
+      }
+    ],
+    "28": [
+      {
+        "when": "side == 0",
+        "happening": "It is the parent's LEFT child.",
+        "why": "The parent asked for its left subtree here.",
+        "invariant": "side 0 means left."
+      },
+      {
+        "happening": "It is the parent's RIGHT child.",
+        "why": "The parent asked for its right subtree here.",
+        "invariant": "side 1 means right."
+      }
+    ],
+    "29": {
+      "happening": "Attach node {node_id} as node {parent_id}'s left child.",
+      "why": "The edge now appears in the tree.",
+      "invariant": "The parent's left link points here."
+    },
+    "31": {
+      "happening": "Attach node {node_id} as node {parent_id}'s right child.",
+      "why": "The edge now appears in the tree.",
+      "invariant": "The parent's right link points here."
+    },
+    "32": {
+      "happening": "Find the root's index in inorder — it splits the range into left and right.",
+      "why": "Values before it are the left subtree; values after it are the right.",
+      "invariant": "middle is the root's inorder index."
+    },
+    "33": {
+      "happening": "Build the left subtree from the inorder range before the root.",
+      "why": "Those values sit left of the root in inorder.",
+      "invariant": "The left child is built before the right (preorder)."
+    },
+    "34": {
+      "happening": "Build the right subtree from the inorder range after the root.",
+      "why": "Those values sit right of the root in inorder.",
+      "invariant": "The right child is built after the left."
+    },
+    "35": {
+      "happening": "Both subtrees built — mark node {node_id} done.",
+      "why": "Blue marks a finished node.",
+      "invariant": "Done nodes never change."
+    },
+    "36": {
+      "happening": "Return node {node_id} to its parent.",
+      "why": "The parent records it as a child.",
+      "invariant": "Control unwinds one level."
+    },
+    "39": {
+      "happening": "Start the level-order output list.",
+      "why": "We serialize the finished tree to return it.",
+      "invariant": "result will hold the answer."
+    },
+    "40": {
+      "happening": "Start a queue to walk the tree breadth-first.",
+      "why": "Level order is a BFS of the tree.",
+      "invariant": "out_q drives the walk."
+    },
+    "41": [
+      {
+        "when": "root != null",
+        "happening": "The tree is non-empty — seed the walk with the root.",
+        "why": "Level order starts at the root.",
+        "invariant": "The root leads the output."
+      },
+      {
+        "happening": "The tree is empty — nothing to serialize.",
+        "why": "An empty tree serializes to an empty array.",
+        "invariant": "result stays empty."
+      }
+    ],
+    "42": {
+      "happening": "Enqueue the root id.",
+      "why": "It is emitted first.",
+      "invariant": "The root leads level order."
+    },
+    "43": {
+      "happening": "Keep emitting while ids remain.",
+      "why": "We serialize until the queue empties.",
+      "invariant": "Every node is emitted once."
+    },
+    "44": {
+      "happening": "Take the next id from the front.",
+      "why": "BFS emits the earliest-queued id first.",
+      "invariant": "out_q[0] was the front."
+    },
+    "45": [
+      {
+        "when": "emit_id == null",
+        "happening": "This slot is a missing child.",
+        "why": "Level order records holes as null.",
+        "invariant": "Missing children still take a slot."
+      },
+      {
+        "happening": "This id points at a real node.",
+        "why": "Real nodes contribute their value.",
+        "invariant": "A real id has a value."
+      }
+    ],
+    "46": {
+      "happening": "Emit null for the missing child.",
+      "why": "The format keeps holes explicit.",
+      "invariant": "result gains a null."
+    },
+    "48": {
+      "happening": "Emit this node's value.",
+      "why": "Level order lists values top-down, left-to-right.",
+      "invariant": "result grows by one value."
+    },
+    "49": {
+      "happening": "Queue its left child to emit next.",
+      "why": "Children follow their parent in level order.",
+      "invariant": "Left before right."
+    },
+    "50": {
+      "happening": "Queue its right child after the left.",
+      "why": "Right follows left within a level.",
+      "invariant": "Left-to-right order is kept."
+    },
+    "51": {
+      "happening": "Trim any trailing nulls.",
+      "why": "Level order omits trailing holes.",
+      "invariant": "No trailing nulls remain."
+    },
+    "52": {
+      "happening": "Drop the trailing null.",
+      "why": "It is not part of the answer.",
+      "invariant": "result shrinks by one null."
+    },
+    "53": {
+      "happening": "Return the level-order array: {result}.",
+      "why": "The tree is fully serialized.",
+      "invariant": "result is final."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: counting nodes and indexing inorder.",
+      "why": "An index map makes each split O(1).",
+      "invariant": "No tree nodes exist yet."
+    },
+    "recurse": {
+      "happening": "Descending to build a subtree.",
+      "why": "Each call builds one subtree root, then its children.",
+      "invariant": "The call stack traces the current path."
+    },
+    "check": {
+      "happening": "Testing a range or a child side.",
+      "why": "Empty ranges make no node; the side decides the link.",
+      "invariant": "Only non-empty ranges build nodes."
+    },
+    "move": {
+      "happening": "Returning from a completed subtree.",
+      "why": "A finished subtree hands its root to the parent.",
+      "invariant": "Each call returns once."
+    },
+    "update": {
+      "happening": "Creating a node, linking it, or splitting inorder.",
+      "why": "This is where the tree grows.",
+      "invariant": "State and links reflect the work done."
+    },
+    "return": {
+      "happening": "Serializing and returning the finished tree.",
+      "why": "LeetCode expects a level-order array.",
+      "invariant": "result is final."
+    },
+    "loop": {
+      "happening": "Walking the tree breadth-first to serialize it.",
+      "why": "Level order is a BFS emit.",
+      "invariant": "Each node is emitted once."
+    }
+  }
+}
