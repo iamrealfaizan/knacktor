@@ -205,12 +205,23 @@ async function main() {
   const pattern = await seedCollection(db, "patterns", path.join(SEEDS_DIR, "patterns.json"));
 
   // ── Bundles (D9 Python pipeline): subdirs of seeds/problems/ with problem.json
-  const bundleDirs = fs.existsSync(PROBLEMS_DIR)
+  // Optional CLI slug filters: `npm run ingest -- <slug> [<slug> …]` re-ingests
+  // only those bundles (still an idempotent upsert); no args = full ingest.
+  const only = new Set(process.argv.slice(2));
+  let bundleDirs = fs.existsSync(PROBLEMS_DIR)
     ? fs.readdirSync(PROBLEMS_DIR).filter((d) =>
         fs.existsSync(path.join(PROBLEMS_DIR, d, "problem.json"))
       )
     : [];
-  const bundleSlugs = new Set(bundleDirs);
+  if (only.size) {
+    const missing = [...only].filter((s) => !bundleDirs.includes(s));
+    if (missing.length) {
+      console.error(`✗ No seed bundle found for: ${missing.join(", ")}`);
+      process.exit(1);
+    }
+    bundleDirs = bundleDirs.filter((d) => only.has(d));
+    console.log(`Targeting ${bundleDirs.length} bundle(s): ${bundleDirs.join(", ")}`);
+  }
 
   console.log("\nIngesting bundles (Python tracer)…");
   let traces = 0;
