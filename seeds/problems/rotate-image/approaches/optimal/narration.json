@@ -1,0 +1,66 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the matrix size, n = {n}.",
+      "why": "The rotation works on an n by n grid.",
+      "invariant": "n rows and n columns."
+    },
+    "4": {
+      "happening": "Take row {row}.",
+      "why": "We transpose the matrix first.",
+      "invariant": "Cells on the diagonal stay put."
+    },
+    "5": {
+      "happening": "Take column {col}, to the right of the diagonal.",
+      "why": "Only the upper triangle is swapped, so each pair swaps once.",
+      "invariant": "Lower triangle is reached by its mirror."
+    },
+    "6": {
+      "happening": "Swap ({row},{col}) with its mirror ({col},{row}).",
+      "why": "Transposing turns rows into columns.",
+      "invariant": "The matrix becomes its transpose."
+    },
+    "7": {
+      "happening": "Take a row of the transposed matrix.",
+      "why": "Reversing each row finishes the clockwise turn.",
+      "invariant": "Transpose plus row-reverse equals a 90-degree rotation."
+    },
+    "8": {
+      "happening": "Reverse this row left-to-right.",
+      "why": "It flips the transposed row into rotated order.",
+      "invariant": "Each reversed row is in final position."
+    },
+    "9": {
+      "happening": "Return the rotated matrix.",
+      "why": "Transpose and reversal are complete.",
+      "invariant": "matrix is fully rotated."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Read the matrix size.",
+      "why": "Prepare to transpose in place.",
+      "invariant": "No cells moved yet."
+    },
+    "loop": {
+      "happening": "Advance over cells or rows.",
+      "why": "Visit each swap pair, then each row.",
+      "invariant": "Scanning the grid."
+    },
+    "update": {
+      "happening": "Swap a cell with its diagonal mirror.",
+      "why": "Build the transpose.",
+      "invariant": "Upper and lower triangles exchange."
+    },
+    "move": {
+      "happening": "Reverse a row.",
+      "why": "Complete the clockwise rotation.",
+      "invariant": "Row lands in final order."
+    },
+    "return": {
+      "happening": "Return the rotated matrix.",
+      "why": "Rotation complete.",
+      "invariant": "Answer is final."
+    }
+  }
+}

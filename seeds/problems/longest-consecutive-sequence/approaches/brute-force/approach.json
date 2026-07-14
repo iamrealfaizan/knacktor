@@ -1,0 +1,55 @@
+{
+  "id": "brute-force",
+  "name": "Extend From Every Number",
+  "kind": "brute",
+  "summary": "From each number, walk upward while the next value is still present in the array.",
+  "visualizationIntent": "init: the raw array is shown, longest = 0; loop(num): the anchor value num is marked special; update: current starts at num (current cell) and length = 1; loop(while): the probe value current+1 is marked compared â€” if some cell holds it the run extends; move: current climbs, the highlighted head slides to the next value; update(longest): the best run length is refreshed via the readout; return: the array rests and LONGEST RUN holds the answer.",
+  "complexity": {
+    "time": "O(n^3)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.longestConsecutive",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "longest",
+    "label": "LONGEST RUN",
+    "render": "scalar",
+    "emptyText": "0"
+  },
+  "varColors": {
+    "num": "special",
+    "current": "current",
+    "length": "amber",
+    "longest": "result"
+  },
+  "lineExplanations": {
+    "3": "If the array is empty there is no sequence to measure.",
+    "4": "Return 0 for an empty array.",
+    "5": "Track the longest run length found so far.",
+    "6": "Try every value in the array as the start of a run.",
+    "7": "Begin walking upward from this value.",
+    "8": "The run currently has length 1 â€” just this value.",
+    "9": "While the next consecutive value can be found in the array...",
+    "10": "Step up to that next value.",
+    "11": "The run has grown by one.",
+    "12": "Keep the best run length seen so far.",
+    "13": "Return the length of the longest consecutive run."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def longestConsecutive(self, nums): the method receiving the numbers.",
+    "3": "if not nums: is True when the list is empty.",
+    "4": "return 0 exits immediately with zero.",
+    "5": "longest = 0 initializes the best length.",
+    "6": "for num in nums iterates over each value.",
+    "7": "current = num copies the starting value into a walker.",
+    "8": "length = 1 counts the starting value.",
+    "9": "current + 1 in nums scans the list to test membership.",
+    "10": "current += 1 advances the walker to the next value.",
+    "11": "length += 1 counts the newly reached value.",
+    "12": "max(longest, length) keeps whichever is larger.",
+    "13": "return longest hands back the answer."
+  }
+}

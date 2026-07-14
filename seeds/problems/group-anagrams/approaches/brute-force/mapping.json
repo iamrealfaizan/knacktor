@@ -1,0 +1,139 @@
+{
+  "primitive": "array",
+  "valuesFrom": "strs",
+  "flags": {
+    "isMatch": "is_anagram == true"
+  },
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "i",
+      "j"
+    ]
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == j && isMatch && phase == 'update'"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "compared",
+      "when": "idx == j"
+    },
+    {
+      "state": "visited",
+      "when": "used[idx] == true"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'check'",
+    "expr": "'{strs[i]}' vs '{strs[j]}'",
+    "relation": "anagram? {is_anagram}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        15
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        10
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6,
+        11,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8,
+        9,
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7,
+        12
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        20
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 17,
+      "when": "isMatch",
+      "label": "Anagram found",
+      "kind": "match"
+    },
+    {
+      "line": 20,
+      "label": "All grouped",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Current group",
+      "primitive": "array",
+      "valuesFrom": "current_group",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

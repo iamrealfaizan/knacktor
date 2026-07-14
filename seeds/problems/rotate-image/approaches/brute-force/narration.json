@@ -1,0 +1,86 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the matrix size, n = {n}.",
+      "why": "The rotation works on an n by n grid.",
+      "invariant": "n rows and n columns."
+    },
+    "4": {
+      "happening": "Prepare an empty rotated matrix.",
+      "why": "We build the answer in a separate grid first.",
+      "invariant": "rotated starts empty."
+    },
+    "5": {
+      "happening": "Reserve space for another row.",
+      "why": "The rotated grid needs n rows.",
+      "invariant": "Building rotated row by row."
+    },
+    "6": {
+      "happening": "Append a row of {n} zeros.",
+      "why": "Each row must hold n placeholder cells.",
+      "invariant": "Rows fill with zeros before values."
+    },
+    "7": {
+      "happening": "Take source row {row}.",
+      "why": "We copy every source cell to its rotated spot.",
+      "invariant": "Rows processed top to bottom."
+    },
+    "8": {
+      "happening": "Take source column {col}.",
+      "why": "Visit each cell in this row.",
+      "invariant": "Columns processed left to right."
+    },
+    "9": {
+      "happening": "Send this cell to its rotated position.",
+      "why": "Clockwise rotation sends row r, col c to row c, col n-1-r.",
+      "invariant": "rotated fills with the turned image."
+    },
+    "10": {
+      "happening": "Second pass: row {row}.",
+      "why": "Now copy the rotated grid back into matrix.",
+      "invariant": "matrix will match rotated."
+    },
+    "11": {
+      "happening": "Column {col}.",
+      "why": "Copy each cell back in place.",
+      "invariant": "In-place requirement satisfied by copying back."
+    },
+    "12": {
+      "happening": "Write the rotated value back into matrix[{row}][{col}].",
+      "why": "The original matrix must hold the result.",
+      "invariant": "matrix becomes the rotated image."
+    },
+    "13": {
+      "happening": "Return the rotated matrix.",
+      "why": "Every cell has been placed.",
+      "invariant": "matrix is fully rotated."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Allocate the rotated grid.",
+      "why": "Prepare a fresh n by n matrix.",
+      "invariant": "rotated ready, filled with zeros."
+    },
+    "loop": {
+      "happening": "Advance the row/column indices.",
+      "why": "Visit each cell once.",
+      "invariant": "Scanning the grid."
+    },
+    "update": {
+      "happening": "Place a cell into its rotated position.",
+      "why": "Map (r,c) to (c, n-1-r).",
+      "invariant": "rotated grows correct."
+    },
+    "move": {
+      "happening": "Copy the rotated grid back into matrix.",
+      "why": "Fulfil the in-place requirement.",
+      "invariant": "matrix matches rotated."
+    },
+    "return": {
+      "happening": "Return the rotated matrix.",
+      "why": "Rotation complete.",
+      "invariant": "Answer is final."
+    }
+  }
+}

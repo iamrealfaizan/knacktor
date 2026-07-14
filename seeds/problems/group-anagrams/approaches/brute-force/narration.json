@@ -1,0 +1,150 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create the empty list of groups.",
+      "why": "It will collect one list per set of anagrams.",
+      "invariant": "No words are grouped yet."
+    },
+    "4": {
+      "happening": "Create a used flag for every word, all False.",
+      "why": "We must never place a word in two groups.",
+      "invariant": "Every word starts ungrouped."
+    },
+    "5": {
+      "happening": "Consider word i = '{strs[i]}' as a possible new anchor.",
+      "why": "Each ungrouped word can start its own anagram group.",
+      "invariant": "Words before i are already settled."
+    },
+    "6": [
+      {
+        "when": "used[i] == true",
+        "happening": "'{strs[i]}' is already in a group â€” skip it.",
+        "why": "It has already been claimed by an earlier anchor.",
+        "invariant": "A word belongs to exactly one group."
+      },
+      {
+        "happening": "'{strs[i]}' hasn't been grouped yet â€” it will anchor a new group.",
+        "why": "An ungrouped word seeds a fresh group.",
+        "invariant": "A word belongs to exactly one group."
+      }
+    ],
+    "7": {
+      "happening": "Skip to the next anchor.",
+      "why": "This word is already handled.",
+      "invariant": "No re-grouping."
+    },
+    "8": {
+      "happening": "Start a new group holding the anchor '{strs[i]}'.",
+      "why": "Every group begins with its anchor word.",
+      "invariant": "The group so far is exactly the anchor."
+    },
+    "9": {
+      "happening": "Mark the anchor '{strs[i]}' as used.",
+      "why": "It must not be picked up again.",
+      "invariant": "The anchor is now grouped."
+    },
+    "10": {
+      "happening": "Scan later words with j to find matches for the anchor.",
+      "why": "Only words after i can still be ungrouped candidates.",
+      "invariant": "The anchor group grows only from later words."
+    },
+    "11": [
+      {
+        "when": "used[j] == true",
+        "happening": "'{strs[j]}' is already grouped â€” skip it.",
+        "why": "It belongs to an earlier group.",
+        "invariant": "No word is compared once grouped."
+      },
+      {
+        "happening": "Look at candidate '{strs[j]}'.",
+        "why": "We test whether it is an anagram of the anchor.",
+        "invariant": "Candidates come from indices after i."
+      }
+    ],
+    "12": {
+      "happening": "Skip to the next candidate.",
+      "why": "This one is already grouped.",
+      "invariant": "No re-grouping."
+    },
+    "13": {
+      "happening": "Sort the anchor '{strs[i]}' letters.",
+      "why": "Anagrams have identical sorted letters.",
+      "invariant": "Sorted form is the anagram fingerprint."
+    },
+    "14": {
+      "happening": "Sort candidate '{strs[j]}' letters.",
+      "why": "We compare fingerprints, not raw words.",
+      "invariant": "Sorted form is the anagram fingerprint."
+    },
+    "15": {
+      "happening": "Check whether the two sorted forms are equal.",
+      "why": "Equal sorted forms mean the words are anagrams.",
+      "invariant": "is_anagram records the verdict."
+    },
+    "16": [
+      {
+        "when": "is_anagram == true",
+        "happening": "'{strs[i]}' and '{strs[j]}' are anagrams.",
+        "why": "Their sorted forms matched.",
+        "invariant": "Matching words join the same group."
+      },
+      {
+        "happening": "'{strs[i]}' and '{strs[j]}' are not anagrams.",
+        "why": "Their sorted forms differ.",
+        "invariant": "Non-matches stay ungrouped for now."
+      }
+    ],
+    "17": {
+      "happening": "Add '{strs[j]}' to the anchor's group.",
+      "why": "It is confirmed to be an anagram of the anchor.",
+      "invariant": "The group holds only mutual anagrams."
+    },
+    "18": {
+      "happening": "Mark '{strs[j]}' as used.",
+      "why": "It is now grouped and off the table.",
+      "invariant": "Each word is grouped once."
+    },
+    "19": {
+      "happening": "Store the finished group into the answer.",
+      "why": "The anchor's scan is complete.",
+      "invariant": "GROUPS grows by one completed group."
+    },
+    "20": {
+      "happening": "Return all the groups.",
+      "why": "Every word has been placed.",
+      "invariant": "The partition is complete."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set up the empty answer and the used flags.",
+      "why": "Prepare to partition the words.",
+      "invariant": "Nothing grouped yet."
+    },
+    "loop": {
+      "happening": "Advance an index over the words.",
+      "why": "Visit each word in turn.",
+      "invariant": "Scanning left to right."
+    },
+    "check": {
+      "happening": "Compare sorted forms to test for anagrams.",
+      "why": "Sorted equality decides grouping.",
+      "invariant": "Comparisons never change the words."
+    },
+    "update": {
+      "happening": "Grow a group and mark words used.",
+      "why": "Record confirmed anagrams together.",
+      "invariant": "Each word grouped exactly once."
+    },
+    "move": {
+      "happening": "Skip an already-grouped word.",
+      "why": "No word is grouped twice.",
+      "invariant": "Advance without regrouping."
+    },
+    "return": {
+      "happening": "Return the completed groups.",
+      "why": "The partition is done.",
+      "invariant": "Every word placed."
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "ghosts": {
+    "track": [
+      "i"
+    ]
+  },
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "compared",
+      "when": "idx == i - 1"
+    },
+    {
+      "state": "visited",
+      "when": "idx < i - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "i != null && phase != 'return'",
+    "expr": "at nums[{i}] = {nums[i]}",
+    "relation": "run {current_count} Â· best {max_count}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "comparisons",
+      "onLines": [
+        9,
+        11
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        9,
+        11
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        12,
+        14,
+        15
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        4,
+        16
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 16,
+      "label": "Longest run",
+      "kind": "return"
+    }
+  ]
+}

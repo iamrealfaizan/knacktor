@@ -1,0 +1,109 @@
+{
+  "byLine": {
+    "3": [
+      {
+        "when": "len(nums) == 0",
+        "happening": "The array is empty.",
+        "why": "There is no value to build a sequence from.",
+        "invariant": "An empty array has no run."
+      },
+      {
+        "happening": "The array has values, so we proceed.",
+        "why": "We will sort them to find runs.",
+        "invariant": "No run measured yet."
+      }
+    ],
+    "4": {
+      "happening": "Return 0.",
+      "why": "An empty array has no consecutive sequence.",
+      "invariant": "Answer is 0."
+    },
+    "5": {
+      "happening": "Sort the array ascending.",
+      "why": "Consecutive values then sit right next to each other.",
+      "invariant": "After this, nums is non-decreasing."
+    },
+    "6": {
+      "happening": "Start the current run length at 1.",
+      "why": "Any single value is a run of one.",
+      "invariant": "current_count tracks the run ending at i."
+    },
+    "7": {
+      "happening": "Start the best run length at 1.",
+      "why": "The answer is at least 1 for a non-empty array.",
+      "invariant": "max_count is the best run so far."
+    },
+    "8": {
+      "happening": "Scan from the second element with index i.",
+      "why": "Each value is compared to its left neighbor.",
+      "invariant": "Values left of i are already scanned."
+    },
+    "9": {
+      "happening": "Is nums[{i}] the same as the previous value?",
+      "why": "Duplicates must not extend or reset a run.",
+      "invariant": "Each distinct value counts once."
+    },
+    "10": {
+      "happening": "Skip this duplicate.",
+      "why": "It does not change the run.",
+      "invariant": "The run length is unchanged."
+    },
+    "11": {
+      "happening": "Is nums[{i}] exactly one more than the previous value?",
+      "why": "That is what makes the run consecutive.",
+      "invariant": "A run grows only on a +1 step."
+    },
+    "12": {
+      "happening": "Extend the current run.",
+      "why": "This value continues the consecutive sequence.",
+      "invariant": "current_count counts the run ending here."
+    },
+    "14": {
+      "happening": "A gap broke the run â€” reset to 1.",
+      "why": "This value starts a fresh run.",
+      "invariant": "current_count restarts at 1."
+    },
+    "15": {
+      "happening": "Record the best run length so far.",
+      "why": "We keep the longest run seen.",
+      "invariant": "max_count is the running maximum."
+    },
+    "16": {
+      "happening": "Return the longest run length, {max_count}.",
+      "why": "The single pass is complete.",
+      "invariant": "The answer is the longest run."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Sort the array and set up counters.",
+      "why": "Prepare a single linear pass.",
+      "invariant": "Array sorted, counters at 1."
+    },
+    "loop": {
+      "happening": "Advance the scan index.",
+      "why": "Visit each value once.",
+      "invariant": "Scanning left to right."
+    },
+    "check": {
+      "happening": "Compare this value to its neighbor.",
+      "why": "Decide duplicate, consecutive, or gap.",
+      "invariant": "Comparisons do not move data."
+    },
+    "update": {
+      "happening": "Grow or reset the run and track the best.",
+      "why": "Maintain the current and best run lengths.",
+      "invariant": "Counters reflect the run ending at i."
+    },
+    "move": {
+      "happening": "Skip a duplicate value.",
+      "why": "Duplicates never change the run.",
+      "invariant": "Run length unchanged."
+    },
+    "return": {
+      "happening": "Return the longest run.",
+      "why": "The pass is complete.",
+      "invariant": "Answer is final."
+    }
+  }
+}

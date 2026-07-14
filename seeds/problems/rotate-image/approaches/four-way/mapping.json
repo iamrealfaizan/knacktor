@@ -1,0 +1,76 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "special",
+      "when": "offset != null && top != null && ((r == top && c == left + offset) || (r == bottom - offset && c == left) || (r == bottom && c == right - offset) || (r == top + offset && c == right))"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "offset != null && phase != 'return'",
+    "expr": "ring [{left}..{right}] Â· offset {offset}",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "cycles",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        7
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        15,
+        16
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        17
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 17,
+      "label": "Rotated",
+      "kind": "return"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "optimal",
+  "name": "Character-Count Hash Map",
+  "kind": "optimal",
+  "summary": "Bucket each word under a 26-letter frequency signature so all anagrams share one key.",
+  "visualizationIntent": "init: empty hashmap of buckets, groups empty; loop(word): the current word is named in the readout, a fresh 26-slot count aux array pops in zeroed; loop(char)+update: each character bumps count[index] â€” the touched slot flashes and index marks it; update(key): count freezes into the signature key; check(key not in groups): a brand-new signature creates an empty bucket (pop-in), an existing signature highlights the matching bucket; update(append): the word chip flies into its bucket; return: every word bucketed, anagrams sharing a bucket, GROUPS holds bucket contents.",
+  "complexity": {
+    "time": "O(n * k)",
+    "space": "O(n * k)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.groupAnagrams",
+  "primaryPrimitive": "hashmap",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "groups",
+    "label": "GROUPS",
+    "render": "tuple-list",
+    "emptyText": "no groups yet"
+  },
+  "varColors": {
+    "index": "current",
+    "groups": "result",
+    "key": "special",
+    "count": "amber"
+  },
+  "lineExplanations": {
+    "3": "Start with an empty map from a letter-frequency signature to the words that share it.",
+    "4": "Process each word one at a time.",
+    "5": "Reset a 26-slot tally, one slot per lowercase letter aâ€“z.",
+    "6": "Walk through every character of the word.",
+    "7": "Convert the character to a slot index: 'a' is 0, 'b' is 1, â€¦ 'z' is 25.",
+    "8": "Add one to that letter's slot, building the word's frequency signature.",
+    "9": "Freeze the 26 counts into a tuple so it can be used as a dictionary key.",
+    "10": "Check whether this exact signature has been seen before.",
+    "11": "If it is new, create an empty bucket for it.",
+    "12": "Drop the word into its signature's bucket â€” anagrams land together.",
+    "13": "Return every bucket's contents as the grouped answer."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def groupAnagrams(self, strs): the method receiving the list of words.",
+    "3": "{} is an empty dictionary literal.",
+    "4": "for word in strs iterates over each string.",
+    "5": "[0] * 26 builds a list of twenty-six zeros.",
+    "6": "for char in word iterates over each character.",
+    "7": "ord(char) - ord('a') maps a letter to 0..25.",
+    "8": "count[index] += 1 adds one to that slot.",
+    "9": "tuple(count) makes an immutable copy usable as a dict key.",
+    "10": "if key not in groups tests dictionary membership.",
+    "11": "groups[key] = [] creates an empty list for the new key.",
+    "12": "groups[key].append(word) adds the word under its key.",
+    "13": "list(groups.values()) collects all buckets into one list."
+  }
+}

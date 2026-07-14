@@ -1,0 +1,82 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "phase == 'update' && row != null && r == row && c == col"
+    },
+    {
+      "state": "compared",
+      "when": "phase == 'update' && row != null && r == col && c == row"
+    },
+    {
+      "state": "special",
+      "when": "r == c"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update' && row != null",
+    "expr": "transpose: swap ({row},{col}) with ({col},{row})",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "swaps",
+      "onLines": [
+        6
+      ]
+    },
+    {
+      "name": "reverses",
+      "onLines": [
+        8
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4,
+        5,
+        7
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        8
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        9
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 9,
+      "label": "Rotated",
+      "kind": "return"
+    }
+  ]
+}

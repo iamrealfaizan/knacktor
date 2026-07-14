@@ -1,0 +1,71 @@
+{
+  "id": "brute-force",
+  "name": "Pairwise Sorted Comparison",
+  "kind": "brute",
+  "summary": "For each unplaced word, scan the rest and group any word whose sorted form matches.",
+  "visualizationIntent": "init: the word array strs is shown as cells, no pointers, groups empty; loop(i): pointer i marks the anchor word, already-grouped cells dim to visited; check(i used): a dimmed anchor is skipped; update(new group): anchor flips current and starts current_group aux; loop(j)+check: pointer j scans rightward comparing sorted_i vs sorted_j via the readout chip; update(match): on is_anagram the j-cell flips result and its word glides into the current_group aux, then dims to visited; return: every cell visited, GROUPS holds the final partition.",
+  "complexity": {
+    "time": "O(n^2 * k log k)",
+    "space": "O(n + k)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.groupAnagrams",
+  "primaryPrimitive": "array",
+  "auxStructures": [
+    "array"
+  ],
+  "resultSpec": {
+    "varName": "groups",
+    "label": "GROUPS",
+    "render": "tuple-list",
+    "emptyText": "no groups yet"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "groups": "result",
+    "is_anagram": "compared"
+  },
+  "lineExplanations": {
+    "3": "Start with an empty list that will hold each finished anagram group.",
+    "4": "Track, per word, whether it has already been placed into some group.",
+    "5": "Walk through every word by index i â€” each is a candidate anchor for a new group.",
+    "6": "If this word was already pulled into an earlier group, it can't start a new one.",
+    "7": "Skip it and move on to the next anchor.",
+    "8": "Open a new group seeded with the anchor word itself.",
+    "9": "Mark the anchor as used so it is never grouped again.",
+    "10": "Scan every later word j to see whether it belongs in this group.",
+    "11": "If word j is already grouped, there is nothing to compare.",
+    "12": "Skip it and try the next candidate.",
+    "13": "Sort the anchor word's letters â€” anagrams share the same sorted form.",
+    "14": "Sort candidate word j's letters the same way.",
+    "15": "The two words are anagrams exactly when their sorted forms are identical.",
+    "16": "When they match, word j joins the current group.",
+    "17": "Add word j to the group being built.",
+    "18": "Mark word j as used so no later anchor grabs it.",
+    "19": "The group is complete â€” store it in the answer.",
+    "20": "Return the list of all groups."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def groupAnagrams(self, strs): the method receiving the list of words.",
+    "3": "[] is an empty list literal.",
+    "4": "[False] * len(strs) builds a list of False flags, one per word.",
+    "5": "for i in range(len(strs)) loops i over every index 0..n-1.",
+    "6": "if used[i]: reads the boolean flag at index i.",
+    "7": "continue jumps straight to the next loop iteration.",
+    "8": "[strs[i]] is a one-element list holding the anchor word.",
+    "9": "used[i] = True stores True at index i.",
+    "10": "range(i + 1, len(strs)) yields the indices after i.",
+    "11": "if used[j]: reads the flag at index j.",
+    "12": "continue skips to the next j.",
+    "13": "sorted(strs[i]) returns the word's characters as a sorted list.",
+    "14": "sorted(strs[j]) does the same for word j.",
+    "15": "== compares the two sorted lists for equality.",
+    "16": "if is_anagram: branches on the boolean we just computed.",
+    "17": "current_group.append(strs[j]) adds the word to the group.",
+    "18": "used[j] = True marks word j as placed.",
+    "19": "groups.append(current_group) stores the finished group.",
+    "20": "return groups hands back the final answer."
+  }
+}

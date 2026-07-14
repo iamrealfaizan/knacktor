@@ -1,0 +1,106 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the matrix size, n = {n}.",
+      "why": "The rotation works on an n by n grid.",
+      "invariant": "n rows and n columns."
+    },
+    "4": {
+      "happening": "left marks the outer layer at index {left}.",
+      "why": "We rotate one concentric ring at a time.",
+      "invariant": "left is the layer's low boundary."
+    },
+    "5": {
+      "happening": "right marks the far boundary at index {right}.",
+      "why": "left and right bound the current ring.",
+      "invariant": "right is the layer's high boundary."
+    },
+    "6": {
+      "happening": "This ring spans indices {left} to {right}.",
+      "why": "A ring with width is still worth rotating.",
+      "invariant": "When left meets right, all rings are done."
+    },
+    "7": {
+      "happening": "Rotate the cell at offset {offset} along the top edge.",
+      "why": "Each offset moves one group of four cells.",
+      "invariant": "One offset handles four cells at once."
+    },
+    "8": {
+      "happening": "The top row of this ring is {top}.",
+      "why": "Corners are computed from top/bottom and offset.",
+      "invariant": "top equals the layer index."
+    },
+    "9": {
+      "happening": "The bottom row of this ring is {bottom}.",
+      "why": "It anchors the lower two cells of the group.",
+      "invariant": "bottom equals the far boundary."
+    },
+    "10": {
+      "happening": "Save the top-left value before it is overwritten.",
+      "why": "It would otherwise be lost in the cycle.",
+      "invariant": "top_left holds the escaping value."
+    },
+    "11": {
+      "happening": "Bottom-left moves up into the top-left.",
+      "why": "Each cell shifts one quarter-turn clockwise.",
+      "invariant": "The four cells rotate together."
+    },
+    "12": {
+      "happening": "Bottom-right moves into the bottom-left.",
+      "why": "Continue the clockwise cycle.",
+      "invariant": "The four cells rotate together."
+    },
+    "13": {
+      "happening": "Top-right moves into the bottom-right.",
+      "why": "Continue the clockwise cycle.",
+      "invariant": "The four cells rotate together."
+    },
+    "14": {
+      "happening": "The saved value moves into the top-right.",
+      "why": "This closes the four-way cycle.",
+      "invariant": "All four cells are now rotated."
+    },
+    "15": {
+      "happening": "Shrink the ring inward from the left.",
+      "why": "The outer ring is finished.",
+      "invariant": "Move to the next inner ring."
+    },
+    "16": {
+      "happening": "Shrink the ring inward from the right.",
+      "why": "The outer ring is finished.",
+      "invariant": "Move to the next inner ring."
+    },
+    "17": {
+      "happening": "Return the rotated matrix.",
+      "why": "Every ring has been cycled.",
+      "invariant": "matrix is fully rotated."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set the ring boundaries.",
+      "why": "Prepare to rotate layer by layer.",
+      "invariant": "No cell moved yet."
+    },
+    "loop": {
+      "happening": "Advance to the next ring or offset.",
+      "why": "Cover every four-cell group.",
+      "invariant": "Scanning rings outward-in."
+    },
+    "update": {
+      "happening": "Cycle four cells one quarter-turn.",
+      "why": "This performs the rotation in place.",
+      "invariant": "Four cells rotate as a group."
+    },
+    "move": {
+      "happening": "Shrink to the next inner ring.",
+      "why": "The current ring is complete.",
+      "invariant": "Rings processed outer to inner."
+    },
+    "return": {
+      "happening": "Return the rotated matrix.",
+      "why": "Rotation complete.",
+      "invariant": "Answer is final."
+    }
+  }
+}

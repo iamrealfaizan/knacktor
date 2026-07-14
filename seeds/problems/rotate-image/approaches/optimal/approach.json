@@ -1,0 +1,45 @@
+{
+  "id": "optimal",
+  "name": "Transpose Then Reverse Rows",
+  "kind": "optimal",
+  "summary": "Mirror across the diagonal, then reverse each row â€” a 90-degree clockwise rotation in place.",
+  "visualizationIntent": "init: the matrix is shown with its main diagonal marked special (the mirror axis); loop(transpose): each above-diagonal cell (row,col) is current and its mirror (col,row) is compared as the two swap and flash; loop(reverse): each row's cells flash as the row is reversed left-to-right; return: matrix holds the rotated image.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.rotate",
+  "primaryPrimitive": "grid",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "matrix",
+    "label": "MATRIX",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "row": "ptr-i",
+    "col": "ptr-j",
+    "matrix": "result"
+  },
+  "lineExplanations": {
+    "3": "Measure n, the number of rows and columns.",
+    "4": "Walk over every row index.",
+    "5": "Walk the columns to the right of the diagonal only.",
+    "6": "Swap this cell with its mirror across the diagonal (transpose).",
+    "7": "Walk over each row of the (now transposed) matrix.",
+    "8": "Reverse that row left-to-right.",
+    "9": "Return the rotated matrix."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def rotate(self, matrix): the method receiving the n x n matrix.",
+    "3": "len(matrix) is the number of rows, n.",
+    "4": "for row in range(n) iterates the row indices.",
+    "5": "range(row + 1, n) skips the diagonal and lower triangle so each pair swaps once.",
+    "6": "a, b = b, a swaps two cells in a single statement.",
+    "7": "for current_row in matrix iterates the actual row lists.",
+    "8": "current_row.reverse() reverses that row in place.",
+    "9": "return matrix hands back the rotated grid."
+  }
+}

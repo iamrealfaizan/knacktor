@@ -1,0 +1,59 @@
+{
+  "id": "sorting",
+  "name": "Sort Then Scan",
+  "kind": "alternative",
+  "summary": "Sort the array so consecutive values are adjacent, then count runs in one linear pass.",
+  "visualizationIntent": "init: the raw array is shown, then .sort() reorders the cells into ascending order (a real reflow step); loop(i): pointer i scans left to right, cell i-1 is compared against cell i; check(duplicate): equal neighbors are skipped; update(consecutive): when nums[i] == nums[i-1]+1 the current run grows; update(reset): a gap resets the run to 1; the running best shows in the readout; return: the sorted array rests and LONGEST RUN holds the answer.",
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.longestConsecutive",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "max_count",
+    "label": "LONGEST RUN",
+    "render": "scalar",
+    "emptyText": "0"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "current_count": "amber",
+    "max_count": "result"
+  },
+  "lineExplanations": {
+    "3": "If the array is empty there is no sequence to measure.",
+    "4": "Return 0 for an empty array.",
+    "5": "Sort the array so consecutive values sit next to each other.",
+    "6": "The current run starts at length 1.",
+    "7": "The best run starts at length 1.",
+    "8": "Scan from the second element to the end.",
+    "9": "If this value equals the previous one, it is a duplicate.",
+    "10": "Skip the duplicate without changing the run.",
+    "11": "If this value is exactly one more than the previous, the run continues.",
+    "12": "Grow the current run by one.",
+    "14": "Otherwise a gap broke the run, so reset it to 1.",
+    "15": "Update the best run length seen so far.",
+    "16": "Return the length of the longest consecutive run."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def longestConsecutive(self, nums): the method receiving the numbers.",
+    "3": "if not nums: is True when the list is empty.",
+    "4": "return 0 exits immediately with zero.",
+    "5": "nums.sort() sorts the list in place, ascending.",
+    "6": "current_count = 1 initializes the running run length.",
+    "7": "max_count = 1 initializes the best run length.",
+    "8": "for i in range(1, len(nums)) scans indices 1..n-1.",
+    "9": "nums[i] == nums[i - 1] tests whether this value repeats the previous.",
+    "10": "continue skips to the next index.",
+    "11": "nums[i] == nums[i - 1] + 1 tests whether the values are consecutive.",
+    "12": "current_count += 1 extends the current run.",
+    "13": "else: introduces the fallback branch for a gap.",
+    "14": "current_count = 1 resets the run length.",
+    "15": "max(max_count, current_count) keeps whichever is larger.",
+    "16": "return max_count hands back the answer."
+  }
+}

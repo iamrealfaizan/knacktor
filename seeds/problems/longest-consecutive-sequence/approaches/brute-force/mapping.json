@@ -1,0 +1,81 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "cellStateRules": [
+    {
+      "state": "compared",
+      "when": "current != null && values[idx] == current + 1"
+    },
+    {
+      "state": "current",
+      "when": "current != null && values[idx] == current"
+    },
+    {
+      "state": "special",
+      "when": "num != null && values[idx] == num"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "current != null && phase != 'return'",
+    "expr": "from {num}: at {current}, run {length}",
+    "relation": "best {longest}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "probes",
+      "onLines": [
+        9
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        9
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        4,
+        13
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 13,
+      "label": "Longest run",
+      "kind": "return"
+    }
+  ]
+}

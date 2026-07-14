@@ -1,0 +1,94 @@
+{
+  "byLine": {
+    "3": [
+      {
+        "when": "len(nums) == 0",
+        "happening": "The array is empty.",
+        "why": "There is no value to build a sequence from.",
+        "invariant": "An empty array has no run."
+      },
+      {
+        "happening": "The array has values, so we begin searching.",
+        "why": "Every value could start a consecutive run.",
+        "invariant": "No run measured yet."
+      }
+    ],
+    "4": {
+      "happening": "Return 0.",
+      "why": "An empty array has no consecutive sequence.",
+      "invariant": "Answer is 0."
+    },
+    "5": {
+      "happening": "Set the best run length to 0.",
+      "why": "We will grow it as runs are found.",
+      "invariant": "No run found yet."
+    },
+    "6": {
+      "happening": "Take value {num} as a possible run start.",
+      "why": "The naive method tries starting from every value.",
+      "invariant": "Each value gets its own trial run."
+    },
+    "7": {
+      "happening": "Start walking from {num}.",
+      "why": "current will climb through consecutive values.",
+      "invariant": "current marks the head of this run."
+    },
+    "8": {
+      "happening": "This run has length 1 so far.",
+      "why": "It contains only the starting value.",
+      "invariant": "length counts values in the current run."
+    },
+    "9": {
+      "happening": "Look for {current}+1 somewhere in the array.",
+      "why": "If the next value exists, the run can extend.",
+      "invariant": "A run extends only while the next value is present."
+    },
+    "10": {
+      "happening": "Found it â€” step up to {current}+1.",
+      "why": "The consecutive value exists, so the run grows.",
+      "invariant": "current always holds the run's head."
+    },
+    "11": {
+      "happening": "The run is now one longer.",
+      "why": "We counted the newly reached value.",
+      "invariant": "length equals values walked from the start."
+    },
+    "12": {
+      "happening": "Compare this run against the best so far.",
+      "why": "We keep the longest run seen.",
+      "invariant": "longest is the max over all trial runs."
+    },
+    "13": {
+      "happening": "Return the longest run length, {longest}.",
+      "why": "Every value has been tried as a start.",
+      "invariant": "The answer is the longest run found."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Prepare to search for runs.",
+      "why": "Set up the best-length tracker.",
+      "invariant": "Nothing measured yet."
+    },
+    "loop": {
+      "happening": "Pick a start value or probe the next one.",
+      "why": "Try to extend a run.",
+      "invariant": "Scanning candidate runs."
+    },
+    "update": {
+      "happening": "Grow the run and record the best.",
+      "why": "Track how far this run reaches.",
+      "invariant": "length counts the current run."
+    },
+    "move": {
+      "happening": "Step the head up to the next value.",
+      "why": "The consecutive value was present.",
+      "invariant": "current is the run head."
+    },
+    "return": {
+      "happening": "Return the longest run.",
+      "why": "All starts have been tried.",
+      "invariant": "Answer is final."
+    }
+  }
+}

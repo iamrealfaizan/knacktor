@@ -1,0 +1,69 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "strs": [
+        "eat",
+        "tea",
+        "tan",
+        "ate",
+        "nat",
+        "bat"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        "eat",
+        "tea",
+        "ate"
+      ],
+      [
+        "tan",
+        "nat"
+      ],
+      [
+        "bat"
+      ]
+    ]
+  },
+  {
+    "id": "edge-empty-string",
+    "label": "Empty String",
+    "value": {
+      "strs": [
+        ""
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        ""
+      ]
+    ]
+  },
+  {
+    "id": "all-distinct",
+    "label": "No Anagrams",
+    "value": {
+      "strs": [
+        "dog",
+        "cat",
+        "bird"
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        "dog"
+      ],
+      [
+        "cat"
+      ],
+      [
+        "bird"
+      ]
+    ]
+  }
+]
