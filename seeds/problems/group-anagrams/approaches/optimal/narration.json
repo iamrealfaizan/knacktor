@@ -1,0 +1,86 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create the empty map from signature to words.",
+      "why": "Anagrams will share one signature key.",
+      "invariant": "No words are bucketed yet."
+    },
+    "4": {
+      "happening": "Take the next word '{word}'.",
+      "why": "Each word gets its own frequency signature.",
+      "invariant": "Words before this are already bucketed."
+    },
+    "5": {
+      "happening": "Reset a 26-slot letter tally to zeros.",
+      "why": "The tally will encode this word's letters.",
+      "invariant": "Counts start empty for each word."
+    },
+    "6": {
+      "happening": "Read each character of '{word}'.",
+      "why": "Every letter bumps its own slot.",
+      "invariant": "The tally reflects letters seen so far."
+    },
+    "7": {
+      "happening": "Map the character to a slot 0-25.",
+      "why": "'a' is slot 0, 'z' is slot 25.",
+      "invariant": "Every lowercase letter has a slot."
+    },
+    "8": {
+      "happening": "Add one to slot {index}.",
+      "why": "Counting letters builds the signature.",
+      "invariant": "Slot totals equal letters counted so far."
+    },
+    "9": {
+      "happening": "Freeze the counts into an immutable key.",
+      "why": "A tuple can be used as a dictionary key.",
+      "invariant": "Equal letter counts produce equal keys."
+    },
+    "10": {
+      "happening": "Has this signature been seen before?",
+      "why": "A new signature needs a fresh bucket.",
+      "invariant": "Each distinct signature maps to one bucket."
+    },
+    "11": {
+      "happening": "Open a new empty bucket for this signature.",
+      "why": "It is the first word with these letters.",
+      "invariant": "A bucket exists for every seen signature."
+    },
+    "12": {
+      "happening": "Drop '{word}' into its signature bucket.",
+      "why": "All words with these letters gather here.",
+      "invariant": "A bucket holds only mutual anagrams."
+    },
+    "13": {
+      "happening": "Return every bucket's list of words.",
+      "why": "The buckets are the finished groups.",
+      "invariant": "Every word sits in exactly one bucket."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Create the empty signature map.",
+      "why": "Prepare to bucket words by letters.",
+      "invariant": "Nothing bucketed yet."
+    },
+    "loop": {
+      "happening": "Move to the next word or letter.",
+      "why": "Process every word and its characters.",
+      "invariant": "Iterating in order."
+    },
+    "update": {
+      "happening": "Count letters and bucket the word.",
+      "why": "Build the signature, then file the word.",
+      "invariant": "Counts and buckets stay consistent."
+    },
+    "check": {
+      "happening": "Test whether the signature is new.",
+      "why": "Decide to create or reuse a bucket.",
+      "invariant": "One bucket per signature."
+    },
+    "return": {
+      "happening": "Return the grouped buckets.",
+      "why": "All words are filed.",
+      "invariant": "The grouping is complete."
+    }
+  }
+}

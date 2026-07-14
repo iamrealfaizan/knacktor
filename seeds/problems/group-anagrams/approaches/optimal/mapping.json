@@ -1,0 +1,109 @@
+{
+  "primitive": "hashmap",
+  "keysFrom": "groups",
+  "valuesFrom": "groups",
+  "highlightKeyVar": "key",
+  "highlightRules": [
+    {
+      "state": "idle",
+      "whenKey": "true"
+    }
+  ],
+  "readout": {
+    "when": "word != null && phase != 'return'",
+    "expr": "bucketing '{word}'",
+    "relation": "letter slot {index}",
+    "relationColor": "current"
+  },
+  "counters": [
+    {
+      "name": "letters",
+      "onLines": [
+        8
+      ]
+    },
+    {
+      "name": "words",
+      "onLines": [
+        12
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        4,
+        6
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        5,
+        7,
+        8,
+        9,
+        11,
+        12
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        13
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 11,
+      "label": "New signature bucket",
+      "kind": "boundary"
+    },
+    {
+      "line": 13,
+      "label": "All grouped",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Letter counts (a-z)",
+      "primitive": "array",
+      "valuesFrom": "count",
+      "pointers": [
+        {
+          "name": "index",
+          "var": "index"
+        }
+      ],
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == index"
+        },
+        {
+          "state": "compared",
+          "when": "values[idx] > 0"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

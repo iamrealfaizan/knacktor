@@ -1,0 +1,41 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "nums": [
+        100,
+        4,
+        200,
+        1,
+        3,
+        2
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 4
+  },
+  {
+    "id": "example-3",
+    "label": "With Duplicate",
+    "value": {
+      "nums": [
+        1,
+        0,
+        1,
+        2
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-empty",
+    "label": "Empty Array",
+    "value": {
+      "nums": []
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  }
+]

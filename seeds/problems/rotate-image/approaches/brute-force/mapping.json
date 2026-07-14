@@ -1,0 +1,102 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "row != null && col != null && r == row && c == col"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "cell",
+      "rowVar": "row",
+      "colVar": "col"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "place ({row},{col}) â†’ ({col},{n}-1-{row})",
+    "relation": "value {matrix[row][col]}",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "writes",
+      "onLines": [
+        9,
+        12
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        7,
+        8,
+        10,
+        11
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        9
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        12
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        13
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 13,
+      "label": "Rotated",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "rotated",
+      "primitive": "grid",
+      "gridFrom": "rotated",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "phase == 'update' && row != null && r == col && c == n - 1 - row"
+        },
+        {
+          "state": "compared",
+          "when": "phase == 'move' && row != null && r == row && c == col"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

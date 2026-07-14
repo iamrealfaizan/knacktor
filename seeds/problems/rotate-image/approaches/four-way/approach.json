@@ -1,0 +1,62 @@
+{
+  "id": "four-way",
+  "name": "Four-Way Layer Rotation",
+  "kind": "alternative",
+  "summary": "Rotate the matrix layer by layer, cycling four cells at a time around each ring.",
+  "visualizationIntent": "init: the matrix is shown; loop(layer): left/right bound the current ring; loop(offset): the four cells being cycled this step light up as a group (special) â€” top edge, left edge, bottom edge, right edge â€” and their values flash as each moves into the next corner's slot; return: matrix holds the rotated image after every ring is processed.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.rotate",
+  "primaryPrimitive": "grid",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "matrix",
+    "label": "MATRIX",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "left": "ptr-lo",
+    "right": "ptr-hi",
+    "offset": "amber",
+    "matrix": "result"
+  },
+  "lineExplanations": {
+    "3": "Measure n, the number of rows and columns.",
+    "4": "left marks the outermost layer's low boundary.",
+    "5": "right marks the outermost layer's high boundary.",
+    "6": "While the current layer still has width, process it.",
+    "7": "Step an offset along the layer's top edge.",
+    "8": "top is this layer's top row index.",
+    "9": "bottom is this layer's bottom row index.",
+    "10": "Save the top-left cell before it is overwritten.",
+    "11": "Move the bottom-left cell up into the top-left.",
+    "12": "Move the bottom-right cell into the bottom-left.",
+    "13": "Move the top-right cell into the bottom-right.",
+    "14": "Drop the saved top-left value into the top-right.",
+    "15": "Shrink the layer inward from the left.",
+    "16": "Shrink the layer inward from the right.",
+    "17": "Return the rotated matrix."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def rotate(self, matrix): the method receiving the n x n matrix.",
+    "3": "len(matrix) is the number of rows, n.",
+    "4": "left = 0 starts at the outer layer.",
+    "5": "right = n - 1 is the last index.",
+    "6": "while left < right loops over concentric layers.",
+    "7": "range(right - left) covers each edge position except the final corner.",
+    "8": "top = left: the top row equals the layer index.",
+    "9": "bottom = right: the bottom row equals the layer's high boundary.",
+    "10": "matrix[top][left + offset] reads the top-edge cell.",
+    "11": "assignment moves the bottom-left cell into the top-left.",
+    "12": "moves the bottom-right cell into the bottom-left.",
+    "13": "moves the top-right cell into the bottom-right.",
+    "14": "places the saved value into the top-right.",
+    "15": "left += 1 moves the boundary inward.",
+    "16": "right -= 1 moves the boundary inward.",
+    "17": "return matrix hands back the rotated grid."
+  }
+}

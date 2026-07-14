@@ -1,0 +1,55 @@
+{
+  "id": "brute-force",
+  "name": "Copy Into a New Matrix",
+  "kind": "brute",
+  "summary": "Place each element into its rotated position in a second matrix, then copy that back.",
+  "visualizationIntent": "init: the source matrix is shown and an empty rotated matrix pops in beside it; loop(fill): the read cell matrix[row][col] is current and its rotated destination rotated[col][n-1-row] flashes as it receives the value; loop(copy): the second pass copies rotated back into matrix cell by cell; return: matrix holds the rotated image.",
+  "complexity": {
+    "time": "O(n^2)",
+    "space": "O(n^2)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.rotate",
+  "primaryPrimitive": "grid",
+  "auxStructures": [
+    "grid"
+  ],
+  "resultSpec": {
+    "varName": "matrix",
+    "label": "MATRIX",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "row": "ptr-i",
+    "col": "ptr-j",
+    "matrix": "result"
+  },
+  "lineExplanations": {
+    "3": "Measure n, the number of rows and columns.",
+    "4": "Start an empty list that will become the rotated matrix.",
+    "5": "Repeat n times to build n rows.",
+    "6": "Append a fresh row of n zeros.",
+    "7": "Walk over every source row.",
+    "8": "Walk over every source column.",
+    "9": "Place matrix[row][col] into its rotated spot rotated[col][n-1-row].",
+    "10": "Walk the rows again for the copy-back pass.",
+    "11": "Walk the columns again.",
+    "12": "Copy each rotated value back into matrix, in place.",
+    "13": "Return the rotated matrix."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def rotate(self, matrix): the method receiving the n x n matrix.",
+    "3": "len(matrix) is the number of rows, n.",
+    "4": "[] is an empty list literal.",
+    "5": "for _ in range(n) repeats n times; _ marks an unused index.",
+    "6": "[0] * n makes a row of n zeros; .append adds it.",
+    "7": "for row in range(n) iterates the row indices.",
+    "8": "for col in range(n) iterates the column indices.",
+    "9": "n - 1 - row is the destination column for a clockwise rotation.",
+    "10": "for row in range(n) begins the second pass.",
+    "11": "for col in range(n) iterates columns again.",
+    "12": "matrix[row][col] = rotated[row][col] writes back in place.",
+    "13": "return matrix hands back the rotated grid."
+  }
+}

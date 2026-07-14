@@ -1,0 +1,119 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1 (3x3)",
+    "value": {
+      "matrix": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6
+        ],
+        [
+          7,
+          8,
+          9
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        7,
+        4,
+        1
+      ],
+      [
+        8,
+        5,
+        2
+      ],
+      [
+        9,
+        6,
+        3
+      ]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2 (4x4)",
+    "value": {
+      "matrix": [
+        [
+          5,
+          1,
+          9,
+          11
+        ],
+        [
+          2,
+          4,
+          8,
+          10
+        ],
+        [
+          13,
+          3,
+          6,
+          7
+        ],
+        [
+          15,
+          14,
+          12,
+          16
+        ]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [
+        15,
+        13,
+        2,
+        5
+      ],
+      [
+        14,
+        3,
+        4,
+        1
+      ],
+      [
+        12,
+        6,
+        8,
+        9
+      ],
+      [
+        16,
+        7,
+        10,
+        11
+      ]
+    ]
+  },
+  {
+    "id": "edge-single",
+    "label": "Single Cell (1x1)",
+    "value": {
+      "matrix": [
+        [
+          1
+        ]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [
+        1
+      ]
+    ]
+  }
+]

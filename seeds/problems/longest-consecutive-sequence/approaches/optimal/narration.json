@@ -1,0 +1,91 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Store every value in a set.",
+      "why": "A set answers 'is x present?' in O(1).",
+      "invariant": "numbers holds each distinct value."
+    },
+    "4": {
+      "happening": "Set the best run length to 0.",
+      "why": "We grow it as runs are found.",
+      "invariant": "No run found yet."
+    },
+    "5": {
+      "happening": "Consider distinct value {num}.",
+      "why": "Every value is examined once.",
+      "invariant": "Each value is checked as a possible start."
+    },
+    "6": {
+      "happening": "Is {num} a run start? Only if {num}-1 is absent.",
+      "why": "Walking from a non-start would redo work â€” this is what makes it O(n).",
+      "invariant": "A run is walked only from its smallest value."
+    },
+    "7": {
+      "happening": "Begin walking from the start {num}.",
+      "why": "current will climb through the run.",
+      "invariant": "current marks the head of the run."
+    },
+    "8": {
+      "happening": "The run has length 1 so far.",
+      "why": "It contains only the start value.",
+      "invariant": "current_length counts values in this run."
+    },
+    "9": {
+      "happening": "Is {current}+1 in the set?",
+      "why": "If the next value exists, the run extends.",
+      "invariant": "The run extends while the next value is present."
+    },
+    "10": {
+      "happening": "Step up to {current}+1.",
+      "why": "The consecutive value exists.",
+      "invariant": "current is always the run head."
+    },
+    "11": {
+      "happening": "The run is now one longer.",
+      "why": "We counted the newly reached value.",
+      "invariant": "current_length equals values walked from the start."
+    },
+    "12": {
+      "happening": "Record the best run length so far.",
+      "why": "We keep the longest run seen.",
+      "invariant": "longest is the max over all runs."
+    },
+    "13": {
+      "happening": "Return the longest run length, {longest}.",
+      "why": "Every start has been walked exactly once.",
+      "invariant": "The answer is the longest run found."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Build the set and reset the best length.",
+      "why": "Prepare O(1) membership lookups.",
+      "invariant": "Nothing walked yet."
+    },
+    "loop": {
+      "happening": "Pick the next value or probe the next in a run.",
+      "why": "Examine values and extend runs.",
+      "invariant": "Scanning distinct values."
+    },
+    "check": {
+      "happening": "Test whether this value starts a run.",
+      "why": "Only run starts are walked.",
+      "invariant": "Non-starts are skipped."
+    },
+    "update": {
+      "happening": "Walk the run and record the best.",
+      "why": "Measure how far the run reaches.",
+      "invariant": "current_length counts the current run."
+    },
+    "move": {
+      "happening": "Step the head to the next value.",
+      "why": "The consecutive value was present.",
+      "invariant": "current is the run head."
+    },
+    "return": {
+      "happening": "Return the longest run.",
+      "why": "All starts walked once.",
+      "invariant": "Answer is final."
+    }
+  }
+}

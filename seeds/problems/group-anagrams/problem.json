@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "group-anagrams",
+  "number": 49,
+  "title": "Group Anagrams",
+  "difficulty": "medium",
+  "topics": [
+    "array",
+    "hash-map",
+    "string",
+    "sorting"
+  ],
+  "patterns": [
+    "hash-map"
+  ],
+  "statement": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.\n\nExample 1:\n\nInput: strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]\nOutput: [[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]\nExplanation:\nThere is no string in strs that can be rearranged to form \"bat\".\nThe strings \"nat\" and \"tan\" are anagrams as they can be rearranged to form each other.\nThe strings \"ate\", \"eat\", and \"tea\" are anagrams as they can be rearranged to form each other.\n\nExample 2:\n\nInput: strs = [\"\"]\nOutput: [[\"\"]]\n\nExample 3:\n\nInput: strs = [\"a\"]\nOutput: [[\"a\"]]\n\nConstraints:\n\n1 <= strs.length <= 10^4\n0 <= strs[i].length <= 100\nstrs[i] consists of lowercase English letters.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "optimal",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "strs",
+        "type": "int[]",
+        "label": "Strings",
+        "placeholder": "eat, tea, tan, ate, nat, bat",
+        "min": 0,
+        "max": 0,
+        "minLen": 1,
+        "maxLen": 24
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

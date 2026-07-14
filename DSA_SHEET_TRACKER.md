@@ -93,9 +93,9 @@ to-add problems in Tier 4 each count toward **all four** sheets — do them firs
 | # | Problem | Diff | Topic | Sheets | Ov | Renderer | Engine change | On LC | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | 206 | Reverse Linked List | Easy | Linked List | B N G | 3 | linkedList | — | Yes | ✅ |
-| 49 | Group Anagrams | Medium | Hash | B N T | 3 | hashmap | — | Yes | ⬜ |
-| 128 | Longest Consecutive Sequence | Medium | Hash | B N T | 3 | hashmap | — | Yes | ⬜ |
-| 48 | Rotate Image | Medium | Matrix | B N T | 3 | grid | — | Yes | ⬜ |
+| 49 | Group Anagrams | Medium | Hash | B N T | 3 | hashmap | — | Yes | ✅ |
+| 128 | Longest Consecutive Sequence | Medium | Hash | B N T | 3 | array | — | Yes | ✅ |
+| 48 | Rotate Image | Medium | Matrix | B N T | 3 | grid | — | Yes | ✅ |
 | 73 | Set Matrix Zeroes | Medium | Matrix | B N T | 3 | grid | — | Yes | ⬜ |
 | 153 | Find Minimum in Rotated Sorted Array | Medium | Binary Search | B N T | 3 | array | — | Yes | ✅ |
 | 100 | Same Tree | Easy | Tree | B N T | 3 | tree | — | Yes | ✅ |
