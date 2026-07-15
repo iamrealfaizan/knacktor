@@ -1,0 +1,96 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the rows, {rows}.",
+      "why": "We need the dimensions to scan the grid.",
+      "invariant": "The matrix is {rows} rows tall."
+    },
+    "4": {
+      "happening": "Count the columns, {cols}.",
+      "why": "We need the width to scan each row.",
+      "invariant": "The matrix is {cols} columns wide."
+    },
+    "5": {
+      "happening": "Prepare an empty snapshot.",
+      "why": "We must read the original values after edits begin.",
+      "invariant": "The snapshot will mirror the input."
+    },
+    "6": {
+      "happening": "Take a source row to copy.",
+      "why": "Copying preserves the pre-edit values.",
+      "invariant": "Snapshot rows added one at a time."
+    },
+    "7": {
+      "happening": "Store a copy of that row.",
+      "why": "Editing matrix later must not change what we read.",
+      "invariant": "The snapshot stays frozen at the input."
+    },
+    "8": {
+      "happening": "Scan row {row}.",
+      "why": "Look for zeros in the frozen snapshot.",
+      "invariant": "Rows scanned top to bottom."
+    },
+    "9": {
+      "happening": "Scan column {col}.",
+      "why": "Check each cell of this row.",
+      "invariant": "Columns scanned left to right."
+    },
+    "10": {
+      "happening": "Was the snapshot cell at ({row},{col}) a zero?",
+      "why": "Only original zeros trigger clearing.",
+      "invariant": "We read the snapshot, never the live matrix."
+    },
+    "11": {
+      "happening": "Sweep this row's columns.",
+      "why": "A zero blanks its entire row.",
+      "invariant": "Row {row} becomes all zeros."
+    },
+    "12": {
+      "happening": "Blank matrix[{row}][{current_col}].",
+      "why": "Clearing the whole row.",
+      "invariant": "Cleared cells hold 0."
+    },
+    "13": {
+      "happening": "Sweep this column's rows.",
+      "why": "A zero blanks its entire column.",
+      "invariant": "Column {col} becomes all zeros."
+    },
+    "14": {
+      "happening": "Blank matrix[{current_row}][{col}].",
+      "why": "Clearing the whole column.",
+      "invariant": "Cleared cells hold 0."
+    },
+    "15": {
+      "happening": "Return the modified matrix.",
+      "why": "Every original zero has cleared its row and column.",
+      "invariant": "matrix is fully zeroed where required."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Read dimensions and start the snapshot.",
+      "why": "Prepare to scan a frozen copy.",
+      "invariant": "No cells cleared yet."
+    },
+    "loop": {
+      "happening": "Advance a scan index.",
+      "why": "Visit each cell or sweep a row/column.",
+      "invariant": "Scanning the grid."
+    },
+    "check": {
+      "happening": "Test a snapshot cell for zero.",
+      "why": "Original zeros trigger clearing.",
+      "invariant": "Reads come from the snapshot."
+    },
+    "update": {
+      "happening": "Copy a row or blank a cell.",
+      "why": "Build the snapshot, then clear rows and columns.",
+      "invariant": "Cleared cells hold 0."
+    },
+    "return": {
+      "happening": "Return the modified matrix.",
+      "why": "Clearing complete.",
+      "invariant": "Answer is final."
+    }
+  }
+}

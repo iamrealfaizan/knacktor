@@ -1,0 +1,59 @@
+{
+  "id": "brute-force",
+  "name": "Copy Then Zero Rows and Columns",
+  "kind": "brute",
+  "summary": "Snapshot the matrix, then for every zero in the snapshot blank its whole row and column in place.",
+  "visualizationIntent": "init: the matrix is shown and a snapshot grid original pops in beside it; loop(scan): the scan cell (row,col) is current; the snapshot marks its zeros special; check: when original[row][col] is 0 we act; update(zero): the whole row then the whole column in matrix are blanked, cells flipping to result (0); return: matrix holds every affected row and column zeroed.",
+  "complexity": {
+    "time": "O(m*n*(m+n))",
+    "space": "O(m*n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.setZeroes",
+  "primaryPrimitive": "grid",
+  "auxStructures": [
+    "grid"
+  ],
+  "resultSpec": {
+    "varName": "matrix",
+    "label": "MATRIX",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "row": "ptr-i",
+    "col": "ptr-j",
+    "matrix": "result"
+  },
+  "lineExplanations": {
+    "3": "Count the rows.",
+    "4": "Count the columns.",
+    "5": "Prepare an empty snapshot of the matrix.",
+    "6": "Walk each row of the original matrix.",
+    "7": "Store a copy of that row so later edits don't corrupt our reads.",
+    "8": "Scan every row index.",
+    "9": "Scan every column index.",
+    "10": "If the snapshot cell here was a zero, act on it.",
+    "11": "Walk this row's columns.",
+    "12": "Blank the cell in this row.",
+    "13": "Walk this column's rows.",
+    "14": "Blank the cell in this column.",
+    "15": "Return the modified matrix."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: the wrapper class the platform runs.",
+    "2": "def setZeroes(self, matrix): the method receiving the matrix.",
+    "3": "len(matrix) is the number of rows.",
+    "4": "len(matrix[0]) is the number of columns.",
+    "5": "[] is an empty list for the snapshot.",
+    "6": "for source_row in matrix iterates the actual row lists.",
+    "7": "source_row[:] makes a shallow copy of the row; .append stores it.",
+    "8": "for row in range(rows) iterates row indices.",
+    "9": "for col in range(cols) iterates column indices.",
+    "10": "original[row][col] == 0 reads the untouched snapshot.",
+    "11": "for current_col in range(cols) walks the whole row.",
+    "12": "matrix[row][current_col] = 0 blanks a cell.",
+    "13": "for current_row in range(rows) walks the whole column.",
+    "14": "matrix[current_row][col] = 0 blanks a cell.",
+    "15": "return matrix hands back the modified grid."
+  }
+}

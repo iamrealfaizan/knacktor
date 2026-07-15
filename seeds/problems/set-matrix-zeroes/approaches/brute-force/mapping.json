@@ -1,0 +1,101 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "row != null && r == row && c == col"
+    },
+    {
+      "state": "result",
+      "when": "matrix[r][c] == 0"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "row != null && phase != 'return' && phase != 'init'",
+    "expr": "scan ({row},{col})",
+    "relation": "clear row {row} and column {col}",
+    "relationColor": "result"
+  },
+  "counters": [
+    {
+      "name": "writes",
+      "onLines": [
+        12,
+        14
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        8,
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        10
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        12,
+        14
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        15
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 15,
+      "label": "All zeroed",
+      "kind": "return"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "original (snapshot)",
+      "primitive": "grid",
+      "gridFrom": "original",
+      "cellStateRules": [
+        {
+          "state": "special",
+          "when": "original[r][c] == 0"
+        },
+        {
+          "state": "current",
+          "when": "row != null && r == row && c == col"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ]
+}

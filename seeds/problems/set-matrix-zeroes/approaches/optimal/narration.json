@@ -1,0 +1,136 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the rows, {rows}.",
+      "why": "We need the dimensions to scan the grid.",
+      "invariant": "The matrix is {rows} rows tall."
+    },
+    "4": {
+      "happening": "Count the columns, {cols}.",
+      "why": "We need the width to scan each row.",
+      "invariant": "The matrix is {cols} columns wide."
+    },
+    "5": {
+      "happening": "Assume the first column needs no zeroing for now.",
+      "why": "The corner marker is shared, so column 0 is tracked separately.",
+      "invariant": "first_col_zero records column 0's fate."
+    },
+    "6": {
+      "happening": "Take row {row} for the marking pass.",
+      "why": "We record zeros into the marker band first.",
+      "invariant": "Markers live in row 0 and column 0."
+    },
+    "7": {
+      "happening": "Is this row's first cell zero?",
+      "why": "That means the whole first column must eventually zero.",
+      "invariant": "Column 0's fate is tracked apart."
+    },
+    "8": {
+      "happening": "Flag the first column for zeroing.",
+      "why": "We cannot use matrix[0][0] alone for both edges.",
+      "invariant": "first_col_zero is now True."
+    },
+    "9": {
+      "happening": "Scan interior column {col}.",
+      "why": "Only interior zeros write into the marker band.",
+      "invariant": "Column 0 is the marker, skipped here."
+    },
+    "10": {
+      "happening": "Is the interior cell ({row},{col}) zero?",
+      "why": "A zero here means its row and column must clear.",
+      "invariant": "Markers encode which lines clear."
+    },
+    "11": {
+      "happening": "Mark row {row} in its head cell.",
+      "why": "matrix[row][0] = 0 means 'clear this row later'.",
+      "invariant": "Row heads store row markers."
+    },
+    "12": {
+      "happening": "Mark column {col} in its head cell.",
+      "why": "matrix[0][col] = 0 means 'clear this column later'.",
+      "invariant": "Column heads store column markers."
+    },
+    "13": {
+      "happening": "Apply pass: interior row {row}.",
+      "why": "Now zero cells whose markers say so.",
+      "invariant": "Marker band is read, not rewritten yet."
+    },
+    "14": {
+      "happening": "Interior column {col}.",
+      "why": "Check this cell's two markers.",
+      "invariant": "Skip the marker band itself."
+    },
+    "15": {
+      "happening": "Does row {row}'s head or column {col}'s head hold a marker zero?",
+      "why": "Either marker forces this cell to zero.",
+      "invariant": "A cell clears if its row or column was flagged."
+    },
+    "16": {
+      "happening": "Blank the interior cell ({row},{col}).",
+      "why": "One of its markers was set.",
+      "invariant": "Interior cleared per markers."
+    },
+    "17": {
+      "happening": "Does the shared corner say the first row clears?",
+      "why": "matrix[0][0] doubles as the first-row marker.",
+      "invariant": "The first row is handled last but one."
+    },
+    "18": {
+      "happening": "Sweep the first row's columns.",
+      "why": "Zero the entire first row.",
+      "invariant": "First row cleared."
+    },
+    "19": {
+      "happening": "Blank matrix[0][{col}].",
+      "why": "Clearing the first row.",
+      "invariant": "First row holds 0."
+    },
+    "20": {
+      "happening": "Was the first column flagged earlier?",
+      "why": "first_col_zero decides the last sweep.",
+      "invariant": "Column 0 handled with its own flag."
+    },
+    "21": {
+      "happening": "Sweep the first column's rows.",
+      "why": "Zero the entire first column.",
+      "invariant": "First column cleared."
+    },
+    "22": {
+      "happening": "Blank matrix[{row}][0].",
+      "why": "Clearing the first column.",
+      "invariant": "First column holds 0."
+    },
+    "23": {
+      "happening": "Return the modified matrix.",
+      "why": "Markers applied with no extra space.",
+      "invariant": "matrix is fully zeroed where required."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Read dimensions and the first-column flag.",
+      "why": "Prepare the marker scheme.",
+      "invariant": "No cells cleared yet."
+    },
+    "loop": {
+      "happening": "Advance a scan index.",
+      "why": "Visit cells across the passes.",
+      "invariant": "Scanning the grid."
+    },
+    "check": {
+      "happening": "Test a cell or a marker.",
+      "why": "Decide what to mark or clear.",
+      "invariant": "Markers drive every decision."
+    },
+    "update": {
+      "happening": "Write a marker or blank a cell.",
+      "why": "Encode then apply the zeros.",
+      "invariant": "Marker band encodes the plan."
+    },
+    "return": {
+      "happening": "Return the modified matrix.",
+      "why": "Clearing complete in O(1) space.",
+      "invariant": "Answer is final."
+    }
+  }
+}

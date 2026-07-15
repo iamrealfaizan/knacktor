@@ -1,0 +1,95 @@
+{
+  "primitive": "grid",
+  "gridFrom": "matrix",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "row != null && (phase == 'check' || phase == 'update') && r == row && c == col"
+    },
+    {
+      "state": "result",
+      "when": "r != 0 && c != 0 && matrix[r][c] == 0"
+    },
+    {
+      "state": "special",
+      "when": "r == 0 || c == 0"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "row != null && phase != 'return'",
+    "expr": "cell ({row},{col})",
+    "relation": "first column needs zero? {first_col_zero}",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "writes",
+      "onLines": [
+        11,
+        12,
+        16,
+        19,
+        22
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        9,
+        13,
+        14,
+        18,
+        21
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        7,
+        10,
+        15,
+        17,
+        20
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8,
+        11,
+        12,
+        16,
+        19,
+        22
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        23
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 23,
+      "label": "All zeroed",
+      "kind": "return"
+    }
+  ]
+}
