@@ -1,0 +1,100 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "node_id",
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "node_idx == lca_id"
+    },
+    {
+      "state": "path",
+      "when": "state_by_id[node_idx] == 4"
+    },
+    {
+      "state": "compared",
+      "when": "state_by_id[node_idx] == 5"
+    },
+    {
+      "state": "special",
+      "when": "state_by_id[node_idx] == 6"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == node_id"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "node_id != null",
+    "expr": "DFS searching for a target — currently at node {node_id}"
+  },
+  "counters": [
+    {
+      "name": "nodes visited",
+      "onLines": [54]
+    },
+    {
+      "name": "backtracks",
+      "onLines": [64]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    },
+    {
+      "phase": "recurse",
+      "lines": [25, 29, 59, 62]
+    },
+    {
+      "phase": "update",
+      "lines": [26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 43, 44, 45, 54, 55, 65]
+    },
+    {
+      "phase": "loop",
+      "lines": [39]
+    },
+    {
+      "phase": "check",
+      "lines": [42, 52, 56]
+    },
+    {
+      "phase": "move",
+      "lines": [46, 48, 58, 61, 64]
+    },
+    {
+      "phase": "return",
+      "lines": [49, 53, 57, 60, 63, 66]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 57,
+      "label": "Reached a target node",
+      "kind": "boundary"
+    },
+    {
+      "line": 45,
+      "label": "Common ancestor found (LCA candidate)",
+      "kind": "best"
+    },
+    {
+      "line": 49,
+      "label": "Return the LCA value",
+      "kind": "return"
+    }
+  ]
+}

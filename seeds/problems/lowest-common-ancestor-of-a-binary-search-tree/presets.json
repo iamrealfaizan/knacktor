@@ -1,0 +1,46 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "values": [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+      "p": 2,
+      "q": 8
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 6
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "values": [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+      "p": 2,
+      "q": 4
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 2
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "values": [2, 1],
+      "p": 2,
+      "q": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2
+  },
+  {
+    "id": "edge-deep-split",
+    "label": "Deep Split",
+    "value": {
+      "values": [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+      "p": 3,
+      "q": 5
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 4
+  }
+]

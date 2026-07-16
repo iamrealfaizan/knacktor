@@ -1,0 +1,75 @@
+{
+  "primitive": "tree",
+  "nodesFrom": "nodes",
+  "currentNodeVar": "current",
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "node_idx == current && found"
+    },
+    {
+      "state": "current",
+      "when": "node_idx == current"
+    },
+    {
+      "state": "visited",
+      "when": "state_by_id[node_idx] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state_by_id[node_idx] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "current_val != null && phase != 'return'",
+    "expr": "at node {current_val} · comparing p = {p} and q = {q}"
+  },
+  "counters": [
+    {
+      "name": "nodes walked",
+      "onLines": [27]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+    },
+    {
+      "phase": "loop",
+      "lines": [26]
+    },
+    {
+      "phase": "update",
+      "lines": [27, 28, 30, 33, 36, 37]
+    },
+    {
+      "phase": "check",
+      "lines": [29, 32]
+    },
+    {
+      "phase": "move",
+      "lines": [31, 34, 38]
+    },
+    {
+      "phase": "return",
+      "lines": [39]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 36,
+      "label": "p and q split here — this node is the LCA",
+      "kind": "result"
+    },
+    {
+      "line": 39,
+      "label": "Return the LCA value",
+      "kind": "return"
+    }
+  ]
+}

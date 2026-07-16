@@ -46,6 +46,8 @@ _Update 2026-07-08: #70 Climbing Stairs authored (brute recursion + bottom-up DP
 
 _Update 2026-07-12: reconciled against the **live MongoDB** (`knacktor.problems` = 44 docs). Ten Tier-4 rows that were live in the DB but still marked ⬜ flipped to ✅: #5, #39, #54, #56, #57, #79, #133, #139, #322, and #104 (Maximum Depth of Binary Tree — authored this session, recursive-DFS + iterative-BFS on `tree`/`tree`+`queue`). **Tier-4 in-system 19 → 30; #98 Validate BST authored this session too (3 approaches: brute-force min/max scans + DFS bounds + inorder, all `tree`). #105 Construct Binary Tree also authored (2 approaches: hashmap+boundaries optimal + linear-search+slicing brute, `tree` primary + preorder/inorder aux arrays). Only 1 Tier-4 problem remains: #208 Implement Trie.** NOTE: #39 Combination Sum's row lists the `recursion` renderer, but per the UNPROVEN-recursion caveat it was almost certainly authored on `tree` — verify at `/problems/combination-sum`._
 
+_Update 2026-07-16: #235 Lowest Common Ancestor of a BST authored (2 approaches: brute root-to-node path comparison + optimal iterative BST walk, both `tree` renderer). First Tier-3 to-add problem shipped. Live bundle count 50 → 51. #208 Implement Trie remains the only Tier-4 gap — still blocked on the design-harness engine work (sequence driver + `self` capture + n-ary trie tree)._
+
 Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 3 remaining
 to-add problems in Tier 4 each count toward **all four** sheets — do them first.
 
@@ -99,7 +101,7 @@ to-add problems in Tier 4 each count toward **all four** sheets — do them firs
 | 73 | Set Matrix Zeroes | Medium | Matrix | B N T | 3 | grid | — | Yes | ✅ |
 | 153 | Find Minimum in Rotated Sorted Array | Medium | Binary Search | B N T | 3 | array | — | Yes | ✅ |
 | 100 | Same Tree | Easy | Tree | B N T | 3 | tree | — | Yes | ✅ |
-| 235 | Lowest Common Ancestor of a BST | Medium | BST | B N G | 3 | tree | — | Yes | ⬜ |
+| 235 | Lowest Common Ancestor of a BST | Medium | BST | B N G | 3 | tree | — | Yes | ✅ |
 | 199 | Binary Tree Right Side View | Medium | Tree (BFS) | N T G | 3 | tree | — | Yes | ⬜ |
 | 211 | Design Add and Search Words | Medium | Trie | B N T | 3 | tree | — | Yes | ⬜ |
 | 155 | Min Stack | Medium | Stack | N T G | 3 | stack | — | Yes | ⬜ |
