@@ -1,0 +1,280 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Reading the array length: {n} slots.",
+      "why": "We need the size to loop over the level-order layout.",
+      "invariant": "values holds the tree in level order, with null for gaps."
+    },
+    "4": {
+      "happening": "Creating an empty list of nodes.",
+      "why": "This list is exactly what the stage will draw as the tree.",
+      "invariant": "No nodes exist yet."
+    },
+    "5": {
+      "happening": "Creating an empty by_id lookup map.",
+      "why": "So we can fetch any node by its id in O(1).",
+      "invariant": "by_id is empty."
+    },
+    "6": {
+      "happening": "Creating the per-node colour-state list.",
+      "why": "state_by_id[i] tells the animation how to shade node i.",
+      "invariant": "No states assigned yet."
+    },
+    "7": {
+      "happening": "Looping to initialise a colour state for each slot.",
+      "why": "Every node must start idle before the walk begins.",
+      "invariant": "state_by_id is being filled with zeros."
+    },
+    "8": {
+      "happening": "Setting slot {i} to state 0 (idle).",
+      "why": "Idle is the neutral, un-highlighted look.",
+      "invariant": "All states so far are idle."
+    },
+    "9": {
+      "happening": "The child walker starts at slot 1.",
+      "why": "Slot 0 is the root; its children begin right after it.",
+      "invariant": "child points at the next unassigned slot."
+    },
+    "10": {
+      "happening": "Second pass: building a node for each real slot.",
+      "why": "Turning the flat array into linked node dicts.",
+      "invariant": "Nodes are created in level order."
+    },
+    "11": [
+      {
+        "when": "values[i] != null",
+        "happening": "Slot {i} holds {values[i]} — a real node.",
+        "why": "Only real values become tree nodes.",
+        "invariant": "Null slots are skipped."
+      },
+      {
+        "happening": "Slot {i} is null — no node here.",
+        "why": "A null marks a missing child in the level-order layout.",
+        "invariant": "We skip gaps without advancing child."
+      }
+    ],
+    "12": {
+      "happening": "Creating node {i} with value {values[i]}.",
+      "why": "Its left/right start as None until we link children.",
+      "invariant": "The node's id equals its array index."
+    },
+    "13": [
+      {
+        "when": "child < n",
+        "happening": "Slot {child} is available for the left child.",
+        "why": "We only read children while slots remain.",
+        "invariant": "child stays within the array."
+      },
+      {
+        "happening": "No slots left — this node has no left child.",
+        "why": "We are past the end of the array.",
+        "invariant": "left stays None."
+      }
+    ],
+    "14": [
+      {
+        "when": "values[child] != null",
+        "happening": "Slot {child} = {values[child]} is a real left child.",
+        "why": "A non-null slot means a genuine child link.",
+        "invariant": "left will point at slot {child}."
+      },
+      {
+        "happening": "Slot {child} is null — no left child.",
+        "why": "A null child slot means this branch is empty.",
+        "invariant": "left stays None."
+      }
+    ],
+    "15": {
+      "happening": "Linking left child → slot {child}.",
+      "why": "Records the left edge for the drawn tree.",
+      "invariant": "The left subtree hangs off this node."
+    },
+    "16": {
+      "happening": "Advancing the child walker past the left slot.",
+      "why": "The next slot belongs to the right child.",
+      "invariant": "child moves forward by one."
+    },
+    "17": [
+      {
+        "when": "child < n",
+        "happening": "Slot {child} is available for the right child.",
+        "why": "We only read children while slots remain.",
+        "invariant": "child stays within the array."
+      },
+      {
+        "happening": "No slots left — this node has no right child.",
+        "why": "We are past the end of the array.",
+        "invariant": "right stays None."
+      }
+    ],
+    "18": [
+      {
+        "when": "values[child] != null",
+        "happening": "Slot {child} = {values[child]} is a real right child.",
+        "why": "A non-null slot means a genuine child link.",
+        "invariant": "right will point at slot {child}."
+      },
+      {
+        "happening": "Slot {child} is null — no right child.",
+        "why": "A null child slot means this branch is empty.",
+        "invariant": "right stays None."
+      }
+    ],
+    "19": {
+      "happening": "Linking right child → slot {child}.",
+      "why": "Records the right edge for the drawn tree.",
+      "invariant": "The right subtree hangs off this node."
+    },
+    "20": {
+      "happening": "Advancing the child walker past the right slot.",
+      "why": "Ready to build the next node's children.",
+      "invariant": "child moves forward by one."
+    },
+    "21": {
+      "happening": "Adding node {i} to the drawn node list.",
+      "why": "Once linked, the node joins the visible tree.",
+      "invariant": "nodes grows by one."
+    },
+    "22": {
+      "happening": "Registering node {i} in by_id.",
+      "why": "Enables O(1) lookup by id during the walk.",
+      "invariant": "by_id now knows node {i}."
+    },
+    "23": {
+      "happening": "The cursor starts at the root (node 0).",
+      "why": "The BST walk always begins at the root.",
+      "invariant": "current points at the root."
+    },
+    "24": {
+      "happening": "answer starts as -1, a placeholder.",
+      "why": "It will be overwritten with the real LCA value.",
+      "invariant": "No answer yet."
+    },
+    "25": {
+      "happening": "found starts false.",
+      "why": "It flips true only when we reach the split node.",
+      "invariant": "The LCA is not located yet."
+    },
+    "26": [
+      {
+        "when": "current != null",
+        "happening": "Cursor is at a live node — keep walking.",
+        "why": "We still have a node to compare against p and q.",
+        "invariant": "current is a valid node id."
+      },
+      {
+        "happening": "No node left to visit — the walk ends.",
+        "why": "The loop condition is now false.",
+        "invariant": "current is None."
+      }
+    ],
+    "27": {
+      "happening": "Reading the current node's value: {current_val}.",
+      "why": "We compare this value against p and q to pick a direction.",
+      "invariant": "current_val is the value at node {current}."
+    },
+    "28": {
+      "happening": "Highlighting node {current} as the one under inspection.",
+      "why": "The animation shows exactly where the cursor sits.",
+      "invariant": "Only the current node is state 'current'."
+    },
+    "29": [
+      {
+        "when": "p < current_val && q < current_val",
+        "happening": "Both p ({p}) and q ({q}) are smaller than {current_val}.",
+        "why": "Both targets live in the smaller-valued left subtree.",
+        "invariant": "The LCA cannot be to the right of here."
+      },
+      {
+        "happening": "p ({p}) and q ({q}) are NOT both smaller than {current_val}.",
+        "why": "So the LCA is not strictly in the left subtree.",
+        "invariant": "We fall through to the next test."
+      }
+    ],
+    "30": {
+      "happening": "Marking node {current} as passed before going left.",
+      "why": "We have decided the LCA is deeper on the left.",
+      "invariant": "This node is no longer the cursor."
+    },
+    "31": {
+      "happening": "Cursor glides down to the left child.",
+      "why": "Both targets are smaller, so we search left.",
+      "invariant": "current now points at the left child."
+    },
+    "32": [
+      {
+        "when": "p > current_val && q > current_val",
+        "happening": "Both p ({p}) and q ({q}) are larger than {current_val}.",
+        "why": "Both targets live in the larger-valued right subtree.",
+        "invariant": "The LCA cannot be to the left of here."
+      },
+      {
+        "happening": "p ({p}) and q ({q}) are NOT both larger than {current_val}.",
+        "why": "They straddle this node — the split is right here.",
+        "invariant": "This is the LCA case."
+      }
+    ],
+    "33": {
+      "happening": "Marking node {current} as passed before going right.",
+      "why": "We have decided the LCA is deeper on the right.",
+      "invariant": "This node is no longer the cursor."
+    },
+    "34": {
+      "happening": "Cursor glides down to the right child.",
+      "why": "Both targets are larger, so we search right.",
+      "invariant": "current now points at the right child."
+    },
+    "36": {
+      "happening": "About to record node {current} (value {current_val}) as the LCA.",
+      "why": "p and q split here — one on each side, or one equals this node.",
+      "invariant": "This is the lowest node with both as descendants."
+    },
+    "37": {
+      "happening": "Setting found = true.",
+      "why": "The answer is now fixed — no need to search further.",
+      "invariant": "The LCA has been located."
+    },
+    "38": {
+      "happening": "Breaking out of the walk.",
+      "why": "The split node is the answer; deeper walking is pointless.",
+      "invariant": "The loop ends here."
+    },
+    "39": {
+      "happening": "Returning the LCA value: {answer}.",
+      "why": "This is the lowest node that is an ancestor of both p and q.",
+      "invariant": "answer holds the final result."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Rebuilding the BST from its level-order array.",
+      "why": "We need the linked tree before we can walk it.",
+      "invariant": "Setup runs once before the walk."
+    },
+    "loop": {
+      "happening": "Checking whether the cursor still points at a node.",
+      "why": "The walk continues until a split node is found.",
+      "invariant": "current is the node under inspection."
+    },
+    "check": {
+      "happening": "Comparing p and q against the current node's value.",
+      "why": "The comparison decides left, right, or stop.",
+      "invariant": "BST ordering drives the direction."
+    },
+    "update": {
+      "happening": "Updating the current node's colour state.",
+      "why": "So the animation reflects where the cursor is.",
+      "invariant": "State mirrors the algorithm's progress."
+    },
+    "move": {
+      "happening": "Advancing the cursor to a child.",
+      "why": "We descend toward the split point.",
+      "invariant": "current moves one level deeper."
+    },
+    "return": {
+      "happening": "Returning the located LCA value.",
+      "why": "The walk is complete.",
+      "invariant": "answer is the final result."
+    }
+  }
+}

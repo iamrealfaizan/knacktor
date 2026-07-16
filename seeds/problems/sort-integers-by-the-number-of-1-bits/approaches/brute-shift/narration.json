@@ -1,0 +1,242 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "There are {n} integers to sort.",
+      "why": "We need the length to loop over the array.",
+      "invariant": "arr is still in its original order."
+    },
+    "4": {
+      "happening": "Creating an empty bit_counts list.",
+      "why": "It will store each number's 1-bit count â€” the key we sort by.",
+      "invariant": "No counts computed yet."
+    },
+    "5": {
+      "happening": "Starting the counting index i at 0.",
+      "why": "We count the numbers left to right.",
+      "invariant": "i marks the number currently being counted."
+    },
+    "6": [
+      {
+        "when": "i < n",
+        "happening": "Counting the 1-bits of the number at index {i}.",
+        "why": "Every number needs its 1-bit count before we can sort.",
+        "invariant": "bit_counts[0..{i}-1] are already computed."
+      },
+      {
+        "happening": "All 1-bit counts are computed: {bit_counts}.",
+        "why": "Phase 1 is done; the sort can begin.",
+        "invariant": "bit_counts is aligned with arr."
+      }
+    ],
+    "7": {
+      "happening": "Loading arr[{i}] = {arr[i]} into num.",
+      "why": "We destroy a copy while counting, leaving arr untouched.",
+      "invariant": "num starts equal to arr[{i}]."
+    },
+    "8": {
+      "happening": "Resetting count to 0 for this number.",
+      "why": "count will tally this number's 1-bits.",
+      "invariant": "No bits counted yet for arr[{i}]."
+    },
+    "9": [
+      {
+        "when": "num > 0",
+        "happening": "num ({num}) still has bits left to inspect.",
+        "why": "We stop once every bit has been shifted out.",
+        "invariant": "count holds the 1-bits seen so far."
+      },
+      {
+        "happening": "num reached 0 â€” this number has {count} one-bit(s).",
+        "why": "No bits remain, so the count is final.",
+        "invariant": "count is arr[{i}]'s total 1-bits."
+      }
+    ],
+    "10": {
+      "happening": "Testing the lowest bit of num ({num}) and adding it to count.",
+      "why": "num & 1 is 1 exactly when the last binary digit is set.",
+      "invariant": "count grows by 1 only if the lowest bit is set."
+    },
+    "11": {
+      "happening": "Shifting num ({num}) one position to the right.",
+      "why": "This drops the bit we just counted and exposes the next.",
+      "invariant": "Each shift removes exactly one bit position."
+    },
+    "12": {
+      "happening": "Recording that arr[{i}] = {arr[i]} has {count} one-bit(s).",
+      "why": "This count is the primary sort key for this number.",
+      "invariant": "bit_counts stays index-aligned with arr."
+    },
+    "13": {
+      "happening": "Advancing to the next number to count.",
+      "why": "Repeat until every number has a count.",
+      "invariant": "i moves forward by one."
+    },
+    "14": {
+      "happening": "Counts ready ({bit_counts}); resetting i to 0 for the sort.",
+      "why": "Selection sort starts again from the front.",
+      "invariant": "arr is still unsorted; bit_counts matches it."
+    },
+    "15": [
+      {
+        "when": "i < n",
+        "happening": "Choosing which element belongs at position {i}.",
+        "why": "Selection sort fixes one position per outer pass.",
+        "invariant": "arr[0..{i}-1] is already sorted."
+      },
+      {
+        "happening": "Every position is filled â€” the array is fully sorted.",
+        "why": "The sorted prefix now spans the whole array.",
+        "invariant": "arr is sorted by (1-bit count, value)."
+      }
+    ],
+    "16": {
+      "happening": "Assuming arr[{i}] = {arr[i]} is the smallest-key element so far.",
+      "why": "We start each pass by guessing the current slot is best.",
+      "invariant": "best points at the best candidate found so far."
+    },
+    "17": {
+      "happening": "Starting the scan at index {i} + 1.",
+      "why": "Everything before i is already sorted; only the right side is searched.",
+      "invariant": "j walks the unsorted region."
+    },
+    "18": [
+      {
+        "when": "j < n",
+        "happening": "Scanning index {j} for a smaller key than best.",
+        "why": "We must inspect every unsorted element to find the true minimum.",
+        "invariant": "best is the smallest key in [{i}..{j}-1]."
+      },
+      {
+        "happening": "Scan complete â€” the smallest key is at index {best}.",
+        "why": "Every unsorted element has been compared.",
+        "invariant": "best now holds the minimum for this pass."
+      }
+    ],
+    "19": [
+      {
+        "when": "bit_counts[j] < bit_counts[best]",
+        "happening": "arr[{j}] has fewer 1-bits ({bit_counts[j]}) than best ({bit_counts[best]}).",
+        "why": "Fewer 1-bits means a strictly smaller key.",
+        "invariant": "A new minimum has been found."
+      },
+      {
+        "happening": "arr[{j}] does NOT have fewer 1-bits than best ({bit_counts[best]}).",
+        "why": "So it can only win on a tie â€” checked next.",
+        "invariant": "best is unchanged for now."
+      }
+    ],
+    "20": {
+      "happening": "arr[{j}] becomes the new best (fewer 1-bits).",
+      "why": "It has the smallest key seen so far.",
+      "invariant": "best now points at index {j}."
+    },
+    "21": [
+      {
+        "when": "bit_counts[j] == bit_counts[best]",
+        "happening": "arr[{j}] ties best with {bit_counts[j]} one-bit(s) â€” break by value.",
+        "why": "Equal 1-bit counts are ordered by the integer value.",
+        "invariant": "Tie-break decides between equal-key elements."
+      },
+      {
+        "happening": "arr[{j}] has MORE 1-bits than best â€” skip it.",
+        "why": "A larger key can never be the minimum.",
+        "invariant": "best is unchanged."
+      }
+    ],
+    "22": [
+      {
+        "when": "arr[j] < arr[best]",
+        "happening": "arr[{j}] = {arr[j]} is smaller than arr[{best}] = {arr[best]} â€” it wins the tie.",
+        "why": "On equal 1-bits, the smaller value sorts first.",
+        "invariant": "best will move to j."
+      },
+      {
+        "happening": "arr[{j}] = {arr[j]} is not smaller than arr[{best}] = {arr[best]}.",
+        "why": "The current best already sorts earlier.",
+        "invariant": "best is unchanged."
+      }
+    ],
+    "23": {
+      "happening": "arr[{j}] becomes the new best (tie broken by smaller value).",
+      "why": "Same 1-bit count, smaller value â€” it sorts earlier.",
+      "invariant": "best now points at index {j}."
+    },
+    "24": {
+      "happening": "Moving the scan to the next index.",
+      "why": "Keep searching the unsorted region.",
+      "invariant": "j advances by one."
+    },
+    "25": {
+      "happening": "Saving arr[{i}] = {arr[i]} before the swap.",
+      "why": "A three-step swap needs a temporary holder.",
+      "invariant": "temp preserves the value currently at i."
+    },
+    "26": {
+      "happening": "Placing arr[{best}] = {arr[best]} into position {i}.",
+      "why": "The smallest-key element takes its final sorted spot.",
+      "invariant": "Position {i} now holds the pass minimum."
+    },
+    "27": {
+      "happening": "Putting the saved value into position {best} â€” swap done.",
+      "why": "Completes the exchange between i and best.",
+      "invariant": "arr[{i}] and old arr[{best}] have traded places."
+    },
+    "28": {
+      "happening": "Saving the 1-bit count at position {i}.",
+      "why": "The key row must swap in lockstep with arr.",
+      "invariant": "bit_counts stays aligned with arr."
+    },
+    "29": {
+      "happening": "Moving best's 1-bit count into position {i}.",
+      "why": "So the key under each number stays correct.",
+      "invariant": "The key row mirrors the value swap."
+    },
+    "30": {
+      "happening": "Completing the key swap at position {best}.",
+      "why": "Both the value and its key are now in place.",
+      "invariant": "bit_counts is aligned with arr again."
+    },
+    "31": {
+      "happening": "Position {i} is settled â€” advancing to the next.",
+      "why": "The sorted prefix grows by one.",
+      "invariant": "arr[0..{i}] is now sorted."
+    },
+    "32": {
+      "happening": "Returning the sorted array: {arr}.",
+      "why": "Every element is ordered by 1-bit count, then value.",
+      "invariant": "arr is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the counters before counting bits.",
+      "why": "We need an empty key list and a start index.",
+      "invariant": "arr is untouched."
+    },
+    "loop": {
+      "happening": "Iterating â€” over numbers (phase 1) or positions (phase 2).",
+      "why": "Loops drive both the counting and the sort.",
+      "invariant": "The loop index marks current progress."
+    },
+    "update": {
+      "happening": "Updating a count, a best candidate, or swapping elements.",
+      "why": "These are the state changes the animation shows.",
+      "invariant": "State stays consistent with the algorithm."
+    },
+    "move": {
+      "happening": "Advancing a pointer to the next element/position.",
+      "why": "We progress through the array.",
+      "invariant": "Pointers only move forward."
+    },
+    "check": {
+      "happening": "Comparing 1-bit counts, or values on a tie.",
+      "why": "Comparisons decide the sort order.",
+      "invariant": "best tracks the current minimum key."
+    },
+    "return": {
+      "happening": "Returning the sorted array.",
+      "why": "The sort is complete.",
+      "invariant": "arr is the final result."
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+  "number": 235,
+  "title": "Lowest Common Ancestor of a Binary Search Tree",
+  "difficulty": "medium",
+  "topics": [
+    "tree",
+    "binary-tree",
+    "bst"
+  ],
+  "patterns": [
+    "dfs"
+  ],
+  "statement": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.\n\nAccording to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants (where we allow **a node to be a descendant of itself**).”\n\n> The tree is provided in **level-order array form**: `values[i]` is a node value, or `null` for a missing child (the same format LeetCode uses in its examples). `p` and `q` are passed as the **values** of the two target nodes (all values are unique).\n\n**Example 1:**\n\n```\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8\nOutput: 6\nExplanation: The LCA of nodes 2 and 8 is 6.\n```\n\n**Example 2:**\n\n```\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4\nOutput: 2\nExplanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.\n```\n\n**Example 3:**\n\n```\nInput: root = [2,1], p = 2, q = 1\nOutput: 2\n```\n\n**Constraints:**\n\n- The number of nodes in the tree is in the range `[2, 10^5]`.\n- `-10^9 <= Node.val <= 10^9`\n- All `Node.val` are **unique**.\n- `p != q`\n- `p` and `q` will exist in the BST.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": true,
+  "recommendedApproachId": "bst-walk",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "BST (level-order, null for gaps)",
+        "placeholder": "6,2,8,0,4,7,9,null,null,3,5",
+        "min": -1000000000,
+        "max": 1000000000,
+        "minLen": 2,
+        "maxLen": 100000
+      },
+      {
+        "name": "p",
+        "type": "int",
+        "label": "p (a node value)",
+        "placeholder": "2",
+        "min": -1000000000,
+        "max": 1000000000
+      },
+      {
+        "name": "q",
+        "type": "int",
+        "label": "q (a node value)",
+        "placeholder": "8",
+        "min": -1000000000,
+        "max": 1000000000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

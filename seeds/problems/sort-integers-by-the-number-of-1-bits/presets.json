@@ -1,0 +1,85 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "arr": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      0,
+      1,
+      2,
+      4,
+      8,
+      3,
+      5,
+      6,
+      7
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "arr": [
+        1024,
+        512,
+        256,
+        128,
+        64,
+        32,
+        16,
+        8,
+        4,
+        2,
+        1
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024
+    ]
+  },
+  {
+    "id": "edge-duplicate-ties",
+    "label": "Duplicate Ties",
+    "value": {
+      "arr": [
+        10,
+        10,
+        2,
+        4,
+        8
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      2,
+      4,
+      8,
+      10,
+      10
+    ]
+  }
+]

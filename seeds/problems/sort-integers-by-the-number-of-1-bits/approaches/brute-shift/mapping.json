@@ -1,0 +1,167 @@
+{
+  "primitive": "array",
+  "valuesFrom": "arr",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "j",
+      "var": "j"
+    },
+    {
+      "name": "best",
+      "var": "best"
+    }
+  ],
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "best != null && idx < i"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "special",
+      "when": "best != null && idx == best"
+    },
+    {
+      "state": "compared",
+      "when": "best != null && idx == j"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "1-bits (sort key)",
+      "primitive": "array",
+      "valuesFrom": "bit_counts",
+      "cellStateRules": [
+        {
+          "state": "result",
+          "when": "best != null && idx < i"
+        },
+        {
+          "state": "current",
+          "when": "idx == i"
+        },
+        {
+          "state": "special",
+          "when": "best != null && idx == best"
+        },
+        {
+          "state": "compared",
+          "when": "best != null && idx == j"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "best != null && j < n",
+    "expr": "arr[{j}] = {arr[j]} has {bit_counts[j]} one-bit(s) Â· best so far arr[{best}] = {arr[best]} has {bit_counts[best]}"
+  },
+  "counters": [
+    {
+      "name": "placements",
+      "onLines": [
+        26
+      ]
+    },
+    {
+      "name": "bit ops",
+      "onLines": [
+        10
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        9,
+        15,
+        18
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        10,
+        11,
+        12,
+        14,
+        16,
+        17,
+        20,
+        23,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        13,
+        24,
+        31
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        19,
+        21,
+        22
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        32
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 14,
+      "label": "1-bit counts ready â€” begin sorting",
+      "kind": "boundary"
+    },
+    {
+      "line": 26,
+      "when": "best != i",
+      "label": "Smallest-key element placed",
+      "kind": "best"
+    },
+    {
+      "line": 32,
+      "label": "Array fully sorted",
+      "kind": "return"
+    }
+  ]
+}
