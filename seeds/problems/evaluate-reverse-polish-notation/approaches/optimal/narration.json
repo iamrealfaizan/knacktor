@@ -1,0 +1,121 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start with an empty stack — it will hold operands waiting to be combined.",
+      "why": "A stack hands back the two most-recent operands in O(1), exactly what each operator needs.",
+      "invariant": "The stack holds every value not yet consumed, in the order it arrived."
+    },
+    "4": {
+      "happening": "List the four operator symbols so we can tell operators from numbers.",
+      "why": "A membership test decides how each token is handled.",
+      "invariant": "A token is an operator exactly when it is in this set."
+    },
+    "5": {
+      "happening": "Read the next token '{token}'.",
+      "why": "Reverse Polish Notation is evaluated by scanning tokens left to right.",
+      "invariant": "Every token before this one is already reflected on the stack."
+    },
+    "6": {
+      "happening": "Check whether '{token}' is an operator.",
+      "why": "Numbers get pushed; operators consume the top two values.",
+      "invariant": "Each token is either an operator or a number."
+    },
+    "7": {
+      "happening": "Pop the top value into b — the right-hand operand.",
+      "why": "The most recently pushed value is the operator's right operand.",
+      "invariant": "After this pop, b holds the right operand and the stack is one shorter."
+    },
+    "8": {
+      "happening": "Pop the next value into a — the left-hand operand.",
+      "why": "The value beneath is the left operand; order matters for subtraction and division.",
+      "invariant": "a is the left operand, b the right."
+    },
+    "9": {
+      "happening": "Is the operator '{token}' addition?",
+      "why": "Each operator applies a different arithmetic rule.",
+      "invariant": "Exactly one of the four operator branches will run."
+    },
+    "10": {
+      "happening": "Add the operands: {a} + {b}.",
+      "why": "Addition combines the two popped values.",
+      "invariant": "value will hold a + b."
+    },
+    "11": {
+      "happening": "Otherwise, is '{token}' subtraction?",
+      "why": "Subtraction is order-sensitive, so operand order matters.",
+      "invariant": "Reached only when the token is not '+'."
+    },
+    "12": {
+      "happening": "Subtract, left minus right: {a} - {b}.",
+      "why": "The deeper operand a is the minuend, b the subtrahend.",
+      "invariant": "value will hold a - b."
+    },
+    "13": {
+      "happening": "Otherwise, is '{token}' multiplication?",
+      "why": "Only division remains if this test also fails.",
+      "invariant": "Reached only when the token is neither '+' nor '-'."
+    },
+    "14": {
+      "happening": "Multiply: {a} * {b}.",
+      "why": "Multiplication combines the two operands.",
+      "invariant": "value will hold a * b."
+    },
+    "16": {
+      "happening": "Divide, truncating toward zero: int({a} / {b}).",
+      "why": "The problem requires integer division that rounds toward zero.",
+      "invariant": "value will hold the truncated quotient."
+    },
+    "17": {
+      "happening": "Push the result {value} back onto the stack.",
+      "why": "The combined value becomes an operand for later operators.",
+      "invariant": "The stack shrank by two and grew by one — a net of one fewer value."
+    },
+    "19": {
+      "happening": "'{token}' is a number, so convert it to an integer.",
+      "why": "Tokens arrive as strings and must become numbers before arithmetic.",
+      "invariant": "value will hold the integer form of the token."
+    },
+    "20": {
+      "happening": "Push {value} onto the stack.",
+      "why": "Operands wait on the stack until an operator consumes them.",
+      "invariant": "The stack grew by one."
+    },
+    "21": {
+      "happening": "All tokens processed — one value remains ({stack[0]}), the answer.",
+      "why": "A valid RPN expression collapses to exactly one value.",
+      "invariant": "The stack holds exactly one element."
+    },
+    "22": {
+      "happening": "Return the value of the expression: {answer}.",
+      "why": "That single remaining value is the result.",
+      "invariant": "The function exits with the expression's value."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the empty operand stack.",
+      "why": "The stack will hold values until operators combine them.",
+      "invariant": "Nothing has been read yet."
+    },
+    "loop": {
+      "happening": "Reading the next token.",
+      "why": "RPN is evaluated left to right.",
+      "invariant": "Processed tokens are already reflected on the stack."
+    },
+    "check": {
+      "happening": "Deciding whether the token is an operator and, if so, which one.",
+      "why": "Operators and numbers are handled differently.",
+      "invariant": "Each token routes to exactly one action."
+    },
+    "update": {
+      "happening": "Updating the stack — pushing a number, or popping two operands and pushing their result.",
+      "why": "The stack always holds the operands still waiting to be used.",
+      "invariant": "Each operator reduces the stack by one net value."
+    },
+    "return": {
+      "happening": "Reporting the single remaining value.",
+      "why": "A valid expression reduces to one value.",
+      "invariant": "The answer is the last value on the stack."
+    }
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "nums": [
+        2,
+        3,
+        1,
+        1,
+        4
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "example-2",
+    "label": "Stuck on a zero",
+    "value": {
+      "nums": [
+        3,
+        2,
+        1,
+        0,
+        4
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": false
+  },
+  {
+    "id": "example-3",
+    "label": "One big jump",
+    "value": {
+      "nums": [
+        1,
+        3,
+        1,
+        0,
+        4
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": true
+  },
+  {
+    "id": "edge-single",
+    "label": "Single element",
+    "value": {
+      "nums": [
+        0
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": true
+  }
+]

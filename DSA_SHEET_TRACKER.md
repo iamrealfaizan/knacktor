@@ -48,6 +48,10 @@ _Update 2026-07-12: reconciled against the **live MongoDB** (`knacktor.problems`
 
 _Update 2026-07-16: #235 Lowest Common Ancestor of a BST authored (2 approaches: brute root-to-node path comparison + optimal iterative BST walk, both `tree` renderer). First Tier-3 to-add problem shipped. Live bundle count 50 → 51. #208 Implement Trie remains the only Tier-4 gap — still blocked on the design-harness engine work (sequence driver + `self` capture + n-ary trie tree)._
 
+_Update 2026-07-20: #55 Jump Game authored (1 approach: optimal greedy reachable-frontier, `array` renderer; boolean-literal return so no `resultSpec`, following the valid-palindrome precedent). Frontier shown via `frontier` cell shading — not a pointer — since `farthest` can exceed the array length; an `escaped` flag separates the success return (all `result`) from the failure return (cursor cell `error`, no misleading green). Second Tier-3 to-add shipped; live bundle count 52 → 53. A brute-force bottom-up DP (boolean reachability table, `array`+aux) is a clean fast-follow via the 2nd-approach path._
+
+_Update 2026-07-20: #150 Evaluate Reverse Polish Notation authored (1 approach: operand `stack`, following the valid-parentheses stack precedent). `tokens` is `string[]` so `supportsCustomInput:false`; `answer = stack[0]` (not pop) keeps the result visible on the stack for `resultSpec`. Operand order preserved (b=top/right, a=deeper/left) and `int(a/b)` truncates toward zero. Pattern tagged `balanced-brackets` (closest stack-mechanism slug; taxonomy has no dedicated "stack evaluation" pattern). Liveness 25–31/100 — passes the gate but low, inherent to RPN (arithmetic-only steps leave the stack unchanged); human-approved at Gate 3. Third Tier-3 to-add shipped; live bundle count 53 → 54._
+
 Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 3 remaining
 to-add problems in Tier 4 each count toward **all four** sheets — do them first.
 
@@ -105,11 +109,11 @@ to-add problems in Tier 4 each count toward **all four** sheets — do them firs
 | 199 | Binary Tree Right Side View | Medium | Tree (BFS) | N T G | 3 | tree | — | Yes | ⬜ |
 | 211 | Design Add and Search Words | Medium | Trie | B N T | 3 | tree | — | Yes | ⬜ |
 | 155 | Min Stack | Medium | Stack | N T G | 3 | stack | — | Yes | ⬜ |
-| 150 | Evaluate Reverse Polish Notation | Medium | Stack | N T G | 3 | stack | — | Yes | ⬜ |
+| 150 | Evaluate Reverse Polish Notation | Medium | Stack | N T G | 3 | stack | — | Yes | ✅ |
 | 143 | Reorder List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ✅ |
 | 19 | Remove Nth Node From End of List | Medium | Linked List | B N T | 3 | linkedList | — | Yes | ✅ |
 | 146 | LRU Cache | Medium | Design | N T G | 3 | (hashmap+list) | 🆕 custom | Yes | ⬜ |
-| 55 | Jump Game | Medium | Greedy / DP | B N T | 3 | array | — | Yes | ⬜ |
+| 55 | Jump Game | Medium | Greedy / DP | B N T | 3 | array | — | Yes | ✅ |
 | 198 | House Robber | Medium | DP (1-D) | B N T | 3 | array | — | Yes | ⬜ |
 | 91 | Decode Ways | Medium | DP (1-D) | B N T | 3 | array | — | Yes | ⬜ |
 | 300 | Longest Increasing Subsequence | Medium | DP (1-D) | B N T | 3 | array | — | Yes | ⬜ |

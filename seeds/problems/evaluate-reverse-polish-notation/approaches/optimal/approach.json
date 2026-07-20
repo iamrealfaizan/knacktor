@@ -1,0 +1,72 @@
+{
+  "id": "optimal",
+  "name": "Operand Stack",
+  "kind": "optimal",
+  "summary": "Scan the tokens left to right. Push each number onto a stack; on an operator, pop the top two values (the deeper one is the left operand), apply the operation, and push the result back. The single value left is the answer.",
+  "visualizationIntent": "init (L3-4): an empty stack, ready to scan the tokens left to right. loop (L5): read the current token. check (L6,9,11,13): decide whether the token is an operator and, if so, which one. update-number (L19-20): a numeric token is converted and pushed onto the stack (the stack grows by one). update-operator (L7-8,10-16,17): the top two values are popped (stack shrinks by two) — b is the top / right operand, a is the deeper / left operand — the operation is applied, and the single result is pushed back (stack grows by one). return (L21-22): after every token, exactly one value remains on the stack — that value is the answer.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.evalRPN",
+  "primaryPrimitive": "stack",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "answer",
+    "label": "RESULT",
+    "suffix": "· value of the expression",
+    "render": "scalar"
+  },
+  "varColors": {
+    "token": "current",
+    "a": "special",
+    "b": "amber",
+    "value": "result",
+    "answer": "result"
+  },
+  "lineExplanations": {
+    "3": "Create an empty stack that will hold operands (numbers) waiting to be combined.",
+    "4": "The set of the four valid operator symbols, used to tell operators from numbers.",
+    "5": "Scan the tokens left to right, one at a time.",
+    "6": "Check whether the current token is an operator rather than a number.",
+    "7": "Pop the top value off the stack — this is b, the right-hand operand.",
+    "8": "Pop the next value — this is a, the left-hand (deeper) operand.",
+    "9": "Is the operator addition?",
+    "10": "Add the two operands: a + b.",
+    "11": "Otherwise, is the operator subtraction?",
+    "12": "Subtract: a - b (the deeper operand a comes first).",
+    "13": "Otherwise, is the operator multiplication?",
+    "14": "Multiply: a * b.",
+    "16": "The remaining case is division; divide and truncate toward zero with int(a / b).",
+    "17": "Push the computed result back onto the stack so later operators can use it.",
+    "19": "The token is a number, so convert the string to an integer.",
+    "20": "Push that number onto the stack.",
+    "21": "After every token is processed, exactly one value remains — read it as the answer.",
+    "22": "Return the value of the whole expression."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def evalRPN(self, tokens): — tokens is the list of operand and operator strings.",
+    "3": "stack = [] — an empty Python list used as a stack (.append pushes, .pop removes the last item).",
+    "4": "operators = {\"+\", \"-\", \"*\", \"/\"} — a set literal of the four operator symbols for fast membership tests.",
+    "5": "for token in tokens: — loop over the tokens, binding token to each in turn.",
+    "6": "if token in operators: — membership test; True when the token is one of the four operators.",
+    "7": "b = stack.pop() — remove and return the top of the stack into b.",
+    "8": "a = stack.pop() — remove and return the new top into a.",
+    "9": "if token == \"+\": — compare the token string to the plus sign.",
+    "10": "value = a + b — addition of the two popped operands.",
+    "11": "elif token == \"-\": — otherwise test for the minus sign.",
+    "12": "value = a - b — subtraction, left operand minus right.",
+    "13": "elif token == \"*\": — otherwise test for the multiply sign.",
+    "14": "value = a * b — multiplication of the two operands.",
+    "15": "else: — the only remaining case, division.",
+    "16": "value = int(a / b) — true division, then int() truncates toward zero as the problem requires.",
+    "17": "stack.append(value) — push the computed result back onto the stack.",
+    "18": "else: — the branch taken when the token was not an operator (a number).",
+    "19": "value = int(token) — convert the numeric string to an integer.",
+    "20": "stack.append(value) — push the number onto the stack.",
+    "21": "answer = stack[0] — the single value left on the stack is the result.",
+    "22": "return answer — hand the expression's value back to the caller."
+  }
+}
