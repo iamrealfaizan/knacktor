@@ -1,0 +1,41 @@
+{
+  "id": "optimal",
+  "name": "Greedy Reachable Frontier",
+  "kind": "optimal",
+  "summary": "Scan left to right tracking the farthest index reachable so far. If the cursor ever moves past that frontier, the last index is unreachable; otherwise it is reachable.",
+  "visualizationIntent": "init (L3-4): the nums array is shown; farthest starts at 0, so only index 0 is inside the reachable frontier. loop (L5): the cursor i advances one cell to the right (current). check (L6): test whether i is still within the frontier (idx <= farthest). return-false (L7): i has escaped past farthest — the cursor cell flashes error and we return false (unreachable). update (L8-9): reach = i + nums[i]; farthest grows to max(farthest, reach), extending the reachable frontier rightward (cells 0..farthest take the frontier state). return-true (L10): the cursor walked the whole array without ever escaping the frontier, so the last index is reachable — all cells settle as result.",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.canJump",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "varColors": {
+    "i": "ptr-i",
+    "farthest": "special"
+  },
+  "lineExplanations": {
+    "3": "Track the farthest index reachable so far; you always start able to stand on index 0.",
+    "4": "Store the array length so the scan covers every index.",
+    "5": "Walk the cursor i across every index from left to right.",
+    "6": "Check whether index i has fallen beyond the farthest index we can reach.",
+    "7": "The cursor has outrun the reachable frontier, so the last index can never be reached — return false.",
+    "8": "From index i you can jump up to nums[i] steps, landing as far as reach = i + nums[i].",
+    "9": "Extend the frontier to whichever is farther: the old frontier or this new reach.",
+    "10": "The cursor crossed the whole array without ever escaping the frontier — the last index is reachable, return true."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: — the class wrapper the platform expects your method to live inside.",
+    "2": "def canJump(self, nums): — nums holds the maximum jump length available at each index.",
+    "3": "farthest = 0 — the greatest index reachable so far; you begin standing on index 0.",
+    "4": "n = len(nums) — the number of indices to scan.",
+    "5": "for i in range(n): — visit each index i from 0 to n-1.",
+    "6": "if i > farthest: — has the cursor moved past every index we could actually reach?",
+    "7": "return False — index i is unreachable, so the last index is too.",
+    "8": "reach = i + nums[i] — the farthest index you can land on by jumping from i.",
+    "9": "farthest = max(farthest, reach) — keep the larger of the old frontier and the new reach.",
+    "10": "return True — no index was ever out of reach, so the last index is reachable."
+  }
+}

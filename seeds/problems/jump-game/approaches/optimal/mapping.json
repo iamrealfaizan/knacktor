@@ -1,0 +1,101 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "flags": {
+    "escaped": "i > farthest"
+  },
+  "cellStateRules": [
+    {
+      "state": "error",
+      "when": "idx == i && escaped"
+    },
+    {
+      "state": "result",
+      "when": "phase == 'return' && !escaped && idx <= farthest"
+    },
+    {
+      "state": "current",
+      "when": "idx == i && phase != 'return'"
+    },
+    {
+      "state": "frontier",
+      "when": "idx <= farthest"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    }
+  ],
+  "readout": {
+    "when": "phase == 'update'",
+    "expr": "from i={i}: reach = {i} + {nums[i]} = {i + nums[i]}",
+    "relation": "frontier so far = {farthest}",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "indices scanned",
+      "onLines": [
+        6
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        7,
+        10
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        8,
+        9
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "when": "farthest > farthest_prev",
+      "label": "Frontier extended",
+      "kind": "best"
+    },
+    {
+      "line": 7,
+      "label": "Cursor escaped the frontier",
+      "kind": "return"
+    },
+    {
+      "line": 10,
+      "label": "Last index reachable",
+      "kind": "return"
+    }
+  ]
+}

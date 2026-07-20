@@ -1,0 +1,79 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start the reachable frontier at index 0.",
+      "why": "You begin standing on the first index, so index 0 is always reachable.",
+      "invariant": "Every index from 0 to farthest is reachable from the start."
+    },
+    "4": {
+      "happening": "Record the array length n = {n}.",
+      "why": "The cursor will scan every index from 0 to n-1.",
+      "invariant": "n is the total number of indices."
+    },
+    "5": {
+      "happening": "Advance the cursor to index i = {i}.",
+      "why": "The greedy scan folds in one index at a time, left to right.",
+      "invariant": "Every index left of the cursor has already extended the frontier."
+    },
+    "6": [
+      {
+        "when": "i > farthest",
+        "happening": "Index i = {i} sits beyond the frontier ({farthest}) — it is unreachable.",
+        "why": "No earlier jump reached this far, so nothing from here on can be reached either.",
+        "invariant": "If the cursor passes the frontier, the last index is impossible to reach."
+      },
+      {
+        "happening": "Index i = {i} is within the frontier ({farthest}) — we can stand here.",
+        "why": "Some earlier jump reaches at least this far, so this index is reachable.",
+        "invariant": "Every index up to farthest is reachable."
+      }
+    ],
+    "7": {
+      "happening": "The cursor escaped the reachable frontier — return false.",
+      "why": "The last index lies past a gap no jump can cross.",
+      "invariant": "Reaching the end is impossible."
+    },
+    "8": {
+      "happening": "From index {i} you can jump up to nums[{i}] = {nums[i]}, landing as far as index {i + nums[i]}.",
+      "why": "reach is the farthest index a single jump from i can touch.",
+      "invariant": "reach = i + nums[i]."
+    },
+    "9": {
+      "happening": "Extend the frontier to the farther of {farthest} and the new reach.",
+      "why": "The frontier must always hold the greatest index reachable by any jump seen so far.",
+      "invariant": "farthest = max(previous farthest, i + nums[i])."
+    },
+    "10": {
+      "happening": "The cursor crossed the whole array without ever escaping the frontier — return true.",
+      "why": "Every index along the way was reachable, so the last index is too.",
+      "invariant": "The last index is reachable."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Seeding the frontier at index 0.",
+      "why": "You start standing on the first index before any jump.",
+      "invariant": "farthest = 0."
+    },
+    "loop": {
+      "happening": "Scanning indices left to right.",
+      "why": "Greedy extends the reachable frontier one index at a time.",
+      "invariant": "Indices left of the cursor are already folded in."
+    },
+    "check": {
+      "happening": "Testing whether the cursor is still within the reachable frontier.",
+      "why": "If the cursor has passed the frontier, the end can't be reached.",
+      "invariant": "An index is reachable exactly when it is ≤ farthest."
+    },
+    "update": {
+      "happening": "Extending the frontier using the jump available at index i.",
+      "why": "A jump from index i can reach as far as i + nums[i].",
+      "invariant": "farthest is the greatest reachable index so far."
+    },
+    "return": {
+      "happening": "Reporting whether the last index is reachable.",
+      "why": "A single left-to-right pass settles the question.",
+      "invariant": "The answer reflects whether the cursor ever escaped the frontier."
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "primitive": "stack",
+  "itemsFrom": "stack",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "idx == len(values) - 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "readout": {
+    "when": "phase != 'init' && phase != 'return'",
+    "expr": "token '{token}'",
+    "relation": "stack depth {len(stack)}",
+    "relationColor": "special"
+  },
+  "counters": [
+    {
+      "name": "pushes",
+      "onLines": [
+        17,
+        20
+      ]
+    },
+    {
+      "name": "pops",
+      "onLines": [
+        7,
+        8
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        6,
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        8,
+        10,
+        12,
+        14,
+        16,
+        17,
+        19,
+        20
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        21,
+        22
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 20,
+      "label": "Push number",
+      "kind": "match"
+    },
+    {
+      "line": 8,
+      "label": "Pop two operands",
+      "kind": "match"
+    },
+    {
+      "line": 17,
+      "label": "Push result",
+      "kind": "result"
+    },
+    {
+      "line": 22,
+      "label": "Final answer",
+      "kind": "return"
+    }
+  ]
+}
