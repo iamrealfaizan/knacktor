@@ -1,0 +1,224 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the string — {n} character(s) long.",
+      "why": "The cursor must know where the string ends so it never reads past it.",
+      "invariant": "n is fixed for the whole scan."
+    },
+    "4": {
+      "happening": "Place the cursor at index 0.",
+      "why": "Parsing always starts from the left.",
+      "invariant": "pos is the next character to inspect."
+    },
+    "5": [
+      {
+        "when": "pos < n && s[pos] == ' '",
+        "happening": "Character {pos} is a space — skip it.",
+        "why": "Leading whitespace is ignored before anything else is read.",
+        "invariant": "Only leading spaces are skipped."
+      },
+      {
+        "happening": "The cursor is off the spaces now (or the string ended).",
+        "why": "The first non-space character is where the real parsing begins.",
+        "invariant": "pos points at the first non-space character."
+      }
+    ],
+    "6": {
+      "happening": "Step the cursor past the space to index {pos + 1}.",
+      "why": "Keep skipping until a non-space appears.",
+      "invariant": "Everything skipped so far was whitespace."
+    },
+    "7": {
+      "happening": "Mark index {pos} as where the content starts.",
+      "why": "Everything to the left of here was leading whitespace, now shown dimmed.",
+      "invariant": "scan_start never moves again."
+    },
+    "8": {
+      "happening": "Assume the number is positive.",
+      "why": "If no sign appears, the default is positive.",
+      "invariant": "sign is +1 unless a minus is found."
+    },
+    "9": {
+      "happening": "No sign character seen yet.",
+      "why": "-1 marks 'no sign', so the visual highlights a sign only if one exists.",
+      "invariant": "sign_idx stays -1 unless a +/- is read."
+    },
+    "10": [
+      {
+        "when": "pos < n && s[pos] == '-'",
+        "happening": "The first content character is a minus sign.",
+        "why": "A minus makes the whole result negative.",
+        "invariant": "At most one sign character is consumed."
+      },
+      {
+        "happening": "The first content character is not a minus.",
+        "why": "We still need to check for a plus before reading digits.",
+        "invariant": "At most one sign character is consumed."
+      }
+    ],
+    "11": {
+      "happening": "Flip the sign to negative.",
+      "why": "The digits that follow will be negated at the end.",
+      "invariant": "sign is now -1."
+    },
+    "12": {
+      "happening": "Remember index {pos} as the sign character.",
+      "why": "So the visual can mark it distinctly from the digits.",
+      "invariant": "sign_idx points at the one sign character."
+    },
+    "13": {
+      "happening": "Step the cursor past the sign to index {pos + 1}.",
+      "why": "The sign is consumed; digits come next.",
+      "invariant": "The cursor never re-reads the sign."
+    },
+    "14": [
+      {
+        "when": "pos < n && s[pos] == '+'",
+        "happening": "The first content character is a plus sign.",
+        "why": "A plus is allowed but leaves the number positive.",
+        "invariant": "At most one sign character is consumed."
+      },
+      {
+        "happening": "No sign character at all — the number is positive by default.",
+        "why": "Parsing jumps straight to reading digits.",
+        "invariant": "sign stays +1 and sign_idx stays -1."
+      }
+    ],
+    "15": {
+      "happening": "Remember index {pos} as the sign character.",
+      "why": "So the visual can mark it distinctly from the digits.",
+      "invariant": "sign_idx points at the one sign character."
+    },
+    "16": {
+      "happening": "Step the cursor past the plus to index {pos + 1}.",
+      "why": "The sign is consumed; digits come next.",
+      "invariant": "The cursor never re-reads the sign."
+    },
+    "17": {
+      "happening": "Start the running total at 0.",
+      "why": "Digits will be folded into it one at a time.",
+      "invariant": "res holds the magnitude read so far, before the sign is applied."
+    },
+    "18": {
+      "happening": "Note the 32-bit maximum, 2147483647.",
+      "why": "Any result above this must be clamped down to it.",
+      "invariant": "int_max is the positive ceiling."
+    },
+    "19": {
+      "happening": "Note the 32-bit minimum, -2147483648.",
+      "why": "Any negative result below this must be clamped up to it.",
+      "invariant": "int_min is the negative floor."
+    },
+    "20": [
+      {
+        "when": "pos < n && s[pos] >= '0' && s[pos] <= '9'",
+        "happening": "Character {pos} ('{s[pos]}') is a digit — read it.",
+        "why": "Digits are consumed until a non-digit or the end of the string.",
+        "invariant": "Reading stops at the first non-digit."
+      },
+      {
+        "happening": "The cursor is on a non-digit (or the string ended) — stop reading.",
+        "why": "atoi consumes digits only up to the first non-digit character.",
+        "invariant": "res now holds the full magnitude."
+      }
+    ],
+    "21": {
+      "happening": "Convert the digit character '{s[pos]}' to its numeric value.",
+      "why": "Character codes for '0'..'9' are consecutive, so subtracting '0' gives the value.",
+      "invariant": "digit is between 0 and 9."
+    },
+    "22": [
+      {
+        "when": "res > int_max / 10 || (res == int_max / 10 && digit > 7)",
+        "happening": "res ({res}) would overflow if we fold in {digit} — clamp instead.",
+        "why": "We check BEFORE multiplying, because res * 10 + digit could exceed the 32-bit range and wrap.",
+        "invariant": "Overflow is caught before it can happen."
+      },
+      {
+        "happening": "Folding in {digit} keeps res ({res}) safely in range.",
+        "why": "res * 10 + {digit} will still fit in 32 bits.",
+        "invariant": "res never exceeds the 32-bit range."
+      }
+    ],
+    "23": [
+      {
+        "when": "sign == 1",
+        "happening": "The number is positive — clamp to the maximum.",
+        "why": "A positive overflow is pinned at 2147483647.",
+        "invariant": "The clamped answer is the nearest valid bound."
+      },
+      {
+        "happening": "The number is negative — clamp to the minimum instead.",
+        "why": "A negative overflow is pinned at -2147483648.",
+        "invariant": "The clamped answer is the nearest valid bound."
+      }
+    ],
+    "24": {
+      "happening": "Pin res to the maximum, 2147483647.",
+      "why": "The positive value overflowed the 32-bit range.",
+      "invariant": "res is now exactly int_max."
+    },
+    "26": {
+      "happening": "Pin res to the minimum, -2147483648.",
+      "why": "The negative value overflowed the 32-bit range.",
+      "invariant": "res is now exactly int_min."
+    },
+    "27": {
+      "happening": "Return the clamped value {res} immediately.",
+      "why": "Once clamped, more digits cannot change the answer.",
+      "invariant": "A clamped result is final."
+    },
+    "28": {
+      "happening": "Fold {digit} in: res becomes {res * 10 + digit}.",
+      "why": "Shifting left one place and adding the digit builds the number left to right.",
+      "invariant": "res holds every digit read so far, in order."
+    },
+    "29": {
+      "happening": "Step the cursor to the next character, index {pos + 1}.",
+      "why": "Move on to read the following digit, if any.",
+      "invariant": "The cursor only moves forward."
+    },
+    "30": {
+      "happening": "Apply the sign: {res} becomes {sign * res}.",
+      "why": "The digits were read as a positive magnitude; the sign is applied at the end.",
+      "invariant": "The final value carries the correct sign."
+    },
+    "31": {
+      "happening": "Return the parsed integer {res}.",
+      "why": "The string has been fully converted, signed, and range-checked.",
+      "invariant": "res is the answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Reading the string length and setting up the sign and total.",
+      "why": "We need bounds and defaults before scanning.",
+      "invariant": "Nothing has been parsed yet."
+    },
+    "loop": {
+      "happening": "Skipping spaces, or reading digits one at a time.",
+      "why": "The two loops handle leading whitespace and then the number.",
+      "invariant": "The cursor only ever moves forward."
+    },
+    "move": {
+      "happening": "Advancing the cursor past a character.",
+      "why": "Each character is inspected exactly once.",
+      "invariant": "pos never moves backward."
+    },
+    "update": {
+      "happening": "Recording the sign or folding a digit into the running total.",
+      "why": "res and sign together build the final value.",
+      "invariant": "res holds the magnitude read so far."
+    },
+    "check": {
+      "happening": "Testing for a sign character or for a potential overflow.",
+      "why": "The branches decide the sign and whether to clamp.",
+      "invariant": "No character is consumed on a pure check line."
+    },
+    "return": {
+      "happening": "Returning the parsed, signed, range-checked integer.",
+      "why": "Either the digits ran out or the value was clamped.",
+      "invariant": "res is the final answer."
+    }
+  }
+}

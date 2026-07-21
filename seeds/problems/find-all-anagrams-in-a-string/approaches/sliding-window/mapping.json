@@ -1,0 +1,199 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    {
+      "name": "i",
+      "var": "i"
+    },
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    }
+  ],
+  "flags": {
+    "windowing": "left != null"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "matched && windowing && idx >= left && idx <= right"
+    },
+    {
+      "state": "special",
+      "when": "idx == right"
+    },
+    {
+      "state": "compared",
+      "when": "idx == left"
+    },
+    {
+      "state": "current",
+      "when": "idx == i"
+    },
+    {
+      "state": "dimmed",
+      "when": "windowing && (idx < left || idx > right)"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "window": {
+    "from": "left",
+    "to": "right"
+  },
+  "auxMappings": [
+    {
+      "label": "Target counts (p)",
+      "primitive": "hashmap",
+      "keysFrom": "need",
+      "valuesFrom": "need",
+      "highlightRules": [
+        {
+          "state": "result",
+          "whenKey": "matched"
+        },
+        {
+          "state": "idle",
+          "whenKey": "true"
+        }
+      ]
+    },
+    {
+      "label": "Window counts",
+      "primitive": "hashmap",
+      "keysFrom": "window",
+      "valuesFrom": "window",
+      "highlightRules": [
+        {
+          "state": "result",
+          "whenKey": "matched"
+        },
+        {
+          "state": "special",
+          "whenKey": "k == enter"
+        },
+        {
+          "state": "compared",
+          "whenKey": "k == leave"
+        },
+        {
+          "state": "idle",
+          "whenKey": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "windowing && phase != 'return'",
+    "expr": "window [{left}..{right}] · {matched ? 'ANAGRAM!' : 'no match'}"
+  },
+  "counters": [
+    {
+      "name": "windows checked",
+      "onLines": [
+        23,
+        39
+      ]
+    },
+    {
+      "name": "anagrams found",
+      "onLines": [
+        25,
+        41
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        4,
+        11,
+        16,
+        23,
+        24,
+        30,
+        36,
+        39,
+        40
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        9,
+        26
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10,
+        12,
+        14,
+        15,
+        17,
+        19,
+        25,
+        27,
+        29,
+        31,
+        33,
+        34,
+        35,
+        37,
+        41
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        20,
+        21,
+        22,
+        28,
+        38
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        5,
+        42
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 25,
+      "label": "Anagram at start",
+      "kind": "match"
+    },
+    {
+      "line": 41,
+      "label": "Anagram found",
+      "kind": "match"
+    },
+    {
+      "line": 42,
+      "label": "All positions returned",
+      "kind": "return"
+    }
+  ]
+}

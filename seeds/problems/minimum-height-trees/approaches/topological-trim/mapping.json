@@ -1,0 +1,128 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "graph_edges",
+  "directed": false,
+  "nodeStateRules": [
+    {
+      "state": "result",
+      "when": "state == null"
+    },
+    {
+      "state": "current",
+      "when": "node_id == cur"
+    },
+    {
+      "state": "result",
+      "when": "phase == 'return' && state[node_id] != 2"
+    },
+    {
+      "state": "dimmed",
+      "when": "state[node_id] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state[node_id] == 1"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "cur",
+      "var": "cur"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Leaf layer",
+      "primitive": "queue",
+      "itemsFrom": "leaves",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "{remaining} node(s) left · peeling {count} leaf/leaves",
+    "when": "remaining != null && phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "leaves trimmed",
+      "onLines": [
+        47
+      ]
+    },
+    {
+      "name": "layers peeled",
+      "onLines": [
+        40
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 37, 38
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        12, 34, 52, 54
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        13, 32, 33, 39, 43, 50, 61
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        14, 35, 36, 40, 41, 47, 48, 53, 55, 56, 62, 63
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        42, 44, 45, 46, 49, 51, 57, 58, 59
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        15, 60, 64
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 47,
+      "label": "Leaf trimmed",
+      "kind": "boundary"
+    },
+    {
+      "line": 55,
+      "label": "New leaf exposed",
+      "kind": "match"
+    },
+    {
+      "line": 64,
+      "label": "Tree centre found",
+      "kind": "return"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "n": 5,
+      "bad": 4
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 4
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "n": 1,
+      "bad": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "edge-first-version-bad",
+    "label": "First Version Bad",
+    "value": {
+      "n": 16,
+      "bad": 1
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "edge-last-version-bad",
+    "label": "Last Version Bad",
+    "value": {
+      "n": 8,
+      "bad": 8
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 8
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      3,
+      4,
+      5
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      4,
+      5,
+      6
+    ]
+  },
+  {
+    "id": "edge-single-node",
+    "label": "Single Node",
+    "value": {
+      "head": [
+        7
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      7
+    ]
+  },
+  {
+    "id": "edge-two-nodes",
+    "label": "Two Nodes",
+    "value": {
+      "head": [
+        1,
+        2
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      2
+    ]
+  }
+]

@@ -1,0 +1,137 @@
+{
+  "primitive": "grid",
+  "gridFrom": "dist",
+  "cellStateRules": [
+    {
+      "state": "current",
+      "when": "r == cur_r && c == cur_c"
+    },
+    {
+      "state": "visited",
+      "when": "state[r][c] == 2"
+    },
+    {
+      "state": "frontier",
+      "when": "state[r][c] == 1"
+    },
+    {
+      "state": "dimmed",
+      "when": "state[r][c] == 0"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "BFS queue (frontier)",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "cellStateRules": [
+        {
+          "state": "frontier",
+          "when": "true"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "wave reaching cells · {len(queue)} in queue",
+    "when": "phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "cells stamped",
+      "onLines": [
+        18,
+        30
+      ],
+      "when": "true"
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        15,
+        16,
+        21,
+        26
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        17,
+        29
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        18,
+        19,
+        20,
+        25,
+        30,
+        31,
+        32
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        22,
+        23,
+        24,
+        27,
+        28
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        33
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 20,
+      "label": "Zero seeded as a source",
+      "kind": "boundary"
+    },
+    {
+      "line": 30,
+      "label": "Cell stamped with a distance",
+      "kind": "match"
+    },
+    {
+      "line": 33,
+      "label": "Distance grid complete",
+      "kind": "return"
+    }
+  ]
+}

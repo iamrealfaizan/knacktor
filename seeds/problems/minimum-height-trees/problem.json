@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "minimum-height-trees",
+  "number": 310,
+  "title": "Minimum Height Trees",
+  "difficulty": "medium",
+  "topics": [
+    "graph",
+    "tree"
+  ],
+  "patterns": [
+    "topological-sort",
+    "bfs"
+  ],
+  "statement": "A tree is an undirected graph in which any two vertices are connected by **exactly one** path. Given a tree of `n` nodes labelled from `0` to `n - 1`, and an array of `n - 1` `edges`, you can choose any node as the root. The result is a rooted tree, and among all of them the ones with **minimum height** are called **minimum height trees (MHTs)**.\n\nReturn a list of all the MHT roots. You may return the answer in any order.\n\nThe **height** of a rooted tree is the number of edges on the longest downward path from the root to a leaf.\n\n**Example 1:**\n\n```\nInput: n = 4, edges = [[1,0],[1,2],[1,3]]\nOutput: [1]\n```\n\n**Example 2:**\n\n```\nInput: n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]\nOutput: [3,4]\n```\n\n**Constraints:**\n\n- `1 <= n <= 2 * 10^4`\n- `edges.length == n - 1`\n- `0 <= a_i, b_i < n`\n- The given input is **guaranteed to be a tree**.\n\n**Note on this simulation:** MHT roots always sit at the tree's centre. We find them by repeatedly peeling off the current layer of leaves (degree-1 nodes) until at most two nodes remain — those are the centroids. Trimmed nodes stay on screen but dim, so you can watch the tree shrink inward.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "topological-trim",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "n",
+        "type": "int",
+        "label": "Number of nodes",
+        "placeholder": "6"
+      },
+      {
+        "name": "edges",
+        "type": "int[]",
+        "label": "Tree edges",
+        "placeholder": "3,0;3,1;3,2;3,4;5,4"
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

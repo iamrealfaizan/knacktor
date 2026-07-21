@@ -1,0 +1,146 @@
+{
+  "primitive": "hashmap",
+  "keysFrom": "counts",
+  "valuesFrom": "counts",
+  "pointers": [],
+  "flags": {
+    "folding": "key != null"
+  },
+  "highlightRules": [
+    {
+      "state": "special",
+      "whenKey": "k == key && counts[key] % 2 == 1"
+    },
+    {
+      "state": "result",
+      "whenKey": "k == key"
+    },
+    {
+      "state": "current",
+      "whenKey": "k == ch && !folding"
+    },
+    {
+      "state": "idle",
+      "whenKey": "true"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Input string",
+      "primitive": "array",
+      "valuesFrom": "s",
+      "pointers": [
+        {
+          "name": "i",
+          "var": "i"
+        }
+      ],
+      "cellStateRules": [
+        {
+          "state": "current",
+          "when": "idx == i"
+        },
+        {
+          "state": "visited",
+          "when": "idx < i"
+        },
+        {
+          "state": "idle",
+          "when": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "length != null && phase != 'return'",
+    "expr": "pairs collected → length {length}"
+  },
+  "counters": [
+    {
+      "name": "letters counted",
+      "onLines": [
+        7
+      ]
+    },
+    {
+      "name": "letters folded in",
+      "onLines": [
+        21
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        6,
+        19
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        8,
+        23,
+        26
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        7,
+        9,
+        11,
+        13,
+        14,
+        15,
+        17,
+        18,
+        20,
+        21,
+        22,
+        24,
+        27
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        12,
+        16,
+        25
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        28
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 24,
+      "label": "Odd letter — centre available",
+      "kind": "match"
+    },
+    {
+      "line": 27,
+      "label": "Centre character added",
+      "kind": "result"
+    },
+    {
+      "line": 28,
+      "label": "Final length",
+      "kind": "return"
+    }
+  ]
+}

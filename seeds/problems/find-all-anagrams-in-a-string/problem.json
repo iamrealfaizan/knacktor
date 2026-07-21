@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "find-all-anagrams-in-a-string",
+  "number": 438,
+  "title": "Find All Anagrams in a String",
+  "difficulty": "medium",
+  "topics": [
+    "string",
+    "hash-map",
+    "sliding-window"
+  ],
+  "patterns": [
+    "sliding-window"
+  ],
+  "statement": "Given two strings `s` and `p`, return an array of all the start indices of `p`'s anagrams in `s`. You may return the answer in **any order**.\n\nAn **anagram** is a rearrangement of all a string's letters — same letters, same counts, any order.\n\n**Example 1:**\n\n```\nInput: s = \"cbaebabacd\", p = \"abc\"\nOutput: [0, 6]\nExplanation: The substring at index 0 is \"cba\" and at index 6 is \"bac\", both anagrams of \"abc\".\n```\n\n**Example 2:**\n\n```\nInput: s = \"abab\", p = \"ab\"\nOutput: [0, 1, 2]\nExplanation: \"ab\", \"ba\", and \"ab\" are all anagrams of \"ab\".\n```\n\n**Constraints:**\n\n- `1 <= s.length, p.length <= 3 * 10^4`\n- `s` and `p` consist of lowercase English letters.\n\n**Note on this simulation:** the counts are shown as maps of the letters actually present (not 26 mostly-empty slots). A letter is dropped from the window map the moment its count hits zero, so the window map and the target map match exactly when — and only when — the window is an anagram.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "sliding-window",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "int[]",
+        "label": "Search string s",
+        "placeholder": "cbaebabacd",
+        "minLen": 1,
+        "maxLen": 200
+      },
+      {
+        "name": "p",
+        "type": "int[]",
+        "label": "Pattern p",
+        "placeholder": "abc",
+        "minLen": 1,
+        "maxLen": 200
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

@@ -35,8 +35,8 @@ authoring time (the `add-problem-staged` pipeline sources from LeetCode directly
 
 | | Tier 4 (all 4) | Tier 3 (3 of 4) | Tier 2 (2 of 4) | Tier 1 (1 of 4) |
 |---|---|---|---|---|
-| In system | 31 | 5 | 2 | 3 |
-| To add | 1 | 20 | ~40 | ~70 |
+| In system | 31 | 5 | 2 | 12 |
+| To add | 1 | 20 | ~40 | ~61 |
 
 _Reconciled against the live `seeds/problems/` directory on 2026-07-07: 26 problems present. Tier-4 in-system rose from 10 → 15 (#3, #15, #33, #238, #242 authored); #217 added to Tier 2; #167 and #695 added to Tier 1 (NeetCode-only)._
 
@@ -51,6 +51,14 @@ _Update 2026-07-16: #235 Lowest Common Ancestor of a BST authored (2 approaches:
 _Update 2026-07-20: #55 Jump Game authored (1 approach: optimal greedy reachable-frontier, `array` renderer; boolean-literal return so no `resultSpec`, following the valid-palindrome precedent). Frontier shown via `frontier` cell shading — not a pointer — since `farthest` can exceed the array length; an `escaped` flag separates the success return (all `result`) from the failure return (cursor cell `error`, no misleading green). Second Tier-3 to-add shipped; live bundle count 52 → 53. A brute-force bottom-up DP (boolean reachability table, `array`+aux) is a clean fast-follow via the 2nd-approach path._
 
 _Update 2026-07-20: #150 Evaluate Reverse Polish Notation authored (1 approach: operand `stack`, following the valid-parentheses stack precedent). `tokens` is `string[]` so `supportsCustomInput:false`; `answer = stack[0]` (not pop) keeps the result visible on the stack for `resultSpec`. Operand order preserved (b=top/right, a=deeper/left) and `int(a/b)` truncates toward zero. Pattern tagged `balanced-brackets` (closest stack-mechanism slug; taxonomy has no dedicated "stack evaluation" pattern). Liveness 25–31/100 — passes the gate but low, inherent to RPN (arithmetic-only steps leave the stack unchanged); human-approved at Gate 3. Third Tier-3 to-add shipped; live bundle count 53 → 54._
+
+_Update 2026-07-21: Grind-75 batch — four Tier-1 problems authored and one existing bundle extended. **#409 Longest Palindrome** (`hashmap` + `array` aux; `Counter` replaced with an explicit counting loop so the tally is visible; odd-count buckets flag `special` as centre candidates). **#278 First Bad Version** (`array`, modified-binary-search). LeetCode injects `isBadVersion` as a hidden API, so `bad` is passed as a parameter and the probe gets its own traced line — `is_bad = mid >= bad_index` IS `isBadVersion(mid)`, which makes the API call visible rather than magic. The `n = 2147483647` test case was dropped (2³¹ cells). **#232 Implement Queue using Stacks** and **#876 Middle of the Linked List** both needed custom components — see the engine note below. **#733 Flood Fill** gained a second `bfs` approach; because it mirrors the existing `dfs` structure exactly, the line numbers are identical and only line 19 differs (`stack.pop()` → `queue.pop(0)`), so `supportsCompare` is now `true` and DFS-vs-BFS runs as dual players — one character of difference, completely different fill order. Live bundle count 54 → 58._
+
+_Engine note 2026-07-21: the **design-class harness gap** (sequence driver + `self` capture) that blocks #208 Trie is now worked around rather than fixed. `tracer/run.py` does `getattr(cls(), meth)` — one instantiation, one call — so #232 is authored as `Solution.processOperations(operations, values)`, a driver that replays the op sequence with both stacks as plain locals. The real harness is still owed for #208. Two custom renderers were added (`components/problem/custom/`): **implement-queue-using-stacks** (D17 a+b — the `auxMappings` auto-layout stacks a vertical primary above a vertical aux, hiding the left→right reversal that turns LIFO into FIFO) and **middle-of-the-linked-list** (D17 b+c — the generic `pointers` DSL glides every pointer one hop per step with identical motion, so slow and fast would render as moving the same way; the two-humped fast arc against slow's single hump has no DSL expression). A new **`npm run test-renderers`** harness ([scripts/test-custom-renderers.tsx](scripts/test-custom-renderers.tsx)) builds the real trace for every preset and server-renders each custom component at EVERY step, asserting structural invariants — 516 step renders currently green across all three custom renderers. It caught two genuine defects: a dangling tail arrow during list wiring, and (more importantly) that moving slow before fast left slow **ahead of** fast for three steps per round, contradicting the entire mental model — the solution now moves fast first. Arcs are revealed progressively, one per hop actually completed, satisfying mandated behavior #4._
+
+_Update 2026-07-21 (batch 2): five more Grind-75 problems authored, all live in Mongo (63 bundles, 402 traces). **#542 01 Matrix** (`grid` + `queue` aux) — multi-source BFS reusing the flood-fill-BFS idiom; the `dist` grid is shown (not the input), with `-1` = unreached and a `state` grid driving colours. **#8 String to Integer/atoi** (`array`) — `lstrip` replaced with an explicit whitespace-skip loop (B-1 forbids mid-run reflow); the cursor var was renamed `idx`→`pos` because the array DSL shadows `idx` with the cell index (`idx == idx` would always be true — a silent bug); overflow-clamp branch has a keyEvent. **#438 Find All Anagrams** (`array` + two `hashmap` aux) — counts shown as maps of present letters (not 26 mostly-empty slots), with zero-count keys deleted so the window map equals the target map exactly on a match; a `matched` flag (reset each slide) flashes the window green. **#310 Minimum Height Trees** (`graph` + `queue` aux) — leaf-peeling; trimmed nodes dim (dim-don't-delete), leaf layer is the queue aux. **#721 Accounts Merge** (`graph` + `hashmap` aux) — union-find forest; nodes = accounts, edges = parent pointers appended on union._
+
+_Engine notes 2026-07-21 (batch 2): (1) **Graph node-state scope var is `node_idx`, not `node_id`** — the ADDING_PROBLEMS doc says `node_id` but the shipped renderer (course-schedule) and mapVisual use `node_idx`; use `node_idx`. (2) **The tracer's `snapshot_locals` only captures the CURRENT frame's locals** ([tracer/run.py:49](tracer/run.py#L49)) — a nested helper (`def find` inside the method) sees only its own params, so any graph/array mapping reading outer vars (`parent`, `nodes`) would blink empty every time the helper runs. #721 was therefore authored with union-find **inlined as while-loops in the single method frame** rather than nested `find`/`union` functions. This is the same frame-scope limitation behind the [[recursion-stage-renderer-gap]] and should be assumed for any future DSU/design-class problem: keep everything the mapping reads in one frame. (3) The `graph` renderer has **no per-node degree badge**; #310 conveys degree via node-state shading (frontier/dimmed) + the queue aux + a readout, following the course-schedule precedent._
 
 Add order that fills the most sheets fastest: **Tier 4 → Tier 3 → Tier 2 → Tier 1.** The 3 remaining
 to-add problems in Tier 4 each count toward **all four** sheets — do them first.
@@ -276,17 +284,17 @@ to-add problems in Tier 4 each count toward **all four** sheets — do them firs
 
 | # | Problem | Diff | Topic | Renderer | Engine change | On LC | Status |
 |---|---|---|---|---|---|---|---|
-| 733 | Flood Fill | Easy | Graph (BFS/DFS) | grid | — | Yes | ✅ |
-| 232 | Implement Queue using Stacks | Easy | Stack / Queue | queue | — | Yes | ⬜ |
-| 278 | First Bad Version | Easy | Binary Search | array | — | Yes | ⬜ |
-| 409 | Longest Palindrome | Easy | Hash | hashmap | — | Yes | ⬜ |
-| 876 | Middle of the Linked List | Easy | Linked List | linkedList | — | Yes | ⬜ |
+| 733 | Flood Fill | Easy | Graph (BFS/DFS) | grid ×2 (DFS+BFS, compare) | — | Yes | ✅ |
+| 232 | Implement Queue using Stacks | Easy | Stack / Queue | custom (2×stack) | 🆕 custom | Yes | ✅ |
+| 278 | First Bad Version | Easy | Binary Search | array | — | Yes | ✅ |
+| 409 | Longest Palindrome | Easy | Hash | hashmap | — | Yes | ✅ |
+| 876 | Middle of the Linked List | Easy | Linked List | custom (2-speed) | 🆕 custom | Yes | ✅ |
 | 75 | Sort Colors | Medium | Two Pointers (Dutch flag) | array | — | Yes | ⬜ |
-| 721 | Accounts Merge | Medium | Union-Find | graph | — | Yes | ⬜ |
-| 8 | String to Integer (atoi) | Medium | String | array | — | Yes | ⬜ |
-| 438 | Find All Anagrams in a String | Medium | Sliding Window | array | — | Yes | ⬜ |
-| 310 | Minimum Height Trees | Medium | Graph | graph | — | Yes | ⬜ |
-| 542 | 01 Matrix | Medium | Graph (BFS) | grid | — | Yes | ⬜ |
+| 721 | Accounts Merge | Medium | Union-Find | graph + hashmap aux | — | Yes | ✅ |
+| 8 | String to Integer (atoi) | Medium | String | array | — | Yes | ✅ |
+| 438 | Find All Anagrams in a String | Medium | Sliding Window | array + 2 hashmap aux | — | Yes | ✅ |
+| 310 | Minimum Height Trees | Medium | Graph | graph + queue aux | — | Yes | ✅ |
+| 542 | 01 Matrix | Medium | Graph (BFS) | grid + queue aux | — | Yes | ✅ |
 
 ---
 
@@ -298,6 +306,12 @@ to-add problems in Tier 4 each count toward **all four** sheets — do them firs
 - **🆕 bit** (no bit renderer): 136, 137, 190, 191, 201, 268, 338, 371. Suggest **deferring the bit
   cluster** or building a simple bit-row via the `array` renderer.
 - **🆕 custom** (bespoke component, D17): 146 LRU Cache (high value — 3 sheets), 355 Design Twitter.
+  Shipped so far: `merge-two-sorted-lists`, `implement-queue-using-stacks` (232), `middle-of-the-linked-list` (876).
+  Every custom component must be added to `scripts/test-custom-renderers.tsx` — it is the only coverage
+  they get, since a custom renderer is used by exactly one problem.
+- **🆕 design harness** (sequence driver + `self` capture in `tracer/run.py`): still owed for 208 Implement Trie
+  and 211 Design Add and Search Words. 232 shipped via a `processOperations` driver method instead, which
+  works but does not generalise to a class whose state must persist across separately-traced calls.
 - **⛔ DEFER**: 14 Longest Common Prefix — char-column comparison needs a char-grid renderer.
 - **🔒 Premium** (real but locked on LeetCode): 252, 253, 261, 271, 286, 323.
 

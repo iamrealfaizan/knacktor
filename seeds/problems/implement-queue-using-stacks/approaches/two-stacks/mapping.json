@@ -1,0 +1,111 @@
+{
+  "primitive": "custom",
+  "componentKey": "implement-queue-using-stacks",
+  "customVars": {
+    "inStack": "in_stack",
+    "outStack": "out_stack",
+    "results": "results",
+    "operations": "operations",
+    "values": "values",
+    "opIndex": "op_index",
+    "currentOp": "current_op",
+    "moved": "moved",
+    "phase": "phase"
+  },
+  "counters": [
+    {
+      "name": "operations replayed",
+      "onLines": [
+        10
+      ]
+    },
+    {
+      "name": "elements transferred",
+      "onLines": [
+        17
+      ]
+    }
+  ],
+  "readout": {
+    "when": "current_op != '' && phase != 'return'",
+    "expr": "operation {op_index + 1}: {current_op}"
+  },
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        9,
+        16
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        11,
+        14,
+        15,
+        19,
+        21,
+        23
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        10,
+        12,
+        13,
+        17,
+        18,
+        20,
+        22,
+        24
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        25
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        26
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 17,
+      "label": "Transfer — order reverses",
+      "kind": "match"
+    },
+    {
+      "line": 20,
+      "label": "Dequeued the front",
+      "kind": "result"
+    },
+    {
+      "line": 22,
+      "label": "Peeked the front",
+      "kind": "match"
+    },
+    {
+      "line": 26,
+      "label": "All operations replayed",
+      "kind": "return"
+    }
+  ]
+}

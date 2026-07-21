@@ -1,0 +1,152 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty list of next-pointers.",
+      "why": "Each node needs to know which node follows it — that is what makes it a linked list rather than an array.",
+      "invariant": "node_links[k] will hold the index of the node after k."
+    },
+    "4": {
+      "happening": "Start building links at node 0.",
+      "why": "We wire the chain up one node at a time.",
+      "invariant": "i is the node whose link is being built."
+    },
+    "5": [
+      {
+        "when": "i < len(head)",
+        "happening": "Wiring node {i} of {len(head)}.",
+        "why": "Every node needs a next-pointer before we can walk the chain.",
+        "invariant": "Nodes before {i} are already wired."
+      },
+      {
+        "happening": "Every node is wired — the chain is complete.",
+        "why": "The list can now be traversed by following next-pointers.",
+        "invariant": "node_links has one entry per node."
+      }
+    ],
+    "6": {
+      "happening": "Node {i} points at node {i + 1}.",
+      "why": "In a singly linked list each node knows only its immediate successor.",
+      "invariant": "Links always point forward, never backward."
+    },
+    "7": {
+      "happening": "Move on to node {i + 1}.",
+      "why": "Build the chain in order.",
+      "invariant": "Each node is wired exactly once."
+    },
+    "8": {
+      "happening": "The last node ({len(head) - 1}) points at nothing — set its link to -1.",
+      "why": "-1 is our stand-in for null; it is the signal that tells fast when it has run out of list.",
+      "invariant": "Exactly one node has a null next-pointer: the tail."
+    },
+    "9": {
+      "happening": "Place the SLOW cursor on the head node.",
+      "why": "Both cursors start from the same place — the gap between them is created purely by their different speeds.",
+      "invariant": "slow always sits on a real node."
+    },
+    "10": {
+      "happening": "Place the FAST cursor on the head node too.",
+      "why": "They start together, so after k rounds slow has moved k nodes and fast has moved 2k.",
+      "invariant": "fast is always at least as far along as slow."
+    },
+    "11": {
+      "happening": "Declare where slow last hopped from.",
+      "why": "The visual draws slow's single hop as an arc from this node to its new one.",
+      "invariant": "slow_from is slow's position at the start of the round."
+    },
+    "12": {
+      "happening": "Declare where fast last hopped from.",
+      "why": "The visual draws fast's DOUBLE hop as a two-humped arc starting here.",
+      "invariant": "fast_from is fast's position at the start of the round."
+    },
+    "13": {
+      "happening": "Start the round counter at 0.",
+      "why": "After {hops} rounds slow has travelled {hops} nodes and fast has travelled twice that.",
+      "invariant": "fast's distance is always exactly double slow's."
+    },
+    "14": {
+      "happening": "Declare the answer holder.",
+      "why": "It is filled once fast runs out of list.",
+      "invariant": "result is only meaningful after the loop ends."
+    },
+    "15": [
+      {
+        "when": "fast != -1 && node_links[fast] != -1",
+        "happening": "Fast is on node {fast} and it has a next node — there is room for another double hop.",
+        "why": "Fast needs TWO nodes ahead of it to move twice; checking both conditions is what keeps it from running off the end.",
+        "invariant": "slow has travelled exactly half as far as fast."
+      },
+      {
+        "happening": "Fast has run out of list — stop.",
+        "why": "Fast covered the whole list while slow covered half, so slow is standing on the middle.",
+        "invariant": "slow is now the middle node."
+      }
+    ],
+    "16": {
+      "happening": "Remember that fast is standing on node {fast}.",
+      "why": "So its two-hop journey can be drawn as one continuous double arc rather than a teleport.",
+      "invariant": "fast_from is where this round's double hop begins."
+    },
+    "17": {
+      "happening": "FAST hops once: node {fast} → node {node_links[fast]}.",
+      "why": "This is only the first half of fast's move — it is not done yet.",
+      "invariant": "fast is mid-move; the round is not complete."
+    },
+    "18": {
+      "happening": "FAST hops AGAIN: node {fast} → node {node_links[fast]}. That is two nodes in one round.",
+      "why": "Two hops to slow's one is the entire trick — when fast reaches the end, slow can only have reached the middle.",
+      "invariant": "fast advances exactly 2 nodes per round."
+    },
+    "19": {
+      "happening": "Remember that slow is standing on node {slow}.",
+      "why": "So its single hop can be drawn as a move from here to there.",
+      "invariant": "slow_from is where this round's single hop begins."
+    },
+    "20": {
+      "happening": "SLOW hops once: node {slow} → node {node_links[slow]}.",
+      "why": "One hop per round. Fast has just moved two, so the gap between them widens by exactly one node.",
+      "invariant": "slow advances exactly 1 node per round — always half of fast."
+    },
+    "21": {
+      "happening": "Round {hops + 1} complete — slow has moved {hops + 1}, fast has moved {(hops + 1) * 2}.",
+      "why": "The gap between them widens by exactly one node every round.",
+      "invariant": "fast's distance is always double slow's."
+    },
+    "22": {
+      "happening": "Fast is spent and slow stopped on node {slow} — take the list from there onward.",
+      "why": "Returning a node in a linked list means returning that node and everything reachable from it.",
+      "invariant": "slow travelled exactly half the list, so it is the middle."
+    },
+    "23": {
+      "happening": "The middle node is {head[slow]}; the answer is {result}.",
+      "why": "One pass, two cursors, no counting and no second traversal.",
+      "invariant": "For an even-length list this lands on the SECOND of the two middles, exactly as required."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the chain of next-pointers.",
+      "why": "The cursors need real links to follow.",
+      "invariant": "No traversal has started yet."
+    },
+    "loop": {
+      "happening": "Checking whether fast still has two nodes ahead of it.",
+      "why": "Fast stops the moment it cannot complete another double hop.",
+      "invariant": "slow has travelled exactly half as far as fast."
+    },
+    "update": {
+      "happening": "Recording a cursor's starting position or completing a round.",
+      "why": "The visual needs to know where each hop began to draw the motion.",
+      "invariant": "Both cursors only ever move forward."
+    },
+    "move": {
+      "happening": "Advancing a cursor — slow by one node, fast by two.",
+      "why": "The difference in speed is what locates the middle in a single pass.",
+      "invariant": "fast advances exactly twice as far as slow each round."
+    },
+    "return": {
+      "happening": "Returning the middle node and everything after it.",
+      "why": "Fast reached the end, so slow reached the halfway point.",
+      "invariant": "The answer starts at the middle node."
+    }
+  }
+}

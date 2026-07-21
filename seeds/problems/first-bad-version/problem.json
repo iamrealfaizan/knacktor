@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "first-bad-version",
+  "number": 278,
+  "title": "First Bad Version",
+  "difficulty": "easy",
+  "topics": [
+    "array",
+    "binary-search"
+  ],
+  "patterns": [
+    "modified-binary-search"
+  ],
+  "statement": "You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, **all the versions after a bad version are also bad**.\n\nSuppose you have `n` versions `[1, 2, ..., n]` and you want to find out the first bad one, which causes all the following ones to be bad.\n\nYou are given an API `bool isBadVersion(version)` which returns whether `version` is bad. Implement a function to find the first bad version. You should **minimize the number of calls** to the API.\n\n**Example 1:**\n\n```\nInput: n = 5, bad = 4\nOutput: 4\nExplanation:\ncall isBadVersion(3) -> false\ncall isBadVersion(5) -> true\ncall isBadVersion(4) -> true\nThen 4 is the first bad version.\n```\n\n**Example 2:**\n\n```\nInput: n = 1, bad = 1\nOutput: 1\n```\n\n**Constraints:**\n\n- `1 <= bad <= n <= 2^31 - 1`\n\n**Note on this simulation:** LeetCode injects `isBadVersion` as a hidden API. So the check is visible rather than hidden behind a black box, this trace passes `bad` in as a parameter and evaluates the probe on its own line — `is_bad = mid >= bad_index` is exactly `isBadVersion(mid)`, since every version from `bad` onward is bad. The version list is also materialised so you can watch the search space shrink.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "binary-search",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "n",
+        "type": "int",
+        "label": "Number of versions",
+        "placeholder": "5",
+        "min": 1,
+        "max": 64
+      },
+      {
+        "name": "bad",
+        "type": "int",
+        "label": "First bad version",
+        "placeholder": "4",
+        "min": 1,
+        "max": 64
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

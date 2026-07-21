@@ -1,0 +1,128 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "links",
+  "directed": true,
+  "flags": {
+    "walking": "phase == 'move'"
+  },
+  "nodeStateRules": [
+    {
+      "state": "current",
+      "when": "walking && (node_idx == rx || node_idx == ry || node_idx == root)"
+    },
+    {
+      "state": "special",
+      "when": "node_idx == i"
+    },
+    {
+      "state": "result",
+      "when": "phase == 'return' && parent[node_idx] == node_idx"
+    },
+    {
+      "state": "visited",
+      "when": "parent[node_idx] != node_idx"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "pointers": [
+    {
+      "name": "acct",
+      "var": "i"
+    }
+  ],
+  "auxMappings": [
+    {
+      "label": "Email owners",
+      "primitive": "hashmap",
+      "keysFrom": "email_owner",
+      "valuesFrom": "email_owner",
+      "highlightRules": [
+        {
+          "state": "current",
+          "whenKey": "k == email"
+        },
+        {
+          "state": "idle",
+          "whenKey": "true"
+        }
+      ]
+    }
+  ],
+  "readout": {
+    "expr": "account {i} · scanning emails",
+    "when": "i != null && i < len(nodes) && phase != 'return'"
+  },
+  "counters": [
+    {
+      "name": "unions made",
+      "onLines": [
+        27
+      ]
+    },
+    {
+      "name": "emails claimed",
+      "onLines": [
+        30
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        13, 16, 34, 44, 49, 56
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        18, 26, 39
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        14, 15, 17, 19, 23, 27, 28, 30, 33, 35, 40, 42, 43, 45, 46, 47, 50, 51, 52, 53, 54, 59
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        20, 21, 22, 24, 25, 31, 32, 36, 37, 38, 48, 55, 57, 58, 60
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        61
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 27,
+      "label": "Accounts merged",
+      "kind": "match"
+    },
+    {
+      "line": 28,
+      "label": "Union link drawn",
+      "kind": "boundary"
+    },
+    {
+      "line": 61,
+      "label": "All accounts merged",
+      "kind": "return"
+    }
+  ]
+}

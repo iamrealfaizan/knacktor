@@ -1,0 +1,200 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the image — how many rows it has.",
+      "why": "We need the bounds to test neighbors.",
+      "invariant": "The image's dimensions are fixed for the whole run."
+    },
+    "4": {
+      "happening": "Measure how many columns each row has.",
+      "why": "Column count bounds our left/right moves.",
+      "invariant": "Every row has the same width."
+    },
+    "5": {
+      "happening": "Remember the start pixel's original color ({start_color}).",
+      "why": "We only recolor pixels that share this exact color.",
+      "invariant": "start_color is the color being replaced."
+    },
+    "6": {
+      "happening": "Create the empty 'state' tracker.",
+      "why": "We must remember which pixels we've claimed so none is queued twice.",
+      "invariant": "state starts entirely unseen (all 0)."
+    },
+    "7": {
+      "happening": "Loop over each row to give it a fresh tracker row.",
+      "why": "state must mirror the image's shape.",
+      "invariant": "Each built row holds exactly {cols} zeros."
+    },
+    "8": {
+      "happening": "Add a row of zeros — every pixel starts unseen (0).",
+      "why": "0 means 'not yet reached'.",
+      "invariant": "No pixel is marked before the fill begins."
+    },
+    "9": {
+      "happening": "Reset the current-row marker to -1 (no active pixel).",
+      "why": "There's an active pixel only while filling.",
+      "invariant": "-1 keeps the cursor hidden."
+    },
+    "10": {
+      "happening": "Reset the current-column marker to -1.",
+      "why": "Same — nothing is being filled yet.",
+      "invariant": "cur_r and cur_c together locate the active pixel."
+    },
+    "11": {
+      "happening": "List the four orthogonal moves (up, down, right, left).",
+      "why": "Fill spreads only horizontally or vertically.",
+      "invariant": "Only these four directions are ever tried."
+    },
+    "12": [
+      {
+        "when": "start_color == color",
+        "happening": "The start pixel is already color {color} — no fill needed.",
+        "why": "Recoloring it to the same color would loop forever.",
+        "invariant": "An identical color means the image is already done."
+      },
+      {
+        "happening": "The start pixel is color {start_color}, not {color} — we'll flood the region.",
+        "why": "The colors differ, so there's real work to do.",
+        "invariant": "Only pixels of color {start_color} will change."
+      }
+    ],
+    "13": {
+      "happening": "Return the image unchanged.",
+      "why": "The start pixel already had the target color.",
+      "invariant": "No pixel was modified."
+    },
+    "14": {
+      "happening": "Make an empty queue for the pixels to recolor.",
+      "why": "The queue holds discovered pixels not yet served.",
+      "invariant": "Breadth-first: we always serve the OLDEST discovered pixel next."
+    },
+    "15": {
+      "happening": "Enqueue the start pixel ({sr},{sc}) — the seed of the fill.",
+      "why": "The fill spreads outward from here, one ring at a time.",
+      "invariant": "The queue holds only the fill frontier."
+    },
+    "16": {
+      "happening": "Mark the start pixel as discovered (1).",
+      "why": "So it can never be enqueued again.",
+      "invariant": "A pixel enters the queue at most once."
+    },
+    "17": {
+      "happening": "Recolor the start pixel to {color}.",
+      "why": "It's the first pixel of the filled region.",
+      "invariant": "Recolored pixels now hold the new color."
+    },
+    "18": [
+      {
+        "when": "len(queue) > 0",
+        "happening": "The queue holds {len(queue)} pixel(s) still waiting — keep filling.",
+        "why": "Undischarged frontier remains in the region.",
+        "invariant": "The queue empties as the region fills."
+      },
+      {
+        "happening": "The queue is empty — the whole region is recolored.",
+        "why": "No connected pixel of the original color remains.",
+        "invariant": "The fill is complete."
+      }
+    ],
+    "19": {
+      "happening": "Take the pixel from the FRONT of the queue — the oldest one discovered.",
+      "why": "Breadth-first serves pixels in discovery order, so the fill grows in even rings. This single `0` is the only difference from the DFS approach.",
+      "invariant": "The served pixel is about to become the active pixel."
+    },
+    "20": {
+      "happening": "Read the served pixel's row.",
+      "why": "We need its coordinates to reach neighbors.",
+      "invariant": "cell holds a [row, col] pair."
+    },
+    "21": {
+      "happening": "Read the served pixel's column.",
+      "why": "Row and column together locate the active pixel.",
+      "invariant": "cur_r, cur_c now point at the pixel being filled."
+    },
+    "22": {
+      "happening": "Mark the active pixel ({cur_r},{cur_c}) fully served (2).",
+      "why": "It's been recolored and its neighbors are next.",
+      "invariant": "Served pixels are never revisited."
+    },
+    "23": {
+      "happening": "Try each of the four directions from this pixel.",
+      "why": "To find adjacent pixels of the original color.",
+      "invariant": "All four neighbors are examined before moving on."
+    },
+    "24": {
+      "happening": "Compute the neighbor's row.",
+      "why": "The direction's row offset added to the active pixel.",
+      "invariant": "nr may be off-grid — we check next."
+    },
+    "25": {
+      "happening": "Compute the neighbor's column.",
+      "why": "The direction's column offset added to the active pixel.",
+      "invariant": "nc may be off-grid — we check next."
+    },
+    "26": [
+      {
+        "when": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && image[nr][nc] == start_color",
+        "happening": "Neighbor ({nr},{nc}) still has the original color {start_color} — recolor it.",
+        "why": "It's in-bounds and matches the color we're replacing.",
+        "invariant": "Only original-color pixels join the region."
+      },
+      {
+        "happening": "Neighbor ({nr},{nc}) is off-grid or a different color — leave it.",
+        "why": "Only pixels of the original color are part of the region.",
+        "invariant": "Other colors and out-of-range cells are never changed."
+      }
+    ],
+    "27": {
+      "happening": "Mark the matching neighbor ({nr},{nc}) as discovered (1).",
+      "why": "Claim it before recoloring so it can't be enqueued twice.",
+      "invariant": "Discovered pixels are waiting in the queue."
+    },
+    "28": {
+      "happening": "Recolor the neighbor to {color}.",
+      "why": "It shares the region's original color.",
+      "invariant": "The filled region grows outward."
+    },
+    "29": {
+      "happening": "Add the neighbor to the BACK of the queue.",
+      "why": "It waits its turn behind everything discovered earlier — that is what keeps the fill growing ring by ring.",
+      "invariant": "The region keeps growing."
+    },
+    "30": {
+      "happening": "The region is fully recolored — return the image.",
+      "why": "No connected original-color pixel remains.",
+      "invariant": "The returned image is the flood-filled result."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up: reading the start color and preparing an empty discovered-tracker.",
+      "why": "We need the original color and a way to remember claimed pixels.",
+      "invariant": "Nothing is filled yet."
+    },
+    "check": {
+      "happening": "Deciding whether the fill applies, or whether a neighbor matches.",
+      "why": "We only recolor in-bounds pixels of the original color.",
+      "invariant": "Each pixel is filled at most once."
+    },
+    "update": {
+      "happening": "Recoloring a pixel and marking it part of the region.",
+      "why": "State and image must reflect the growing fill.",
+      "invariant": "A recolored pixel keeps the new color."
+    },
+    "loop": {
+      "happening": "Exploring the frontier of the fill region.",
+      "why": "Breadth-first walks the connected same-color pixels in discovery order.",
+      "invariant": "Each pixel is processed once."
+    },
+    "move": {
+      "happening": "Advancing the fill — serving the oldest pixel and reaching toward neighbors.",
+      "why": "The region spreads to adjacent matching pixels.",
+      "invariant": "Each pixel is processed once."
+    },
+    "return": {
+      "happening": "Fill complete — returning the recolored image.",
+      "why": "No connected original-color pixel remains (or none needed changing).",
+      "invariant": "The image is the final answer."
+    }
+  }
+}

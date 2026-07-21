@@ -1,0 +1,64 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "mat": [
+        [0, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [0, 0, 0],
+      [0, 1, 0],
+      [0, 0, 0]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "mat": [
+        [0, 0, 0],
+        [0, 1, 0],
+        [1, 1, 1]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      [0, 0, 0],
+      [0, 1, 0],
+      [1, 2, 1]
+    ]
+  },
+  {
+    "id": "edge-single-zero",
+    "label": "Single Zero Cell",
+    "value": {
+      "mat": [
+        [0]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [0]
+    ]
+  },
+  {
+    "id": "edge-far-corner",
+    "label": "Distant Corner",
+    "value": {
+      "mat": [
+        [1, 0],
+        [1, 1]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      [1, 0],
+      [2, 1]
+    ]
+  }
+]

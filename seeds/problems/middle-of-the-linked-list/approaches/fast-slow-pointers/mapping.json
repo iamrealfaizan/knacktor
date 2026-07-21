@@ -1,0 +1,100 @@
+{
+  "primitive": "custom",
+  "componentKey": "middle-of-the-linked-list",
+  "customVars": {
+    "values": "head",
+    "links": "node_links",
+    "slow": "slow",
+    "fast": "fast",
+    "slowFrom": "slow_from",
+    "fastFrom": "fast_from",
+    "hops": "hops",
+    "buildIndex": "i",
+    "result": "result",
+    "phase": "phase"
+  },
+  "counters": [
+    {
+      "name": "slow hops",
+      "onLines": [
+        20
+      ]
+    },
+    {
+      "name": "fast hops",
+      "onLines": [
+        17,
+        18
+      ]
+    }
+  ],
+  "readout": {
+    "when": "hops != null && phase != 'return'",
+    "expr": "round {hops} · slow → index {slow} · fast → {fast >= 0 ? fast : 'past the end'}"
+  },
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        15
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        8,
+        13,
+        14,
+        16,
+        19,
+        21,
+        22
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7,
+        9,
+        10,
+        11,
+        12,
+        17,
+        18,
+        20
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        23
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 18,
+      "label": "Fast's second hop",
+      "kind": "match"
+    },
+    {
+      "line": 22,
+      "label": "Slow lands on the middle",
+      "kind": "result"
+    },
+    {
+      "line": 23,
+      "label": "Middle node returned",
+      "kind": "return"
+    }
+  ]
+}

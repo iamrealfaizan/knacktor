@@ -1,0 +1,47 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "abccccdd"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 7
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "a"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 1
+  },
+  {
+    "id": "edge-all-even",
+    "label": "No Odd Center",
+    "value": {
+      "s": "bb"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2
+  },
+  {
+    "id": "edge-single-letter-odd",
+    "label": "One Letter Odd Count",
+    "value": {
+      "s": "ccc"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 3
+  },
+  {
+    "id": "edge-case-sensitive",
+    "label": "Case Sensitive",
+    "value": {
+      "s": "AaBbb"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 3
+  }
+]

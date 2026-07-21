@@ -1,0 +1,393 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Count the {n} account(s).",
+      "why": "Union-find needs one slot per account.",
+      "invariant": "n is fixed for the whole run."
+    },
+    "4": {
+      "happening": "Create the parent array.",
+      "why": "parent[i] is the account i currently points to in its set.",
+      "invariant": "Following parents always leads to a root."
+    },
+    "5": {
+      "happening": "Loop over every account.",
+      "why": "Each starts in its own one-account set.",
+      "invariant": "Every account gets a parent slot."
+    },
+    "6": {
+      "happening": "Account {i} starts as its own parent.",
+      "why": "Before any merge, each account is its own set and its own root.",
+      "invariant": "parent[i] == i means i is a root."
+    },
+    "7": {
+      "happening": "Start the list of graph nodes.",
+      "why": "Each account is drawn as a node.",
+      "invariant": "One node per account."
+    },
+    "8": {
+      "happening": "Loop over every account.",
+      "why": "Each becomes a drawn node.",
+      "invariant": "Every account is drawn once."
+    },
+    "9": {
+      "happening": "Draw account {i} labelled '{accounts[i][0]}'.",
+      "why": "The name is shown; note that same-name accounts are still separate nodes.",
+      "invariant": "Node positions stay fixed for the whole run."
+    },
+    "10": {
+      "happening": "Start the empty link list.",
+      "why": "A link is drawn each time two sets are unioned.",
+      "invariant": "links mirrors the parent pointers."
+    },
+    "11": {
+      "happening": "Create the email-to-owner map.",
+      "why": "The first account to claim an email owns it; a later match triggers a union.",
+      "invariant": "email_owner[e] is the account that first saw email e."
+    },
+    "12": {
+      "happening": "Start scanning at account 0.",
+      "why": "We process accounts one at a time.",
+      "invariant": "i is the account being scanned."
+    },
+    "13": [
+      {
+        "when": "i < n",
+        "happening": "Scanning account {i} of {n}.",
+        "why": "Every account's emails must be examined.",
+        "invariant": "Accounts before {i} are fully scanned."
+      },
+      {
+        "happening": "All accounts scanned — the forest is fully built.",
+        "why": "Every shared email has produced a union.",
+        "invariant": "Connected accounts now share a root."
+      }
+    ],
+    "14": {
+      "happening": "Grab account {i}'s row.",
+      "why": "It holds the name then the emails.",
+      "invariant": "acc[0] is the name, acc[1:] the emails."
+    },
+    "15": {
+      "happening": "Start at email index 1.",
+      "why": "Index 0 is the name, so emails begin at 1.",
+      "invariant": "j indexes into this account's emails."
+    },
+    "16": [
+      {
+        "when": "j < len(acc)",
+        "happening": "Checking email {j} of account {i}.",
+        "why": "Each email may link this account to another.",
+        "invariant": "Emails before {j} are already processed."
+      },
+      {
+        "happening": "This account's emails are all processed.",
+        "why": "Move on to the next account.",
+        "invariant": "Every email of account {i} has been claimed or matched."
+      }
+    ],
+    "17": {
+      "happening": "Take email '{email}'.",
+      "why": "We check whether another account already owns it.",
+      "invariant": "email is one of account {i}'s addresses."
+    },
+    "18": [
+      {
+        "when": "email_owner[email] != null",
+        "happening": "'{email}' is already owned by account {email_owner[email]} — these accounts must be the same person.",
+        "why": "A shared email is the signal to union two accounts.",
+        "invariant": "A shared email always merges two sets."
+      },
+      {
+        "happening": "'{email}' is new — no one owns it yet.",
+        "why": "This account will claim it.",
+        "invariant": "Only the first account to see an email claims it."
+      }
+    ],
+    "19": {
+      "happening": "The other owner is account {other}.",
+      "why": "We will union this account with that one.",
+      "invariant": "other is the account that first claimed the email."
+    },
+    "20": {
+      "happening": "Start walking account {i} up to its root.",
+      "why": "Union works on set ROOTS, not arbitrary members.",
+      "invariant": "rx will end at account {i}'s root."
+    },
+    "21": [
+      {
+        "when": "parent[rx] != rx",
+        "happening": "Account {rx} isn't a root — climb to its parent.",
+        "why": "The root is the one node that points to itself.",
+        "invariant": "Each step moves closer to the root."
+      },
+      {
+        "happening": "Account {rx} is a root (points to itself).",
+        "why": "The walk stops at the set's representative.",
+        "invariant": "rx is now account {i}'s root."
+      }
+    ],
+    "22": {
+      "happening": "Climb to parent {parent[rx]}.",
+      "why": "This account was already merged, so its root is higher up.",
+      "invariant": "Following parents never loops."
+    },
+    "23": {
+      "happening": "Start walking account {other} up to its root.",
+      "why": "We need the other set's root too.",
+      "invariant": "ry will end at account {other}'s root."
+    },
+    "24": [
+      {
+        "when": "parent[ry] != ry",
+        "happening": "Account {ry} isn't a root — climb to its parent.",
+        "why": "We follow parents until the self-pointing root.",
+        "invariant": "Each step moves closer to the root."
+      },
+      {
+        "happening": "Account {ry} is a root.",
+        "why": "The walk stops at the other set's representative.",
+        "invariant": "ry is now account {other}'s root."
+      }
+    ],
+    "25": {
+      "happening": "Climb to parent {parent[ry]}.",
+      "why": "This account was already merged, so its root is higher up.",
+      "invariant": "Following parents never loops."
+    },
+    "26": [
+      {
+        "when": "rx != ry",
+        "happening": "Roots {rx} and {ry} differ — merge the two sets.",
+        "why": "Different roots mean the accounts are in different sets that must join.",
+        "invariant": "Only distinct roots are merged."
+      },
+      {
+        "happening": "Roots {rx} and {ry} are the same — already merged.",
+        "why": "The accounts are already in one set, so nothing to do.",
+        "invariant": "A set is never merged with itself."
+      }
+    ],
+    "27": {
+      "happening": "Point root {rx} at root {ry} — the union.",
+      "why": "Attaching one root under the other fuses the two sets into one.",
+      "invariant": "Account {rx} is no longer a root."
+    },
+    "28": {
+      "happening": "Draw the link {rx} → {ry}.",
+      "why": "The new parent pointer is now part of the forest.",
+      "invariant": "links always mirrors the parent array."
+    },
+    "30": {
+      "happening": "Account {i} claims '{email}'.",
+      "why": "It is the first account to see this email.",
+      "invariant": "email_owner[email] is now {i}."
+    },
+    "31": {
+      "happening": "Move to the next email.",
+      "why": "Continue scanning this account's addresses.",
+      "invariant": "Each email is processed once."
+    },
+    "32": {
+      "happening": "Move to the next account.",
+      "why": "Every account must be scanned.",
+      "invariant": "i only increases."
+    },
+    "33": {
+      "happening": "Create the map from root to its emails.",
+      "why": "Now that the forest is built, gather each set's emails.",
+      "invariant": "groups[r] lists the emails of the person rooted at r."
+    },
+    "34": {
+      "happening": "Visit every claimed email.",
+      "why": "Each email belongs to exactly one merged person.",
+      "invariant": "Every claimed email is grouped once."
+    },
+    "35": {
+      "happening": "'{email}' was first owned by account {email_owner[email]}.",
+      "why": "We follow that account to its root to find its group.",
+      "invariant": "owner is where this email entered the forest."
+    },
+    "36": {
+      "happening": "Start walking account {owner} up to its root.",
+      "why": "The root identifies which merged person the email belongs to.",
+      "invariant": "root will end at the set's representative."
+    },
+    "37": [
+      {
+        "when": "parent[root] != root",
+        "happening": "Account {root} isn't a root — climb to its parent.",
+        "why": "The email's group is keyed by the set's root.",
+        "invariant": "Each step moves closer to the root."
+      },
+      {
+        "happening": "Account {root} is the set's root.",
+        "why": "This root is the group key for the email.",
+        "invariant": "root is the representative of owner's set."
+      }
+    ],
+    "38": {
+      "happening": "Climb to parent {parent[root]}.",
+      "why": "Merged accounts sit below their root.",
+      "invariant": "Following parents never loops."
+    },
+    "39": [
+      {
+        "when": "groups[root] != null",
+        "happening": "Root {root} already has a group — add '{email}' to it.",
+        "why": "All emails under the same root belong to one person.",
+        "invariant": "One group per root."
+      },
+      {
+        "happening": "Root {root} has no group yet — start one.",
+        "why": "This is the first email seen for that person.",
+        "invariant": "One group per root."
+      }
+    ],
+    "40": {
+      "happening": "Add '{email}' to root {root}'s group.",
+      "why": "It belongs to the same merged person.",
+      "invariant": "The group collects all of the person's emails."
+    },
+    "42": {
+      "happening": "Start root {root}'s group with '{email}'.",
+      "why": "First email seen for this merged person.",
+      "invariant": "The group collects all of the person's emails."
+    },
+    "43": {
+      "happening": "Prepare to collect the group roots.",
+      "why": "We sort them so the output order is deterministic.",
+      "invariant": "roots will list every group's representative."
+    },
+    "44": {
+      "happening": "Visit each group.",
+      "why": "Each root becomes one merged account in the output.",
+      "invariant": "One output account per group."
+    },
+    "45": {
+      "happening": "Record group root {root}.",
+      "why": "We collect the roots before sorting them.",
+      "invariant": "roots holds every group representative."
+    },
+    "46": {
+      "happening": "Sort the roots.",
+      "why": "A fixed order makes the simulation reproducible.",
+      "invariant": "Output groups appear in a stable order."
+    },
+    "47": {
+      "happening": "Prepare the final answer list.",
+      "why": "Each group becomes one [name, ...emails] row.",
+      "invariant": "result is the merged output."
+    },
+    "48": {
+      "happening": "Start at the first sorted root.",
+      "why": "Build one merged account per group, in order.",
+      "invariant": "r indexes the sorted roots."
+    },
+    "49": [
+      {
+        "when": "r < len(roots)",
+        "happening": "Building group {r} of {len(roots)}.",
+        "why": "Each group needs its name and sorted emails assembled.",
+        "invariant": "Groups before {r} are fully built."
+      },
+      {
+        "happening": "Every group has been assembled.",
+        "why": "The result is complete.",
+        "invariant": "result holds one row per merged person."
+      }
+    ],
+    "50": {
+      "happening": "Take root {root}.",
+      "why": "It identifies this group.",
+      "invariant": "root is the current group's representative."
+    },
+    "51": {
+      "happening": "Get root {root}'s emails.",
+      "why": "They will be sorted and listed after the name.",
+      "invariant": "emails holds every address of this person."
+    },
+    "52": {
+      "happening": "Sort the emails alphabetically.",
+      "why": "The problem requires the emails in sorted order.",
+      "invariant": "emails is now in ascending order."
+    },
+    "53": {
+      "happening": "The person's name is '{accounts[root][0]}'.",
+      "why": "Every account in the set shares this name.",
+      "invariant": "The name is taken from the root account's row."
+    },
+    "54": {
+      "happening": "Start the merged account with the name.",
+      "why": "The output format is [name, then sorted emails].",
+      "invariant": "merged[0] is always the name."
+    },
+    "55": {
+      "happening": "Start at the first sorted email.",
+      "why": "Append each email after the name.",
+      "invariant": "e indexes the sorted emails."
+    },
+    "56": {
+      "happening": "Append every email in order.",
+      "why": "The merged account lists them all after the name.",
+      "invariant": "Emails are added in sorted order."
+    },
+    "57": {
+      "happening": "Append '{emails[e]}' to the merged account.",
+      "why": "It is one of this person's addresses.",
+      "invariant": "merged grows by one email."
+    },
+    "58": {
+      "happening": "Move to the next email.",
+      "why": "Add every email of the group.",
+      "invariant": "Each email is appended once."
+    },
+    "59": {
+      "happening": "Add the finished merged account to the result.",
+      "why": "This person's row is complete.",
+      "invariant": "result gains one merged account."
+    },
+    "60": {
+      "happening": "Move to the next group.",
+      "why": "Assemble every group's row.",
+      "invariant": "Each group is output once."
+    },
+    "61": {
+      "happening": "Return all {len(result)} merged account(s).",
+      "why": "Every set of accounts sharing an email has become one person.",
+      "invariant": "result is the complete answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Drawing one node per account and setting up union-find.",
+      "why": "Each account starts as its own set.",
+      "invariant": "No merges have happened yet."
+    },
+    "loop": {
+      "happening": "Scanning accounts and emails, or assembling output groups.",
+      "why": "Shared emails drive the merges; roots drive the grouping.",
+      "invariant": "Every item is visited once."
+    },
+    "check": {
+      "happening": "Testing email ownership, root difference, or group existence.",
+      "why": "These branches decide when to union and how to group.",
+      "invariant": "No state changes on a pure check line."
+    },
+    "update": {
+      "happening": "Claiming an email, performing a union, or collecting a group.",
+      "why": "These lines change the forest or build the answer.",
+      "invariant": "A union always draws a link and re-roots one tree."
+    },
+    "move": {
+      "happening": "Walking parent pointers up to a root, or advancing a cursor.",
+      "why": "Find follows parents until it reaches the self-pointing root.",
+      "invariant": "Following parents always terminates at a root."
+    },
+    "return": {
+      "happening": "Returning every merged account.",
+      "why": "All shared-email accounts have been fused.",
+      "invariant": "result is the final answer."
+    }
+  }
+}

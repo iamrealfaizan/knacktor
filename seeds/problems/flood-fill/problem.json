@@ -17,7 +17,7 @@
   "hasVisualization": true,
   "isPremium": false,
   "supportsCustomInput": false,
-  "supportsCompare": false,
+  "supportsCompare": true,
   "recommendedApproachId": "dfs",
   "inputConstraints": {
     "fields": [

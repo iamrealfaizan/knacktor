@@ -1,0 +1,215 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Measure the matrix — how many rows.",
+      "why": "We need the bounds to test neighbours.",
+      "invariant": "The matrix dimensions are fixed for the whole run."
+    },
+    "4": {
+      "happening": "Measure how many columns each row has.",
+      "why": "Column count bounds our left/right moves.",
+      "invariant": "Every row has the same width."
+    },
+    "5": {
+      "happening": "Create the empty distance grid.",
+      "why": "This grid — not the input — is what we fill and return.",
+      "invariant": "dist will end up holding every cell's distance to the nearest zero."
+    },
+    "6": {
+      "happening": "Loop over each row to build a matching distance row.",
+      "why": "dist must mirror the matrix's shape.",
+      "invariant": "Each dist row will hold exactly {cols} entries."
+    },
+    "7": {
+      "happening": "Fill the row with -1 — 'not reached yet'.",
+      "why": "-1 marks cells the wave has not touched, so we can tell them apart from a real distance of 0.",
+      "invariant": "Every cell starts unreached."
+    },
+    "8": {
+      "happening": "Create the empty 'state' tracker.",
+      "why": "We must remember which cells are queued or served so none is stamped twice.",
+      "invariant": "state starts entirely unreached (all 0)."
+    },
+    "9": {
+      "happening": "Loop over each row to build a matching state row.",
+      "why": "state must mirror the grid's shape.",
+      "invariant": "Each state row holds exactly {cols} zeros."
+    },
+    "10": {
+      "happening": "Fill it with zeros — every cell starts unreached.",
+      "why": "0 means 'the wave has not arrived'.",
+      "invariant": "No cell is marked before the search begins."
+    },
+    "11": {
+      "happening": "Reset the current-row marker to -1 (no active cell).",
+      "why": "There's an active cell only while serving the queue.",
+      "invariant": "-1 keeps the cursor hidden."
+    },
+    "12": {
+      "happening": "Reset the current-column marker to -1.",
+      "why": "Same — nothing is being served yet.",
+      "invariant": "cur_r and cur_c together locate the active cell."
+    },
+    "13": {
+      "happening": "List the four orthogonal moves (down, up, right, left).",
+      "why": "Distance is measured along edges, so the wave spreads only orthogonally.",
+      "invariant": "Only these four directions are ever tried."
+    },
+    "14": {
+      "happening": "Create the empty BFS queue.",
+      "why": "The queue holds discovered cells waiting to spread the wave.",
+      "invariant": "The queue always holds the current frontier."
+    },
+    "15": {
+      "happening": "Scan every row looking for zeros.",
+      "why": "Every zero is a starting point of the search.",
+      "invariant": "All zeros are found before the wave starts."
+    },
+    "16": {
+      "happening": "Scan every column of this row.",
+      "why": "We must check each cell to find the sources.",
+      "invariant": "Each cell is inspected exactly once here."
+    },
+    "17": [
+      {
+        "when": "mat[r][c] == 0",
+        "happening": "Cell ({r},{c}) is a zero — a source of the wave.",
+        "why": "A zero is distance 0 from itself, so it seeds the search.",
+        "invariant": "Every zero becomes a source."
+      },
+      {
+        "happening": "Cell ({r},{c}) is a one — not a source.",
+        "why": "Ones get their distance later, when the wave reaches them.",
+        "invariant": "Only zeros seed the queue."
+      }
+    ],
+    "18": {
+      "happening": "Stamp cell ({r},{c}) with distance 0.",
+      "why": "A zero's nearest zero is itself.",
+      "invariant": "Sources always hold distance 0."
+    },
+    "19": {
+      "happening": "Mark the source discovered (1).",
+      "why": "So it is never queued a second time.",
+      "invariant": "A cell enters the queue at most once."
+    },
+    "20": {
+      "happening": "Seed the queue with source ({r},{c}).",
+      "why": "ALL zeros start in the queue together — that shared start is what makes this multi-source BFS.",
+      "invariant": "The wave expands from every zero simultaneously."
+    },
+    "21": [
+      {
+        "when": "len(queue) > 0",
+        "happening": "The queue holds {len(queue)} cell(s) — keep spreading the wave.",
+        "why": "Every queued cell can still reach unvisited neighbours.",
+        "invariant": "Cells are served in non-decreasing distance order."
+      },
+      {
+        "happening": "The queue is empty — every cell has been reached.",
+        "why": "No frontier remains, so all distances are final.",
+        "invariant": "The distance grid is complete."
+      }
+    ],
+    "22": {
+      "happening": "Take the cell at the FRONT of the queue.",
+      "why": "Serving oldest-first guarantees a cell is reached by the shortest wave first, so its stamped distance is the minimum.",
+      "invariant": "The served cell's distance is already final."
+    },
+    "23": {
+      "happening": "Read the served cell's row.",
+      "why": "We need its coordinates to reach neighbours.",
+      "invariant": "cell holds a [row, col] pair."
+    },
+    "24": {
+      "happening": "Read the served cell's column.",
+      "why": "Row and column together locate the active cell.",
+      "invariant": "cur_r, cur_c now point at the cell spreading the wave."
+    },
+    "25": {
+      "happening": "Mark the active cell ({cur_r},{cur_c}) fully served (2).",
+      "why": "Its distance is locked and its neighbours are about to be checked.",
+      "invariant": "Served cells are never revisited."
+    },
+    "26": {
+      "happening": "Try each of the four directions from this cell.",
+      "why": "To find adjacent cells the wave has not yet reached.",
+      "invariant": "All four neighbours are examined before moving on."
+    },
+    "27": {
+      "happening": "Compute the neighbour's row.",
+      "why": "The direction's row offset added to the active cell.",
+      "invariant": "nr may be off-grid — we check next."
+    },
+    "28": {
+      "happening": "Compute the neighbour's column.",
+      "why": "The direction's column offset added to the active cell.",
+      "invariant": "nc may be off-grid — we check next."
+    },
+    "29": [
+      {
+        "when": "nr >= 0 && nr < rows && nc >= 0 && nc < cols && state[nr][nc] == 0",
+        "happening": "Neighbour ({nr},{nc}) is in-bounds and unreached — the wave arrives here now.",
+        "why": "Reaching it now, from a distance-{dist[cur_r][cur_c]} cell, gives it the smallest possible distance.",
+        "invariant": "A cell is stamped exactly once, with its minimum distance."
+      },
+      {
+        "happening": "Neighbour ({nr},{nc}) is off-grid or already reached — skip it.",
+        "why": "A cell already reached has an equal-or-smaller distance; re-stamping would never improve it.",
+        "invariant": "Distances are never overwritten."
+      }
+    ],
+    "30": {
+      "happening": "Stamp ({nr},{nc}) with distance {dist[cur_r][cur_c] + 1}.",
+      "why": "It is one edge farther from the nearest zero than the cell that reached it.",
+      "invariant": "Each ring of the wave carries a distance one greater than the last."
+    },
+    "31": {
+      "happening": "Mark the neighbour discovered (1).",
+      "why": "Claim it before queueing so it can't be stamped twice.",
+      "invariant": "Discovered cells are waiting in the queue."
+    },
+    "32": {
+      "happening": "Add the neighbour to the back of the queue.",
+      "why": "It waits behind everything discovered earlier, which keeps the wave expanding ring by ring.",
+      "invariant": "The frontier keeps growing outward."
+    },
+    "33": {
+      "happening": "Every cell holds its distance to the nearest zero — return the grid.",
+      "why": "The wave reached every cell exactly once, at its minimum distance.",
+      "invariant": "The returned grid is the answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the distance grid, the state tracker, and an empty queue.",
+      "why": "We fill a fresh grid rather than overwriting the input.",
+      "invariant": "Nothing is reached yet."
+    },
+    "loop": {
+      "happening": "Scanning for sources, or spreading the wave from the queue.",
+      "why": "First find every zero, then let the frontier expand outward.",
+      "invariant": "Cells are served in non-decreasing distance order."
+    },
+    "check": {
+      "happening": "Deciding whether a cell is a source, or whether a neighbour is reachable and new.",
+      "why": "Only zeros seed the search; only unreached in-bounds cells get stamped.",
+      "invariant": "Each cell is stamped at most once."
+    },
+    "update": {
+      "happening": "Stamping a cell with its distance and marking it part of the wave.",
+      "why": "dist and state must reflect the growing frontier.",
+      "invariant": "A stamped cell keeps its minimum distance."
+    },
+    "move": {
+      "happening": "Serving the oldest cell and reaching toward its neighbours.",
+      "why": "The wave spreads to adjacent unreached cells.",
+      "invariant": "Each cell is served once."
+    },
+    "return": {
+      "happening": "The wave has reached everywhere — returning the distance grid.",
+      "why": "No frontier remains.",
+      "invariant": "Every cell holds its true distance to the nearest zero."
+    }
+  }
+}
