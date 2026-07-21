@@ -1,0 +1,402 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Start the list of nodes to draw.",
+      "why": "The whole tree is shown so you can watch it shrink.",
+      "invariant": "One node per tree vertex."
+    },
+    "4": {
+      "happening": "Loop over every node id 0..{n - 1}.",
+      "why": "Each vertex becomes a drawn node.",
+      "invariant": "Every vertex is added once."
+    },
+    "5": {
+      "happening": "Add node {i} to the drawing.",
+      "why": "The node carries its id as its label.",
+      "invariant": "Nodes keep a fixed position for the whole run."
+    },
+    "6": {
+      "happening": "Start the list of edges to draw.",
+      "why": "Edges stay visible even after nodes are trimmed, so the structure is clear.",
+      "invariant": "One drawn edge per input edge."
+    },
+    "7": {
+      "happening": "Loop over each input edge.",
+      "why": "Every connection must be drawn and counted.",
+      "invariant": "Edges are undirected."
+    },
+    "8": {
+      "happening": "Read one endpoint of the edge.",
+      "why": "We need both ends to draw and count it.",
+      "invariant": "a is a valid node id."
+    },
+    "9": {
+      "happening": "Read the other endpoint.",
+      "why": "Together a and b define the edge.",
+      "invariant": "b is a valid node id."
+    },
+    "10": {
+      "happening": "Draw the edge between {a} and {b}.",
+      "why": "It stays on screen the whole run to keep the shape recognisable.",
+      "invariant": "Drawn edges are never removed."
+    },
+    "11": {
+      "happening": "Prepare the result list.",
+      "why": "It will hold the centre node(s).",
+      "invariant": "result ends up holding the MHT roots."
+    },
+    "12": [
+      {
+        "when": "n <= 2",
+        "happening": "Only {n} node(s) — this tiny tree is its own centre.",
+        "why": "With 1 or 2 nodes there is nothing to peel; every node is a root.",
+        "invariant": "A 1- or 2-node tree needs no trimming."
+      },
+      {
+        "happening": "{n} nodes — big enough to need peeling.",
+        "why": "We must trim leaves until the centre is exposed.",
+        "invariant": "Trees larger than 2 nodes have 1 or 2 centroids."
+      }
+    ],
+    "13": {
+      "happening": "Loop over the {n} node(s).",
+      "why": "Each is a root of this tiny tree.",
+      "invariant": "All nodes are answers here."
+    },
+    "14": {
+      "happening": "Record node {i} as a root.",
+      "why": "In a 1- or 2-node tree every node is a centre.",
+      "invariant": "result collects all of them."
+    },
+    "15": {
+      "happening": "Return the root(s) directly.",
+      "why": "No peeling is needed for such a small tree.",
+      "invariant": "The answer is every node."
+    },
+    "16": {
+      "happening": "Build the adjacency list.",
+      "why": "We need each node's neighbours to compute and update degrees.",
+      "invariant": "adj[i] lists every neighbour of node i."
+    },
+    "17": {
+      "happening": "Loop over every node.",
+      "why": "Each needs an empty neighbour list to start.",
+      "invariant": "Every node gets a list."
+    },
+    "18": {
+      "happening": "Give node {i} an empty neighbour list.",
+      "why": "It fills in as edges are read.",
+      "invariant": "adj[i] starts empty."
+    },
+    "19": {
+      "happening": "Build the degree array.",
+      "why": "A node's degree is what decides when it becomes a leaf.",
+      "invariant": "degree[i] is how many edges touch node i."
+    },
+    "20": {
+      "happening": "Loop over every node.",
+      "why": "Each degree starts at zero.",
+      "invariant": "Every node gets a degree slot."
+    },
+    "21": {
+      "happening": "Start node {i}'s degree at 0.",
+      "why": "Edges will increment it.",
+      "invariant": "degree[i] begins at 0."
+    },
+    "22": {
+      "happening": "Loop over every edge to fill adjacency and degree.",
+      "why": "Each edge adds a neighbour to both ends and raises both degrees.",
+      "invariant": "Every edge is counted for both endpoints."
+    },
+    "23": {
+      "happening": "Read one endpoint.",
+      "why": "We update this end's neighbours and degree.",
+      "invariant": "a is a valid node id."
+    },
+    "24": {
+      "happening": "Read the other endpoint.",
+      "why": "We update this end too.",
+      "invariant": "b is a valid node id."
+    },
+    "25": {
+      "happening": "Record {b} as a neighbour of {a}.",
+      "why": "Adjacency must capture both directions of an undirected edge.",
+      "invariant": "adj[a] now includes b."
+    },
+    "26": {
+      "happening": "Record {a} as a neighbour of {b}.",
+      "why": "The edge is undirected, so it counts both ways.",
+      "invariant": "adj[b] now includes a."
+    },
+    "27": {
+      "happening": "Raise {a}'s degree.",
+      "why": "One more edge touches node a.",
+      "invariant": "degree[a] equals a's neighbour count."
+    },
+    "28": {
+      "happening": "Raise {b}'s degree.",
+      "why": "One more edge touches node b.",
+      "invariant": "degree[b] equals b's neighbour count."
+    },
+    "29": {
+      "happening": "Build the state tracker.",
+      "why": "0 = active, 1 = leaf, 2 = trimmed — this drives the colours.",
+      "invariant": "state[i] reflects node i's current role."
+    },
+    "30": {
+      "happening": "Loop over every node.",
+      "why": "Each starts active.",
+      "invariant": "Every node gets a state slot."
+    },
+    "31": {
+      "happening": "Mark node {i} active.",
+      "why": "Nothing has been trimmed yet.",
+      "invariant": "state[i] starts at 0."
+    },
+    "32": {
+      "happening": "Collect the first layer of leaves.",
+      "why": "Peeling starts from the outermost nodes — the degree-1 leaves.",
+      "invariant": "leaves holds the current outer layer."
+    },
+    "33": {
+      "happening": "Check every node for leaf-hood.",
+      "why": "A leaf has exactly one neighbour.",
+      "invariant": "Only degree-1 nodes join the layer."
+    },
+    "34": [
+      {
+        "when": "degree[i] == 1",
+        "happening": "Node {i} has degree 1 — it's a leaf.",
+        "why": "Degree-1 nodes are the outer edge of the tree.",
+        "invariant": "Leaves are the current frontier."
+      },
+      {
+        "happening": "Node {i} has degree {degree[i]} — not a leaf yet.",
+        "why": "Interior nodes are peeled only after their branches are gone.",
+        "invariant": "Only degree-1 nodes are leaves."
+      }
+    ],
+    "35": {
+      "happening": "Add leaf {i} to the layer.",
+      "why": "It will be trimmed in this round.",
+      "invariant": "The layer holds this round's leaves."
+    },
+    "36": {
+      "happening": "Mark node {i} as a leaf (frontier).",
+      "why": "So it shows amber, waiting to be trimmed.",
+      "invariant": "state 1 = leaf."
+    },
+    "37": {
+      "happening": "Count all {n} nodes as still in the tree.",
+      "why": "We peel until this drops to 2 or fewer.",
+      "invariant": "remaining is how many untrimmed nodes are left."
+    },
+    "38": {
+      "happening": "No active leaf yet (cursor = -1).",
+      "why": "The cursor lights up only while a leaf is being trimmed.",
+      "invariant": "cur is -1 between trims."
+    },
+    "39": [
+      {
+        "when": "remaining > 2",
+        "happening": "{remaining} nodes remain — more than 2, so keep peeling.",
+        "why": "The centre is reached only when 1 or 2 nodes are left.",
+        "invariant": "Each round removes the entire outer leaf layer."
+      },
+      {
+        "happening": "Only {remaining} node(s) remain — the centre is exposed.",
+        "why": "1 or 2 survivors are exactly the MHT roots.",
+        "invariant": "Peeling stops at the centroid(s)."
+      }
+    ],
+    "40": {
+      "happening": "This layer has {count} leaf/leaves.",
+      "why": "We must peel the whole layer at once, not one node.",
+      "invariant": "count is fixed for this round before any trimming."
+    },
+    "41": {
+      "happening": "Removing them leaves {remaining - count} node(s).",
+      "why": "The whole layer disappears this round.",
+      "invariant": "remaining shrinks by a full layer each round."
+    },
+    "42": {
+      "happening": "Start at the first leaf in the layer.",
+      "why": "Each leaf in the layer is trimmed in turn.",
+      "invariant": "k indexes within the current layer."
+    },
+    "43": [
+      {
+        "when": "k < count",
+        "happening": "Leaf {k + 1} of {count} in this layer.",
+        "why": "Every leaf in the layer must be trimmed before the next round.",
+        "invariant": "The layer is peeled completely each round."
+      },
+      {
+        "happening": "The whole layer is trimmed — start the next round.",
+        "why": "New leaves exposed this round become the next layer.",
+        "invariant": "The next layer is ready in leaves."
+      }
+    ],
+    "44": {
+      "happening": "Take leaf {leaves[0]} from the front of the layer.",
+      "why": "Process leaves in the order they were found.",
+      "invariant": "leaf is a current-layer leaf."
+    },
+    "45": {
+      "happening": "Remove it from the layer.",
+      "why": "It is about to be trimmed.",
+      "invariant": "Each leaf is trimmed once."
+    },
+    "46": {
+      "happening": "Light up leaf {leaf} as the active cursor.",
+      "why": "So you can see exactly which leaf is being cut.",
+      "invariant": "cur points at the leaf being trimmed."
+    },
+    "47": {
+      "happening": "Trim leaf {leaf} — it dims out.",
+      "why": "It is peeled from the tree, but stays on screen so you see the shape shrink.",
+      "invariant": "state 2 = trimmed."
+    },
+    "48": {
+      "happening": "Zero {leaf}'s degree.",
+      "why": "So it is never counted as a neighbour again.",
+      "invariant": "Trimmed nodes have degree 0."
+    },
+    "49": {
+      "happening": "Start scanning {leaf}'s neighbours.",
+      "why": "Cutting the leaf lowers each surviving neighbour's degree.",
+      "invariant": "j indexes the leaf's neighbours."
+    },
+    "50": {
+      "happening": "Look at each neighbour of {leaf}.",
+      "why": "Only surviving neighbours are affected.",
+      "invariant": "All neighbours are checked before moving on."
+    },
+    "51": {
+      "happening": "Neighbour is node {nb}.",
+      "why": "We may lower its degree.",
+      "invariant": "nb is adjacent to the trimmed leaf."
+    },
+    "52": [
+      {
+        "when": "degree[nb] > 0",
+        "happening": "Neighbour {nb} is still in the tree — cut the edge to it.",
+        "why": "Its degree drops by one now that this leaf is gone.",
+        "invariant": "Only untrimmed neighbours are updated."
+      },
+      {
+        "happening": "Neighbour {nb} was already trimmed — skip it.",
+        "why": "A trimmed node's degree is frozen at 0.",
+        "invariant": "No node's degree is lowered twice for the same cut."
+      }
+    ],
+    "53": {
+      "happening": "Lower {nb}'s degree to {degree[nb] - 1}.",
+      "why": "The edge to the trimmed leaf no longer counts.",
+      "invariant": "degree[nb] tracks its surviving edges."
+    },
+    "54": [
+      {
+        "when": "degree[nb] == 1",
+        "happening": "Neighbour {nb} now has degree 1 — it just became a leaf.",
+        "why": "It joins the NEXT layer to be peeled.",
+        "invariant": "Newly exposed leaves feed the next round."
+      },
+      {
+        "happening": "Neighbour {nb} still has degree {degree[nb]} — not a leaf yet.",
+        "why": "It stays interior until more of its branches are cut.",
+        "invariant": "Only degree-1 nodes become leaves."
+      }
+    ],
+    "55": {
+      "happening": "Add {nb} to the next leaf layer.",
+      "why": "It will be trimmed in the following round.",
+      "invariant": "The layer grows as new leaves appear."
+    },
+    "56": {
+      "happening": "Mark {nb} as a leaf (frontier).",
+      "why": "So it shows amber, queued for the next round.",
+      "invariant": "state 1 = leaf."
+    },
+    "57": {
+      "happening": "Move to the next neighbour.",
+      "why": "All neighbours of the leaf must be checked.",
+      "invariant": "Each neighbour is visited once per trim."
+    },
+    "58": {
+      "happening": "Clear the cursor — this leaf is done.",
+      "why": "No leaf is active between trims.",
+      "invariant": "cur returns to -1."
+    },
+    "59": {
+      "happening": "Move to the next leaf in this layer.",
+      "why": "The whole layer is peeled before the next round.",
+      "invariant": "k advances through the layer."
+    },
+    "60": {
+      "happening": "Rebuild the result from the survivors.",
+      "why": "Whatever was never trimmed is the tree's centre.",
+      "invariant": "result will hold the 1 or 2 centroids."
+    },
+    "61": {
+      "happening": "Check every node for survival.",
+      "why": "Survivors are the MHT roots.",
+      "invariant": "Only untrimmed nodes qualify."
+    },
+    "62": [
+      {
+        "when": "state[i] != 2",
+        "happening": "Node {i} was never trimmed — it's a centre.",
+        "why": "The centre is what remains after all leaves are peeled.",
+        "invariant": "Survivors are the answer."
+      },
+      {
+        "happening": "Node {i} was trimmed — not a centre.",
+        "why": "Peeled nodes cannot be MHT roots.",
+        "invariant": "Only survivors are collected."
+      }
+    ],
+    "63": {
+      "happening": "Collect centre node {i}.",
+      "why": "It is one of the MHT roots.",
+      "invariant": "result holds the centroids in order."
+    },
+    "64": {
+      "happening": "Return the MHT root(s): {result}.",
+      "why": "These 1 or 2 nodes give the minimum possible tree height.",
+      "invariant": "The centre of a tree is its set of MHT roots."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Drawing the tree, computing degrees, and collecting the first leaf layer.",
+      "why": "We need the full structure and every degree before peeling.",
+      "invariant": "Nothing is trimmed yet."
+    },
+    "check": {
+      "happening": "Testing a node's degree or its trimmed state.",
+      "why": "Degree decides leaf-hood; state decides survival.",
+      "invariant": "No node changes on a pure check line."
+    },
+    "loop": {
+      "happening": "Iterating over nodes, leaves, or neighbours.",
+      "why": "Peeling walks whole layers and each leaf's neighbours.",
+      "invariant": "Each item is visited in order."
+    },
+    "update": {
+      "happening": "Trimming a leaf, lowering a degree, or exposing a new leaf.",
+      "why": "These are the state changes that shrink the tree.",
+      "invariant": "A trimmed node stays dimmed on screen."
+    },
+    "move": {
+      "happening": "Advancing to the next leaf or neighbour, or lighting the cursor.",
+      "why": "The peel walks the current layer node by node.",
+      "invariant": "Cursors only move forward."
+    },
+    "return": {
+      "happening": "Collecting and returning the surviving centre node(s).",
+      "why": "Peeling has reached the tree's centroid(s).",
+      "invariant": "The survivors are the MHT roots."
+    }
+  }
+}

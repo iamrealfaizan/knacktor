@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "accounts-merge",
+  "number": 721,
+  "title": "Accounts Merge",
+  "difficulty": "medium",
+  "topics": [
+    "graph",
+    "union-find",
+    "hash-map",
+    "sorting"
+  ],
+  "patterns": [
+    "hash-map",
+    "dfs"
+  ],
+  "statement": "Given a list of `accounts` where each `accounts[i]` is a list of strings — the first element `accounts[i][0]` is a **name**, and the rest are **emails** of the account.\n\nMerge the accounts. Two accounts belong to the same person if there is some **common email** to both. Even if two accounts have the same name, they may belong to different people, as people can have the same name. A person can have any number of accounts, but all of their accounts have the same name.\n\nReturn the accounts in the format: the first element of each account is the name, and the rest are emails **in sorted order**. The accounts themselves may be returned in any order.\n\n**Example 1:**\n\n```\nInput: accounts = [[\"John\",\"johnsmith@mail.com\",\"john_newyork@mail.com\"],[\"John\",\"johnsmith@mail.com\",\"john00@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]\nOutput: [[\"John\",\"john00@mail.com\",\"john_newyork@mail.com\",\"johnsmith@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]\n```\n\nThe first two Johns share `johnsmith@mail.com`, so they merge. The third John and Mary stay separate.\n\n**Constraints:**\n\n- `1 <= accounts.length <= 1000`\n- `2 <= accounts[i].length <= 10`\n- `1 <= accounts[i][j].length <= 30`\n- `accounts[i][0]` consists of English letters.\n- `accounts[i][j]` (for `j > 0`) is a valid email.\n\n**Note on this simulation:** each account is a node. When two accounts share an email, they are **unioned** — a directed link is drawn from one root to the other, building a disjoint-set forest. For clarity the visual uses find WITHOUT path compression, so the forest you see is exactly the parent-pointer tree. Emails are grouped by their account's root, then sorted.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "union-find",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "accounts",
+        "type": "int[]",
+        "label": "Accounts (name + emails per row)",
+        "placeholder": "John,a@m.com,b@m.com;John,a@m.com,c@m.com"
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

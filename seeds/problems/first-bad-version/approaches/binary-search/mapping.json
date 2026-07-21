@@ -1,0 +1,133 @@
+{
+  "primitive": "array",
+  "valuesFrom": "versions",
+  "pointers": [
+    {
+      "name": "left",
+      "var": "left"
+    },
+    {
+      "name": "right",
+      "var": "right"
+    },
+    {
+      "name": "mid",
+      "var": "mid"
+    }
+  ],
+  "flags": {
+    "searching": "probes > 0",
+    "finished": "phase == 'return'"
+  },
+  "cellStateRules": [
+    {
+      "state": "result",
+      "when": "idx == left && finished"
+    },
+    {
+      "state": "dimmed",
+      "when": "left != null && (idx < left || idx > right)"
+    },
+    {
+      "state": "special",
+      "when": "idx == mid && searching"
+    },
+    {
+      "state": "idle",
+      "when": "true"
+    }
+  ],
+  "window": {
+    "from": "left",
+    "to": "right"
+  },
+  "ghosts": {
+    "track": [
+      "left",
+      "right",
+      "mid"
+    ]
+  },
+  "readout": {
+    "when": "searching && !finished",
+    "expr": "probe {probes}: is version {versions[mid]} bad? {is_bad ? 'yes' : 'no'}"
+  },
+  "counters": [
+    {
+      "name": "API probes",
+      "onLines": [
+        18
+      ]
+    }
+  ],
+  "phaseRules": [
+    {
+      "phase": "init",
+      "lines": [
+        3,
+        4
+      ]
+    },
+    {
+      "phase": "loop",
+      "lines": [
+        5,
+        15
+      ]
+    },
+    {
+      "phase": "update",
+      "lines": [
+        6,
+        8,
+        11,
+        12,
+        13,
+        14,
+        17,
+        18,
+        23
+      ]
+    },
+    {
+      "phase": "move",
+      "lines": [
+        7,
+        9,
+        10,
+        16,
+        20,
+        22
+      ]
+    },
+    {
+      "phase": "check",
+      "lines": [
+        19
+      ]
+    },
+    {
+      "phase": "return",
+      "lines": [
+        24
+      ]
+    }
+  ],
+  "keyEvents": [
+    {
+      "line": 20,
+      "label": "Bad — discard the right half",
+      "kind": "boundary"
+    },
+    {
+      "line": 22,
+      "label": "Good — discard the left half",
+      "kind": "boundary"
+    },
+    {
+      "line": 24,
+      "label": "First bad version found",
+      "kind": "return"
+    }
+  ]
+}

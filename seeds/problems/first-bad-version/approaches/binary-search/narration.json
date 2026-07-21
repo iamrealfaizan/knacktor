@@ -1,0 +1,173 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty list to hold the version numbers.",
+      "why": "Materialising the versions lets us watch the search space shrink — the real API just answers questions about them.",
+      "invariant": "versions will hold 1..{n} in order."
+    },
+    "4": {
+      "happening": "Start numbering at version 1.",
+      "why": "Versions are numbered from 1, not 0 — that off-by-one matters later.",
+      "invariant": "v is the next version number to add."
+    },
+    "5": [
+      {
+        "when": "v <= n",
+        "happening": "Version {v} of {n} still to add.",
+        "why": "We need the whole list before the search can begin.",
+        "invariant": "versions holds every version below {v}."
+      },
+      {
+        "happening": "All {n} versions are listed — the search can begin.",
+        "why": "The search space is now fully defined.",
+        "invariant": "versions holds 1..{n}."
+      }
+    ],
+    "6": {
+      "happening": "Add version {v} to the list.",
+      "why": "Each version is a candidate until we prove otherwise.",
+      "invariant": "versions stays sorted ascending by construction."
+    },
+    "7": {
+      "happening": "Move on to version {v + 1}.",
+      "why": "Build the list one version at a time.",
+      "invariant": "v only ever increases."
+    },
+    "8": {
+      "happening": "Version {bad} is bad, which is list index {bad - 1}.",
+      "why": "Versions are 1-based but list indexes are 0-based — converting once avoids confusing every later comparison.",
+      "invariant": "Every index at or after bad_index is a bad version."
+    },
+    "9": {
+      "happening": "Put the left edge at index 0.",
+      "why": "Every version starts as a candidate.",
+      "invariant": "The answer is always inside [left, right]."
+    },
+    "10": {
+      "happening": "Put the right edge at the last index ({n - 1}).",
+      "why": "The whole list is live at the start.",
+      "invariant": "The answer is always inside [left, right]."
+    },
+    "11": {
+      "happening": "Declare the midpoint holder.",
+      "why": "It gets a real value on the first probe.",
+      "invariant": "mid always sits inside [left, right] once searching."
+    },
+    "12": {
+      "happening": "Start the API call counter at 0.",
+      "why": "The problem asks us to MINIMISE these — this counter is the score.",
+      "invariant": "probes counts every isBadVersion call we make."
+    },
+    "13": {
+      "happening": "Declare the holder for the API's answer.",
+      "why": "Each probe stores its result here.",
+      "invariant": "is_bad reflects the most recent probe."
+    },
+    "14": {
+      "happening": "Declare the answer holder.",
+      "why": "It is filled once the search has converged.",
+      "invariant": "answer is only meaningful after the loop ends."
+    },
+    "15": [
+      {
+        "when": "left < right",
+        "happening": "{right - left + 1} version(s) still in play — keep narrowing.",
+        "why": "While more than one candidate remains, another probe can halve the range.",
+        "invariant": "The first bad version is always inside [left, right]."
+      },
+      {
+        "happening": "left and right have met — exactly one candidate remains.",
+        "why": "A single-element range needs no further probing; it must be the answer.",
+        "invariant": "left == right, and that index is the first bad version."
+      }
+    ],
+    "16": {
+      "happening": "Probe the midpoint of the live range → index {left + (right - left) / 2 - ((right - left) % 2) / 2}.",
+      "why": "Halving is what makes this O(log n) instead of O(n).",
+      "invariant": "mid is always inside [left, right]."
+    },
+    "17": {
+      "happening": "Count this API call — probe number {probes + 1}.",
+      "why": "Minimising these calls is the whole point of the problem.",
+      "invariant": "One probe eliminates half the remaining versions."
+    },
+    "18": [
+      {
+        "when": "mid >= bad_index",
+        "happening": "isBadVersion(version {versions[mid]}) → TRUE.",
+        "why": "Because everything from version {bad} onward is broken, and {versions[mid]} is at or past it.",
+        "invariant": "A bad probe means the answer is at mid or earlier."
+      },
+      {
+        "happening": "isBadVersion(version {versions[mid]}) → FALSE.",
+        "why": "Version {versions[mid]} comes before the first bad version {bad}, so it still works.",
+        "invariant": "A good probe means the answer is strictly after mid."
+      }
+    ],
+    "19": [
+      {
+        "when": "is_bad",
+        "happening": "The probe came back bad — discard everything to the RIGHT of mid.",
+        "why": "If mid is bad, nothing after it can be the FIRST bad one.",
+        "invariant": "The answer stays inside [left, right]."
+      },
+      {
+        "happening": "The probe came back good — discard mid and everything to its LEFT.",
+        "why": "If mid is good, the first bad version must come after it.",
+        "invariant": "The answer stays inside [left, right]."
+      }
+    ],
+    "20": {
+      "happening": "Pull the right edge in to index {mid} — mid stays a candidate.",
+      "why": "mid is bad, but it might be the FIRST bad one, so we must not discard it.",
+      "invariant": "Keeping mid is what makes this find the first bad version rather than just any bad one."
+    },
+    "22": {
+      "happening": "Push the left edge past index {mid} to {mid + 1}.",
+      "why": "mid is known good, so it can be excluded outright.",
+      "invariant": "Everything left of the live range is proven good."
+    },
+    "23": {
+      "happening": "The range collapsed to index {left} — that's version {versions[left]}.",
+      "why": "One candidate remains, and the invariant guarantees it is the first bad version.",
+      "invariant": "We never discarded a range that could contain the answer."
+    },
+    "24": {
+      "happening": "Version {answer} is the first bad version, found in {probes} probe(s).",
+      "why": "Every probe halved the search space, so {n} versions took only a handful of calls.",
+      "invariant": "All versions before {answer} are good; {answer} and everything after are bad."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Building the list of versions to search.",
+      "why": "We need a concrete search space before we can halve it.",
+      "invariant": "Nothing has been probed yet."
+    },
+    "loop": {
+      "happening": "Narrowing the range of candidate versions.",
+      "why": "Each pass halves how many versions remain in play.",
+      "invariant": "The first bad version is always inside [left, right]."
+    },
+    "check": {
+      "happening": "Branching on what the API said about the midpoint.",
+      "why": "The answer decides which half of the range survives.",
+      "invariant": "Exactly one half is discarded per probe."
+    },
+    "update": {
+      "happening": "Probing the API and recording its answer.",
+      "why": "The probe is the only way to learn anything about a version.",
+      "invariant": "Every probe is counted."
+    },
+    "move": {
+      "happening": "Moving a search boundary — the discarded half dims out.",
+      "why": "Eliminated versions stay on screen so you can see how much was ruled out.",
+      "invariant": "Dimmed versions are excluded, not deleted."
+    },
+    "return": {
+      "happening": "Returning the first bad version.",
+      "why": "The range collapsed to a single surviving candidate.",
+      "invariant": "The answer is the earliest version that fails."
+    }
+  }
+}

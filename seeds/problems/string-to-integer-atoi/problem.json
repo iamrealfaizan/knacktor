@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "string-to-integer-atoi",
+  "number": 8,
+  "title": "String to Integer (atoi)",
+  "difficulty": "medium",
+  "topics": [
+    "string",
+    "math"
+  ],
+  "patterns": [
+    "two-pointers"
+  ],
+  "statement": "Implement the `myAtoi(string s)` function, which converts a string to a 32-bit signed integer.\n\nThe algorithm is:\n\n1. **Whitespace:** ignore any leading whitespace `\" \"`.\n2. **Signedness:** read the next character if it is `'-'` or `'+'`, determining the sign. Default to positive if neither is present.\n3. **Conversion:** read the following characters as digits until a non-digit character or the end of the input is reached. The rest of the string is ignored.\n4. **Rounding / Clamping:** if the integer is out of the 32-bit signed range `[-2^31, 2^31 - 1]`, clamp it to the nearest bound.\n\nReturn the integer as the final result.\n\n**Example 1:** `s = \"42\"` → `42`\n\n**Example 2:** `s = \" -042\"` → `-42`\n\n**Example 3:** `s = \"1337c0d3\"` → `1337`\n\n**Example 4:** `s = \"0-1\"` → `0`\n\n**Example 5:** `s = \"words and 987\"` → `0`\n\n**Constraints:**\n\n- `0 <= s.length <= 200`\n- `s` consists of English letters, digits (0-9), `' '`, `'+'`, `'-'`, and `'.'`.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "linear-scan",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "int[]",
+        "label": "Input string",
+        "placeholder": " -042",
+        "minLen": 0,
+        "maxLen": 200
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

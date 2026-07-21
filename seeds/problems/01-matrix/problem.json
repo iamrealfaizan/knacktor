@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "01-matrix",
+  "number": 542,
+  "title": "01 Matrix",
+  "difficulty": "medium",
+  "topics": [
+    "matrix",
+    "graph",
+    "array"
+  ],
+  "patterns": [
+    "bfs"
+  ],
+  "statement": "Given an `m x n` binary matrix `mat`, return the distance of the nearest `0` for each cell.\n\nThe distance between two adjacent cells sharing a common edge is `1`.\n\n**Example 1:**\n\n```\nInput: mat = [[0,0,0],[0,1,0],[0,0,0]]\nOutput: [[0,0,0],[0,1,0],[0,0,0]]\n```\n\n**Example 2:**\n\n```\nInput: mat = [[0,0,0],[0,1,0],[1,1,1]]\nOutput: [[0,0,0],[0,1,0],[1,2,1]]\n```\n\n**Constraints:**\n\n- `m == mat.length`\n- `n == mat[i].length`\n- `1 <= m, n <= 10^4`\n- `1 <= m * n <= 10^4`\n- `mat[i][j]` is either `0` or `1`.\n- There is **at least one** `0` in `mat`.\n\n**Note on this simulation:** the stage shows the `dist` grid being filled, not the input. Cells not yet reached read `-1`; the wave of real distances spreads outward from every `0` at once. A parallel `state` grid (0 = unreached, 1 = in the queue, 2 = served) drives the colours.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "multi-source-bfs",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "mat",
+        "type": "int[]",
+        "label": "Binary matrix",
+        "placeholder": "0,0,0;0,1,0;1,1,1",
+        "min": 0,
+        "max": 1,
+        "minLen": 1,
+        "maxLen": 50
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

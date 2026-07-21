@@ -24,6 +24,14 @@ const CUSTOM_RENDERERS: Record<string, React.ComponentType<{ visual: CustomVisua
     () => import("./custom/merge-two-sorted-lists-visualizer"),
     { loading: () => null }
   ) as React.ComponentType<{ visual: CustomVisualState }>,
+  "implement-queue-using-stacks": dynamic(
+    () => import("./custom/implement-queue-using-stacks-visualizer"),
+    { loading: () => null }
+  ) as React.ComponentType<{ visual: CustomVisualState }>,
+  "middle-of-the-linked-list": dynamic(
+    () => import("./custom/middle-of-the-linked-list-visualizer"),
+    { loading: () => null }
+  ) as React.ComponentType<{ visual: CustomVisualState }>,
 };
 
 // ── Legend definitions per visual type ─────────────────────────────────────

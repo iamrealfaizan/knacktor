@@ -1,0 +1,114 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "operations": [
+        "push",
+        "push",
+        "peek",
+        "pop",
+        "empty"
+      ],
+      "values": [
+        1,
+        2,
+        0,
+        0,
+        0
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      null,
+      null,
+      1,
+      1,
+      false
+    ]
+  },
+  {
+    "id": "edge-refill-while-out-loaded",
+    "label": "Push During Drain",
+    "value": {
+      "operations": [
+        "push",
+        "push",
+        "pop",
+        "push",
+        "pop",
+        "pop"
+      ],
+      "values": [
+        1,
+        2,
+        0,
+        3,
+        0,
+        0
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      null,
+      null,
+      1,
+      null,
+      2,
+      3
+    ]
+  },
+  {
+    "id": "edge-batch-transfer",
+    "label": "One Transfer Three Pops",
+    "value": {
+      "operations": [
+        "push",
+        "push",
+        "push",
+        "pop",
+        "pop",
+        "pop"
+      ],
+      "values": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      null,
+      null,
+      null,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "id": "edge-empty-both-ways",
+    "label": "Empty True Then False",
+    "value": {
+      "operations": [
+        "empty",
+        "push",
+        "empty"
+      ],
+      "values": [
+        0,
+        1,
+        0
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      true,
+      null,
+      false
+    ]
+  }
+]

@@ -1,0 +1,228 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create the empty INBOX stack.",
+      "why": "Everything pushed goes here first — it is the only stack push ever touches.",
+      "invariant": "The inbox holds the NEWEST elements, newest on top."
+    },
+    "4": {
+      "happening": "Create the empty OUTBOX stack.",
+      "why": "The front of the queue will live on top of this stack once it is loaded.",
+      "invariant": "The outbox holds the OLDEST elements, oldest on top."
+    },
+    "5": {
+      "happening": "Create the results rail — one entry per operation.",
+      "why": "LeetCode prints a value for every call, including null for push.",
+      "invariant": "results always has one entry per operation replayed so far."
+    },
+    "6": {
+      "happening": "Start at the first operation in the sequence.",
+      "why": "We replay the calls in the exact order LeetCode makes them.",
+      "invariant": "op_index is the operation about to run."
+    },
+    "7": {
+      "happening": "Declare the holder for the operation name.",
+      "why": "Each pass reads one name into it.",
+      "invariant": "current_op names the operation being executed."
+    },
+    "8": {
+      "happening": "Start the transfer counter at 0.",
+      "why": "Counting transfers is how you see the amortized O(1) claim is real.",
+      "invariant": "moved only ever increases."
+    },
+    "9": [
+      {
+        "when": "op_index < len(operations)",
+        "happening": "{len(operations) - op_index} operation(s) left to replay.",
+        "why": "Each call is executed in sequence against the same two stacks.",
+        "invariant": "Operations before index {op_index} are done and recorded."
+      },
+      {
+        "happening": "Every operation has been replayed.",
+        "why": "The sequence is exhausted, so the results list is complete.",
+        "invariant": "results holds one entry per operation."
+      }
+    ],
+    "10": {
+      "happening": "Next operation: {operations[op_index]}.",
+      "why": "The name decides which of the four branches runs.",
+      "invariant": "Exactly one operation runs per pass."
+    },
+    "11": [
+      {
+        "when": "current_op == 'push'",
+        "happening": "It's a push — value {values[op_index]} is going onto the inbox.",
+        "why": "Pushes are cheap: drop it on top and you're done.",
+        "invariant": "push never touches the outbox."
+      },
+      {
+        "happening": "Not a push — skip this branch.",
+        "why": "Only one branch matches the operation name.",
+        "invariant": "The stacks are unchanged by a branch that doesn't match."
+      }
+    ],
+    "12": {
+      "happening": "Drop {values[op_index]} on top of the inbox.",
+      "why": "New arrivals always go to the back of the queue, which is the inbox's top.",
+      "invariant": "The inbox is newest-on-top."
+    },
+    "13": {
+      "happening": "Record None — push returns nothing.",
+      "why": "Keeping a slot per operation keeps results aligned with the call list.",
+      "invariant": "results stays the same length as the operations replayed."
+    },
+    "14": [
+      {
+        "when": "current_op == 'pop' || current_op == 'peek'",
+        "happening": "It's a {current_op} — we need the FRONT of the queue.",
+        "why": "The front is the oldest element, which is buried at the BOTTOM of the inbox.",
+        "invariant": "The front is only reachable from the top of the outbox."
+      },
+      {
+        "happening": "Not a pop or peek — no outbox work needed.",
+        "why": "Only these two operations read the front of the queue.",
+        "invariant": "The outbox is untouched by push and empty."
+      }
+    ],
+    "15": [
+      {
+        "when": "len(out_stack) == 0",
+        "happening": "The outbox is empty — time to tip the inbox over.",
+        "why": "This reversal is the whole trick, and it only happens when the outbox has run dry.",
+        "invariant": "A transfer happens only when the outbox is empty."
+      },
+      {
+        "happening": "The outbox still holds {len(out_stack)} element(s) — no transfer needed.",
+        "why": "Refilling now would put newer elements ON TOP of older ones and break FIFO order.",
+        "invariant": "Never transfer while the outbox is non-empty."
+      }
+    ],
+    "16": [
+      {
+        "when": "len(in_stack) > 0",
+        "happening": "{len(in_stack)} element(s) still in the inbox to move.",
+        "why": "The whole inbox is tipped over in one go.",
+        "invariant": "Each element crosses between stacks at most once."
+      },
+      {
+        "happening": "The inbox is empty — the transfer is complete.",
+        "why": "Everything now sits in the outbox in reversed (oldest-first) order.",
+        "invariant": "After a transfer the inbox is empty and the outbox is loaded."
+      }
+    ],
+    "17": {
+      "happening": "Lift the inbox's top element and drop it on the outbox.",
+      "why": "This is the reversal: the LAST element out of the inbox is the FIRST one that went in, so the oldest ends up on top of the outbox.",
+      "invariant": "Popping from one stack and pushing to another reverses order."
+    },
+    "18": {
+      "happening": "That's {moved + 1} element(s) transferred in total.",
+      "why": "Each element is transferred at most once in its lifetime, so the expensive transfer averages out to O(1) per operation.",
+      "invariant": "moved never exceeds the number of elements ever pushed."
+    },
+    "19": [
+      {
+        "when": "current_op == 'pop'",
+        "happening": "It's a pop — remove the front of the queue.",
+        "why": "The outbox is loaded, so the front is right on top.",
+        "invariant": "pop removes exactly one element."
+      },
+      {
+        "happening": "Not a pop — skip this branch.",
+        "why": "Only one branch matches the operation name.",
+        "invariant": "The stacks are unchanged by a branch that doesn't match."
+      }
+    ],
+    "20": {
+      "happening": "Pop {out_stack[len(out_stack) - 1]} off the outbox — that is the queue's front.",
+      "why": "After the reversal, the outbox's top is the oldest element still queued.",
+      "invariant": "The element removed is always the one that waited longest."
+    },
+    "21": [
+      {
+        "when": "current_op == 'peek'",
+        "happening": "It's a peek — look at the front without removing it.",
+        "why": "peek answers 'who is next?' without consuming anything.",
+        "invariant": "peek leaves both stacks unchanged."
+      },
+      {
+        "happening": "Not a peek — skip this branch.",
+        "why": "Only one branch matches the operation name.",
+        "invariant": "The stacks are unchanged by a branch that doesn't match."
+      }
+    ],
+    "22": {
+      "happening": "Read {out_stack[len(out_stack) - 1]} off the top of the outbox, leaving it in place.",
+      "why": "Reading the last element is a standard stack peek — no removal.",
+      "invariant": "Both stacks look identical before and after a peek."
+    },
+    "23": [
+      {
+        "when": "current_op == 'empty'",
+        "happening": "It's an empty check.",
+        "why": "The caller wants to know whether anything is queued at all.",
+        "invariant": "empty never changes either stack."
+      },
+      {
+        "happening": "Not an empty check — skip this branch.",
+        "why": "Only one branch matches the operation name.",
+        "invariant": "The stacks are unchanged by a branch that doesn't match."
+      }
+    ],
+    "24": [
+      {
+        "when": "len(in_stack) == 0 && len(out_stack) == 0",
+        "happening": "Both stacks are empty — the queue is empty (true).",
+        "why": "An element could be waiting in EITHER stack, so both must be checked.",
+        "invariant": "The queue is empty only when both stacks are."
+      },
+      {
+        "happening": "The queue is not empty — inbox holds {len(in_stack)}, outbox holds {len(out_stack)}.",
+        "why": "Checking only one stack would wrongly report empty while the other still holds elements.",
+        "invariant": "The queue is empty only when both stacks are."
+      }
+    ],
+    "25": {
+      "happening": "Move on to the next operation.",
+      "why": "The sequence is replayed strictly in order.",
+      "invariant": "Each operation runs exactly once."
+    },
+    "26": {
+      "happening": "All {len(operations)} operations replayed — returning their results.",
+      "why": "This list is exactly what LeetCode compares against.",
+      "invariant": "results has one entry per operation, in call order."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Creating two empty stacks and the results rail.",
+      "why": "One stack takes arrivals, the other serves departures.",
+      "invariant": "Nothing is queued yet."
+    },
+    "loop": {
+      "happening": "Replaying the operation sequence, or tipping the inbox into the outbox.",
+      "why": "Each call is executed in turn against the same pair of stacks.",
+      "invariant": "Operations run in the order they were issued."
+    },
+    "check": {
+      "happening": "Deciding which operation this is, or whether the outbox needs refilling.",
+      "why": "Each operation name selects exactly one branch.",
+      "invariant": "No state changes on a check line."
+    },
+    "update": {
+      "happening": "Pushing, transferring, or reading an element and recording the result.",
+      "why": "These are the only lines that change the stacks.",
+      "invariant": "Every operation appends exactly one entry to results."
+    },
+    "move": {
+      "happening": "Advancing to the next operation in the sequence.",
+      "why": "The replay marches forward one call at a time.",
+      "invariant": "op_index never moves backward."
+    },
+    "return": {
+      "happening": "Returning the result of every operation.",
+      "why": "The whole sequence has been replayed.",
+      "invariant": "results is the final answer."
+    }
+  }
+}

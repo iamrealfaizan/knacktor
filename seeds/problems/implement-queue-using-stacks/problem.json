@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "implement-queue-using-stacks",
+  "number": 232,
+  "title": "Implement Queue using Stacks",
+  "difficulty": "easy",
+  "topics": [
+    "stack",
+    "queue"
+  ],
+  "patterns": [
+    "monotonic-stack"
+  ],
+  "statement": "Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (`push`, `peek`, `pop`, and `empty`).\n\nImplement the `MyQueue` class:\n\n- `void push(int x)` Pushes element `x` to the back of the queue.\n- `int pop()` Removes the element from the front of the queue and returns it.\n- `int peek()` Returns the element at the front of the queue.\n- `boolean empty()` Returns `true` if the queue is empty, `false` otherwise.\n\n**Notes:**\n\n- You must use **only** standard operations of a stack — only push to top, peek/pop from top, size, and is-empty are valid.\n- Depending on your language, the stack may not be supported natively. You may simulate a stack using a list or deque as long as you use only standard stack operations.\n\n**Example 1:**\n\n```\nInput:\n[\"MyQueue\", \"push\", \"push\", \"peek\", \"pop\", \"empty\"]\n[[], [1], [2], [], [], []]\nOutput: [null, null, null, 1, 1, false]\n\nExplanation:\nMyQueue myQueue = new MyQueue();\nmyQueue.push(1); // queue is: [1]\nmyQueue.push(2); // queue is: [1, 2] (leftmost is front of the queue)\nmyQueue.peek();  // return 1\nmyQueue.pop();   // return 1, queue is [2]\nmyQueue.empty(); // return false\n```\n\n**Constraints:**\n\n- `1 <= x <= 9`\n- At most `100` calls will be made to `push`, `pop`, `peek`, and `empty`.\n- All the calls to `pop` and `peek` are valid.\n\n**Follow-up:** Can you implement the queue such that each operation is **amortized** `O(1)` time complexity?\n\n**Note on this simulation:** LeetCode drives a design class through a sequence of calls. This trace replays that same call sequence inside one traceable method, so you can watch both stacks at once. The constructor entry is omitted — it is not a queue operation.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "two-stacks",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "operations",
+        "type": "int[]",
+        "label": "Operation sequence",
+        "placeholder": "push,push,peek,pop,empty",
+        "minLen": 1,
+        "maxLen": 100
+      },
+      {
+        "name": "values",
+        "type": "int[]",
+        "label": "Argument for each operation (0 when unused)",
+        "placeholder": "1,2,0,0,0",
+        "min": 0,
+        "max": 9,
+        "minLen": 1,
+        "maxLen": 100
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

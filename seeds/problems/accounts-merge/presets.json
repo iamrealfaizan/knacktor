@@ -1,0 +1,78 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "accounts": [
+        ["John", "johnsmith@mail.com", "john_newyork@mail.com"],
+        ["John", "johnsmith@mail.com", "john00@mail.com"],
+        ["Mary", "mary@mail.com"],
+        ["John", "johnnybravo@mail.com"]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      ["John", "john00@mail.com", "john_newyork@mail.com", "johnsmith@mail.com"],
+      ["Mary", "mary@mail.com"],
+      ["John", "johnnybravo@mail.com"]
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "Transitive Merge",
+    "value": {
+      "accounts": [
+        ["Alex", "a@m.com", "b@m.com"],
+        ["Alex", "b@m.com", "c@m.com"],
+        ["Alex", "c@m.com", "d@m.com"]
+      ]
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [
+      ["Alex", "a@m.com", "b@m.com", "c@m.com", "d@m.com"]
+    ]
+  },
+  {
+    "id": "edge-single-account",
+    "label": "Single Account",
+    "value": {
+      "accounts": [
+        ["Xena", "x2@m.com", "x1@m.com"]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      ["Xena", "x1@m.com", "x2@m.com"]
+    ]
+  },
+  {
+    "id": "edge-same-name-no-merge",
+    "label": "Same Name No Merge",
+    "value": {
+      "accounts": [
+        ["Bob", "b1@m.com"],
+        ["Bob", "b2@m.com"]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      ["Bob", "b1@m.com"],
+      ["Bob", "b2@m.com"]
+    ]
+  },
+  {
+    "id": "edge-bridge",
+    "label": "Bridging Account",
+    "value": {
+      "accounts": [
+        ["Kev", "x@m.com"],
+        ["Kev", "y@m.com"],
+        ["Kev", "x@m.com", "y@m.com"]
+      ]
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [
+      ["Kev", "x@m.com", "y@m.com"]
+    ]
+  }
+]

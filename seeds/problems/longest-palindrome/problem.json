@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "2.0",
+  "slug": "longest-palindrome",
+  "number": 409,
+  "title": "Longest Palindrome",
+  "difficulty": "easy",
+  "topics": [
+    "string",
+    "hash-map",
+    "greedy"
+  ],
+  "patterns": [
+    "hash-map",
+    "greedy"
+  ],
+  "statement": "Given a string `s` which consists of lowercase or uppercase letters, return the length of the **longest palindrome** that can be built with those letters.\n\nLetters are **case sensitive**, for example, `\"Aa\"` is not considered a palindrome.\n\n**Example 1:**\n\n```\nInput: s = \"abccccdd\"\nOutput: 7\nExplanation: One longest palindrome that can be built is \"dccaccd\", whose length is 7.\n```\n\n**Example 2:**\n\n```\nInput: s = \"a\"\nOutput: 1\nExplanation: The longest palindrome that can be built is \"a\", whose length is 1.\n```\n\n**Constraints:**\n\n- `1 <= s.length <= 2000`\n- `s` consists of lowercase **and/or** uppercase English letters only.",
+  "hasVisualization": true,
+  "isPremium": false,
+  "supportsCustomInput": false,
+  "supportsCompare": false,
+  "recommendedApproachId": "frequency-count",
+  "inputConstraints": {
+    "fields": [
+      {
+        "name": "s",
+        "type": "int[]",
+        "label": "String (letters only)",
+        "placeholder": "abccccdd",
+        "minLen": 1,
+        "maxLen": 2000
+      }
+    ],
+    "maxSteps": 2000
+  }
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "cbaebabacd",
+      "p": "abc"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [0, 6]
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": "abab",
+      "p": "ab"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": [0, 1, 2]
+  },
+  {
+    "id": "edge-all-same",
+    "label": "All Identical Letters",
+    "value": {
+      "s": "aaaaaaaaaa",
+      "p": "aaaaaaaaa"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": [0, 1]
+  },
+  {
+    "id": "edge-no-match",
+    "label": "No Anagram Exists",
+    "value": {
+      "s": "af",
+      "p": "be"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  },
+  {
+    "id": "edge-p-longer",
+    "label": "Pattern Longer Than String",
+    "value": {
+      "s": "ba",
+      "p": "abc"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": []
+  }
+]

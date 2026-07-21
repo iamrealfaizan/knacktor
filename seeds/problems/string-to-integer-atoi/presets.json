@@ -1,0 +1,56 @@
+[
+  {
+    "id": "example-1",
+    "label": "Example 1",
+    "value": {
+      "s": "42"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 42
+  },
+  {
+    "id": "example-2",
+    "label": "Example 2",
+    "value": {
+      "s": " -042"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": -42
+  },
+  {
+    "id": "example-3",
+    "label": "Example 3",
+    "value": {
+      "s": "1337c0d3"
+    },
+    "isEdgeCase": false,
+    "expectedOutput": 1337
+  },
+  {
+    "id": "edge-plus-overflow",
+    "label": "Positive Overflow",
+    "value": {
+      "s": "+2147483648"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 2147483647
+  },
+  {
+    "id": "edge-neg-overflow",
+    "label": "Negative Overflow",
+    "value": {
+      "s": "-91283472332"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": -2147483648
+  },
+  {
+    "id": "edge-no-digits",
+    "label": "No Number Present",
+    "value": {
+      "s": "words and 987"
+    },
+    "isEdgeCase": true,
+    "expectedOutput": 0
+  }
+]

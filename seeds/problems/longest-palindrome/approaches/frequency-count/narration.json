@@ -1,0 +1,201 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create an empty tally to hold one entry per distinct letter.",
+      "why": "A palindrome only cares HOW MANY of each letter you have, never where they sit.",
+      "invariant": "counts starts empty; it will end up holding every distinct letter of s."
+    },
+    "4": {
+      "happening": "Start the scan at index 0.",
+      "why": "We read the string left to right, one character at a time.",
+      "invariant": "i is the index of the next character to count."
+    },
+    "5": {
+      "happening": "Declare the holder for the character being counted.",
+      "why": "Naming it up front means it always exists for the visual to track.",
+      "invariant": "ch always holds the character currently under the cursor."
+    },
+    "6": [
+      {
+        "when": "i < len(s)",
+        "happening": "{len(s) - i} character(s) still to count — keep scanning.",
+        "why": "Every character must be tallied before we can build anything.",
+        "invariant": "Characters before index {i} are already in counts."
+      },
+      {
+        "happening": "Reached the end of the string — every character is tallied.",
+        "why": "The tally is complete, so the counting pass is done.",
+        "invariant": "counts now holds the full frequency of every letter."
+      }
+    ],
+    "7": {
+      "happening": "Read the character at index {i} → '{s[i]}'.",
+      "why": "This is the letter we're about to add to the tally.",
+      "invariant": "ch is always a single character from s."
+    },
+    "8": [
+      {
+        "when": "counts[ch] != null",
+        "happening": "'{ch}' is already in the tally — we've seen it before.",
+        "why": "A repeat sighting means we increment rather than create.",
+        "invariant": "Each distinct letter occupies exactly one bucket."
+      },
+      {
+        "happening": "'{ch}' is not in the tally yet — this is its first sighting.",
+        "why": "A brand-new letter needs a bucket created for it.",
+        "invariant": "Each distinct letter occupies exactly one bucket."
+      }
+    ],
+    "9": {
+      "happening": "Bump '{ch}' to {counts[ch] + 1}.",
+      "why": "One more copy of this letter is available to pair up.",
+      "invariant": "counts[ch] equals how many times '{ch}' has appeared so far."
+    },
+    "11": {
+      "happening": "Create the bucket for '{ch}' with a tally of 1.",
+      "why": "First sighting — start its count at one.",
+      "invariant": "counts[ch] equals how many times '{ch}' has appeared so far."
+    },
+    "12": {
+      "happening": "Advance the scan to index {i + 1}.",
+      "why": "Move on to the next character of the string.",
+      "invariant": "Every character before i has been counted exactly once."
+    },
+    "13": {
+      "happening": "Start the answer at 0.",
+      "why": "We'll add characters to it pair by pair.",
+      "invariant": "length only ever counts characters we can actually place."
+    },
+    "14": {
+      "happening": "Start the odd-letter flag as False.",
+      "why": "We don't yet know whether any letter has a leftover copy.",
+      "invariant": "has_odd becomes True the moment any letter has an odd count."
+    },
+    "15": {
+      "happening": "Collect the {len(counts)} distinct letters so we can walk them.",
+      "why": "The second pass visits each distinct letter exactly once, not each character.",
+      "invariant": "keys holds every letter that appears in s, once each."
+    },
+    "16": {
+      "happening": "Start the second pass at the first distinct letter.",
+      "why": "This is a fresh walk — over letters now, not over the string.",
+      "invariant": "ki indexes into keys, not into s."
+    },
+    "17": {
+      "happening": "Clear the scan character — the counting pass is over.",
+      "why": "It should no longer highlight a bucket while we fold the tallies in.",
+      "invariant": "ch is empty for the whole second pass."
+    },
+    "18": {
+      "happening": "Declare the holder for the tally being folded in.",
+      "why": "Each distinct letter's count is read into it in turn.",
+      "invariant": "count always holds counts[key] for the current letter."
+    },
+    "19": [
+      {
+        "when": "ki < len(keys)",
+        "happening": "{len(keys) - ki} distinct letter(s) still to fold in.",
+        "why": "Each letter contributes however many pairs it can form.",
+        "invariant": "length already includes every letter before index {ki}."
+      },
+      {
+        "happening": "Every distinct letter has been folded in.",
+        "why": "All the pairs are accounted for; only the centre remains to decide.",
+        "invariant": "length is now the total of all paired characters."
+      }
+    ],
+    "20": {
+      "happening": "Take the next distinct letter → '{keys[ki]}'.",
+      "why": "We fold letters in one at a time.",
+      "invariant": "key is a letter that definitely exists in counts."
+    },
+    "21": {
+      "happening": "'{key}' appeared {counts[key]} time(s).",
+      "why": "The tally decides how many mirrored pairs this letter can supply.",
+      "invariant": "count is the true frequency of '{key}' in s."
+    },
+    "22": {
+      "happening": "'{key}' supplies {count / 2 - (count % 2) / 2} pair(s) → add {(count / 2 - (count % 2) / 2) * 2} to length.",
+      "why": "Only PAIRS can mirror around the centre; an odd leftover can't be placed here.",
+      "invariant": "length counts only characters that can be mirrored."
+    },
+    "23": [
+      {
+        "when": "count % 2 == 1",
+        "happening": "'{key}' has an odd count ({count}) — one copy is left over.",
+        "why": "A leftover copy is a candidate for the single centre slot.",
+        "invariant": "At most one leftover character can ever be used."
+      },
+      {
+        "happening": "'{key}' has an even count ({count}) — every copy is paired.",
+        "why": "Nothing is left over, so this letter can't supply a centre.",
+        "invariant": "At most one leftover character can ever be used."
+      }
+    ],
+    "24": {
+      "happening": "Record that a leftover letter exists.",
+      "why": "It doesn't matter WHICH letter sits in the centre — only that one can.",
+      "invariant": "has_odd stays True once set; we never need to count leftovers."
+    },
+    "25": {
+      "happening": "Move to the next distinct letter.",
+      "why": "Every letter must be folded in before we finish.",
+      "invariant": "Letters before index {ki} are fully accounted for."
+    },
+    "26": [
+      {
+        "when": "has_odd",
+        "happening": "At least one letter had a leftover — we can place a centre character.",
+        "why": "A palindrome of odd length has exactly one unmirrored character in the middle.",
+        "invariant": "The centre adds exactly 1, no matter how many leftovers there were."
+      },
+      {
+        "happening": "Every letter paired up perfectly — no centre character is available.",
+        "why": "With no leftovers the palindrome must be even length.",
+        "invariant": "length is already final."
+      }
+    ],
+    "27": {
+      "happening": "Add the single centre character → {length + 1}.",
+      "why": "One spare letter can sit in the middle without needing a mirror.",
+      "invariant": "Only ever +1, even if many letters had odd counts."
+    },
+    "28": {
+      "happening": "The longest palindrome we can build has length {length}.",
+      "why": "All pairs, plus one centre if a leftover existed.",
+      "invariant": "No arrangement of these letters can beat this length."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up an empty tally and the scan cursor.",
+      "why": "We need to know how many of each letter we have before building anything.",
+      "invariant": "Nothing has been counted yet."
+    },
+    "loop": {
+      "happening": "Walking — first over the string's characters, then over the distinct letters.",
+      "why": "One pass to count, one pass to convert counts into pairs.",
+      "invariant": "Each pass visits every item exactly once."
+    },
+    "check": {
+      "happening": "Testing a condition — is this letter known, is its count odd, was there any leftover?",
+      "why": "The branches decide whether to create or increment, and whether a centre exists.",
+      "invariant": "No state changes on a check line."
+    },
+    "update": {
+      "happening": "Recording a tally or adding paired characters to the answer.",
+      "why": "The tally and the running length are the only state that matters.",
+      "invariant": "length only ever grows by whole pairs, plus one final centre."
+    },
+    "move": {
+      "happening": "Advancing a cursor to the next character or the next distinct letter.",
+      "why": "Both passes march forward one item at a time.",
+      "invariant": "Neither cursor ever moves backward."
+    },
+    "return": {
+      "happening": "Returning the longest palindrome length that can be built.",
+      "why": "Every pair is counted and the centre is decided.",
+      "invariant": "The answer is the final value of length."
+    }
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Create the empty list of answer indices.",
+      "why": "We collect every window start that turns out to be an anagram.",
+      "invariant": "res holds all matches found so far."
+    },
+    "4": [
+      {
+        "when": "len(p) > len(s)",
+        "happening": "p ({len(p)} chars) is longer than s ({len(s)} chars) — no anagram can fit.",
+        "why": "A window of length |p| doesn't even fit inside s.",
+        "invariant": "An anagram of p is exactly |p| characters long."
+      },
+      {
+        "happening": "p fits inside s, so anagrams are possible.",
+        "why": "The window of length |p| can slide across s.",
+        "invariant": "An anagram of p is exactly |p| characters long."
+      }
+    ],
+    "5": {
+      "happening": "Return the empty list — there is nothing to find.",
+      "why": "No window of length |p| exists in s.",
+      "invariant": "The answer is empty."
+    },
+    "6": {
+      "happening": "Create the empty target-count map.",
+      "why": "An anagram is defined purely by letter counts, so we compare counts, not order.",
+      "invariant": "need will hold the exact letter counts of p."
+    },
+    "7": {
+      "happening": "Create the empty window-count map.",
+      "why": "This tracks the letters currently inside the sliding window.",
+      "invariant": "window holds the letter counts of the current window."
+    },
+    "8": {
+      "happening": "Start the priming index at 0.",
+      "why": "We fill both maps over the first |p| characters.",
+      "invariant": "i walks the first window."
+    },
+    "9": [
+      {
+        "when": "i < len(p)",
+        "happening": "Priming character {i} of {len(p)}.",
+        "why": "Both maps must be fully built before the first comparison.",
+        "invariant": "Characters before {i} are already counted in both maps."
+      },
+      {
+        "happening": "Both maps are primed over the first window.",
+        "why": "Now the first window can be compared to the target.",
+        "invariant": "need and window each cover exactly {len(p)} characters."
+      }
+    ],
+    "10": {
+      "happening": "Take pattern character '{p[i]}'.",
+      "why": "It contributes to the target count.",
+      "invariant": "pc is a single letter of p."
+    },
+    "11": [
+      {
+        "when": "need[pc] != null",
+        "happening": "'{pc}' is already in the target map — increment it.",
+        "why": "A repeated pattern letter raises its required count.",
+        "invariant": "Each distinct letter has one entry."
+      },
+      {
+        "happening": "'{pc}' is new to the target map.",
+        "why": "First sighting — create its entry.",
+        "invariant": "Each distinct letter has one entry."
+      }
+    ],
+    "12": {
+      "happening": "Raise the target count of '{pc}' to {need[pc] + 1}.",
+      "why": "The pattern needs this many of that letter.",
+      "invariant": "need[pc] equals how many '{pc}' appear in p."
+    },
+    "14": {
+      "happening": "Create the target entry for '{pc}' with count 1.",
+      "why": "First time this pattern letter is seen.",
+      "invariant": "need[pc] equals how many '{pc}' appear in p."
+    },
+    "15": {
+      "happening": "Take window character '{s[i]}' from the first window.",
+      "why": "It contributes to the window count.",
+      "invariant": "sc is a single letter of the first window."
+    },
+    "16": [
+      {
+        "when": "window[sc] != null",
+        "happening": "'{sc}' is already in the window map — increment it.",
+        "why": "A repeated window letter raises its count.",
+        "invariant": "Each distinct letter has one entry."
+      },
+      {
+        "happening": "'{sc}' is new to the window map.",
+        "why": "First sighting — create its entry.",
+        "invariant": "Each distinct letter has one entry."
+      }
+    ],
+    "17": {
+      "happening": "Raise the window count of '{sc}' to {window[sc] + 1}.",
+      "why": "The window now holds another copy of that letter.",
+      "invariant": "window[sc] equals how many '{sc}' are in the current window."
+    },
+    "19": {
+      "happening": "Create the window entry for '{sc}' with count 1.",
+      "why": "First time this window letter is seen.",
+      "invariant": "window[sc] equals how many '{sc}' are in the current window."
+    },
+    "20": {
+      "happening": "Advance the priming index to {i + 1}.",
+      "why": "Count the next character of the first window.",
+      "invariant": "Each of the first |p| characters is counted once."
+    },
+    "21": {
+      "happening": "Set the window's left edge to index 0.",
+      "why": "The first window covers indices 0 through |p|-1.",
+      "invariant": "The window always spans exactly |p| characters."
+    },
+    "22": {
+      "happening": "Set the window's right edge to index {len(p) - 1}.",
+      "why": "That completes the first window of length |p|.",
+      "invariant": "right - left + 1 always equals |p|."
+    },
+    "23": [
+      {
+        "when": "matched",
+        "happening": "The window map already equals the target — the first window is an anagram!",
+        "why": "Equal counts mean the window is a rearrangement of p.",
+        "invariant": "A match means the window is an anagram of p."
+      },
+      {
+        "happening": "The first window's counts differ from the target.",
+        "why": "At least one letter's count doesn't match, so it isn't an anagram.",
+        "invariant": "Only exact count-equality counts as a match."
+      }
+    ],
+    "24": {
+      "happening": "The first window matched — record it.",
+      "why": "Index 0 is an anagram start.",
+      "invariant": "res only ever holds true anagram starts."
+    },
+    "25": {
+      "happening": "Append start index {left} to the answer.",
+      "why": "This window is an anagram, so its start belongs in the result.",
+      "invariant": "res grows by one valid index."
+    },
+    "26": [
+      {
+        "when": "right < len(s) - 1",
+        "happening": "The right edge ({right}) can still move — slide the window.",
+        "why": "Every window position of length |p| must be checked.",
+        "invariant": "The window slides one step per iteration."
+      },
+      {
+        "happening": "The right edge reached the end of s — every window has been checked.",
+        "why": "There are no more positions to test.",
+        "invariant": "All anagram starts have been found."
+      }
+    ],
+    "27": {
+      "happening": "Reset the match flag for the new position.",
+      "why": "The previous window's result must not carry over.",
+      "invariant": "matched reflects only the current window."
+    },
+    "28": {
+      "happening": "Extend the right edge to index {right + 1}.",
+      "why": "A new letter is about to enter the window on the right.",
+      "invariant": "The window is momentarily |p|+1 wide until the left edge catches up."
+    },
+    "29": {
+      "happening": "The entering letter is '{s[right]}'.",
+      "why": "Sliding right adds this letter to the window.",
+      "invariant": "enter is the letter joining the window."
+    },
+    "30": [
+      {
+        "when": "window[enter] != null",
+        "happening": "'{enter}' is already in the window — increment it.",
+        "why": "The window now holds one more of that letter.",
+        "invariant": "Only present letters have entries."
+      },
+      {
+        "happening": "'{enter}' is new to the window.",
+        "why": "First time this letter appears in the window — create its entry.",
+        "invariant": "Only present letters have entries."
+      }
+    ],
+    "31": {
+      "happening": "Raise the window count of '{enter}' to {window[enter] + 1}.",
+      "why": "One more copy of that letter is inside the window.",
+      "invariant": "window[enter] equals its count in the window."
+    },
+    "33": {
+      "happening": "Create the window entry for '{enter}' with count 1.",
+      "why": "This letter just entered the window.",
+      "invariant": "window[enter] equals its count in the window."
+    },
+    "34": {
+      "happening": "The leaving letter is '{s[left]}'.",
+      "why": "Sliding right drops the leftmost letter out of the window.",
+      "invariant": "leave is the letter leaving the window."
+    },
+    "35": {
+      "happening": "Lower the window count of '{leave}' to {window[leave] - 1}.",
+      "why": "One fewer copy of that letter is inside the window now.",
+      "invariant": "window[leave] equals its remaining count in the window."
+    },
+    "36": [
+      {
+        "when": "window[leave] == 0",
+        "happening": "'{leave}' has count 0 now — it must be removed.",
+        "why": "A leftover zero entry would stop the window map ever matching the target exactly.",
+        "invariant": "The window map holds only letters actually present."
+      },
+      {
+        "happening": "'{leave}' still has copies left in the window.",
+        "why": "It stays in the map with its reduced count.",
+        "invariant": "The window map holds only letters actually present."
+      }
+    ],
+    "37": {
+      "happening": "Remove '{leave}' from the window map entirely.",
+      "why": "Dropping zero-count keys is what lets the two maps ever be exactly equal.",
+      "invariant": "No zero-count letters linger in the map."
+    },
+    "38": {
+      "happening": "Advance the left edge to index {left + 1}.",
+      "why": "The window is back to length |p| after the slide.",
+      "invariant": "right - left + 1 equals |p| again."
+    },
+    "39": [
+      {
+        "when": "matched",
+        "happening": "The window map equals the target — this window is an anagram!",
+        "why": "Equal counts mean the window is a rearrangement of p.",
+        "invariant": "A match means the window is an anagram of p."
+      },
+      {
+        "happening": "The window map differs from the target.",
+        "why": "Some letter's count is off, so this window is not an anagram.",
+        "invariant": "Only exact count-equality counts as a match."
+      }
+    ],
+    "40": {
+      "happening": "This window matched — record its start.",
+      "why": "Index {left} is an anagram start.",
+      "invariant": "res only ever holds true anagram starts."
+    },
+    "41": {
+      "happening": "Append start index {left} to the answer.",
+      "why": "This window is an anagram, so its start belongs in the result.",
+      "invariant": "res grows by one valid index."
+    },
+    "42": {
+      "happening": "Return every anagram start index: {res}.",
+      "why": "Every window of length |p| has been checked exactly once.",
+      "invariant": "res is the complete answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Setting up the result list and the two empty count maps.",
+      "why": "We compare letter counts, so we need a map for the target and one for the window.",
+      "invariant": "Nothing has been counted yet."
+    },
+    "loop": {
+      "happening": "Priming the first window, or sliding the window across s.",
+      "why": "One pass builds the counts, another slides and compares.",
+      "invariant": "The window always spans exactly |p| characters once sliding."
+    },
+    "check": {
+      "happening": "Testing a letter's presence or comparing the window map to the target.",
+      "why": "Equality of the two maps is exactly the anagram condition.",
+      "invariant": "No counts change on a pure check line."
+    },
+    "update": {
+      "happening": "Adjusting a letter count, dropping a zero entry, or recording a match.",
+      "why": "The window map and the result list are the state that matters.",
+      "invariant": "The window map holds only letters actually present."
+    },
+    "move": {
+      "happening": "Advancing the left or right edge of the window.",
+      "why": "The fixed-size window slides one step at a time.",
+      "invariant": "Neither edge ever moves backward."
+    },
+    "return": {
+      "happening": "Returning every anagram start index.",
+      "why": "All window positions have been checked.",
+      "invariant": "res is the complete answer."
+    }
+  }
+}
