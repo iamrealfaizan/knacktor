@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, FileText, Lightbulb, Loader2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, Check, CheckCircle2, FileText, Lightbulb, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DifficultyBadge } from "@/components/difficulty-badge";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -34,6 +34,11 @@ export function MobileOverflowSheet({
   loadingApproachId,
   onSelectApproach,
   onOpenStatement,
+  solved,
+  bookmarked,
+  isAnon,
+  onToggleSolved,
+  onToggleBookmark,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -45,6 +50,12 @@ export function MobileOverflowSheet({
   loadingApproachId: string | null;
   onSelectApproach: (id: string) => void;
   onOpenStatement: () => void;
+  solved: boolean;
+  bookmarked: boolean;
+  /** true once a write revealed the user is signed out — controls disabled */
+  isAnon: boolean;
+  onToggleSolved: () => void;
+  onToggleBookmark: () => void;
 }) {
   const activeApproach = approaches.find((a) => a.id === activeApproachId) ?? approaches[0];
 
@@ -73,6 +84,48 @@ export function MobileOverflowSheet({
               </Badge>
             ))}
           </div>
+        </div>
+
+        {/* progress — solve / bookmark (kept open so state changes are visible) */}
+        <div className="px-4 py-3 border-b border-kn-border-0">
+          <p className="font-mono text-[9px] font-bold tracking-widest text-kn-ink-2 mb-2">PROGRESS</p>
+          <div className="flex gap-2">
+            <button
+              onClick={onToggleSolved}
+              disabled={isAnon}
+              aria-label={solved ? "Mark as unsolved" : "Mark as solved"}
+              className={cn(
+                "flex-1 min-h-11 px-3 rounded-lg border flex items-center justify-center gap-2 font-mono text-[12px] font-semibold transition-colors touch-manipulation disabled:opacity-50",
+                solved
+                  ? "border-kn-result-border bg-kn-result-subtle text-kn-result"
+                  : "border-kn-border-0 bg-kn-inset text-kn-ink-1"
+              )}
+            >
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>{solved ? "Solved" : "Mark solved"}</span>
+            </button>
+            <button
+              onClick={onToggleBookmark}
+              disabled={isAnon}
+              aria-label={bookmarked ? "Remove bookmark" : "Bookmark problem"}
+              className={cn(
+                "flex-1 min-h-11 px-3 rounded-lg border flex items-center justify-center gap-2 font-mono text-[12px] font-semibold transition-colors touch-manipulation disabled:opacity-50",
+                bookmarked
+                  ? "border-kn-amber-border bg-kn-amber-subtle text-kn-amber"
+                  : "border-kn-border-0 bg-kn-inset text-kn-ink-1"
+              )}
+            >
+              {bookmarked ? (
+                <BookmarkCheck className="h-4 w-4 shrink-0" />
+              ) : (
+                <Bookmark className="h-4 w-4 shrink-0" />
+              )}
+              <span>{bookmarked ? "Bookmarked" : "Bookmark"}</span>
+            </button>
+          </div>
+          {isAnon && (
+            <p className="mt-2 text-[11px] text-kn-ink-2">Sign in to track progress</p>
+          )}
         </div>
 
         {/* problem statement */}

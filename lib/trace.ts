@@ -339,6 +339,8 @@ export interface InputConstraints {
 
 // ── ProblemFull — the problem doc joined with its approaches & presets ──────
 export interface ProblemFull {
+  /** DB `_id` hex string (D10). Used by client-side progress actions. */
+  _id?: string;
   slug: string;
   number: number;
   title: string;

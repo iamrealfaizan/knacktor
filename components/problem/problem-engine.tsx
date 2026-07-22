@@ -18,6 +18,8 @@ import {
 import { ControlDock } from "./control-dock";
 import type { ProblemFull, Trace } from "@/lib/trace";
 import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
+import { recordAttemptAction } from "@/app/actions/progress";
+import { getClientTimezone } from "@/lib/tz";
 
 /** True on desktop (>= lg). Defaults to true for SSR so the flagship desktop
  *  layout renders without a flash; corrects on mount for narrow viewports (D14). */
@@ -193,6 +195,13 @@ export function ProblemEngine({
     setCustomInput((s) => ({ ...s, errors: { _: "Custom input is temporarily disabled." } }));
   }
 
+  // Auto-attempt on open: fire once per problem, fire-and-forget. No-ops for
+  // anon users server-side; never blocks or throws in the UI.
+  useEffect(() => {
+    if (!problem._id) return;
+    void recordAttemptAction(problem._id, getClientTimezone());
+  }, [problem._id]);
+
   // ── panel resize ──────────────────────────────────────────────────────────
   const resizing = useRef<null | "code" | "rail">(null);
   useEffect(() => {
@@ -225,6 +234,7 @@ export function ProblemEngine({
       <div className="h-full flex flex-col font-mono">
         <TopBar
           problem={problem}
+          problemId={problem._id ?? ""}
           mode={mode}
           setMode={setMode}
           approaches={problem.approaches}
@@ -283,6 +293,7 @@ export function ProblemEngine({
                 idx={player.idx}
                 complexity={approach.complexity}
                 slug={problem.slug}
+                problemId={problem._id}
                 collapsed={railCollapsed}
                 onToggleCollapse={() => setRailCollapsed((c) => !c)}
                 varOrder={varOrder}
@@ -350,7 +361,7 @@ export function ProblemEngine({
                 </div>
                 <div className="border-t border-kn-border-0">
                   <ComplexitySection complexity={approach.complexity} />
-                  <NotesSection slug={problem.slug} grow={false} />
+                  <NotesSection slug={problem.slug} problemId={problem._id} grow={false} />
                 </div>
               </div>
             )}

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronDown, Check, FileText, X, Lightbulb, Loader2, MoreVertical } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, CheckCircle2, ChevronDown, Check, FileText, X, Lightbulb, Loader2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { MobileOverflowSheet } from "./mobile-overflow-sheet";
+import { useProblemProgress } from "./use-problem-progress";
 import type { Approach, ProblemFull } from "@/lib/trace";
 import type { Mode } from "./problem-engine";
 
@@ -42,6 +44,7 @@ function approachLabel(a: Approach): string {
 
 export function TopBar({
   problem,
+  problemId,
   mode,
   setMode,
   approaches,
@@ -50,6 +53,8 @@ export function TopBar({
   onSelectApproach,
 }: {
   problem: ProblemFull;
+  /** DB `_id` hex string for the current problem (progress actions key off this) */
+  problemId: string;
   mode: Mode;
   setMode: (m: Mode) => void;
   approaches: Approach[];
@@ -63,6 +68,8 @@ export function TopBar({
   const router = useRouter();
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [statementOpen, setStatementOpen] = useState(false);
+  const progress = useProblemProgress(problemId);
+  const solved = progress.status === "solved";
 
   return (
     <header className="flex-none h-12 lg:h-14 flex items-center gap-3 px-2 lg:px-4 border-b border-kn-border-0 bg-kn-surface-0">
@@ -103,6 +110,11 @@ export function TopBar({
         loadingApproachId={loadingApproachId}
         onSelectApproach={onSelectApproach}
         onOpenStatement={() => setStatementOpen(true)}
+        solved={solved}
+        bookmarked={progress.bookmarked}
+        isAnon={progress.isAnon}
+        onToggleSolved={progress.toggleSolved}
+        onToggleBookmark={progress.toggleBookmark}
       />
 
       {/* Mobile problem statement — its own bottom sheet (base-ui dialogs don't nest).
@@ -235,6 +247,56 @@ export function TopBar({
       )}
 
       <div className="ml-auto flex items-center gap-3">
+        {/* Solve / bookmark controls — skeleton until client hydration resolves
+            so we never flash the wrong (unsolved/unbookmarked) state. */}
+        {!progress.loaded ? (
+          <div className="flex items-center gap-1">
+            <Skeleton className="h-7 w-7 rounded-md" />
+            <Skeleton className="h-7 w-7 rounded-md" />
+          </div>
+        ) : (
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={progress.toggleSolved}
+            disabled={progress.isAnon}
+            aria-label={solved ? "Mark as unsolved" : "Mark as solved"}
+            title={
+              progress.isAnon
+                ? "Sign in to track progress"
+                : solved
+                  ? "Solved — click to unmark"
+                  : "Mark as solved"
+            }
+            className={cn("h-7 w-7", solved && "text-kn-result")}
+          >
+            <CheckCircle2 className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={progress.toggleBookmark}
+            disabled={progress.isAnon}
+            aria-label={progress.bookmarked ? "Remove bookmark" : "Bookmark problem"}
+            title={
+              progress.isAnon
+                ? "Sign in to track progress"
+                : progress.bookmarked
+                  ? "Bookmarked — click to remove"
+                  : "Bookmark problem"
+            }
+            className={cn("h-7 w-7", progress.bookmarked && "text-kn-amber")}
+          >
+            {progress.bookmarked ? (
+              <BookmarkCheck className="h-4 w-4" />
+            ) : (
+              <Bookmark className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+        )}
+
         {/* Mode segmented control */}
         <div className="flex gap-0.5 bg-kn-inset border border-kn-border-0 rounded-lg p-0.5">
           {MODES.map((m) => {

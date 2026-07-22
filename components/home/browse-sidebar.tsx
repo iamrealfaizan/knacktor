@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 import type { FilterOption, FacetOption } from "./home-data";
 
 /**
- * Browse sidebar. Difficulty / topic / pattern are controlled multi-select
- * filters (single click toggles a value; the "All" row clears the group).
- * Status/study-sheet rows stay inert placeholders until a UserProgress backend
- * lands. All state is owned by the parent island — this only reports toggles.
+ * Browse sidebar. Status / difficulty / topic / pattern are controlled
+ * multi-select filters (single click toggles a value; the "All" row clears the
+ * group). Study-sheet rows stay inert placeholders until their backend lands.
+ * All state is owned by the parent island — this only reports toggles.
  */
 
 export interface SheetFilter {
@@ -25,9 +25,10 @@ export interface SheetFilter {
   count: number;
 }
 
-export type FilterGroup = "difficulties" | "topics" | "patterns";
+export type FilterGroup = "status" | "difficulties" | "topics" | "patterns";
 
 export interface Selected {
+  status: string[];
   difficulties: string[];
   topics: string[];
   patterns: string[];
@@ -180,7 +181,11 @@ export function BrowseSidebar({
   const catalogTotal = status[0]?.count ?? 0;
   const summary = (n: number) => (n > 0 ? `${n} selected` : "All");
   const anyActive =
-    selected.difficulties.length + selected.topics.length + selected.patterns.length > 0;
+    selected.status.length +
+      selected.difficulties.length +
+      selected.topics.length +
+      selected.patterns.length >
+    0;
 
   const Wrapper = bare ? "div" : "aside";
 
@@ -206,16 +211,29 @@ export function BrowseSidebar({
         </div>
       )}
 
-      <Section title="STATUS" summary="All" defaultOpen>
+      <Section title="STATUS" summary={summary(selected.status.length)} defaultOpen>
         <div className="flex flex-col gap-1.5 pr-1">
-          {status.map((o) => (
-            <OptionRow
-              key={o.label}
-              label={o.label}
-              count={o.count}
-              active={Boolean(o.active)}
-            />
-          ))}
+          {status.map((o) =>
+            o.value == null ? (
+              // "All problems" reset row — clears the status group.
+              <OptionRow
+                key={o.label}
+                label={o.label}
+                count={o.count}
+                active={selected.status.length === 0}
+                onClick={() => onToggle("status", null)}
+              />
+            ) : (
+              <OptionRow
+                key={o.value}
+                label={o.label}
+                count={o.count}
+                dot={o.dot}
+                active={selected.status.includes(o.value)}
+                onClick={() => onToggle("status", o.value ?? null)}
+              />
+            )
+          )}
         </div>
       </Section>
 

@@ -129,3 +129,45 @@ freezeWeekAnchor: string   // week key used to reset freezesAvailable
 - QOTD identical for two users on the same date; "done today" check reflects a solve.
 - Prev/next from a sheet walks sheet order; from a topic walks topic order; direct visit falls back to `number`.
 - Anonymous visit → controls hidden / sign-in prompt, no errors.
+
+---
+
+## Task decomposition & build status (implemented)
+
+Built autonomously in dependency order; each phase gated on `tsc` + `next lint` + `next build`.
+Per-user data on the **static** problem page hydrates **client-side via Server Actions** (initial
+status/bookmark, notes, neighbors) so `/problems/[slug]` stays SSG; `/home` and `/saved` are dynamic.
+
+| Task | Scope | Key files |
+|---|---|---|
+| T0.1 | Progress-service skeleton: raw docs, indexes, `getSessionUserId`, accessors | `lib/progress-service.ts` (new) |
+| T0.2 | Public plain types (ISO dates) | `lib/types.ts` |
+| T0.3 | Docs + client tz helper | `CLAUDE.md`, `rules/Schema.md`, `lib/tz.ts` (new) |
+| T1.1 | Writes (`recordAttempt`/`markSolved`/`unmarkSolved`/`setStatus`/`toggleBookmark`) + status reads | `lib/progress-service.ts` |
+| T1.2 | Server Actions (guarded, anon-safe) | `app/actions/progress.ts` (new) |
+| T1.3 | Solve/bookmark controls + auto-attempt, client-hydrated | `top-bar.tsx`, `problem-engine.tsx`, `mobile-overflow-sheet.tsx`, `use-problem-progress.ts` (new); `_id` added to `ProblemFull` (`lib/trace.ts`, `content-service.ts`) |
+| T1.4 | Real per-row status + Solved/Attempted/To-do filter | `home-data.ts`, `app/home/page.tsx`, `browse-sidebar.tsx`, `browse-panel.tsx`, `lib/home-url.ts` |
+| T2.1 | Streak + daily rollup (local-tz day, weekly freeze, read-time decay) | `lib/progress-service.ts` |
+| T2.2 | Dashboard reads (`getUserProgressSummary`/`getHeatmap`/`getStreak`/`getContinueLearningRaw`) + catalog helpers | `lib/progress-service.ts`, `content-service.ts` (`getProblemsByIds`, `getProblemAfterNumber`) |
+| T2.3 | Cards → prop-driven (+ empty states) | `streak-card.tsx`, `progress-card.tsx`, `continue-learning.tsx` |
+| T2.4 | Wire dashboard data; remove dead mocks; real header streak | `app/home/page.tsx`, `home-data.ts`, `home-header.tsx` |
+| T3.1 | Global date-seeded QOTD over the catalog | `lib/qotd.ts` (new), `content-service.getProblemDirectory` |
+| T3.2 | QOTD tile + "done" check | `streak-card.tsx`, `app/home/page.tsx` |
+| T3.3 | ~~Context-aware prev/next~~ — **removed at user request** (reverted top-bar arrows, `app/actions/nav.ts`, `getProblemNeighbors`, `?from=` plumbing) | — |
+| T4.1 | Account-backed notes: debounced save + one-time localStorage migration | `lib/progress-service.ts`, `app/actions/progress.ts`, `insight-rail.tsx`, `problem-engine.tsx` |
+| T4.2 | Saved view (all bookmarks) + dashboard link | `app/saved/page.tsx` (new), `app/home/page.tsx` |
+
+**Deferred (decision 11):** badges (`NEXT_BADGE`) and weekly-goal (`WEEKLY_GOAL_REMAINING`) remain static placeholders.
+
+### Post-review fixes (production hardening)
+- **Status filter now whole-catalog, server-side.** The dashboard list fetches via a user-aware **Server Action**
+  (`app/actions/browse.ts` → `browseProblemsAction`) that resolves the selected statuses into an `_id`
+  include/exclude set (`resolveStatusFilterIds`) and applies it inside `getProblemsPage` (new `includeIds`/
+  `excludeIds` on `ProblemFilters`). This fixes "Solved shows no problems" when the solved item sat on a later
+  page, and also fixes stale statuses on pages 2+. SSR applies the same filter so shared `?status=` links are
+  correct on first paint. `/api/problems` stays read-only (D16) for the public list.
+- **Notes never lost.** `NotesArea` now flushes the pending write on **blur** and on **unmount** (fire-and-forget;
+  survives SPA navigation), not just on the 800 ms debounce — previously navigating away before the timer fired
+  discarded the note. The full bookmark list lives at `/saved`.
+
+Verify runtime behavior with the app running (build/typecheck/lint all pass).

@@ -141,6 +141,7 @@ export async function getProblemFull(slug: string): Promise<ProblemFull | null> 
   const difficultyId = asId(doc.difficultyId as ObjectId | string | undefined);
 
   const full: ProblemFull = {
+    _id: doc._id.toHexString(),
     slug: doc.slug,
     number: doc.number,
     title: doc.title,
@@ -292,10 +293,31 @@ async function buildProblemQuery(
     query.patternIds = { $all: await resolveIds("patterns", patternSlugs) };
   }
 
+  // `_id` conditions can come from a sheet, a status include-set, and/or an
+  // exclude-set; merge them so status + sheet filters compose correctly.
+  const idCond: { $in?: ObjectId[]; $nin?: ObjectId[] } = {};
+
   if (filters.sheetSlug) {
     const sheet = await conn.collection("sheets").findOne({ slug: filters.sheetSlug });
-    const ids = ((sheet?.entries as { problemId: ObjectId }[]) ?? []).map((e) => e.problemId);
-    query._id = { $in: ids };
+    idCond.$in = ((sheet?.entries as { problemId: ObjectId }[]) ?? []).map((e) => e.problemId);
+  }
+
+  if (filters.includeIds) {
+    const inc = filters.includeIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    // Intersect with any existing $in (e.g. a sheet); otherwise set it.
+    idCond.$in = idCond.$in
+      ? idCond.$in.filter((oid) => inc.some((i) => i.equals(oid)))
+      : inc;
+  }
+
+  if (filters.excludeIds?.length) {
+    idCond.$nin = filters.excludeIds
+      .filter((id) => ObjectId.isValid(id))
+      .map((id) => new ObjectId(id));
+  }
+
+  if (idCond.$in !== undefined || idCond.$nin !== undefined) {
+    query._id = idCond;
   }
   return query;
 }
@@ -362,10 +384,18 @@ export async function getProblemsPage(
       ])
       .toArray();
   } else {
-    const sortField = filters.sort === "title" ? "title" : "number";
+    const sortField =
+      filters.sort === "title"
+        ? "title"
+        : filters.sort === "created"
+          ? "createdAt"
+          : "number";
+    // Tiebreak by number so docs sharing a createdAt (or missing it) stay stable.
+    const sortSpec: Record<string, 1 | -1> =
+      sortField === "number" ? { number: dir } : { [sortField]: dir, number: 1 };
     docs = await coll
       .find(query)
-      .sort({ [sortField]: dir })
+      .sort(sortSpec)
       .skip(skip)
       .limit(limit)
       .toArray();
@@ -378,6 +408,46 @@ export async function getProblemsPage(
 export async function getProblemBySlug(slug: string): Promise<Problem | null> {
   const doc = await (await db()).collection<RawProblem>("problems").findOne({ slug });
   return doc ? resolveProblem(doc) : null;
+}
+
+/** Resolve a set of problems by _id hex (order not guaranteed). Used by the
+ *  UserProgress dashboard reads (solved tallies, continue-learning). */
+export async function getProblemsByIds(ids: string[]): Promise<Problem[]> {
+  if (!ids.length) return [];
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (!oids.length) return [];
+  const docs = await (await db())
+    .collection<RawProblem>("problems")
+    .find({ _id: { $in: oids } })
+    .toArray();
+  return Promise.all(docs.map(resolveProblem));
+}
+
+/** Lightweight catalog directory ordered by global `number`. Powers the
+ *  deterministic date-seeded QOTD pick over the whole catalog. */
+export async function getProblemDirectory(): Promise<
+  { id: string; slug: string; title: string }[]
+> {
+  const docs = await (await db())
+    .collection<RawProblem>("problems")
+    .find({}, { projection: { slug: 1, title: 1, number: 1 } })
+    .sort({ number: 1 })
+    .toArray();
+  return docs.map((d) => ({
+    id: d._id.toHexString(),
+    slug: d.slug,
+    title: d.title,
+  }));
+}
+
+/** The next problem by global `number` after `n` (wraps to the first). Powers
+ *  the "up next" suggestion on the continue-learning card. */
+export async function getProblemAfterNumber(n: number): Promise<Problem | null> {
+  const coll = (await db()).collection<RawProblem>("problems");
+  const next =
+    (await coll.find({ number: { $gt: n } }).sort({ number: 1 }).limit(1).toArray())[0] ??
+    (await coll.find({ number: { $gt: 0 } }).sort({ number: 1 }).limit(1).toArray())[0];
+  return next ? resolveProblem(next) : null;
 }
 
 // ── Topics ────────────────────────────────────────────────────────────────────
