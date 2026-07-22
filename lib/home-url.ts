@@ -7,7 +7,7 @@
 import type { ProblemSort, SortOrder, DifficultySlug } from "./types";
 
 /** Page size for the home problem list. */
-export const HOME_PAGE_SIZE = 20;
+export const HOME_PAGE_SIZE = 10;
 
 const VALID_DIFF: DifficultySlug[] = ["easy", "medium", "hard"];
 const VALID_STATUS = ["solved", "attempted", "todo"] as const;
