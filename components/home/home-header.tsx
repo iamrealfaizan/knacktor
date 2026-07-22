@@ -18,7 +18,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { NAV_LINKS, STREAK_DAYS } from "./home-data";
+import { NAV_LINKS } from "./home-data";
 
 export interface HeaderUser {
   name: string;
@@ -34,7 +34,7 @@ function getInitials(name: string): string {
   return (first + second).toUpperCase();
 }
 
-export function HomeHeader({ user }: { user: HeaderUser }) {
+export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays: number }) {
   const [navOpen, setNavOpen] = useState(false);
 
   return (
@@ -117,7 +117,7 @@ export function HomeHeader({ user }: { user: HeaderUser }) {
           className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-kn-accent-soft"
         >
           <Flame className="h-4 w-4 text-kn-current" />
-          <span className="font-mono text-sm font-bold text-kn-current">{STREAK_DAYS}</span>
+          <span className="font-mono text-sm font-bold text-kn-current">{streakDays}</span>
         </div>
 
         <ThemeToggle />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ProblemRowSkeleton } from "@/components/skeletons";
 import type { Problem } from "./home-data";
 import { DIFFICULTY_STYLE, STATUS_STYLE } from "./home-data";
 
@@ -23,10 +24,7 @@ export function ProblemTable({
     <section>
       {/* table */}
       <div
-        className={cn(
-          "border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden transition-opacity",
-          pending && "opacity-60"
-        )}
+        className="border border-kn-border-0 rounded-[14px] bg-kn-surface-0 overflow-hidden"
         aria-busy={pending}
       >
         <div
@@ -41,13 +39,20 @@ export function ProblemTable({
           <span className="text-right">LEVEL</span>
         </div>
 
-        {rows.length === 0 && (
+        {/* While a fetch is in flight, show skeleton rows (keeps height stable). */}
+        {pending &&
+          Array.from({ length: rows.length || 10 }).map((_, i) => (
+            <ProblemRowSkeleton key={`sk-${i}`} />
+          ))}
+
+        {!pending && rows.length === 0 && (
           <div className="py-14 text-center text-sm text-kn-ink-2">
             No problems match your search or filters.
           </div>
         )}
 
-        {rows.map((p) => {
+        {!pending &&
+          rows.map((p) => {
           const s = STATUS_STYLE[p.status];
           const d = DIFFICULTY_STYLE[p.diff];
           const StatusIcon = s.icon;

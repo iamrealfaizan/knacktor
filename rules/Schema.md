@@ -19,14 +19,30 @@ independently).
 | `problems` | Canonical problem documents (merges old `problems` + `problemsFull`). | `_id`, `slug` (unique), `number`, `title`, `difficultyId`→`difficulties`, `topicIds[]`→`topics`, `patternIds[]`→`patterns`, `statement`, `hasVisualization`, `isPremium`, `supportsCustomInput`, `supportsCompare`, `recommendedApproachId`, `approaches[]` (embedded), `presetInputs[]` (embedded), `inputConstraints`, `sourceContentHash`, `schemaVersion` |
 | `traces` | Precomputed preset traces (gzip-compressed, D11). | `_id`, `problemId`→`problems`, `problemSlug` (denormalized), `approachId`, `inputId`, `traceVersion`, `stepCount`, `keyEventIndices[]`, `finalResult`, `compression`, `stepsCompressed?` (`BinData`), `gridfsId?`, `byteSize` |
 | `sheets` | Interview-sheet definitions. | `_id`, `slug` (unique), `name`, `description`, `entries[]` (`{ problemId→problems, order, reason? }`) |
+| `userProblemProgress` | One doc per user×problem — source of truth for status, filters, nav badges, notes, bookmark. | `_id`, `userId`→`users`, `problemId`→`problems`, `status` (`todo`\|`attempted`\|`solved`), `bookmarked`, `note`, `firstAttemptedAt`, `solvedAt`, `lastActivityAt` |
+| `userDailyActivity` | One doc per user×local-day — O(1) heatmap + streak reads. | `_id`, `userId`→`users`, `date` (`YYYY-MM-DD` local), `solves`, `attempts` |
+| `userStreak` | One doc per user — freeze consumption isn't purely derivable. | `_id`, `userId`→`users`, `currentStreak`, `longestStreak`, `lastSolveDate`, `timezone`, `freezesAvailable`, `freezeWeekAnchor` |
 
 **Indexes:** unique `slug` on `difficulties`/`topics`/`patterns`/`problems`/`sheets`; on `problems`:
 `difficultyId`, multikey `topicIds`/`patternIds`, `number`, text on `title`+`statement`; on `traces`:
 unique compound `{problemId, approachId, inputId}` + non-unique `{problemSlug, approachId}` (hot read
-path); `sheets.entries.problemId`.
+path); `sheets.entries.problemId`. **UserProgress:** unique `{userId, problemId}` + `{userId, status}`
++ `{userId, bookmarked}` on `userProblemProgress`; unique `{userId, date}` on `userDailyActivity`;
+unique `{userId}` on `userStreak`.
 
 **Dropped:** `content_index` (the `problems` text index covers MVP search).
-**Reserved future collections (not built in MVP):** `users`, `progress`, `subscriptions`, `analytics_events`, `notes`.
+
+### 1a. UserProgress write path (honors D16)
+
+The three `user*` collections are **written only through Server Actions** delegating to
+`lib/progress-service.ts` — the `/api` layer stays read-only (D16). QOTD stores nothing:
+`getQotd(localDate)` is a deterministic date-hash over the problems catalog (by `number`). Streak
+"day" boundaries use the user's **local timezone** (stored on `userStreak`), with **1 free
+streak-freeze per week** auto-applied. Public/plain shapes (ISO-string dates) live in `lib/types.ts`
+(`UserProblemProgress`, `UserDailyActivity`, `UserStreak`, `ProgressSummary`, `Heatmap`, `Qotd`,
+`ProblemNeighbors`); raw `ObjectId`/`Date` docs stay private to the service.
+
+**Reserved future collections (not built yet):** `subscriptions`, `analytics_events`.
 
 **Slug↔`_id` coexistence:** authoring bundles reference topics/patterns/difficulty **by slug**
 (human-friendly). Ingest resolves slug→`_id` and stores only the `_id` (an unresolved slug is a

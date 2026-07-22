@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import type { Difficulty } from "./home-data";
-import { DIFF_PROGRESS, NEXT_BADGE, RING } from "./home-data";
+import { DIFFICULTY_STYLE, NEXT_BADGE } from "./home-data";
 
 /**
  * The radial completion ring is a bespoke SVG — no shadcn/library primitive
@@ -17,8 +17,15 @@ const BAR_INDICATOR: Record<Difficulty, string> = {
 };
 const BAR_TRACK = "[&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-kn-track";
 
-export function ProgressCard() {
-  const dashOffset = RING.circumference * (1 - RING.solved / RING.total);
+export interface ProgressCardProps {
+  /** completion ring: solved count of total, with the SVG dash circumference */
+  ring: { solved: number; total: number; circumference: number };
+  /** per-difficulty bars: pre-formatted "solved / total" text + percentage */
+  diffProgress: { label: Difficulty; text: string; pct: number }[];
+}
+
+export function ProgressCard({ ring, diffProgress }: ProgressCardProps) {
+  const dashOffset = ring.total > 0 ? ring.circumference * (1 - ring.solved / ring.total) : ring.circumference;
 
   return (
     <Card className="flex flex-col gap-0 rounded-2xl border border-kn-border-0 bg-kn-surface-0 ring-0 p-[22px]">
@@ -39,16 +46,16 @@ export function ProgressCard() {
               stroke="var(--kn-current)"
               strokeWidth="9"
               strokeLinecap="round"
-              strokeDasharray={RING.circumference}
+              strokeDasharray={ring.circumference}
               strokeDashoffset={dashOffset}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-[34px] font-extrabold leading-none text-kn-ink-0">
-              {RING.solved}
+              {ring.solved}
             </span>
             <span className="font-mono text-[10px] font-semibold text-kn-ink-2 mt-0.5">
-              of {RING.total}
+              of {ring.total}
             </span>
           </div>
         </div>
@@ -56,10 +63,10 @@ export function ProgressCard() {
 
       {/* per-difficulty bars */}
       <div className="flex flex-col gap-[11px] mt-5">
-        {DIFF_PROGRESS.map((d) => (
+        {diffProgress.map((d) => (
           <div key={d.label}>
             <div className="flex justify-between text-xs text-kn-ink-1 mb-1">
-              <span className={`font-semibold ${d.ink}`}>{d.label}</span>
+              <span className={`font-semibold ${DIFFICULTY_STYLE[d.label].dot}`}>{d.label}</span>
               <span className="font-mono text-[11px]">{d.text}</span>
             </div>
             <Progress value={d.pct} className={`${BAR_TRACK} ${BAR_INDICATOR[d.label]}`} />

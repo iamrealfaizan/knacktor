@@ -66,9 +66,13 @@ seeds/problems/<slug>/  →  npm run import-problem  →  npm run ingest  →  M
 | `problems` | `_id`, `slug`, `number`, `title`, `difficultyId`→difficulties, `topicIds[]`→topics, `patternIds[]`→patterns, `approaches[]` (embedded), `presetInputs[]` (embedded), `recommendedApproachId`, `supportsCompare`, `supportsCustomInput` |
 | `traces` | `_id`, `problemId`→problems, `approachId`, `inputId`, `stepsCompressed` (BinData, gzip), `stepCount`, `finalResult`, `keyEventIndices[]` |
 | `sheets` | `_id`, `slug`, `name`, `entries[]` (`{ problemId, order, reason? }`) |
+| `userProblemProgress` | `_id`, `userId`→users, `problemId`→problems, `status` (`todo`\|`attempted`\|`solved`), `bookmarked`, `note`, `firstAttemptedAt`, `solvedAt`, `lastActivityAt` |
+| `userDailyActivity` | `_id`, `userId`→users, `date` (`YYYY-MM-DD` local tz), `solves`, `attempts` |
+| `userStreak` | `_id`, `userId`→users, `currentStreak`, `longestStreak`, `lastSolveDate`, `timezone`, `freezesAvailable`, `freezeWeekAnchor` |
 
 Rules:
 - `slug` is route-facing identity only — **never a foreign key between collections**
+- **UserProgress (`user*`) collections are written ONLY via Server Actions → `lib/progress-service.ts`** — the `/api` layer stays read-only (D16). Streak day-boundaries use the user's local timezone + 1 free freeze/week; QOTD stores nothing (date-hash over the catalog).
 - Approaches and presets are **embedded** in the problem doc (1:1 ownership; never queried independently)
 - One trace doc per `(problemId, approachId, inputId)`, gzip-compressed into `stepsCompressed` BinData (D11); GridFS only for >~12 MB
 - Authoring bundles reference topics/patterns/difficulty **by slug**; ingest resolves slug→`_id` — unresolved slug = hard failure

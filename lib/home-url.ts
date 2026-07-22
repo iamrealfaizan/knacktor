@@ -10,10 +10,13 @@ import type { ProblemSort, SortOrder, DifficultySlug } from "./types";
 export const HOME_PAGE_SIZE = 20;
 
 const VALID_DIFF: DifficultySlug[] = ["easy", "medium", "hard"];
-const VALID_SORT: ProblemSort[] = ["number", "difficulty", "title"];
+const VALID_STATUS = ["solved", "attempted", "todo"] as const;
+const VALID_SORT: ProblemSort[] = ["number", "difficulty", "title", "created"];
 
 export interface BrowseState {
   q: string;
+  /** progress statuses — OR (union); filtered client-side on resolved rows */
+  status: string[];
   /** difficulty slugs — OR (union) */
   difficulties: string[];
   /** topic slugs — AND (must have all) */
@@ -27,6 +30,7 @@ export interface BrowseState {
 
 export const DEFAULT_BROWSE_STATE: BrowseState = {
   q: "",
+  status: [],
   difficulties: [],
   topics: [],
   patterns: [],
@@ -39,6 +43,7 @@ export const DEFAULT_BROWSE_STATE: BrowseState = {
 export function isDefaultState(s: BrowseState): boolean {
   return (
     !s.q &&
+    s.status.length === 0 &&
     s.difficulties.length === 0 &&
     s.topics.length === 0 &&
     s.patterns.length === 0
@@ -49,6 +54,7 @@ export function isDefaultState(s: BrowseState): boolean {
 export function stateToQuery(state: BrowseState): string {
   const p = new URLSearchParams();
   if (state.q.trim()) p.set("q", state.q.trim());
+  for (const st of state.status) p.append("status", st);
   for (const d of state.difficulties) p.append("difficulty", d);
   for (const t of state.topics) p.append("topic", t);
   for (const pt of state.patterns) p.append("pattern", pt);
@@ -76,6 +82,9 @@ export function parseState(sp: RawParams = {}): BrowseState {
     : "number";
   return {
     q: toOne(sp.q)?.trim() ?? "",
+    status: toArray(sp.status).filter((s) =>
+      (VALID_STATUS as readonly string[]).includes(s)
+    ),
     difficulties: toArray(sp.difficulty).filter((d) => VALID_DIFF.includes(d as DifficultySlug)),
     topics: toArray(sp.topic),
     patterns: toArray(sp.pattern),

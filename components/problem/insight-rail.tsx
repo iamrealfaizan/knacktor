@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Step, ResultSpec } from "@/lib/trace";
+import { getMyNoteAction, saveNoteAction } from "@/app/actions/progress";
 
 // Stable categorical palette built from existing design tokens (no inline hexes).
 // A variable's color is its index in the per-trace ordered registry, so it stays
@@ -158,10 +160,19 @@ export function CallStackSection({ step }: { step: Step }) {
   );
 }
 
-export function NotesSection({ slug, grow = true }: { slug: string; grow?: boolean }) {
+export function NotesSection({
+  slug,
+  problemId,
+  grow = true,
+}: {
+  slug: string;
+  /** DB `_id` hex; when present (and signed in) notes persist to the account */
+  problemId?: string;
+  grow?: boolean;
+}) {
   return (
-    <Section title="NOTES" suffix="· local" grow={grow}>
-      <NotesArea slug={slug} />
+    <Section title="NOTES" grow={grow}>
+      <NotesArea slug={slug} problemId={problemId} />
     </Section>
   );
 }
@@ -172,6 +183,7 @@ export function InsightRail({
   idx,
   complexity,
   slug,
+  problemId,
   collapsed,
   onToggleCollapse,
   varOrder,
@@ -183,6 +195,8 @@ export function InsightRail({
   idx: number;
   complexity: { time: string; space: string };
   slug: string;
+  /** DB `_id` hex; enables account-backed notes when signed in */
+  problemId?: string;
   collapsed: boolean;
   onToggleCollapse: () => void;
   /** per-trace ordered variable registry (first-seen order across all steps) */
@@ -219,7 +233,7 @@ export function InsightRail({
       <ComplexitySection complexity={complexity} />
       <ResultSection step={step} resultSpec={resultSpec} />
       <CallStackSection step={step} />
-      <NotesSection slug={slug} />
+      <NotesSection slug={slug} problemId={problemId} />
     </div>
   );
 }
@@ -281,14 +295,112 @@ function Section({
   );
 }
 
-function NotesArea({ slug }: { slug: string }) {
+/**
+ * Notes are account-backed when signed in: the initial value hydrates from the
+ * user's stored note (client-side, so the problem page stays static), writes are
+ * debounced to a Server Action, and any pre-existing local note is migrated once
+ * then the local key is cleared. Anonymous users keep the localStorage behavior.
+ */
+function NotesArea({ slug, problemId }: { slug: string; problemId?: string }) {
   const key = `kn_notes_${slug}`;
   const [value, setValue] = useState("");
-  useEffect(() => { setValue(localStorage.getItem(key) ?? ""); }, [key]);
+  const [loaded, setLoaded] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Refs so the unmount/blur flush always sees the latest values (no stale closure).
+  const anonRef = useRef(true);
+  const latestRef = useRef("");
+  const savedRef = useRef(""); // last value known to be persisted
+  const loadedRef = useRef(false);
+
+  // Persist the pending value immediately (used on blur + unmount + debounce).
+  // Fire-and-forget: on SPA navigation the JS context survives, so the write
+  // completes even after this component unmounts.
+  const flush = useCallback(() => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    if (anonRef.current || !problemId) return;
+    if (latestRef.current === savedRef.current) return; // nothing new
+    const toSave = latestRef.current;
+    savedRef.current = toSave;
+    void saveNoteAction(problemId, toSave);
+  }, [problemId]);
+
+  useEffect(() => {
+    let alive = true;
+    const local =
+      typeof localStorage !== "undefined" ? localStorage.getItem(key) ?? "" : "";
+
+    const apply = (v: string) => {
+      if (!alive) return;
+      setValue(v);
+      latestRef.current = v;
+      savedRef.current = v;
+      loadedRef.current = true;
+      setLoaded(true);
+    };
+
+    if (!problemId) {
+      anonRef.current = true;
+      apply(local);
+      return;
+    }
+
+    getMyNoteAction(problemId)
+      .then((res) => {
+        if (!alive) return;
+        anonRef.current = res.anon;
+        if (res.anon) {
+          apply(local);
+        } else if (res.note) {
+          apply(res.note);
+        } else if (local) {
+          // One-time migration: local note → account, then clear the local key.
+          apply(local);
+          savedRef.current = ""; // force the migration write below
+          void saveNoteAction(problemId, local).then((r) => {
+            if (r.ok) {
+              savedRef.current = local;
+              if (typeof localStorage !== "undefined") localStorage.removeItem(key);
+            }
+          });
+        } else {
+          apply("");
+        }
+      })
+      .catch(() => apply(local));
+
+    return () => {
+      alive = false;
+    };
+  }, [key, problemId]);
+
+  // Flush any pending edit when the notes panel unmounts (e.g. navigating away).
+  useEffect(() => () => flush(), [flush]);
+
+  function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const v = e.target.value;
+    setValue(v);
+    latestRef.current = v;
+    if (anonRef.current || !problemId) {
+      if (typeof localStorage !== "undefined") localStorage.setItem(key, v);
+      savedRef.current = v;
+      return;
+    }
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, 800);
+  }
+
+  if (!loaded) {
+    return <Skeleton className="flex-1 min-h-24 w-full rounded-md" />;
+  }
+
   return (
     <Textarea
       value={value}
-      onChange={(e) => { setValue(e.target.value); localStorage.setItem(key, e.target.value); }}
+      onChange={onChange}
+      onBlur={flush}
       placeholder="Jot your own intuition…"
       className="flex-1 min-h-24 resize-none bg-kn-inset border-kn-border-0 text-[13px] cs-scroll"
     />

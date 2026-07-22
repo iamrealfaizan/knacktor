@@ -1,17 +1,18 @@
 import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, CircleDot, Circle } from "lucide-react";
-import { NAV_LINKS as SITE_NAV_LINKS, SITE_STATS } from "@/lib/site";
+import { NAV_LINKS as SITE_NAV_LINKS } from "@/lib/site";
 import { DIFFICULTY_STYLE as CANONICAL_DIFFICULTY_STYLE } from "@/lib/difficulty";
-import type { Problem as DbProblem, DifficultySlug } from "@/lib/types";
+import type { Problem as DbProblem, DifficultySlug, ProgressStatus, ProblemSort } from "@/lib/types";
 
 /**
  * Dashboard content contracts + remaining static mock.
  *
- * DB-backed now (built in app/home/page.tsx from lib/content-service):
- * problem table rows, sidebar filter counts (difficulty/topics/patterns/sheets),
+ * DB-backed now (built in app/home/page.tsx from lib/content-service +
+ * lib/progress-service): problem table rows, per-problem status, the STATUS
+ * filter counts, sidebar filter counts (difficulty/topics/patterns/sheets),
  * and the signed-in user's name/initials (session).
  *
- * Still mock until a UserProgress backend lands: per-problem status, streak,
+ * Still mock until the rest of the UserProgress backend lands: streak,
  * heatmap, progress ring, POTD, continue-learning, weekly goal.
  *
  * Colors are expressed only as `--kn-*` Tailwind token classes — never inline
@@ -59,13 +60,15 @@ const DIFF_DISPLAY: Record<DifficultySlug, Difficulty> = {
 /**
  * Map a resolved DB Problem (slug arrays) into a home table row (display names).
  * Runs on both the server (initial render) and client (after each fetch), so it
- * takes plain name-maps rather than touching the DB. Status is "todo" until a
- * UserProgress backend exists.
+ * takes plain name-maps rather than touching the DB. `status` is the user's
+ * per-problem progress (from lib/progress-service); it defaults to "todo" for
+ * untouched problems and anonymous callers.
  */
 export function toHomeRow(
   p: DbProblem,
   topicName: Record<string, string>,
-  patternName: Record<string, string>
+  patternName: Record<string, string>,
+  status: ProgressStatus = "todo"
 ): Problem {
   return {
     num: p.number,
@@ -73,72 +76,23 @@ export function toHomeRow(
     diff: DIFF_DISPLAY[p.difficulty],
     topics: p.topics.map((s) => topicName[s] ?? s),
     patterns: p.patterns.map((s) => patternName[s] ?? s),
-    status: "todo",
+    status,
     viz: p.hasVisualization,
     href: `/problems/${p.slug}`,
   };
 }
 
-/* ── Greeting ─────────────────────────────────────────────────────────── */
+/* ── Greeting (weekly-goal is deferred gamification — static placeholder) ── */
 export const WEEKLY_GOAL_REMAINING = 3;
 
-/* ── Continue learning ────────────────────────────────────────────────── */
-export const CONTINUE = {
-  num: "15",
-  title: "3Sum",
-  diff: "Medium" as Difficulty,
-  topic: "Array",
-  pattern: "Two Pointers",
-  blurb: "Converging pointers on a sorted array — the core pattern behind dozens of problems.",
-  href: "#",
-  upNext: { num: "16", title: "3Sum Closest", diff: "Medium" as Difficulty, href: "#" },
-};
-
-/* ── Streak + heatmap + problem of the day ────────────────────────────── */
-export const STREAK_DAYS = 12;
-
 /**
- * 26 weeks × 7 days of activity levels (0 = none … 4 = most). Precomputed and
- * frozen so server and client render identically (no `Date`/`Math.random`).
- * Rendered as translucent tints of `--kn-current` via `HEAT_MIX` (theme-adaptive).
+ * Heatmap presentation: percentage of `--kn-current` mixed with transparent per
+ * activity level (level 0 → track). Values 0–4 come from real activity now
+ * (progress-service `getHeatmap`); this stays here because it's presentational.
  */
-export const HEAT_LEVELS: number[][] = [
-  [0, 0, 0, 2, 3, 4, 0], [1, 0, 4, 4, 0, 2, 0], [3, 0, 0, 2, 0, 2, 3], [3, 0, 0, 0, 4, 2, 2],
-  [3, 0, 3, 0, 2, 1, 0], [0, 1, 4, 0, 1, 0, 0], [3, 0, 0, 2, 0, 3, 0], [2, 1, 1, 2, 3, 1, 3],
-  [0, 3, 2, 4, 3, 0, 0], [1, 0, 2, 4, 0, 0, 1], [1, 4, 1, 2, 2, 4, 0], [2, 0, 1, 0, 1, 4, 0],
-  [3, 2, 0, 0, 1, 1, 3], [2, 0, 0, 1, 4, 4, 0], [1, 0, 1, 0, 0, 2, 2], [2, 3, 0, 2, 2, 2, 2],
-  [2, 0, 2, 2, 1, 2, 0], [3, 0, 1, 0, 2, 0, 3], [0, 1, 4, 1, 2, 0, 1], [0, 2, 0, 4, 0, 0, 2],
-  [1, 0, 0, 2, 1, 0, 0], [3, 0, 0, 0, 1, 0, 4], [0, 2, 1, 3, 0, 1, 1], [0, 3, 0, 4, 0, 0, 4],
-  [3, 3, 3, 4, 3, 4, 0], [3, 4, 3, 3, 3, 2, 3],
-];
-
-/** Percentage of `--kn-current` mixed with transparent per level (level 0 → track). */
 export const HEAT_MIX: Record<number, number | null> = { 0: null, 1: 30, 2: 52, 3: 74, 4: 100 };
 
-/** One month label per column (blank = same month as the column to its left). */
-export const HEAT_MONTHS: string[] = [
-  "Jan", "", "", "", "Feb", "", "", "", "Mar", "", "", "", "Apr",
-  "", "", "", "May", "", "", "", "Jun", "", "", "", "Jul", "",
-];
-
-export const POTD = { title: "Longest Consecutive Sequence", href: "#" };
-
-/* ── Progress ring + per-difficulty bars + next badge ─────────────────── */
-// MOCK until auth: `solved` is user-specific; total comes from the shared catalog stat.
-export const RING = { solved: 83, total: SITE_STATS.problems, circumference: 270 };
-
-export const DIFF_PROGRESS: {
-  label: Difficulty;
-  text: string;
-  pct: number;
-  ink: string;
-  bar: string;
-}[] = [
-  { label: "Easy", text: "42 / 150", pct: 28, ink: DIFFICULTY_STYLE.Easy.dot, bar: DIFFICULTY_STYLE.Easy.bar },
-  { label: "Medium", text: "34 / 230", pct: 15, ink: DIFFICULTY_STYLE.Medium.dot, bar: DIFFICULTY_STYLE.Medium.bar },
-  { label: "Hard", text: "7 / 100", pct: 7, ink: DIFFICULTY_STYLE.Hard.dot, bar: DIFFICULTY_STYLE.Hard.bar },
-];
-
+/* ── Next badge (deferred gamification, decision 11 — static placeholder) ── */
 export const NEXT_BADGE = { remaining: 17, name: "Century Club" };
 
 /* ── Header nav (canonical list from lib/site.ts + dashboard active flag) ── */
@@ -147,11 +101,14 @@ export const NAV_LINKS = SITE_NAV_LINKS.map((l) => ({
   active: l.href === "/problems",
 }));
 
-/* ── Browse sidebar (difficulty + topic rows filter via URL params; options +
-      counts are DB-derived in app/home/page.tsx). Status/patterns/sheets rows
-      stay inert until a UserProgress backend lands. ─── */
+/* ── Browse sidebar (status + difficulty + topic + pattern rows filter via URL
+      params; options + counts are DB-derived in app/home/page.tsx). Study-sheet
+      rows stay inert until their backend lands. ─── */
 export interface FilterOption {
   label: string;
+  /** filter value this row sets (status: "solved"|"attempted"|"todo"); the
+   *  "All" reset row has no value. */
+  value?: string;
   count?: number;
   active?: boolean;
   dot?: string; // token text-color class for the difficulty dot
@@ -166,8 +123,9 @@ export interface FacetOption {
 }
 
 /** Sort bar options → the `sort` URL/query value they set. Order: # is default. */
-export const SORT_OPTIONS: { label: string; value: "number" | "difficulty" | "title" }[] = [
+export const SORT_OPTIONS: { label: string; value: ProblemSort }[] = [
   { label: "#", value: "number" },
   { label: "Difficulty", value: "difficulty" },
   { label: "Title", value: "title" },
+  { label: "Created", value: "created" },
 ];

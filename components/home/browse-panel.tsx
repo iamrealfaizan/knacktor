@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import type { Problem as DbProblem, ProblemSort } from "@/lib/types";
+import type { ProblemSort } from "@/lib/types";
 import {
   HOME_PAGE_SIZE,
   stateToQuery,
   type BrowseState,
 } from "@/lib/home-url";
+import { browseProblemsAction } from "@/app/actions/browse";
 import { BrowseSidebar, type FilterGroup, type SheetFilter } from "./browse-sidebar";
 import { MobileFilterSheet } from "./mobile-filter-sheet";
 import { ProblemToolbar } from "./problem-toolbar";
@@ -56,9 +57,12 @@ export function BrowsePanel({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const firstRender = useRef(true);
 
-  // Active facet filters (status/sheets are inert placeholders — not counted).
+  // Active facet filters (sheets stay inert placeholders — not counted).
   const activeFilterCount =
-    state.difficulties.length + state.topics.length + state.patterns.length;
+    state.status.length +
+    state.difficulties.length +
+    state.topics.length +
+    state.patterns.length;
 
   useEffect(() => {
     // Initial state already matches the server-rendered rows — skip that fetch.
@@ -71,23 +75,28 @@ export function BrowsePanel({
     // Update the address bar WITHOUT a Next navigation → no server re-render, no scroll jump.
     window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
 
-    // Always send limit so the API uses its paginated branch (returns { data, total }),
-    // even when the display query is empty (all filters cleared).
-    const apiQs = qs ? `${qs}&limit=${HOME_PAGE_SIZE}` : `limit=${HOME_PAGE_SIZE}`;
-    const controller = new AbortController();
+    // User-aware server action: status filtering + real per-row status are
+    // resolved server-side across the whole catalog (not one already-fetched page).
+    let cancelled = false;
     setPending(true);
-    fetch(`/api/problems?${apiQs}`, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((json: { data: DbProblem[]; total: number }) => {
-        setRows((json.data ?? []).map((p) => toHomeRow(p, topicName, patternName)));
-        setTotal(json.total ?? 0);
+    browseProblemsAction(state)
+      .then((res) => {
+        if (cancelled) return;
+        setRows(
+          res.data.map((p) =>
+            toHomeRow(p, topicName, patternName, res.statuses[p._id ?? ""] ?? "todo")
+          )
+        );
+        setTotal(res.total);
         setPending(false);
       })
-      .catch((err) => {
-        if (err?.name !== "AbortError") setPending(false);
+      .catch(() => {
+        if (!cancelled) setPending(false);
       });
 
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+    };
     // topicName/patternName are stable props; re-fetch only when state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
@@ -108,6 +117,7 @@ export function BrowsePanel({
       setState((s) => ({
         ...s,
         q: "",
+        status: [],
         difficulties: [],
         topics: [],
         patterns: [],
@@ -126,7 +136,16 @@ export function BrowsePanel({
       setState((s) => ({
         ...s,
         sort,
-        order: s.sort === sort ? (s.order === "asc" ? "desc" : "asc") : "asc",
+        // Toggle direction when re-clicking the active sort; otherwise pick a
+        // sensible default per field — newest-first for "Created", asc for the rest.
+        order:
+          s.sort === sort
+            ? s.order === "asc"
+              ? "desc"
+              : "asc"
+            : sort === "created"
+              ? "desc"
+              : "asc",
         page: 1,
       })),
     []
@@ -147,6 +166,7 @@ export function BrowsePanel({
           patterns={patterns}
           sheets={sheets}
           selected={{
+            status: state.status,
             difficulties: state.difficulties,
             topics: state.topics,
             patterns: state.patterns,
@@ -185,6 +205,7 @@ export function BrowsePanel({
         patterns={patterns}
         sheets={sheets}
         selected={{
+          status: state.status,
           difficulties: state.difficulties,
           topics: state.topics,
           patterns: state.patterns,
