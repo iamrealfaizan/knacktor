@@ -18,17 +18,11 @@ import {
 /**
  * Curated, aspirational landing content (static — no DB).
  * Colors are expressed as semantic "tones" that map to kn-* design tokens;
- * components never inline hex.
+ * components never inline hex. The tone palette now lives in lib/tones.ts
+ * (shared with the concept pages); re-exported here so landing imports are unchanged.
  */
-export type Tone = "current" | "compared" | "result" | "amber" | "special";
-
-export const TONES: Record<Tone, { text: string; tint: string; border: string }> = {
-  current: { text: "text-kn-current", tint: "bg-kn-current-subtle", border: "border-kn-current-border" },
-  compared: { text: "text-kn-compared", tint: "bg-kn-blue-soft", border: "border-kn-border-1" },
-  result: { text: "text-kn-result", tint: "bg-kn-result-subtle", border: "border-kn-result-border" },
-  amber: { text: "text-kn-amber", tint: "bg-kn-amber-subtle", border: "border-kn-amber-border" },
-  special: { text: "text-kn-special", tint: "bg-kn-special-subtle", border: "border-kn-special-border" },
-};
+import { TONES, type Tone } from "@/lib/tones";
+export { TONES, type Tone };
 
 export interface Pillar {
   icon: LucideIcon;

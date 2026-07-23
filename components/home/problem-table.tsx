@@ -16,9 +16,11 @@ const GRID =
 export function ProblemTable({
   rows,
   pending = false,
+  emptyLabel = "No problems match your search or filters.",
 }: {
   rows: Problem[];
   pending?: boolean;
+  emptyLabel?: string;
 }) {
   return (
     <section>
@@ -46,9 +48,7 @@ export function ProblemTable({
           ))}
 
         {!pending && rows.length === 0 && (
-          <div className="py-14 text-center text-sm text-kn-ink-2">
-            No problems match your search or filters.
-          </div>
+          <div className="py-14 text-center text-sm text-kn-ink-2">{emptyLabel}</div>
         )}
 
         {!pending &&

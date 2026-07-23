@@ -82,6 +82,57 @@ export function ListSkeleton({ rows = 8 }: { rows?: number }) {
   );
 }
 
+/* ── Concept index pages (Topics / Patterns / Sheets) ──────────────────────── */
+
+/** Centered section-header skeleton (eyebrow + title + subcopy). */
+export function SectionHeaderSkeleton() {
+  return (
+    <div className="text-center max-w-[680px] mx-auto mb-11 flex flex-col items-center">
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="h-9 w-52 mt-3.5" />
+      <Skeleton className="h-4 w-72 mt-4" />
+    </div>
+  );
+}
+
+/** One concept card skeleton (icon tile · count · name · body · arrow). */
+export function ConceptCardSkeleton() {
+  return (
+    <div className="border border-kn-border-0 rounded-2xl bg-kn-surface-0 p-5 pb-6 flex flex-col gap-2.5">
+      <div className="flex items-center justify-between">
+        <Skeleton className="w-10 h-10 rounded-xl" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+      <Skeleton className="h-5 w-28" />
+      <Skeleton className="h-3.5 w-full" />
+      <Skeleton className="h-3.5 w-2/3" />
+      <Skeleton className="h-3.5 w-20 mt-1" />
+    </div>
+  );
+}
+
+/** Grid of concept card skeletons. */
+export function ConceptGridSkeleton({
+  count = 8,
+  cols = 4,
+}: {
+  count?: number;
+  cols?: 3 | 4;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid sm:grid-cols-2 gap-4",
+        cols === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+      )}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <ConceptCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
 /** Page header skeleton for detail routes (back link + title + subtitle). */
 export function PageHeaderSkeleton() {
   return (

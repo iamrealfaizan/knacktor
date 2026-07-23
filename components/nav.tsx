@@ -25,6 +25,12 @@ export function Nav() {
   const isProblemDetail = /^\/problems\/[^/]+$/.test(pathname);
   if (isProblemDetail) return null;
 
+  // Topics/Patterns/Sheets live under the app/(app) route group and render the
+  // full dashboard HomeHeader from that group's layout — Nav must yield to it.
+  const APP_PREFIXES = ["/topics", "/patterns", "/sheets"];
+  if (APP_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/")))
+    return null;
+
   return (
     <nav className="h-14 border-b border-kn-border-0 bg-kn-surface-0 sticky top-0 z-50 flex items-center px-6 gap-8">
       <Logo variant="nav" href="/" />
