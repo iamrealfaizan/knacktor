@@ -95,11 +95,9 @@ export const HEAT_MIX: Record<number, number | null> = { 0: null, 1: 30, 2: 52, 
 /* ── Next badge (deferred gamification, decision 11 — static placeholder) ── */
 export const NEXT_BADGE = { remaining: 17, name: "Century Club" };
 
-/* ── Header nav (canonical list from lib/site.ts + dashboard active flag) ── */
-export const NAV_LINKS = SITE_NAV_LINKS.map((l) => ({
-  ...l,
-  active: l.href === "/problems",
-}));
+/* ── Header nav (canonical list from lib/site.ts). Active-tab highlighting is
+      computed from the live pathname in HomeHeader — not baked in here. ── */
+export const NAV_LINKS = SITE_NAV_LINKS;
 
 /* ── Browse sidebar (status + difficulty + topic + pattern rows filter via URL
       params; options + counts are DB-derived in app/home/page.tsx). Study-sheet

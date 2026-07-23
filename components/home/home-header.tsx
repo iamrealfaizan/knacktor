@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Search, Flame, LogOut, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,14 @@ function getInitials(name: string): string {
 
 export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays: number }) {
   const [navOpen, setNavOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Highlight the tab matching the current route (the baked-in NAV_LINKS.active
+  // flag is a static fallback and can't track navigation). Only the tab for the
+  // page you're actually on lights up — /home is the dashboard, not a tab, so
+  // no tab is active there.
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
   return (
     <header className="sticky top-0 z-50 flex items-center gap-3 sm:gap-5 h-[60px] px-4 sm:px-6 border-b border-kn-border-0 bg-kn-bg/85 backdrop-blur-xl">
@@ -59,14 +68,14 @@ export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays:
             NAVIGATION
           </SheetTitle>
           <nav className="flex flex-col px-3 pb-3">
-            {NAV_LINKS.map(({ label, href, active }) => (
+            {NAV_LINKS.map(({ label, href }) => (
               <Link
                 key={label}
                 href={href}
                 onClick={() => setNavOpen(false)}
                 className={cn(
                   "min-h-11 flex items-center px-3 rounded-lg text-sm font-medium transition-colors touch-manipulation",
-                  active
+                  isActive(href)
                     ? "text-kn-ink-0 bg-kn-surface-2 font-semibold"
                     : "text-kn-ink-1 hover:text-kn-ink-0 hover:bg-kn-surface-2"
                 )}
@@ -81,13 +90,13 @@ export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays:
       <Logo variant="dashboard" href="/home" />
 
       <nav className="hidden md:flex items-center gap-0.5">
-        {NAV_LINKS.map(({ label, href, active }) => (
+        {NAV_LINKS.map(({ label, href }) => (
           <Link
             key={label}
             href={href}
             className={cn(
               "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors",
-              active
+              isActive(href)
                 ? "text-kn-ink-0 bg-kn-surface-2 font-semibold"
                 : "text-kn-ink-1 hover:text-kn-ink-0 hover:bg-kn-surface-2"
             )}
