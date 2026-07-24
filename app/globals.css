@@ -28,6 +28,18 @@
     --radius-md:              calc(var(--radius) - 2px);
     --radius-sm:              calc(var(--radius) - 4px);
 
+    /* ── Motion tokens — the app chrome's shared vocabulary ─────────
+       Purpose-driven, strong custom easings (built-in CSS easings are too
+       weak). NEVER ease-in for UI. The simulation stage keeps its own
+       canonical grammar (SimulationRules.md); these are for the chrome. */
+    --kn-ease-out:    cubic-bezier(0.23, 1, 0.32, 1);   /* enter / responsive     */
+    --kn-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement     */
+    --kn-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* sheets / drawers       */
+    --kn-dur-press:   140ms;   /* button press feedback          */
+    --kn-dur-pop:     180ms;   /* small pops (icons, chips)      */
+    --kn-dur-menu:    200ms;   /* dropdowns / popovers / selects */
+    --kn-dur-sheet:   300ms;   /* sheets / drawers               */
+
     /* ── Knacktor exact tokens (hex) — never override or inline ───── */
     --kn-bg:        #F4F1EA;
     --kn-surface-0: #FFFFFF;
@@ -291,6 +303,95 @@
   .kn-stage-root *::after {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+/* ── App-chrome motion (Base UI popups) ──────────────────────────────
+   The shadcn primitives were authored with Tailwind v4-only utility classes
+   (animate-in / zoom-in-95 / slide-in-from-* and the bare data-open: variant),
+   none of which this Tailwind v3 build compiles — so every dropdown, popover,
+   tooltip, and sheet was appearing with NO transition. Base UI sets real DOM
+   attributes at runtime (data-open / data-closed / data-starting-style /
+   data-ending-style / data-side) and exposes --transform-origin, so we drive
+   the motion here in plain CSS instead. Origin-aware (scale from the trigger),
+   ease-out, sub-200ms — per the animation framework. */
+
+/* Dropdown menus + popovers: origin-aware scale + fade. */
+[data-slot="dropdown-menu-content"],
+[data-slot="popover-content"] {
+  transform-origin: var(--transform-origin, center);
+  transition:
+    opacity var(--kn-dur-menu) var(--kn-ease-out),
+    transform var(--kn-dur-menu) var(--kn-ease-out);
+}
+[data-slot="dropdown-menu-content"][data-starting-style],
+[data-slot="dropdown-menu-content"][data-ending-style],
+[data-slot="popover-content"][data-starting-style],
+[data-slot="popover-content"][data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* Tooltips: quicker, with a small directional lift. Instant on subsequent
+   hovers (data-instant) so a populated toolbar feels immediate. */
+[data-slot="tooltip-content"] {
+  transform-origin: var(--transform-origin, center);
+  transition:
+    opacity 125ms var(--kn-ease-out),
+    transform 125ms var(--kn-ease-out);
+}
+[data-slot="tooltip-content"][data-starting-style],
+[data-slot="tooltip-content"][data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+[data-slot="tooltip-content"][data-instant] {
+  transition-duration: 0ms;
+}
+
+/* Sheets / drawers: slide from the anchored edge (data-side), backdrop fades.
+   Enter is ease-drawer; nothing here exceeds the sheet duration token. */
+[data-slot="sheet-content"] {
+  transition: transform var(--kn-dur-sheet) var(--kn-ease-drawer);
+}
+[data-slot="sheet-content"][data-side="right"][data-starting-style],
+[data-slot="sheet-content"][data-side="right"][data-ending-style] {
+  transform: translateX(100%);
+}
+[data-slot="sheet-content"][data-side="left"][data-starting-style],
+[data-slot="sheet-content"][data-side="left"][data-ending-style] {
+  transform: translateX(-100%);
+}
+[data-slot="sheet-content"][data-side="bottom"][data-starting-style],
+[data-slot="sheet-content"][data-side="bottom"][data-ending-style] {
+  transform: translateY(100%);
+}
+[data-slot="sheet-backdrop"] {
+  transition: opacity var(--kn-dur-menu) var(--kn-ease-out);
+}
+[data-slot="sheet-backdrop"][data-starting-style],
+[data-slot="sheet-backdrop"][data-ending-style] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="dropdown-menu-content"],
+  [data-slot="popover-content"],
+  [data-slot="tooltip-content"],
+  [data-slot="sheet-content"],
+  [data-slot="sheet-backdrop"] {
+    transition-duration: 0.01ms;
+  }
+  /* Keep opacity fade (aids comprehension); drop the movement/scale. */
+  [data-slot="dropdown-menu-content"][data-starting-style],
+  [data-slot="dropdown-menu-content"][data-ending-style],
+  [data-slot="popover-content"][data-starting-style],
+  [data-slot="popover-content"][data-ending-style],
+  [data-slot="tooltip-content"][data-starting-style],
+  [data-slot="tooltip-content"][data-ending-style],
+  [data-slot="sheet-content"][data-side][data-starting-style],
+  [data-slot="sheet-content"][data-side][data-ending-style] {
+    transform: none;
   }
 }
 
