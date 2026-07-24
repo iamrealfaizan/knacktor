@@ -6,9 +6,23 @@ description: Add a new Knacktor problem through the staged, gated authoring pipe
 # Add a Knacktor problem — staged pipeline
 
 You (Claude Code) are the **orchestrator AND the author**. You run the deterministic gates, author each
-artifact, pause at the human gates, and track progress in `authoring/<slug>/state.json`. The user
-supplies a **vetted, correct** Python solution — you never have to invent the algorithm, only reformat,
-trace, choose the visual, and write the explanations.
+artifact, pause at the human gates, and track progress in `authoring/<slug>/state.json`.
+
+**Two input modes:**
+- **Solution provided.** The user pastes a **vetted, correct** Python solution — you reformat, trace,
+  choose the visual, and write explanations. Never rewrite the algorithm.
+- **Only the question / test cases provided.** You **author the solutions yourself** (the standard
+  interview solutions), then **verify** them by running every preset through the tracer and matching the
+  known expected answers (Gate A) before the human sees Gate 1. Author-generated code is flagged as
+  not-user-vetted for extra scrutiny at Gate 1.
+
+**Two content standards apply in BOTH modes (D23 — see `rules/Authoring.md` §0.1):**
+1. **LeetCode-runnable copy code.** Every approach's copyable code must run on LeetCode verbatim (exact
+   `class Solution` method signature; LeetCode-injected APIs supplied by the harness, never added as
+   params). Multi-call design classes use dual code (`leetcodeSource`) — never deferred for copy-compat.
+2. **Two approaches minimum — brute + optimal**, both LeetCode-runnable and interview-standard. If only
+   the optimal is given/known, author the brute too. A single-approach problem ships ONLY with the
+   user's explicit approval at Gate 1 (recorded exception). Never ship optimal-only silently.
 
 ## Why staged (read once)
 
@@ -102,11 +116,24 @@ store, **the preview is exactly what ships** — no live/preview drift.
 
 ## The three human gates — STOP and wait for the user
 
-**🟦 Gate 1 — Frozen code (after S1).** Every downstream line number depends on this. Show:
+**🟦 Gate 1 — Frozen code (after S1).** Every downstream line number depends on this. Show, **for
+BOTH approaches (brute + optimal)**:
 - the numbered `solution.py` (line 1 = `class Solution:`, line 2 = `def …`, first body = line 3),
-- a semantics-preserving diff vs. the pasted original (you only reformatted; you changed no logic),
+- either a semantics-preserving diff vs. the pasted original (solution-provided mode), **or** a
+  "**Claude-authored — not user-vetted**" banner (question-only mode),
+- **LeetCode-compat check:** the exact `class Solution` method signature LeetCode expects, no undefined
+  references (injected APIs come from the harness), and `leetcodeSource` if dual code was needed,
+- **Per-test verification:** each preset (incl. edge cases) run through the tracer with its
+  `finalResult` shown next to the known expected answer — all must match,
 - the entrypoint (`Solution.<method>`).
-Ask: *"Is this the exact code to freeze? Everything downstream keys off these line numbers."* Wait.
+
+**Two-approach gate:** if only one approach exists, STOP and ask the user to either (a) let you author
+the missing brute/optimal, or (b) explicitly approve a single-approach exception (you record
+`humanGates.singleApproachException = { approved:true, reason }` in `state.json`). Never proceed
+optimal-only without that.
+
+Ask: *"Is this the exact code to freeze (both approaches, LeetCode-runnable, all tests matching)?
+Everything downstream keys off these line numbers."* Wait.
 
 **🟦 Gate 2 — Primitive pre-check (after S3, LIGHT).** A quick sanity check before building the animation —
 the *real* frames come at Gate 3, so this is short, not the full ASCII packet. State: the algorithm's
@@ -155,6 +182,13 @@ approaches and run `npm run import-problem -- <file> --force` (the slug exists) 
 
 ## Hard rules (never violate)
 
+- **LeetCode-runnable copy code (D23).** Every approach's copyable code runs on LeetCode verbatim — exact
+  `class Solution` signature; injected APIs come from the harness (never add params for them); multi-call
+  design classes use dual code (`leetcodeSource`). Never ship copyable code that won't run on LeetCode.
+- **Two approaches minimum — brute + optimal (D23).** Never ship optimal-only. If only one is given/known,
+  author the other. Single-approach only with the user's recorded Gate-1 approval.
+- **Verify authored code.** When you (not the user) wrote the solution, every preset must trace to the
+  correct known answer before Gate 1; flag it as not-user-vetted.
 - The user's pasted solution is the source of truth — **reformat, never rewrite the algorithm**. If you
   think it's wrong, stop and ask; don't silently "fix" it.
 - **Freeze before trace** — do not author anything line-keyed until S2's trace exists.

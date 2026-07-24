@@ -28,8 +28,14 @@
 ## Gate — run the tracer, then fill expectedOutput from reality
 
 1. `npm run trace-approach -- authoring/<slug> <approachId>` for each approach.
-2. For each preset, set `expectedOutput` to the reported **finalResult** (it can never disagree with the
-   real run — this deletes the whole class of "wrong expected output" bugs).
+2. For each preset, set `expectedOutput` to the reported **finalResult**.
+   - ⚠️ **Author-written code (question-only mode) — verify, don't self-certify (D23).** Auto-filling
+     `expectedOutput` from the trace makes a *wrong* solution certify itself. So for any solution **you**
+     wrote, first compare the reported `finalResult` against the **independently known answer** (the
+     LeetCode example's stated output, or the answer you compute by hand). They MUST match; if they
+     don't, your solution is wrong — fix it (re-freeze at S1, re-approve Gate 1) before filling.
+   - Both approaches must produce the **same** result for every shared preset (they're equivalent
+     solutions to the same problem).
 3. Read the **coverage verdict**: if it reports a gap (`line(s) no preset executes: …`), the presets don't
    exercise some branch — add/modify a preset that reaches that line, re-run. Repeat until 0 gap **for
    every approach** (a single preset need not hit every line; the union must).

@@ -40,9 +40,25 @@
   S2 when presets are traced). Note them now.
 - `statement`: paste the real problem statement verbatim (examples + constraints included).
 
+## Approaches plan (D23 — decide now, execute in S1)
+
+Every problem needs **≥2 approaches: a brute force AND an optimal**, both LeetCode-runnable and
+interview-standard. Decide the plan here and record it in `state.json` (`approachesPlan`):
+
+- **Solution(s) provided by the user?** Use them. If the user gave only the optimal, **also author the
+  brute** (standard interview brute force). If they gave only the question/test cases, **author both**
+  yourself (standard interview solutions), and verify them at S1/S2 (trace every preset → matches the
+  known answer).
+- **Rare single-approach case.** Only if the problem genuinely has one reasonable approach by
+  interview/LeetCode standards. Do **not** decide this silently — you will surface it at Gate 1 and need
+  the user's explicit approval, recorded as `humanGates.singleApproachException`.
+- `recommendedApproachId` = the **optimal** approach id. Run S1→S4 for **each** approach (optimal first,
+  then brute).
+
 ## Gate (run / check)
 
 - JSON parses.
 - Cross-check `difficulty`, every `topics[]`, every `patterns[]` against the three seed files above.
 
-Write `problem.json`, set `state.stage = "S1"`, then proceed to S1 for the optimal approach.
+Write `problem.json`, record `approachesPlan` in `state.json`, set `state.stage = "S1"`, then proceed to
+S1 for the optimal approach (then repeat S1 for the brute).
