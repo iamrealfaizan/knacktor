@@ -32,6 +32,8 @@ When in doubt, read the rule doc and cite the section (e.g. "per SimulationRules
 - **Data contracts**: versioned (Schema.md); no unversioned breaking change to renderer-facing structures.
 - **Simulations**: every simulation MUST conform to SimulationRules.md. The 4 mandated behaviors (creation pop-in, population flash, smooth movement, path-tracing) are non-negotiable.
 - **Authoring**: traces produced ONLY by the Python tracer (D9). Never hand-write step arrays.
+- **LeetCode-runnable copy code (D23)**: every approach's copyable code MUST run on LeetCode verbatim — exact `class Solution` method signature; LeetCode-injected APIs (`isBadVersion`, `guess`, provided `ListNode`/`TreeNode`) come from the tracer harness, never added as params. Multi-call design classes use dual code (`Approach.leetcodeSource`, served by the copy button) — never ship copyable code that won't run on LeetCode.
+- **Two approaches minimum (D23)**: every problem ships ≥2 approaches — a `brute` AND an `optimal`, both LeetCode-runnable + interview-standard. If only the optimal is given/known, author the brute too; never ship optimal-only. Single-approach only with the user's explicit, recorded Gate-1 approval. When only the question/test cases are given, author both approaches and verify each preset's traced result against the known answer before Gate 1.
 - **Ingest**: validator-first — fails the whole run on ANY contract violation. Nothing partial is written.
 - **No Line Left Behind (D8)**: every executable line in the displayed Python code MUST emit at least one Step. This includes while-condition on final-false-evaluation, every assignment, every branch. Only blank lines, `class`, and bare `def` headers are exempt.
 
@@ -119,6 +121,15 @@ All routes return `{ data: T, error?: string }` with standard HTTP codes. No wri
 ## ADD-PROBLEM WORKFLOW (D18) — read this every time a problem is added
 
 When the user pastes a filled problem template and says "add this problem":
+
+**Step 0 — Content standards (D23 — verify before anything else; see `rules/Authoring.md` §0.1)**
+- **Two approaches (brute + optimal)** are mandatory. If the paste has only the optimal, author the brute
+  too; if only the question/test cases were given, author BOTH standard interview solutions. A single
+  approach ships only with the user's explicit, recorded approval at the code-review gate.
+- **LeetCode-runnable copy code:** each approach uses LeetCode's exact `class Solution` signature; injected
+  APIs come from the harness (never add params); multi-call design classes use dual code (`leetcodeSource`).
+- **Verify authored code:** when you wrote the solution, every preset's traced result must equal the known
+  LeetCode answer before the human gate; flag it as not-user-vetted.
 
 **Step 1 — Parse & validate structure** (run automatically)
 - Parse the JSON; check all required fields against `rules/Authoring.md`

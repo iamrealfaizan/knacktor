@@ -213,10 +213,17 @@ Examples:
 
 ---
 
-## 4. APPROACHES — author TWO by default
+## 4. APPROACHES — TWO ARE MANDATORY (brute + optimal) (D23)
 
-Provide **two approaches**: a **brute force** (`"kind": "brute"`) and an **optimal**
-(`"kind": "optimal"`). Only provide one if the problem genuinely has a single reasonable solution.
+Every problem ships **at least two approaches**: a **brute force** (`"kind": "brute"`) AND an
+**optimal** (`"kind": "optimal"`), **both LeetCode-runnable and interview-standard**. If you were given
+only the optimal (or only the question), **author the brute too** — never ship optimal-only. More than
+two (3–5) is welcome; two is the floor.
+
+A **single approach** is allowed ONLY if the problem genuinely has one reasonable solution by
+interview/LeetCode standards — and only with the **human reviewer's explicit approval** recorded at the
+review gate. Do not decide this silently.
+
 `recommendedApproachId` = the optimal one. Both approaches must, for each preset, return a value that
 matches that preset's `expectedOutput` (so make them genuinely equivalent).
 
@@ -226,6 +233,13 @@ matches that preset's `expectedOutput` (so make them genuinely equivalent).
 
 - One `class Solution` with the method named in `entrypoint` (`"Solution.<method>"`). The tracer calls
   `Solution().<method>(**preset.value)`.
+- 🔴 **LeetCode-runnable, verbatim signature (D23).** The code a user copies from the app MUST run on
+  LeetCode as-is. Use LeetCode's **exact** method name, parameter names/order, and return shape.
+  One-statement-per-line reformatting is fine (it still runs); changing the signature or algorithm is not.
+  LeetCode-**injected** APIs (`isBadVersion`, `guess`, `read4`, provided `ListNode`/`TreeNode`/`Node`) are
+  supplied by the tracer harness — **never add a parameter for them.** For multi-call design classes whose
+  traced form can't keep the verbatim signature, provide a copy-safe `leetcodeSource` (dual code) — never
+  ship copyable code that won't run on LeetCode.
 - 🔴 **Preset `value` keys MUST exactly match the method parameter names.** `def f(self, nums, target)`
   → every preset value is `{ "nums": ..., "target": ... }`.
 - Whatever the method **returns** becomes the traced result and must equal `expectedOutput`.
