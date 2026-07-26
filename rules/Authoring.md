@@ -13,6 +13,40 @@ variables, the highlighted line, and the animation can never drift out of sync. 
 write correct Python and describe (a) how its variables map to a visual and (b) what to say at each
 line.
 
+## 0.1 Two non-negotiable content standards (D23)
+
+These apply to **every** problem, whether the user pastes a vetted solution or only the
+question/test cases. When only the question is given, **you author the solutions** (never invent the
+algorithm carelessly — use the standard interview solutions) and verify them (see below).
+
+**A — LeetCode-runnable copy code (mandatory).** The code a user can **copy from the app must run on
+LeetCode verbatim** — paste into LeetCode's editor, hit Run, it works.
+- Use the **exact `class Solution` + method signature LeetCode provides** (method name, parameter
+  names, order, and return type/shape). One-statement-per-line reformatting (§4) is allowed because
+  it still runs; **rewriting the signature or the algorithm is not**.
+- **No references to undefined names.** APIs that LeetCode *injects* (e.g. `isBadVersion`, `guess`,
+  `read4`, `Node` types) are supplied by the **tracer run-harness**, bound to the preset — **do not
+  add a parameter** for them, so the copyable signature stays verbatim.
+- **Edge cases (multi-call design classes** — LRU Cache, Min Stack, Trie, Queue-via-Stacks): the
+  tracer may need a driver form the real class API can't express. Ship **dual code** — a separate,
+  verified **`leetcodeSource`** field (the real LeetCode class/API) that the copy button serves,
+  alongside the traced `source` that drives the animation. **Never defer a problem for copy-compat
+  reasons** — use dual code. (`leetcodeSource` plumbing: `Approach.leetcodeSource?` in Schema.md, an
+  `import-problem`/`ingest` passthrough, and the code-panel copy preferring it. Until that plumbing
+  lands, design-class problems remain blocked on the design-harness as today.)
+
+**B — Two approaches minimum: brute + optimal.** Every problem ships **≥2 approaches** — a
+**brute-force** (`kind:"brute"`) AND an **optimal** (`kind:"optimal"`), **both** LeetCode-runnable and
+interview-standard. If only the optimal is provided or known, **author the brute too** — do not ship
+optimal-only. A single-approach problem ships **only** with the user's explicit approval at Gate 1,
+recorded as `humanGates.singleApproachException = { approved, reason }` in `state.json`. Otherwise the
+pipeline blocks. `recommendedApproachId` = the optimal one. More than two (3–5) is welcome but never
+required; two is the floor.
+
+**Verification (when you authored the code).** Before Gate 1, run every preset (incl. edge cases)
+through the tracer and confirm each `finalResult` equals the known expected answer. Author-generated
+(not user-vetted) code is **flagged at Gate 1 for extra human scrutiny**.
+
 ## 1. Bundle layout
 
 One directory per problem under `seeds/problems/<slug>/`:
@@ -101,6 +135,13 @@ The real solution, executed verbatim. **Line numbers are load-bearing** — `lin
 `mapping.json`, and `narration.json` key off them. Keep one `class Solution` with the `entrypoint`
 method; the tracer calls `entrypoint(**preset.value)`.
 
+🔴 **Must be LeetCode-runnable (§0.1-A).** Use LeetCode's exact `class Solution` method signature
+(name, params, order, return). Reformatting to one-statement-per-line is fine (it still runs);
+changing the signature is not. Any LeetCode-injected API (`isBadVersion`, `guess`, `read4`, provided
+`Node`/`ListNode`/`TreeNode` types, …) is supplied by the tracer run-harness bound to the preset —
+**never add a parameter for it.** If a problem's traced form genuinely can't keep the verbatim
+signature (multi-call design classes), author the copy-safe form as `leetcodeSource` (dual code).
+
 ```python
 class Solution:
     def maxArea(self, height):
@@ -134,6 +175,11 @@ fails naming the uncovered line. Add a preset that covers it.
   "complexity": { "time": "O(n)", "space": "O(1)" },
   "language": "python",
   "entrypoint": "Solution.maxArea",
+  // "leetcodeSource": "…",                  // OPTIONAL (§0.1-A) — ONLY when the traced `source`
+                                            // can't keep LeetCode's verbatim signature (multi-call
+                                            // design classes). The copy button serves this instead
+                                            // of `source`. Omit for standard problems (source is
+                                            // already LeetCode-runnable).
   "primaryPrimitive": "bar-container",
   "auxStructures": [],
   "lineExplanations": {                      // narration LINE EXPLANATION panel

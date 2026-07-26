@@ -55,6 +55,7 @@ Required: `schemaVersion`, `_id`, `slug`, `number`, `title`, `difficultyId` (→
 
 ### 2.2 `Approach`
 Required: `id` (stable local string, not a Mongo ref), `name`, `kind` (`brute`|`optimal`|`alternative`), `summary`, `complexity.time`, `complexity.space`, `language` (`python`), `source` (real code, executed verbatim by the tracer), `entrypoint` (function the tracer calls, e.g. `Solution.maxArea`), `lineExplanations` (`lineNo → text`, narration panel), `syntaxExplanations?` (`lineNo → text`, hover tooltip), `primaryPrimitive` (which visual primitive the stage uses), `auxStructures[]`.
+Optional: `leetcodeSource?` (string, D23) — a **copy-safe, LeetCode-runnable** version of the solution used ONLY when the traced `source` can't keep LeetCode's verbatim signature (multi-call design classes). The code-panel copy button serves `leetcodeSource` when present, else `source`. For standard problems `source` is itself LeetCode-runnable and this is omitted. Both `source` and `leetcodeSource` must be verbatim-runnable on LeetCode per [Authoring.md](Authoring.md) §0.1-A.
 - `visualizationIntent?` — **human-readable description of what the visualization should show at each phase.** Used by Claude Code to validate the mapping.json and catch mismatches during the add-problem workflow (D18). Not rendered to users. Example: `"init: show the array with lp at 0 and rp at end. loop: highlight the two pointers, show water fill between them. update: show new max when area improves."`.
 - `resultSpec?` — **how the RESULT panel renders** (data-driven, replaces 4Sum hardcoding): `{ varName, label, suffix?, render: "scalar"|"list"|"tuple-list"|"boolean"|"string", emptyText? }`.
 - `varColors?` — optional `varName → token-key` pin so rail variable colors match the stage pointer lanes.
@@ -213,7 +214,7 @@ var snapshot + counters), applies the mapping + narration specs, and outputs the
 - `slug` is the route-facing identity; no page depends on raw file paths as identifiers.
 - `supportsCustomInput` is explicit per problem.
 - Compare-mode availability is **derived** from approach availability + product rules (hidden when no meaningful comparison).
-- Multiple approaches are preferred, not required.
+- **Two approaches minimum (D23):** every problem ships ≥2 approaches — a `brute` AND an `optimal`, both LeetCode-runnable. A single-approach problem is allowed ONLY as an explicitly human-approved, recorded exception. 3+ approaches are welcome. (`supportsCompare` is derived from having ≥2 approaches.)
 - Every `Step.codeKey` resolves to a real line/range; `vars`/`counters`/`visual` are complete per step.
 
 ## 7. Versioning

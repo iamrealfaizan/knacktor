@@ -1,13 +1,19 @@
 # Compare Mode & Responsive Layout — Knacktor (D14)
 
-> **Status:** v2.0 — Part 2 (mobile) rewritten to the shipped stacked-1a layout (pinned stage +
-> scroll body + bottom sheets). Part 1 (Compare) remains the spec for the not-yet-built dual-lane view.
+> **Status:** v3.0 — Part 1 (dual-lane Compare) is now **built and shipped** on desktop (two lanes
+> side-by-side) and mobile (two lanes stacked in the scroll body). Part 2 (mobile stacked-1a) shipped
+> earlier.
 > **Companions:** [Design.md](Design.md) (page layout + tokens), [Rules.md](Rules.md) §1/§8 (no-scroll desktop loop), the locked prototype `4Sum Visualizer.html`.
 >
-> **Known discrepancy (open item, see Tracker):** §1.4 says `MODE_LAYOUT.Compare` sets
-> `code:false, rail:false`, but the shipped `problem-engine.tsx` uses
-> `Compare: { code: true (collapsed), rail: false (visible), narr: true }`. Resolve when the
-> dual-lane Compare view is built.
+> **Gate (shipped):** Compare is enabled **iff `approaches.length ≥ 2`**. The `problem.supportsCompare`
+> flag has been **retired as a gate** (kept in the schema, unused) — an audit confirmed it was equivalent
+> to the approach-count rule across the whole catalog. When only 1 approach exists the mode button is
+> `aria-disabled` with a tooltip ("Only 1 approach available — Compare needs at least two"); on mobile the
+> overflow sheet shows the same message as inline subtext.
+>
+> **Discrepancy resolved:** the old `MODE_LAYOUT.Compare` panel-collapse values no longer drive the
+> desktop Compare body — the desktop branch renders two `<CompareLane>` columns directly (code panel + right
+> rail are simply not rendered), so the `code/rail/narr` booleans are moot for Compare.
 
 ---
 
@@ -26,8 +32,11 @@ watch a brute-force and an optimal solution diverge in real time.
 On entering Compare:
 - `laneA = approaches.find(kind === "brute")` (fallback: first approach).
 - `laneB = approaches.find(kind === "optimal")` (fallback: `recommendedApproachId`, else 2nd).
-- Compare requires **≥2 approaches** and `problem.supportsCompare` (the top-bar button is disabled
-  otherwise). Both lanes always use the **same `inputId`** (apples-to-apples).
+- Compare requires **≥2 approaches** (the top-bar button is disabled otherwise, with an explanatory
+  tooltip). `problem.supportsCompare` is **no longer** consulted. Both lanes always use the **same
+  `inputId`** (apples-to-apples).
+- Lane choices are computed on **first** Compare entry (brute/optimal default pairing) and **preserved for
+  the session** thereafter — re-entering Compare does not reset the picked lanes.
 
 ### 1.3 Approach pickers
 Each lane has a compact approach dropdown (reusing the top-bar dropdown pattern). Changing a lane's
@@ -126,11 +135,12 @@ beneath, and a pinned bottom dock. One responsive `ProblemEngine` — no separat
 - Touch targets ≥40–44px on mobile (`h-10/h-11` with `lg:h-8` desktop sizes); `touch-manipulation`
   on all transport/tab/zoom controls.
 
-### 2.4 Compare on mobile
-Until the dual-lane Compare view (Part 1) is built, Compare on mobile renders **single-lane**
-(identical to Learn; tab still gated by `supportsCompare`). When lanes land: both lane blocks
-(lane header → stage → per-lane strip) stack **vertically inside the scroll body**, the shared
-dock stays pinned, and the pinned-stage slot shows lane A. Side-by-side is desktop-only.
+### 2.4 Compare on mobile (shipped)
+Compare on mobile renders **two lane blocks stacked vertically inside the scroll body** — each block is a
+`<CompareLane mobile>` (lane header + approach picker → Stage at `clamp(11rem,30dvh,18rem)` → per-lane
+readout strip), separated by a divider. There is **no separate pinned stage** in Compare (the lanes carry
+their own stages); the shared `ControlDock` stays pinned below with its dual-lane scrubber. Side-by-side
+columns remain desktop-only.
 
 ### 2.5 Reuse
 One responsive engine; every panel component is shared. Mobile-only additions are thin shells:
