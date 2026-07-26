@@ -10,8 +10,23 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import { PresetSheet } from "./preset-sheet";
 import type { Player } from "./use-player";
+import type { CompareTransport } from "./use-compare-transport";
 import type { PresetInput, InputConstraints } from "@/lib/trace";
 import type { CustomInputState } from "./problem-engine";
+
+/** Compare-mode props: two lane players + one shared fan-out transport
+ *  (CompareAndResponsive.md §1.5). When present, the dock renders a dual-lane
+ *  scrubber (two fills / two playheads / per-lane diamonds) and a per-lane
+ *  step counter, and drives playback through `transport` instead of `player`. */
+export interface CompareDockState {
+  a: Player;
+  b: Player;
+  transport: CompareTransport;
+  keyEventIndicesA: number[];
+  keyEventIndicesB: number[];
+  keyEventsA?: Record<number, { label: string; kind?: string }>;
+  keyEventsB?: Record<number, { label: string; kind?: string }>;
+}
 
 interface ControlDockProps {
   player: Player;
@@ -24,6 +39,8 @@ interface ControlDockProps {
   customInput: CustomInputState;
   /** D12 — custom input is gated off until re-enabled */
   customInputEnabled?: boolean;
+  /** present only in Compare mode — switches the dock to dual-lane playback */
+  compare?: CompareDockState;
   onSelectPreset: (id: string) => void;
   onToggleCustomInput: () => void;
   onCustomRun: (raw: Record<string, string>) => void;
@@ -64,10 +81,23 @@ export function ControlDock({
   inputConstraints,
   customInput,
   customInputEnabled = false,
+  compare,
   onSelectPreset,
   onToggleCustomInput,
   onCustomRun,
 }: ControlDockProps) {
+  // Effective transport — the shared Compare fan-out when comparing, else the
+  // single active player. Everything below reads these instead of `player.*`.
+  const eff = {
+    playing: compare ? compare.transport.playing : player.playing,
+    speed: compare ? compare.transport.speed : player.speed,
+    togglePlay: compare ? compare.transport.togglePlay : player.togglePlay,
+    first: compare ? compare.transport.first : player.first,
+    last: compare ? compare.transport.last : player.last,
+    next: compare ? compare.transport.next : player.next,
+    prev: compare ? compare.transport.prev : player.prev,
+    cycleSpeed: compare ? compare.transport.cycleSpeed : player.cycleSpeed,
+  };
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [dropOpen, setDropOpen] = useState(false);
@@ -92,7 +122,8 @@ export function ControlDock({
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const f = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    player.seek(Math.round(f * (player.total - 1)));
+    if (compare) compare.transport.seekFraction(f);
+    else player.seek(Math.round(f * (player.total - 1)));
   }
 
   // Draggable scrubber: capture the pointer and seek continuously while dragging.
@@ -157,40 +188,66 @@ export function ControlDock({
         </button>
       </div>
 
-      {/* Scrubber (draggable) — taller touch zone below lg, elements vertically centered */}
-      <div
-        ref={trackRef}
-        className="relative h-8 lg:h-[18px] cursor-pointer select-none touch-none"
-        onPointerDown={onTrackPointerDown}
-        onPointerMove={onTrackPointerMove}
-        onPointerUp={onTrackPointerUp}
-      >
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 rounded bg-kn-track" />
+      {/* Scrubber (draggable) — taller touch zone below lg, elements vertically centered.
+          Compare: two stacked lane fills + per-lane diamonds + two playheads (§1.5). */}
+      {compare ? (
         <div
-          className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 rounded bg-kn-current transition-[width] duration-200"
-          style={{ width: `${player.progress * 100}%` }}
-        />
-        {keyEventIndices.map((k) => {
-          const ev = keyEvents?.[k];
-          const cls = (ev?.kind && KIND_CLASS[ev.kind]) || "bg-kn-amber border-kn-amber-bd";
-          return (
-            /* ≥24px invisible hit wrapper so diamonds are tappable on touch */
-            <span
-              key={k}
-              title={ev ? `${ev.label} · step ${k + 1}` : `Key event · step ${k + 1}`}
-              onPointerDown={(e) => { e.stopPropagation(); player.seek(k); }}
-              className="absolute top-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 grid place-items-center cursor-pointer"
-              style={{ left: `${(k / (player.total - 1)) * 100}%` }}
-            >
-              <span className={`w-2.5 h-2.5 border rotate-45 ${cls}`} />
-            </span>
-          );
-        })}
-        <span
-          className="absolute top-1/2 w-4 h-4 rounded-full bg-kn-surface-0 border-[2.5px] border-kn-current transition-[left] duration-200 pointer-events-none"
-          style={{ left: `${player.progress * 100}%`, transform: "translate(-50%,-50%)" }}
-        />
-      </div>
+          ref={trackRef}
+          className="relative h-9 lg:h-6 cursor-pointer select-none touch-none"
+          onPointerDown={onTrackPointerDown}
+          onPointerMove={onTrackPointerMove}
+          onPointerUp={onTrackPointerUp}
+        >
+          <LaneTrack
+            player={compare.a}
+            yPct={32}
+            color="var(--kn-ptr-lo)"
+            keyEventIndices={compare.keyEventIndicesA}
+            keyEvents={compare.keyEventsA}
+          />
+          <LaneTrack
+            player={compare.b}
+            yPct={68}
+            color="var(--kn-ptr-hi)"
+            keyEventIndices={compare.keyEventIndicesB}
+            keyEvents={compare.keyEventsB}
+          />
+        </div>
+      ) : (
+        <div
+          ref={trackRef}
+          className="relative h-8 lg:h-[18px] cursor-pointer select-none touch-none"
+          onPointerDown={onTrackPointerDown}
+          onPointerMove={onTrackPointerMove}
+          onPointerUp={onTrackPointerUp}
+        >
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 rounded bg-kn-track" />
+          <div
+            className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 rounded bg-kn-current transition-[width] duration-200"
+            style={{ width: `${player.progress * 100}%` }}
+          />
+          {keyEventIndices.map((k) => {
+            const ev = keyEvents?.[k];
+            const cls = (ev?.kind && KIND_CLASS[ev.kind]) || "bg-kn-amber border-kn-amber-bd";
+            return (
+              /* ≥24px invisible hit wrapper so diamonds are tappable on touch */
+              <span
+                key={k}
+                title={ev ? `${ev.label} · step ${k + 1}` : `Key event · step ${k + 1}`}
+                onPointerDown={(e) => { e.stopPropagation(); player.seek(k); }}
+                className="absolute top-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 grid place-items-center cursor-pointer"
+                style={{ left: `${(k / (player.total - 1)) * 100}%` }}
+              >
+                <span className={`w-2.5 h-2.5 border rotate-45 ${cls}`} />
+              </span>
+            );
+          })}
+          <span
+            className="absolute top-1/2 w-4 h-4 rounded-full bg-kn-surface-0 border-[2.5px] border-kn-current transition-[left] duration-200 pointer-events-none"
+            style={{ left: `${player.progress * 100}%`, transform: "translate(-50%,-50%)" }}
+          />
+        </div>
+      )}
 
       {/* Transport row — desktop: left/right flex + absolutely-centered transport;
           mobile: speed | transport | counter with fluid spacing */}
@@ -200,10 +257,10 @@ export function ControlDock({
         <Button
           size="sm"
           variant="outline"
-          onClick={player.cycleSpeed}
+          onClick={eff.cycleSpeed}
           className="lg:hidden h-10 min-w-11 font-mono text-[12px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-0 touch-manipulation select-none"
         >
-          {player.speed}×
+          {eff.speed}×
         </Button>
 
         {/* LEFT (desktop) — input selector or custom input fields */}
@@ -344,40 +401,53 @@ export function ControlDock({
 
         {/* CENTER — transport controls; absolutely centered on desktop, auto-centered on mobile */}
         <div className="mx-auto lg:mx-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-1.5 lg:gap-2">
-          <Transport label="First" onClick={player.first}><SkipBack className="h-3.5 w-3.5" /></Transport>
-          <Transport label="Prev key event (Shift+←)" onClick={() => player.jumpToKey(-1)} className="max-lg:hidden"><Diamond className="h-3 w-3 -scale-x-100" /></Transport>
-          <Transport label="Step back" onClick={player.prev}><ChevronLeft className="h-4 w-4" /></Transport>
+          <Transport label="First" onClick={eff.first}><SkipBack className="h-3.5 w-3.5" /></Transport>
+          {!compare && (
+            <Transport label="Prev key event (Shift+←)" onClick={() => player.jumpToKey(-1)} className="max-lg:hidden"><Diamond className="h-3 w-3 -scale-x-100" /></Transport>
+          )}
+          <Transport label="Step back" onClick={eff.prev}><ChevronLeft className="h-4 w-4" /></Transport>
           <Tooltip>
             <TooltipTrigger
               render={
                 <button
-                  onClick={player.togglePlay}
+                  onClick={eff.togglePlay}
                   className="w-11 h-11 shrink-0 rounded-full bg-kn-current text-white grid place-items-center shadow-[0_3px_10px_var(--kn-accent-soft)] touch-manipulation select-none"
                 >
-                  {player.playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+                  {eff.playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                 </button>
               }
             />
-            <TooltipContent>{player.playing ? "Pause" : "Play"} (space)</TooltipContent>
+            <TooltipContent>{eff.playing ? "Pause" : "Play"} (space)</TooltipContent>
           </Tooltip>
-          <Transport label="Step forward" onClick={player.next}><ChevronRight className="h-4 w-4" /></Transport>
-          <Transport label="Next key event (Shift+→)" onClick={() => player.jumpToKey(1)} className="max-lg:hidden"><Diamond className="h-3 w-3" /></Transport>
-          <Transport label="Last" onClick={player.last}><SkipForward className="h-3.5 w-3.5" /></Transport>
+          <Transport label="Step forward" onClick={eff.next}><ChevronRight className="h-4 w-4" /></Transport>
+          {!compare && (
+            <Transport label="Next key event (Shift+→)" onClick={() => player.jumpToKey(1)} className="max-lg:hidden"><Diamond className="h-3 w-3" /></Transport>
+          )}
+          <Transport label="Last" onClick={eff.last}><SkipForward className="h-3.5 w-3.5" /></Transport>
         </div>
 
-        {/* RIGHT — speed (desktop) + step counter */}
+        {/* RIGHT — speed (desktop) + step counter (per-lane in Compare) */}
         <div className="flex items-center gap-3 lg:ml-auto">
           <Button
             size="sm"
             variant="outline"
-            onClick={player.cycleSpeed}
+            onClick={eff.cycleSpeed}
             className="max-lg:hidden h-8 font-mono text-[12px] font-semibold border-kn-border-0 bg-kn-inset text-kn-ink-0"
           >
-            {player.speed}×
+            {eff.speed}×
           </Button>
-          <span className="font-mono text-[13px] font-semibold text-kn-ink-0 whitespace-nowrap">
-            <span className="max-lg:hidden">Step </span>{player.step} / {player.total}
-          </span>
+          {compare ? (
+            /* Stacked + compact so the two lane counters don't crowd the
+               transport/speed row on narrow phones. */
+            <span className="font-mono text-[10px] lg:text-[11px] font-semibold leading-tight flex flex-col items-end tabular-nums shrink-0">
+              <span className="whitespace-nowrap" style={{ color: "var(--kn-ptr-lo)" }}>A {compare.a.step}/{compare.a.total}</span>
+              <span className="whitespace-nowrap" style={{ color: "var(--kn-ptr-hi)" }}>B {compare.b.step}/{compare.b.total}</span>
+            </span>
+          ) : (
+            <span className="font-mono text-[13px] font-semibold text-kn-ink-0 whitespace-nowrap">
+              <span className="max-lg:hidden">Step </span>{player.step} / {player.total}
+            </span>
+          )}
         </div>
       </div>
 
@@ -404,6 +474,54 @@ export function ControlDock({
         onOpenCustom={onToggleCustomInput}
       />
     </footer>
+  );
+}
+
+/** One lane's row inside the Compare scrubber: track + fill + diamonds + playhead,
+ *  positioned at `yPct` down the track and tinted with the lane's pointer color. */
+function LaneTrack({
+  player,
+  yPct,
+  color,
+  keyEventIndices,
+  keyEvents,
+}: {
+  player: Player;
+  yPct: number;
+  color: string;
+  keyEventIndices: number[];
+  keyEvents?: Record<number, { label: string; kind?: string }>;
+}) {
+  const top = `${yPct}%`;
+  return (
+    <>
+      <div
+        className="absolute left-0 right-0 h-1 rounded bg-kn-track -translate-y-1/2"
+        style={{ top }}
+      />
+      <div
+        className="absolute left-0 h-1 rounded transition-[width] duration-200 -translate-y-1/2"
+        style={{ top, width: `${player.progress * 100}%`, backgroundColor: color }}
+      />
+      {keyEventIndices.map((k) => {
+        const ev = keyEvents?.[k];
+        return (
+          <span
+            key={k}
+            title={ev ? `${ev.label} · step ${k + 1}` : `Key event · step ${k + 1}`}
+            onPointerDown={(e) => { e.stopPropagation(); player.seek(k); }}
+            className="absolute w-6 h-5 -translate-x-1/2 -translate-y-1/2 grid place-items-center cursor-pointer"
+            style={{ top, left: player.total > 1 ? `${(k / (player.total - 1)) * 100}%` : "0%" }}
+          >
+            <span className="w-2 h-2 border rotate-45 bg-kn-amber border-kn-amber-bd" />
+          </span>
+        );
+      })}
+      <span
+        className="absolute w-3.5 h-3.5 rounded-full bg-kn-surface-0 border-[2.5px] transition-[left] duration-200 pointer-events-none"
+        style={{ top, left: `${player.progress * 100}%`, transform: "translate(-50%,-50%)", borderColor: color }}
+      />
+    </>
   );
 }
 

@@ -190,7 +190,7 @@ export function MobileOverflowSheet({
           <p className="font-mono text-[9px] font-bold tracking-widest text-kn-ink-2 mb-2">MODE</p>
           <div className="flex gap-1 bg-kn-inset border border-kn-border-0 rounded-lg p-1">
             {MODES.map((m) => {
-              const disabled = m === "Compare" && !problem.supportsCompare;
+              const disabled = m === "Compare" && approaches.length < 2;
               const active = mode === m;
               return (
                 <button
@@ -208,6 +208,9 @@ export function MobileOverflowSheet({
               );
             })}
           </div>
+          {approaches.length < 2 && (
+            <p className="mt-2 text-[11px] text-kn-ink-2">Only 1 approach available — Compare needs at least two.</p>
+          )}
         </div>
 
         {/* theme */}
