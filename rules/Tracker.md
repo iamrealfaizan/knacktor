@@ -30,8 +30,8 @@
 - **D12 — Custom input deferred.** Commented out behind build-time flag `CUSTOM_INPUT_ENABLED`; wrong-approach bug fixed in the disabled path. *Supersedes D4* — sandbox runtime (Pyodide vs server) decided in a later milestone.
 - **D13 — Authoring template + loud validation.** Fixed per-problem bundle (Authoring.md). Validator-first ingest checks: No-Line-Left-Behind, narration completeness, ≥3 examples/approach incl. an edge case, expected-output match, visual-state validity, `_id` reference resolution — **aborts the whole ingest on any violation, nothing partial written.**
 - **D14 — Mobile (rev. 2026-07-06).** Desktop = canonical no-scroll 5-panel layout, unchanged. Below `lg` (1024px, phones + tablets) the SAME `ProblemEngine` renders the **stacked-1a layout**: mobile top bar (back · logo · title · ⋮ overflow **bottom sheet** with difficulty/topics/statement/approach/strategy/mode/theme) → **pinned Stage** (fluid `clamp(12rem,34dvh,22rem)`; `flex-1` in Focus; pointer-pan + pinch-zoom, no tap-to-play; +/− zoom buttons desktop-only) → scrollable body (narration → variables → result → call stack → code with always-on current-line explainer → complexity → notes) → pinned ControlDock (preset **bottom sheet**, touch-sized scrubber/transport, safe-area padding). No fixed pixel heights — dvh/clamp/flex only. Bottom sheets via shadcn `Sheet side="bottom"`. **Mode switching is overflow-sheet-only on mobile** (no on-screen tab row — the freed space goes to the pinned stage; refinement pass 2026-07-06). See [CompareAndResponsive.md](CompareAndResponsive.md) Part 2 v2.
-  - *Open item:* mobile Compare renders single-lane until the dual-lane Compare view exists; lanes will stack vertically in the scroll body (§2.4).
-  - *Open item:* `MODE_LAYOUT.Compare` in `problem-engine.tsx` (`code collapsed, rail visible`) contradicts CompareAndResponsive.md §1.4 (`code & rail collapsed`) — reconcile when dual-lane Compare is built.
+  - ~~*Open item:* mobile Compare renders single-lane until the dual-lane Compare view exists.~~ ✅ Resolved (D22, 2026-07-24) — mobile Compare now stacks two `<CompareLane mobile>` blocks in the scroll body (§2.4).
+  - ~~*Open item:* `MODE_LAYOUT.Compare` contradicts CompareAndResponsive.md §1.4.~~ ✅ Resolved (D22) — the desktop Compare body renders two `<CompareLane>` columns directly (no code panel / rail), so the `MODE_LAYOUT.Compare` booleans no longer drive it.
 - **D15 — Simulation-fidelity gate.** Two mandatory gates: **(1) ingest** (mechanical correctness) and **(2) fidelity review** (semantic — does the animation truly represent the algorithm's operations/unit of work?). Ingest passing is **necessary but not sufficient**; every problem also passes a human/Claude fidelity review before acceptance. If the primitives can't represent the algorithm's unit of work, defer the problem until the renderer exists — never ship a misleading visual. *(Prompted by Longest Common Prefix passing ingest while its array-of-strings view failed to show the character-column comparison.)* See [FidelityReview.md](FidelityReview.md).
 
 ### Phase 2 decisions (D16–D18, 2026-06)
@@ -57,6 +57,58 @@
 **Decision:** The simulation is the USP, so a structurally-valid trace whose picture barely moves is a product failure. Add a **mechanical liveness gate** that blocks static/boring animations, plus a **human preview-review** step before ingest. The liveness analyzer (`lib/validators/liveness.ts`) inspects each built trace's per-step `VisualState` and throws on *unambiguous* deadness only (too few distinct frames over a long run, a long frozen consecutive-frame run, empty aux across all steps, a pointer motionless across every preset); static-% is biased against long traces so it is **advisory only**, and traces below `MIN_STEPS` are exempt. It runs inside `dryRunApproach`, so **both `npm run dry-run` (authoring gate) and `npm run ingest`** enforce it. Reviewed legacy exemptions live in `seeds/liveness-exempt.json` keyed by `(slug, approachId)` and are logged loudly — new problems are never auto-exempted. The preview (`npm run review-sheet`) renders the REAL per-step frames into a self-contained `review.html` filmstrip (pivotal frames beside code line + 2×2 narration, topped with the liveness report + FidelityReview checklist); because it renders the same `VisualState`s ingest stores, **what the human approves is exactly what ships** — no preview/live drift. Published as a claude.ai Artifact for sign-off.
 **Process rule:** `add-problem-staged` skill restructured to author the **animation LAST** — all non-visual content (metadata, frozen code, presets, line/syntax explanations) is authored and gated first, so the simulation is built with every detail in front of you. `S4b-mapping` + `S4c-narration` merged into `S4-simulation` (gated lint-dsl → dry-run incl. liveness); new `S5-preview-review` is Gate 3 (human signs off on the real animation before anything reaches Mongo).
 **Files changed:** `lib/validators/liveness.ts` (NEW), `lib/render/render-stage-svg.tsx` (NEW), `scripts/review-sheet.ts` (NEW), `seeds/liveness-exempt.json` (NEW), `lib/validators/dry-run.ts` (liveness wired into `dryRunApproach`), `scripts/dry-run-approach.ts`, `components/problem/stage.tsx`, `package.json` (`review-sheet` script); skill: `.claude/skills/add-problem-staged/SKILL.md`, `stages/S4-simulation.md` (NEW), `stages/S5-preview-review.md` (NEW), `stages/S4b-mapping.md` + `stages/S4c-narration.md` (DELETED), `stages/S3-primitive.md`, `reference/state-schema.md`.
+
+### D22 — Dual-lane Compare shipped + approach-count gating
+**Date:** 2026-07-24
+**Decision:** Build the real side-by-side Compare view (desktop) and stacked Compare (mobile), and change the
+gate from `problem.supportsCompare` to **`approaches.length ≥ 2`**. `supportsCompare` is retired as a gate
+(kept in the schema, unused) — an audit of all 63 seed problems confirmed `supportsCompare === (approaches ≥ 2)`,
+so the switch is behavior-neutral for existing content. When only one approach exists the Compare mode button
+is `aria-disabled` (not native `disabled`, so it still receives hover) with a tooltip "Only 1 approach
+available — Compare needs at least two"; the mobile overflow sheet shows the same as inline subtext.
+**Playback:** Independent (§1.5) — one shared transport (`useCompareTransport`) fans play/step/seek out to two
+`usePlayer` instances; each lane keeps its own progress/counter/diamonds; a finished lane freezes on its last
+step while the other continues; speed shared; the compare transport owns the keyboard (both lane players have
+`enableKeyboard:false`). Lanes default to brute (A) / optimal (B) on first entry and are preserved for the
+session; both lanes always share one `inputId`. Each lane = header (approach picker, other lane's approach
+disabled + inline complexity) → Stage → readout strip (current-line + changed-var chips); no full code panel or
+right rail (no-scroll budget). Lane B traces lazy-load via the existing `/api/problems/[slug]/traces` path with
+a per-lane loading state.
+**Files changed:** `components/problem/use-compare-transport.ts` (NEW), `components/problem/compare-lane.tsx`
+(NEW), `components/problem/problem-engine.tsx` (lane B state, two players, `ensureApproachTraces`,
+`initCompareLanes`/`selectLaneB`, desktop + mobile Compare branches, `compare` prop to dock),
+`components/problem/control-dock.tsx` (`CompareDockState` prop, dual-lane scrubber via `LaneTrack`, per-lane
+counter, `eff` transport indirection), `components/problem/top-bar.tsx` (approach-count gate + tooltip),
+`components/problem/mobile-overflow-sheet.tsx` (gate + inline subtext), `rules/CompareAndResponsive.md`.
+
+### D23 — LeetCode-runnable copy code + mandatory two approaches
+**Date:** 2026-07-24
+**Decision:** Two standing content standards for every problem added (both input modes — user-provided
+solution OR question/test-cases-only where Claude authors the solutions):
+1. **LeetCode-runnable copy code.** The code a user copies from the app must run on LeetCode verbatim.
+   The frozen `solution.py` uses LeetCode's exact `class Solution` method signature; LeetCode-injected
+   APIs (`isBadVersion`, `guess`, `read4`, provided `ListNode`/`TreeNode`/`Node`) are supplied by the
+   tracer run-harness (never added as parameters, so the signature stays verbatim). For multi-call design
+   classes whose traced form can't keep the verbatim signature, ship **dual code**: a separate verified
+   `Approach.leetcodeSource` the copy button serves. **Never defer for copy-compat** (chosen over
+   defer-the-incompatible). *Plumbing still owed:* `Approach.leetcodeSource?` added to Schema.md, but the
+   `import-problem`/`ingest` passthrough + code-panel copy preference (`leetcodeSource ?? source`) are a
+   small follow-up — until they land, standard problems are fully compliant (their `source` is already
+   LeetCode-runnable) and design-class problems stay blocked on the design-harness as before.
+2. **Two approaches minimum — brute + optimal**, both LeetCode-runnable and interview-standard. Never ship
+   optimal-only (the prior silent-single-approach case is banned). If only the optimal is given/known,
+   author the brute; if only the question is given, author both. Single-approach ships only with the
+   user's explicit, recorded Gate-1 approval (`humanGates.singleApproachException`).
+3. **Verify authored code via the tracer.** When Claude wrote the solution, every preset (incl. edge
+   cases) must trace to the *independently known* LeetCode answer before Gate 1 — do NOT auto-fill
+   `expectedOutput` from the trace of author-written code (that self-certifies a wrong solution). Flag
+   Claude-authored code as not-user-vetted at Gate 1.
+**Files changed (rules + skill only):** `rules/Authoring.md` (§0.1 new + §4/§5), `rules/Schema.md`
+(Approach `leetcodeSource?`, approaches-required line), `ADDING_PROBLEMS.md` (§4/§5),
+`.claude/skills/add-problem-staged/SKILL.md` + `stages/S0-intake.md` + `S1-freeze-solution.md` +
+`S2-presets.md`, `knacktor/CLAUDE.md` (hard rules + workflow Step 0).
+**Follow-up (not done here):** wire `leetcodeSource` end-to-end (schema/type field, import+ingest
+passthrough, code-panel copy preference) so dual-code design problems can actually ship.
 
 ### Standing decisions (from planning)
 - Full platform; first milestone = engine + **1–2** pilot problems.

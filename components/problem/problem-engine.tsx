@@ -16,6 +16,8 @@ import {
   NotesSection,
 } from "./insight-rail";
 import { ControlDock } from "./control-dock";
+import { CompareLane } from "./compare-lane";
+import { useCompareTransport } from "./use-compare-transport";
 import type { ProblemFull, Trace } from "@/lib/trace";
 import { CUSTOM_INPUT_ENABLED } from "@/lib/flags";
 import { recordAttemptAction } from "@/app/actions/progress";
@@ -57,6 +59,9 @@ function buildKeyEvents(trace: Trace): Record<number, { label: string; kind?: st
 }
 
 export type Mode = "Learn" | "Focus" | "Compare";
+
+/** Stable empty key-event array so lane B's player deps don't churn while its trace loads. */
+const NO_KEYS: number[] = [];
 
 const MODE_LAYOUT: Record<Mode, { code: boolean; rail: boolean; narr: boolean }> = {
   Learn:   { code: false, rail: false, narr: true },
@@ -104,6 +109,29 @@ export function ProblemEngine({
     [approachTraces]
   );
 
+  // Ensure an approach's preset traces are available (cached or lazy-fetched);
+  // returns the inputId->Trace map, or null on failure. Shared by lane A approach
+  // switching and lane B (Compare) loading.
+  const ensureApproachTraces = useCallback(
+    async (id: string): Promise<Record<string, Trace> | null> => {
+      if (approachTraces[id]) return approachTraces[id];
+      try {
+        const res = await fetch(
+          `/api/problems/${problem.slug}/traces?approachId=${encodeURIComponent(id)}`
+        );
+        if (!res.ok) throw new Error(`traces fetch failed: ${res.status}`);
+        const { data } = (await res.json()) as { data: Record<string, Trace> };
+        if (!data || Object.keys(data).length === 0) throw new Error("no traces");
+        setApproachTraces((prev) => ({ ...prev, [id]: data }));
+        return data;
+      } catch (err) {
+        console.error("[ensureApproachTraces]", err);
+        return null;
+      }
+    },
+    [approachTraces, problem.slug]
+  );
+
   // Active trace state — starts with the recommended approach's first preset
   const firstPresetId = problem.presetInputs[0].id;
   const [activeInputId, setActiveInputId] = useState(firstPresetId);
@@ -114,6 +142,16 @@ export function ProblemEngine({
   const traceNonce = useRef(0);
   const [traceKey, setTraceKey] = useState(`${firstPresetId}-0`);
 
+  // ── Compare lane B (CompareAndResponsive.md §1). Lane A is the existing
+  //    single-lane state above; lane B is a second approach on the SAME input.
+  //    Initialized lazily on first Compare entry (default pairing brute/optimal),
+  //    then its choice is preserved for the session. ──────────────────────────
+  const [laneBApproachId, setLaneBApproachId] = useState<string | null>(null);
+  const [laneBTrace, setLaneBTrace] = useState<Trace | null>(null);
+  const [laneBLoading, setLaneBLoading] = useState(false);
+  const laneBNonce = useRef(0);
+  const [laneBTraceKey, setLaneBTraceKey] = useState("laneB-init");
+
   // Custom input panel state
   const [customInput, setCustomInput] = useState<CustomInputState>({
     open: false,
@@ -121,7 +159,9 @@ export function ProblemEngine({
     errors: {},
   });
 
-  const player = usePlayer(activeTrace.steps.length, activeTrace.keyEventIndices, traceKey);
+  const inCompare = mode === "Compare";
+  // Lane A owns the keyboard outside Compare; inside Compare the shared transport does.
+  const player = usePlayer(activeTrace.steps.length, activeTrace.keyEventIndices, traceKey, !inCompare);
   const safeIdx = Math.min(player.idx, activeTrace.steps.length - 1);
   const step = activeTrace.steps[safeIdx];
   const prevVars = activeTrace.steps[safeIdx - 1]?.vars ?? {};
@@ -130,15 +170,34 @@ export function ProblemEngine({
   const varOrder = useMemo(() => buildVarOrder(activeTrace), [activeTrace]);
   const keyEvents = useMemo(() => buildKeyEvents(activeTrace), [activeTrace]);
 
+  // Lane B player (always instantiated — hooks can't be conditional; only driven
+  // in Compare). Keyboard off: the compare transport owns space/arrows.
+  const playerB = usePlayer(
+    laneBTrace?.steps.length ?? 1,
+    laneBTrace?.keyEventIndices ?? NO_KEYS,
+    laneBTraceKey,
+    false
+  );
+  const compareTransport = useCompareTransport(player, playerB, inCompare);
+
+  const laneBApproach = problem.approaches.find((a) => a.id === laneBApproachId) ?? null;
+  const laneBSafeIdx = laneBTrace ? Math.min(playerB.idx, laneBTrace.steps.length - 1) : 0;
+  const laneBStep = laneBTrace ? laneBTrace.steps[laneBSafeIdx] : null;
+  const laneBKeyEvents = useMemo(
+    () => (laneBTrace ? buildKeyEvents(laneBTrace) : {}),
+    [laneBTrace]
+  );
+
   const activePreset = problem.presetInputs.find((p) => p.id === activeInputId);
   const target = (activePreset?.value as { target?: number })?.target ?? 0;
 
-  const setMode = useCallback((m: Mode) => {
+  function setMode(m: Mode) {
     setModeState(m);
     setCodeCollapsed(MODE_LAYOUT[m].code);
     setRailCollapsed(MODE_LAYOUT[m].rail);
     setNarrOpen(MODE_LAYOUT[m].narr);
-  }, []);
+    if (m === "Compare") void initCompareLanes();
+  }
 
   function swapTrace(newTrace: Trace, newInputId: string) {
     traceNonce.current += 1;
@@ -149,31 +208,55 @@ export function ProblemEngine({
 
   async function handleSelectApproach(id: string) {
     // Already cached (recommended approach, or previously fetched) → instant.
-    if (approachTraces[id]) {
+    const cached = approachTraces[id];
+    if (cached) {
       setApproachId(id);
-      const t = traceFor(id, activeInputId);
+      const t = cached[activeInputId] ?? Object.values(cached)[0];
       if (t) swapTrace(t, t.inputId);
       return;
     }
     // Lazy-load this approach's preset traces (shipped separately from the page).
     setApproachLoading(id);
-    try {
-      const res = await fetch(
-        `/api/problems/${problem.slug}/traces?approachId=${encodeURIComponent(id)}`
-      );
-      if (!res.ok) throw new Error(`traces fetch failed: ${res.status}`);
-      const { data } = (await res.json()) as { data: Record<string, Trace> };
-      if (!data || Object.keys(data).length === 0) throw new Error("no traces");
-      setApproachTraces((prev) => ({ ...prev, [id]: data }));
+    const map = await ensureApproachTraces(id);
+    setApproachLoading(null);
+    if (map) {
       setApproachId(id);
-      const byInput = data;
-      const t = byInput[activeInputId] ?? Object.values(byInput)[0];
+      const t = map[activeInputId] ?? Object.values(map)[0];
       if (t) swapTrace(t, t.inputId);
-    } catch (err) {
-      console.error("[approach switch]", err);
-    } finally {
-      setApproachLoading(null);
     }
+  }
+
+  // Point lane B at an approach on the given (default: current) input.
+  async function selectLaneB(id: string, inputId: string = activeInputId) {
+    setLaneBApproachId(id);
+    const apply = (map: Record<string, Trace>) => {
+      const t = map[inputId] ?? Object.values(map)[0];
+      if (t) {
+        laneBNonce.current += 1;
+        setLaneBTrace(t);
+        setLaneBTraceKey(`${t.inputId}-B-${laneBNonce.current}`);
+      }
+    };
+    const cached = approachTraces[id];
+    if (cached) { apply(cached); return; }
+    setLaneBLoading(true);
+    const map = await ensureApproachTraces(id);
+    setLaneBLoading(false);
+    if (map) apply(map);
+  }
+
+  // First Compare entry: default pairing brute (lane A) vs optimal (lane B),
+  // sharing the current input. Preserved thereafter for the session.
+  async function initCompareLanes() {
+    if (problem.approaches.length < 2) return;
+    if (laneBApproachId) return;
+    const brute = problem.approaches.find((a) => a.kind === "brute");
+    const optimal = problem.approaches.find((a) => a.kind === "optimal");
+    const aId = brute?.id ?? problem.approaches[0].id;
+    let bId = optimal?.id ?? problem.recommendedApproachId;
+    if (bId === aId) bId = (problem.approaches.find((a) => a.id !== aId) ?? problem.approaches[1]).id;
+    if (aId !== approachId) await handleSelectApproach(aId);
+    await selectLaneB(bId);
   }
 
   function handleSelectPreset(presetId: string) {
@@ -181,6 +264,15 @@ export function ProblemEngine({
     if (t) {
       swapTrace(t, presetId);
       setCustomInput((s) => ({ ...s, open: false, errors: {} }));
+    }
+    // Keep lane B apples-to-apples on the same input.
+    if (laneBApproachId) {
+      const tb = traceFor(laneBApproachId, presetId);
+      if (tb) {
+        laneBNonce.current += 1;
+        setLaneBTrace(tb);
+        setLaneBTraceKey(`${presetId}-B-${laneBNonce.current}`);
+      }
     }
   }
 
@@ -244,6 +336,34 @@ export function ProblemEngine({
         />
 
         {isDesktop ? (
+          inCompare ? (
+          /* Compare — two equal lanes side by side (CompareAndResponsive.md §1.4) */
+          <div className="flex-1 flex flex-row min-h-0 overflow-hidden">
+            <CompareLane
+              approach={approach}
+              approaches={problem.approaches}
+              otherApproachId={laneBApproachId}
+              onSelectApproach={handleSelectApproach}
+              loading={approachLoading === approachId}
+              step={step}
+              inputId={activeInputId}
+              target={target}
+            />
+            <div className="w-px bg-kn-border-0 shrink-0" />
+            {laneBApproach && (
+              <CompareLane
+                approach={laneBApproach}
+                approaches={problem.approaches}
+                otherApproachId={approachId}
+                onSelectApproach={(id) => void selectLaneB(id)}
+                loading={laneBLoading}
+                step={laneBStep}
+                inputId={activeInputId}
+                target={target}
+              />
+            )}
+          </div>
+          ) : (
           /* Body — canonical desktop no-scroll 3-column loop (unchanged) */
           <div className="flex-1 flex flex-row min-h-0 overflow-hidden">
             {/* Code panel */}
@@ -302,7 +422,39 @@ export function ProblemEngine({
               />
             </section>
           </div>
+          )
         ) : (
+          inCompare ? (
+          /* Compare (mobile) — two lane blocks stacked in the scroll body,
+             shared dock pinned below (CompareAndResponsive.md §2.4) */
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain cs-scroll flex flex-col bg-kn-surface-0">
+            <CompareLane
+              mobile
+              approach={approach}
+              approaches={problem.approaches}
+              otherApproachId={laneBApproachId}
+              onSelectApproach={handleSelectApproach}
+              loading={approachLoading === approachId}
+              step={step}
+              inputId={activeInputId}
+              target={target}
+            />
+            <div className="h-1 bg-kn-border-0" />
+            {laneBApproach && (
+              <CompareLane
+                mobile
+                approach={laneBApproach}
+                approaches={problem.approaches}
+                otherApproachId={approachId}
+                onSelectApproach={(id) => void selectLaneB(id)}
+                loading={laneBLoading}
+                step={laneBStep}
+                inputId={activeInputId}
+                target={target}
+              />
+            )}
+          </div>
+          ) : (
           /* Body — mobile stacked layout (D14): PINNED stage → scrollable content
              column. Mode switching lives in the ⋮ overflow sheet, so the stage
              gets that vertical space. The dock below stays pinned by flex. */
@@ -366,6 +518,7 @@ export function ProblemEngine({
               </div>
             )}
           </>
+          )
         )}
 
         <ControlDock
@@ -377,6 +530,19 @@ export function ProblemEngine({
           inputConstraints={problem.inputConstraints}
           customInput={customInput}
           customInputEnabled={CUSTOM_INPUT_ENABLED}
+          compare={
+            inCompare && laneBTrace
+              ? {
+                  a: player,
+                  b: playerB,
+                  transport: compareTransport,
+                  keyEventIndicesA: activeTrace.keyEventIndices,
+                  keyEventIndicesB: laneBTrace.keyEventIndices,
+                  keyEventsA: keyEvents,
+                  keyEventsB: laneBKeyEvents,
+                }
+              : undefined
+          }
           onSelectPreset={handleSelectPreset}
           onToggleCustomInput={handleToggleCustomInput}
           onCustomRun={handleCustomRun}

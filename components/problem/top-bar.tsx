@@ -28,6 +28,7 @@ import {
   SheetTitle,
   SheetClose,
 } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { MobileOverflowSheet } from "./mobile-overflow-sheet";
 import { useProblemProgress } from "./use-problem-progress";
@@ -297,29 +298,40 @@ export function TopBar({
         </div>
         )}
 
-        {/* Mode segmented control */}
+        {/* Mode segmented control — Compare requires ≥2 approaches (D-compare).
+            When locked we use aria-disabled (not the native disabled attr) so the
+            button still receives hover and the tooltip can explain why. */}
         <div className="flex gap-0.5 bg-kn-inset border border-kn-border-0 rounded-lg p-0.5">
           {MODES.map((m) => {
-            const disabled = m === "Compare" && !problem.supportsCompare;
+            const compareLocked = m === "Compare" && approaches.length < 2;
             const active = mode === m;
-            return (
+            const btn = (
               <Button
                 key={m}
                 size="sm"
                 variant="ghost"
-                disabled={disabled}
-                onClick={() => setMode(m)}
+                aria-disabled={compareLocked || undefined}
+                onClick={() => { if (!compareLocked) setMode(m); }}
                 className={cn(
                   "h-7 px-2.5 font-mono text-[11px] font-semibold rounded-md",
                   active
                     ? "bg-kn-ink-0 text-kn-surface-0 hover:bg-kn-ink-0"
                     : "text-kn-ink-2 hover:text-kn-ink-0 hover:bg-transparent",
-                  disabled && "opacity-30"
+                  compareLocked && "opacity-30 cursor-not-allowed"
                 )}
               >
                 {m}
               </Button>
             );
+            if (compareLocked) {
+              return (
+                <Tooltip key={m}>
+                  <TooltipTrigger render={btn} />
+                  <TooltipContent>Only 1 approach available — Compare needs at least two.</TooltipContent>
+                </Tooltip>
+              );
+            }
+            return btn;
           })}
         </div>
 
