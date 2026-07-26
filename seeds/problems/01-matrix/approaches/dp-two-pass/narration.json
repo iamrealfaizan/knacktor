@@ -1,0 +1,54 @@
+{
+  "byLine": {
+    "3": { "happening": "We count the {rows} rows.", "why": "Bounds and the infinity value depend on the size.", "invariant": "rows is fixed." },
+    "4": { "happening": "We count the {cols} columns.", "why": "Bounds and the infinity value depend on the size.", "invariant": "cols is fixed." },
+    "5": { "happening": "We set big = {big} as a stand-in for infinity.", "why": "No real distance can exceed rows + cols.", "invariant": "big is larger than any true distance." },
+    "6": { "happening": "We create the distance grid.", "why": "Each cell will hold its distance to the nearest zero.", "invariant": "dist mirrors the input's shape." },
+    "7": { "happening": "We build distance row {pr}.", "why": "Every cell is seeded before the sweeps.", "invariant": "Rows are appended in order." },
+    "8": { "happening": "We start an empty distance row.", "why": "It fills column by column.", "invariant": "drow grows to length cols." },
+    "9": { "happening": "We seed column {pc} of this row.", "why": "Zeros get 0, ones get infinity.", "invariant": "Each cell is seeded exactly once." },
+    "10": [
+      { "when": "mat[pr][pc] == 0", "happening": "Cell ({pr},{pc}) is a zero.", "why": "A zero is distance 0 from itself.", "invariant": "Zero cells anchor the distances." },
+      { "happening": "Cell ({pr},{pc}) is a one.", "why": "Its distance is unknown until the sweeps.", "invariant": "One cells start at infinity." }
+    ],
+    "11": { "happening": "We record distance 0 for this zero cell.", "why": "It is already at a zero.", "invariant": "Zero cells stay at 0." },
+    "13": { "happening": "We start this one cell at infinity.", "why": "The sweeps will lower it to the true distance.", "invariant": "An infinity cell has not been reached yet." },
+    "14": { "happening": "We add the finished row to the grid.", "why": "The grid is built one row at a time.", "invariant": "dist has pr+1 rows after this." },
+    "15": { "happening": "Pass 1 sweeps row {pr} top to bottom.", "why": "This pass propagates distances from above and the left.", "invariant": "Cells above and left are already relaxed this pass." },
+    "16": { "happening": "Pass 1 sweeps column {pc} left to right.", "why": "Each cell reads its up and left neighbours.", "invariant": "The sweep covers every cell once." },
+    "17": [
+      { "when": "pr > 0", "happening": "There is a cell above ({pr}-1, {pc}).", "why": "Its distance plus one may be shorter.", "invariant": "The top edge has no cell above." },
+      { "happening": "This is the top row, so there is no cell above.", "why": "No upward neighbour to read.", "invariant": "Top-row cells skip the up-check." }
+    ],
+    "18": { "happening": "We compare 1 + the top neighbour against this cell.", "why": "We keep the smaller distance.", "invariant": "A cell only ever decreases." },
+    "19": { "happening": "We lower this cell using the neighbour above.", "why": "Reaching a zero via the top is shorter.", "invariant": "dist[pr][pc] is the best distance found so far." },
+    "20": [
+      { "when": "pc > 0", "happening": "There is a cell to the left ({pr}, {pc}-1).", "why": "Its distance plus one may be shorter.", "invariant": "The left edge has no cell to its left." },
+      { "happening": "This is the leftmost column, so there is no left neighbour.", "why": "No leftward neighbour to read.", "invariant": "Left-column cells skip the left-check." }
+    ],
+    "21": { "happening": "We compare 1 + the left neighbour against this cell.", "why": "We keep the smaller distance.", "invariant": "A cell only ever decreases." },
+    "22": { "happening": "We lower this cell using the neighbour on the left.", "why": "Reaching a zero via the left is shorter.", "invariant": "dist[pr][pc] is the best distance found so far." },
+    "23": { "happening": "Pass 2 sweeps row {pr} bottom to top.", "why": "This pass propagates distances from below and the right.", "invariant": "Cells below and right are already relaxed this pass." },
+    "24": { "happening": "Pass 2 sweeps column {pc} right to left.", "why": "Each cell reads its down and right neighbours.", "invariant": "The sweep covers every cell once." },
+    "25": [
+      { "when": "pr < rows - 1", "happening": "There is a cell below ({pr}+1, {pc}).", "why": "Its distance plus one may be shorter.", "invariant": "The bottom edge has no cell below." },
+      { "happening": "This is the bottom row, so there is no cell below.", "why": "No downward neighbour to read.", "invariant": "Bottom-row cells skip the down-check." }
+    ],
+    "26": { "happening": "We compare 1 + the bottom neighbour against this cell.", "why": "We keep the smaller distance.", "invariant": "A cell only ever decreases." },
+    "27": { "happening": "We lower this cell using the neighbour below.", "why": "Reaching a zero via the bottom is shorter.", "invariant": "dist[pr][pc] is the best distance found so far." },
+    "28": [
+      { "when": "pc < cols - 1", "happening": "There is a cell to the right ({pr}, {pc}+1).", "why": "Its distance plus one may be shorter.", "invariant": "The right edge has no cell to its right." },
+      { "happening": "This is the rightmost column, so there is no right neighbour.", "why": "No rightward neighbour to read.", "invariant": "Right-column cells skip the right-check." }
+    ],
+    "29": { "happening": "We compare 1 + the right neighbour against this cell.", "why": "We keep the smaller distance.", "invariant": "A cell only ever decreases." },
+    "30": { "happening": "We lower this cell using the neighbour on the right.", "why": "Reaching a zero via the right is shorter.", "invariant": "dist[pr][pc] is the best distance found so far." },
+    "31": { "happening": "We return the finished distance grid.", "why": "Two sweeps guarantee every cell holds its true nearest-zero distance.", "invariant": "Each cell equals its distance to the closest zero." }
+  },
+  "byPhase": {
+    "init": { "happening": "Seed zeros at 0 and ones at infinity.", "why": "The sweeps lower the infinities.", "invariant": "Only zero cells are known at first." },
+    "loop": { "happening": "Sweep a cell in one of the two passes.", "why": "Each pass relaxes from two directions.", "invariant": "Every cell is visited once per pass." },
+    "check": { "happening": "Test an edge or whether a neighbour is closer.", "why": "These decide whether to relax.", "invariant": "A cell only ever decreases." },
+    "update": { "happening": "Lower a cell to a closer neighbour's distance + 1.", "why": "Distances propagate outward from zeros.", "invariant": "dist holds the best distance found so far." },
+    "return": { "happening": "Return the distance grid.", "why": "Both sweeps are complete.", "invariant": "Every cell is its true nearest-zero distance." }
+  }
+}

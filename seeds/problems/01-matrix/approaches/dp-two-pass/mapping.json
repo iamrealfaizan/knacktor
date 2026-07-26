@@ -1,0 +1,33 @@
+{
+  "primitive": "grid",
+  "gridFrom": "dist",
+  "cellStateRules": [
+    { "state": "current", "when": "r == pr && c == pc" },
+    { "state": "result", "when": "dist[r][c] == 0" },
+    { "state": "frontier", "when": "dist[r][c] == big" },
+    { "state": "visited", "when": "dist[r][c] < big" },
+    { "state": "idle", "when": "true" }
+  ],
+  "readout": {
+    "when": "pr != null",
+    "expr": "relaxing cell ({pr}, {pc})",
+    "relation": "two-pass distance transform",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "relaxations", "onLines": [19, 22, 27, 30] },
+    { "name": "cells swept", "onLines": [16, 24] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14] },
+    { "phase": "loop", "lines": [15, 16, 23, 24] },
+    { "phase": "check", "lines": [17, 18, 20, 21, 25, 26, 28, 29] },
+    { "phase": "update", "lines": [19, 22, 27, 30] },
+    { "phase": "return", "lines": [31] }
+  ],
+  "keyEvents": [
+    { "line": 19, "label": "Distance improved from above", "kind": "result" },
+    { "line": 27, "label": "Distance improved from below", "kind": "result" },
+    { "line": 31, "label": "Distances complete", "kind": "return" }
+  ]
+}

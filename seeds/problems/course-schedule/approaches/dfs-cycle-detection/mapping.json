@@ -1,0 +1,51 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "edges",
+  "directed": true,
+  "nodeStateRules": [
+    { "state": "current", "when": "node_idx == cur" },
+    { "state": "error", "when": "color[node_idx] == 1 && has_cycle" },
+    { "state": "visited", "when": "color[node_idx] == 2" },
+    { "state": "frontier", "when": "color[node_idx] == 1" },
+    { "state": "idle", "when": "true" }
+  ],
+  "pointers": [
+    { "name": "cur", "var": "cur" }
+  ],
+  "auxMappings": [
+    {
+      "label": "DFS stack",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        { "state": "current", "when": "idx == len(stack) - 1" },
+        { "state": "frontier", "when": "true" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "cur >= 0",
+    "expr": "DFS visiting course {cur}",
+    "relation": "cycle detected {has_cycle}",
+    "relationColor": "error"
+  },
+  "counters": [
+    { "name": "courses finished", "onLines": [36] },
+    { "name": "back-edges", "onLines": [32] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] },
+    { "phase": "loop", "lines": [21, 24, 29] },
+    { "phase": "check", "lines": [22, 27, 31, 33] },
+    { "phase": "update", "lines": [23, 28, 32, 34, 36] },
+    { "phase": "move", "lines": [25, 26, 30, 37, 38, 39] },
+    { "phase": "return", "lines": [40, 41] }
+  ],
+  "keyEvents": [
+    { "line": 32, "label": "Back-edge — cycle found", "kind": "boundary" },
+    { "line": 36, "label": "Course finished", "kind": "result" },
+    { "line": 41, "label": "Result", "kind": "return" }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "byLine": {
+    "3": { "happening": "We create a map from each email to a node id.", "why": "Emails are the graph's nodes.", "invariant": "Each distinct email maps to one id." },
+    "4": { "happening": "We create the list of emails by id.", "why": "The id indexes back to the email text.", "invariant": "email_list[id] is that node's email." },
+    "5": { "happening": "We create the owner-name list.", "why": "A merged account keeps its owner's name.", "invariant": "owner[id] names the account of that email." },
+    "6": { "happening": "We create the graph's adjacency list.", "why": "Edges connect emails in the same account.", "invariant": "adj[id] lists that email's neighbours." },
+    "7": { "happening": "We read account {ai}.", "why": "Every account's emails become nodes.", "invariant": "Accounts are processed in order." },
+    "8": { "happening": "We take the current account.", "why": "It holds a name and its emails.", "invariant": "account[0] is the name; the rest are emails." },
+    "9": { "happening": "The owner name is '{name}'.", "why": "It labels every email in this account.", "invariant": "One name per account." },
+    "10": { "happening": "We start at the account's first email.", "why": "Index 0 is the name, so emails begin at 1.", "invariant": "ei walks the emails." },
+    "11": [
+      { "when": "ei < len(account)", "happening": "We register email index {ei} of this account.", "why": "Every email must become a node.", "invariant": "ei stays within the account." },
+      { "happening": "All of this account's emails are registered.", "why": "The account has no more emails.", "invariant": "Every email of the account is now a node." }
+    ],
+    "12": { "happening": "The current email is '{email}'.", "why": "We check whether it is already a node.", "invariant": "email is the account's ei-th entry." },
+    "13": { "happening": "We check whether '{email}' is already registered.", "why": "Each distinct email becomes exactly one node.", "invariant": "A repeat email reuses its existing node." },
+    "14": { "happening": "We assign '{email}' the next node id.", "why": "New emails get fresh ids.", "invariant": "Ids are assigned in first-seen order." },
+    "15": { "happening": "We add '{email}' to the email list.", "why": "So the id maps back to the text.", "invariant": "email_list grows by one." },
+    "16": { "happening": "We record '{name}' as its owner.", "why": "The account name travels with the email.", "invariant": "owner mirrors email_list." },
+    "17": { "happening": "We give the new email an empty neighbour list.", "why": "Edges are added later.", "invariant": "adj mirrors email_list." },
+    "18": { "happening": "We move to the next email.", "why": "Every email of the account is registered.", "invariant": "ei only increases." },
+    "19": { "happening": "We read account {ai} again to add edges.", "why": "Now that all emails are nodes, we connect them.", "invariant": "Every account contributes its internal edges." },
+    "20": { "happening": "We take the account.", "why": "Its emails are linked together.", "invariant": "account still holds name + emails." },
+    "21": { "happening": "Its first email is node {first}.", "why": "We connect the first email to each other one.", "invariant": "A star of edges connects the account's emails." },
+    "22": { "happening": "We start at the account's second email.", "why": "The first is the anchor; others link to it.", "invariant": "ei walks emails 2..end." },
+    "23": [
+      { "when": "ei < len(account)", "happening": "We connect email {ei} to the first email.", "why": "Emails in one account belong together.", "invariant": "All the account's emails share one component." },
+      { "happening": "This account's emails are all linked.", "why": "No more emails to connect.", "invariant": "The account forms one connected piece." }
+    ],
+    "24": { "happening": "The other email is node {other}.", "why": "It links to the account's first email.", "invariant": "other is a node id." },
+    "25": { "happening": "We link node {first} to node {other}.", "why": "The edge is undirected.", "invariant": "other is now a neighbour of first." },
+    "26": { "happening": "We link node {other} back to node {first}.", "why": "Both directions of an undirected edge.", "invariant": "first is now a neighbour of other." },
+    "27": { "happening": "We move to the next email.", "why": "Every email links to the first.", "invariant": "ei only increases." },
+    "28": { "happening": "We build the drawable graph nodes.", "why": "The stage shows one node per email.", "invariant": "nodes mirrors email_list." },
+    "29": { "happening": "We add the node for email id {i}.", "why": "Each email becomes a labelled vertex.", "invariant": "Nodes are created for every email." },
+    "30": { "happening": "We add a node labelled by its email.", "why": "The label makes the merge readable.", "invariant": "Node {i} shows email_list[{i}]." },
+    "31": { "happening": "We build the drawable edges.", "why": "The stage shows account links.", "invariant": "Each edge is drawn once." },
+    "32": { "happening": "We scan email node {i}'s edges.", "why": "To draw each connection once.", "invariant": "Every node's neighbours are considered." },
+    "33": { "happening": "We look at neighbour slot {j}.", "why": "Each adjacency becomes a possible edge.", "invariant": "Every adjacency is inspected." },
+    "34": { "happening": "The neighbour is node {nb}.", "why": "It may pair with {i} to form an edge.", "invariant": "nb is a node id." },
+    "35": [
+      { "when": "i < nb", "happening": "We draw the edge {i}-{nb} once.", "why": "Using smaller-first avoids drawing it twice.", "invariant": "Each undirected edge appears once." },
+      { "happening": "We skip the edge {i}-{nb} (its twin was drawn).", "why": "The undirected edge is already recorded.", "invariant": "No edge is drawn twice." }
+    ],
+    "36": { "happening": "We record the edge between {i} and {nb}.", "why": "For drawing the account link.", "invariant": "graph_edges holds each edge once." },
+    "37": { "happening": "We create the visited flags.", "why": "DFS marks each email visited once.", "invariant": "visited mirrors email_list." },
+    "38": { "happening": "We prepare email {i}'s visited flag.", "why": "Every email starts unvisited.", "invariant": "0 means unvisited." },
+    "39": { "happening": "We mark email {i} unvisited.", "why": "No component has been explored yet.", "invariant": "All emails begin unvisited." },
+    "40": { "happening": "We create the merged-accounts result.", "why": "Each connected component becomes one entry.", "invariant": "result holds finished accounts." },
+    "41": { "happening": "There is no current DFS node yet.", "why": "cur is set only during a DFS.", "invariant": "-1 means no current node." },
+    "42": { "happening": "We start scanning emails for a component root.", "why": "Each component is one merged account.", "invariant": "start sweeps all emails." },
+    "43": [
+      { "when": "start < len(email_list)", "happening": "We consider email {start} as a component root.", "why": "Unvisited emails begin a new component.", "invariant": "Emails before start are already merged." },
+      { "happening": "Every email has been merged.", "why": "The scan is complete.", "invariant": "All components are found." }
+    ],
+    "44": [
+      { "when": "visited[start] == 0", "happening": "Email {start} is unvisited — start a new component.", "why": "Each connected component is explored once.", "invariant": "A component is rooted at its first-found email." },
+      { "happening": "Email {start} is already merged — skip it.", "why": "It belongs to an earlier component.", "invariant": "Visited emails are not re-rooted." }
+    ],
+    "45": { "happening": "We start an empty component.", "why": "It collects the emails reachable from the root.", "invariant": "comp holds one merged account's emails." },
+    "46": { "happening": "We seed the DFS stack with the root.", "why": "DFS spreads across shared emails.", "invariant": "The stack holds nodes to explore." },
+    "47": { "happening": "We mark the root email visited.", "why": "So it is not collected twice.", "invariant": "A visited email has flag 1." },
+    "48": [
+      { "when": "len(stack) > 0", "happening": "The DFS stack has {len(stack)} email(s) to explore.", "why": "DFS continues until the component is fully collected.", "invariant": "Every stacked email joins this component." },
+      { "happening": "The component is fully explored.", "why": "No connected email remains.", "invariant": "comp holds the whole component." }
+    ],
+    "49": { "happening": "We pop email node {node_id} from the stack.", "why": "DFS explores the most recently found email.", "invariant": "The stack is last-in, first-out." },
+    "50": { "happening": "We mark email {node_id} current.", "why": "It is being collected and expanded.", "invariant": "cur is the active email node." },
+    "51": { "happening": "We add its email to the component.", "why": "Every reachable email belongs to this account.", "invariant": "comp grows by one email." },
+    "52": { "happening": "We look at email {node_id}'s neighbours.", "why": "Shared emails connect the account.", "invariant": "Every neighbour is inspected once." },
+    "53": { "happening": "We consider neighbour node {nb}.", "why": "Unvisited neighbours extend the component.", "invariant": "nb is adjacent to the current email." },
+    "54": [
+      { "when": "visited[nb] == 0", "happening": "Neighbour {nb} is unvisited — add it to the component.", "why": "Connected emails share one account.", "invariant": "Only unvisited neighbours are pushed." },
+      { "happening": "Neighbour {nb} is already in a component.", "why": "It was collected earlier.", "invariant": "Each email joins exactly one component." }
+    ],
+    "55": { "happening": "We mark neighbour {nb} visited.", "why": "So it is collected only once.", "invariant": "A visited email has flag 1." },
+    "56": { "happening": "We push neighbour {nb} to explore.", "why": "It will be collected next.", "invariant": "The component grows outward." },
+    "57": { "happening": "We clear the current node after the component.", "why": "No email is current while scanning.", "invariant": "-1 means no current node." },
+    "58": { "happening": "We sort the component's emails alphabetically.", "why": "The problem requires sorted emails.", "invariant": "comp is now in alphabetical order." },
+    "59": { "happening": "We start the merged account with the owner name.", "why": "Each account entry begins with the name.", "invariant": "merged[0] is the owner name." },
+    "60": { "happening": "We append each sorted email.", "why": "The account lists all its emails.", "invariant": "Emails follow the name in order." },
+    "61": { "happening": "We append email '{comp[j]}'.", "why": "It belongs to this merged account.", "invariant": "merged holds name + emails so far." },
+    "62": { "happening": "We record the merged account.", "why": "This connected component is complete.", "invariant": "result gains one merged account." },
+    "63": { "happening": "We move to the next email.", "why": "Every email must be rooted or skipped.", "invariant": "start only increases." },
+    "64": { "happening": "We return {len(result)} merged account(s).", "why": "Every email has been assigned to a component.", "invariant": "Accounts sharing an email are merged." }
+  },
+  "byPhase": {
+    "init": { "happening": "Index emails as nodes and link same-account emails.", "why": "Merging becomes finding connected components.", "invariant": "Shared emails connect accounts." },
+    "loop": { "happening": "Root a DFS or expand a component.", "why": "Each component is one merged account.", "invariant": "DFS collects all reachable emails." },
+    "check": { "happening": "Test a component root or an unvisited neighbour.", "why": "These drive the DFS.", "invariant": "Each email joins one component." },
+    "update": { "happening": "Collect an email, mark visited, or build the account.", "why": "Components form and become accounts.", "invariant": "State reflects the current component." },
+    "move": { "happening": "Pop, push, or advance the scan.", "why": "DFS and the outer scan move deterministically.", "invariant": "The stack is last-in, first-out." },
+    "return": { "happening": "Return the merged accounts.", "why": "Every email is assigned.", "invariant": "The answer is complete." }
+  }
+}

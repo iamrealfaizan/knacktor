@@ -31,7 +31,18 @@ seeds/problems/<slug>/
       mapping.json               # VisualMappingSpec — how real vars become the VisualState each step
       narration.json             # NarrationSpec — what to say per line/phase
       mapping.py                 # OPTIONAL — only when mapping.json primitive == "custom"
+      leetcode.py                # OPTIONAL — genuine, submittable LeetCode solution (see below)
 ```
+
+**`leetcode.py` (optional, reference-only — never traced).** For problems whose real
+LeetCode signature takes a custom object (`ListNode` / `TreeNode` / `Node`), a design
+class (e.g. `MyQueue`), or an external API (e.g. `isBadVersion`), `solution.py` is
+adapted to **array I/O** so the Python tracer can animate it — which means `solution.py`
+is NOT submittable to LeetCode as-is. When that is true, add `leetcode.py` holding the
+genuine, copy-paste-submittable solution (standard commented type defs + exact LC method
+signature, matching THIS approach's strategy). Ingest injects it as `approach.leetcodeSource`;
+the code panel then offers a **"LeetCode" toggle**. Omit the file when `solution.py` already
+matches LeetCode's signature (arrays/strings/matrix/int in and out) — most problems.
 
 A pre-stubbed skeleton lives in `tracer/template/`. Copy it, fill it, run ingest.
 

@@ -1,0 +1,39 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    { "name": "start", "var": "start" },
+    { "name": "pos", "var": "pos" }
+  ],
+  "window": { "from": "start", "to": "end" },
+  "flags": { "isMatch": "matched" },
+  "cellStateRules": [
+    { "state": "result", "when": "idx >= start && idx <= end", "onlyWhen": "isMatch" },
+    { "state": "current", "when": "idx == pos" },
+    { "state": "compared", "when": "idx >= start && idx <= end" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["start", "pos"] },
+  "readout": {
+    "when": "start + m <= n",
+    "expr": "window [{start}..{end}] vs pattern length {m}",
+    "relation": "matches {len(result)}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "windows checked", "onLines": [18] },
+    { "name": "chars counted", "onLines": [16] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6] },
+    { "phase": "loop", "lines": [7, 10, 15] },
+    { "phase": "update", "lines": [8, 11, 12, 13, 16, 19, 20] },
+    { "phase": "move", "lines": [9, 14, 17, 21] },
+    { "phase": "check", "lines": [18] },
+    { "phase": "return", "lines": [22] }
+  ],
+  "keyEvents": [
+    { "line": 20, "label": "Anagram window found", "kind": "match" },
+    { "line": 22, "label": "All windows checked", "kind": "return" }
+  ]
+}

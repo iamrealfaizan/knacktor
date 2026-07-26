@@ -1,0 +1,36 @@
+{
+  "byLine": {
+    "3": { "happening": "We count the indices as n = {n}.", "why": "The scan and jump ranges are bounded by n.", "invariant": "n never changes." },
+    "4": { "happening": "We mark every index as not-yet-reachable.", "why": "Reachability is proven one index at a time from the right.", "invariant": "A False cell means 'cannot yet prove it reaches the end'." },
+    "5": { "happening": "We mark the last index reachable.", "why": "The end reaches itself with no jump.", "invariant": "dp[n-1] is always True." },
+    "6": { "happening": "We start the scan at index {i}.", "why": "Every index left of the end must be decided.", "invariant": "Indices right of i are already decided." },
+    "7": [
+      { "when": "i >= 0", "happening": "We are deciding index {i}.", "why": "Its reachability depends on already-decided indices to its right.", "invariant": "The scan moves strictly leftward." },
+      { "happening": "The scan passed index 0, so every index is decided.", "why": "There is nothing left to the left of 0.", "invariant": "dp is fully computed." }
+    ],
+    "8": { "happening": "From index {i} a jump can land as far as index {reach}.", "why": "nums[i] is the maximum jump length from here.", "invariant": "reach never exceeds the last index." },
+    "9": { "happening": "We begin probing at the first neighbour after i.", "why": "Any reachable neighbour in range makes i reachable.", "invariant": "j stays within i+1..reach." },
+    "10": [
+      { "when": "j <= reach", "happening": "Probe neighbour {j}, still within i's jump range.", "why": "We look for one neighbour that already reaches the end.", "invariant": "j never leaves i's jump range." },
+      { "happening": "No neighbour in range reaches the end, so i cannot either.", "why": "Every landing spot was unreachable.", "invariant": "i stays marked unreachable." }
+    ],
+    "11": [
+      { "when": "dp[j]", "happening": "Neighbour {j} already reaches the end.", "why": "Jumping i to j then continuing reaches the end.", "invariant": "One reachable landing spot is enough." },
+      { "happening": "Neighbour {j} does not reach the end.", "why": "Landing there would not help.", "invariant": "We keep probing further neighbours." }
+    ],
+    "12": { "happening": "We mark index {i} reachable.", "why": "It can jump to a neighbour that reaches the end.", "invariant": "A reachable cell turns green and never reverts." },
+    "13": { "happening": "We stop probing — one good neighbour is enough.", "why": "Reachability is a yes/no fact; extra probes add nothing.", "invariant": "i is settled as reachable." },
+    "14": { "happening": "We advance the probe to the next neighbour.", "why": "The previous landing spot was unreachable.", "invariant": "Probing only moves rightward within the range." },
+    "15": { "happening": "We move the scan left to index {i} - 1.", "why": "The next index to decide is one to the left.", "invariant": "Decided indices accumulate on the right." },
+    "16": { "happening": "We read the answer from index 0's reachability.", "why": "The question is whether the start can reach the end.", "invariant": "dp[0] holds the final verdict." },
+    "17": { "happening": "We return {answer}.", "why": "It says whether index 0 reaches the last index.", "invariant": "The verdict follows from fully-computed reachability." }
+  },
+  "byPhase": {
+    "init": { "happening": "Mark the end reachable and everything else unknown.", "why": "Backward DP seeds from the goal.", "invariant": "Only the last index is known reachable at first." },
+    "loop": { "happening": "Scan an index or probe its jump range.", "why": "Each index's reachability is derived from its neighbours.", "invariant": "Indices are decided right to left." },
+    "update": { "happening": "Compute a jump range or mark an index reachable.", "why": "Reachability propagates leftward.", "invariant": "A reachable mark is permanent." },
+    "move": { "happening": "Advance a probe or the scan cursor.", "why": "Both move deterministically.", "invariant": "Cursors only move one way." },
+    "check": { "happening": "Test whether a neighbour reaches the end.", "why": "One reachable neighbour proves the current index.", "invariant": "Only decided neighbours are consulted." },
+    "return": { "happening": "Return whether the start reaches the end.", "why": "dp[0] is now known.", "invariant": "The answer is final." }
+  }
+}

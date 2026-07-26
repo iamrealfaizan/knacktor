@@ -1,0 +1,39 @@
+{
+  "byLine": {
+    "3": { "happening": "We record n = {n}, the string length.", "why": "Positions range from 0 to n.", "invariant": "n is fixed." },
+    "4": { "happening": "We create a memo with one slot per position, all unknown.", "why": "Each position's breakability is solved once and cached.", "invariant": "0 means unknown, 1 breakable, -1 dead end." },
+    "5": { "happening": "We mark the empty suffix (position n) breakable.", "why": "Reaching the end means the whole string was consumed by words.", "invariant": "memo[n] is always 1." },
+    "6": { "happening": "We ask whether the string from position 0 can be segmented.", "why": "That is exactly the question the problem poses.", "invariant": "The answer builds from suffix answers." },
+    "7": { "happening": "We return the overall answer {answer}.", "why": "It says whether s can be split into dictionary words.", "invariant": "The result comes from position 0's breakability." },
+    "10": [
+      { "when": "memo[i] != 0", "happening": "Position {i} was already solved.", "why": "Recomputing it would waste work — memoization avoids that.", "invariant": "Each position is computed at most once." },
+      { "happening": "Position {i} is unknown, so it must be solved now.", "why": "No cached answer exists yet.", "invariant": "An unknown position is computed then cached." }
+    ],
+    "11": { "happening": "We reuse the cached result for position {i}.", "why": "It was solved earlier in the recursion.", "invariant": "The memo makes repeated positions free." },
+    "12": { "happening": "We assume position {i} is a dead end for now.", "why": "It becomes breakable only if some word leads to a full split.", "invariant": "found stays False until a word works." },
+    "13": { "happening": "We try dictionary word '{word}' at position {i}.", "why": "Any word that fits and leaves a breakable remainder works.", "invariant": "Every dictionary word is considered." },
+    "14": { "happening": "The word would end at index {end}.", "why": "We compare it against the string prefix here.", "invariant": "end = i + length of the word." },
+    "15": [
+      { "when": "end <= n", "happening": "The word fits inside the string (ends at {end}).", "why": "A word running past the end cannot match.", "invariant": "Only in-bounds words are tested." },
+      { "happening": "The word would run past the end, so it is skipped.", "why": "It cannot be the piece starting here.", "invariant": "Oversized words are ignored." }
+    ],
+    "16": { "happening": "We check whether the prefix at {i} equals '{word}'.", "why": "Only a matching prefix can be this segment.", "invariant": "The word must exactly match the characters here." },
+    "17": { "happening": "The prefix matched — we recurse from index {end}.", "why": "If the remainder is breakable, so is this position.", "invariant": "The remainder is shorter, so recursion terminates." },
+    "18": { "happening": "The remainder is breakable, so position {i} is too.", "why": "This word plus a breakable remainder splits the suffix.", "invariant": "One working word is enough." },
+    "19": [
+      { "when": "found", "happening": "Some word led to a full segmentation from {i}.", "why": "Position {i} is breakable.", "invariant": "found is True only when a split exists." },
+      { "happening": "No word worked from position {i}.", "why": "This suffix cannot be segmented.", "invariant": "found stays False for dead ends." }
+    ],
+    "20": { "happening": "We cache position {i} as breakable.", "why": "It will be reused instantly if revisited.", "invariant": "A breakable cell turns green." },
+    "22": { "happening": "We cache position {i} as a dead end.", "why": "No segmentation starts here.", "invariant": "A dead-end cell turns red." },
+    "23": { "happening": "We return whether position {i} is breakable.", "why": "The caller uses it to decide its own position.", "invariant": "Every position returns its cached verdict." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the memo and mark the empty suffix breakable.", "why": "Setup for the cached recursion.", "invariant": "Only position n is known at first." },
+    "recurse": { "happening": "Descend into a shorter suffix.", "why": "A position is breakable if a word leaves a breakable remainder.", "invariant": "Recursion shrinks the suffix." },
+    "loop": { "happening": "Try the next dictionary word.", "why": "Any word may be the next segment.", "invariant": "All words are tried." },
+    "check": { "happening": "Test a cache hit, a fit, a match, or success.", "why": "These decide whether to reuse, skip, recurse, or record.", "invariant": "No position is solved twice." },
+    "update": { "happening": "Record a fit or cache a verdict.", "why": "Each position stores its yes/no.", "invariant": "Cached verdicts are final." },
+    "return": { "happening": "Return a position's breakability.", "why": "The value flows up the recursion.", "invariant": "The final return is position 0's verdict." }
+  }
+}

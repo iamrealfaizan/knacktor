@@ -1,0 +1,48 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "graph_edges",
+  "directed": false,
+  "nodeStateRules": [
+    { "state": "current", "when": "node_idx == cur" },
+    { "state": "visited", "when": "visited[node_idx] == 1" },
+    { "state": "idle", "when": "true" }
+  ],
+  "pointers": [
+    { "name": "cur", "var": "cur" }
+  ],
+  "auxMappings": [
+    {
+      "label": "DFS stack",
+      "primitive": "stack",
+      "itemsFrom": "stack",
+      "cellStateRules": [
+        { "state": "current", "when": "idx == len(stack) - 1" },
+        { "state": "frontier", "when": "true" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "cur >= 0",
+    "expr": "DFS visiting email node {cur}",
+    "relation": "accounts merged {len(result)}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "emails visited", "onLines": [51] },
+    { "name": "accounts merged", "onLines": [62] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42] },
+    { "phase": "loop", "lines": [43, 48, 52, 60] },
+    { "phase": "check", "lines": [44, 54] },
+    { "phase": "update", "lines": [45, 46, 47, 51, 55, 58, 59, 61, 62] },
+    { "phase": "move", "lines": [49, 50, 53, 56, 57, 63] },
+    { "phase": "return", "lines": [64] }
+  ],
+  "keyEvents": [
+    { "line": 62, "label": "Account merged", "kind": "result" },
+    { "line": 64, "label": "All accounts merged", "kind": "return" }
+  ]
+}

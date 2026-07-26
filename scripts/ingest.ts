@@ -97,10 +97,17 @@ async function ingestBundle(
   );
 
   // Build embedded Approach docs (source injected from solution.py).
+  // Optional leetcode.py holds a genuine, submittable LeetCode solution for
+  // problems whose solution.py is adapted to array I/O for the visualizer
+  // (linked-list / tree / graph / design). It is reference-only — never traced.
   const approaches = approachIds.map((id) => {
     const meta = JSON.parse(fs.readFileSync(path.join(approachesDir, id, "approach.json"), "utf-8"));
     const source = fs.readFileSync(path.join(approachesDir, id, "solution.py"), "utf-8");
-    return { ...meta, source };
+    const leetcodePath = path.join(approachesDir, id, "leetcode.py");
+    const leetcodeSource = fs.existsSync(leetcodePath)
+      ? fs.readFileSync(leetcodePath, "utf-8")
+      : undefined;
+    return leetcodeSource ? { ...meta, source, leetcodeSource } : { ...meta, source };
   });
   // brute first, then optimal, then alternative — stable Compare default
   const order = { brute: 0, optimal: 1, alternative: 2 } as Record<string, number>;

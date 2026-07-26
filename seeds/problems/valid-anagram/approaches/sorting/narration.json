@@ -1,0 +1,33 @@
+{
+  "byLine": {
+    "3": [
+      { "when": "len(s) != len(t)", "happening": "The strings have different lengths ({len(s)} vs {len(t)}).", "why": "Anagrams must use exactly the same characters, so lengths must match.", "invariant": "Unequal lengths can never be anagrams." },
+      { "happening": "The strings are the same length.", "why": "Equal length is necessary before comparing sorted characters.", "invariant": "Only equal-length strings reach the comparison." }
+    ],
+    "4": { "happening": "We return False for the length mismatch.", "why": "No rearrangement can fix a length difference.", "invariant": "The verdict is decided without sorting." },
+    "5": { "happening": "We sort the characters of s.", "why": "Anagrams have identical sorted character sequences.", "invariant": "s_chars is s's characters in order." },
+    "6": { "happening": "We sort the characters of t.", "why": "We compare it against the sorted s.", "invariant": "t_chars is t's characters in order." },
+    "7": { "happening": "We start comparing at position 0.", "why": "The two sorted rows are compared left to right.", "invariant": "i marks the position being compared." },
+    "8": { "happening": "We assume the strings match until shown otherwise.", "why": "answer flips to False on the first difference.", "invariant": "answer is True while all compared positions agree." },
+    "9": [
+      { "when": "i < len(s_chars)", "happening": "We compare position {i} of the two sorted rows.", "why": "Every position must agree for an anagram.", "invariant": "Positions before i already matched." },
+      { "happening": "Every position matched.", "why": "The sorted rows are identical.", "invariant": "answer remains True." }
+    ],
+    "10": [
+      { "when": "s_chars[i] != t_chars[i]", "happening": "Position {i} differs: {s_chars[i]} vs {t_chars[i]}.", "why": "A single differing position rules out an anagram.", "invariant": "The first difference is decisive." },
+      { "happening": "Position {i} matches: both are {s_chars[i]}.", "why": "Matching characters keep the anagram possibility alive.", "invariant": "All positions up to i agree." }
+    ],
+    "11": { "happening": "We set answer to False.", "why": "The sorted rows differ, so they are not anagrams.", "invariant": "answer is False once any position differs." },
+    "12": { "happening": "We stop at the first mismatch.", "why": "One difference already settles the verdict.", "invariant": "No later positions can change a False verdict." },
+    "13": { "happening": "We advance to the next position.", "why": "This position matched, so keep checking.", "invariant": "i only moves rightward." },
+    "14": { "happening": "We return {answer}.", "why": "It is True only if every sorted position matched.", "invariant": "The verdict reflects the full comparison." }
+  },
+  "byPhase": {
+    "init": { "happening": "Sort both strings and set up the comparison.", "why": "Sorted anagrams are identical.", "invariant": "answer starts True." },
+    "loop": { "happening": "Compare the next aligned position.", "why": "Every position must agree.", "invariant": "Positions before i matched." },
+    "check": { "happening": "Test lengths or a character position.", "why": "A difference rules out an anagram.", "invariant": "Only exact matches keep answer True." },
+    "update": { "happening": "Flip the verdict and stop.", "why": "A mismatch was found.", "invariant": "answer becomes False permanently." },
+    "move": { "happening": "Advance to the next position.", "why": "The current position matched.", "invariant": "i moves forward only." },
+    "return": { "happening": "Return the anagram verdict.", "why": "The comparison is complete.", "invariant": "answer is final." }
+  }
+}

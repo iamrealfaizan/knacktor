@@ -1,0 +1,49 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s_chars",
+  "pointers": [
+    { "name": "i", "var": "i" }
+  ],
+  "flags": { "isMismatch": "s_chars[i] != t_chars[i]" },
+  "cellStateRules": [
+    { "state": "error", "when": "idx == i", "onlyWhen": "isMismatch" },
+    { "state": "result", "when": "idx < i" },
+    { "state": "current", "when": "idx == i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i"] },
+  "readout": {
+    "when": "i < len(s_chars)",
+    "expr": "position {i}: {s_chars[i]} vs {t_chars[i]}",
+    "relation": "anagram so far {answer}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "comparisons", "onLines": [10] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [5, 6, 7, 8] },
+    { "phase": "loop", "lines": [9] },
+    { "phase": "check", "lines": [3, 10] },
+    { "phase": "update", "lines": [11, 12] },
+    { "phase": "move", "lines": [13] },
+    { "phase": "return", "lines": [4, 14] }
+  ],
+  "keyEvents": [
+    { "line": 11, "label": "Character mismatch", "kind": "boundary" },
+    { "line": 14, "label": "Final verdict", "kind": "return" }
+  ],
+  "auxMappings": [
+    {
+      "label": "sorted(t)",
+      "primitive": "array",
+      "valuesFrom": "t_chars",
+      "cellStateRules": [
+        { "state": "error", "when": "idx == i && s_chars[i] != t_chars[i]" },
+        { "state": "result", "when": "idx < i" },
+        { "state": "current", "when": "idx == i" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ]
+}

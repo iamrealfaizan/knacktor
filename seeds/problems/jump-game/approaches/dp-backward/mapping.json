@@ -1,0 +1,38 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "idx == i" },
+    { "state": "compared", "when": "idx == j" },
+    { "state": "result", "when": "dp[idx]" },
+    { "state": "dimmed", "when": "idx > i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "j"] },
+  "readout": {
+    "when": "reach != null",
+    "expr": "index {i} jumps up to index {reach}",
+    "relation": "start reachable {answer}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "probes", "onLines": [11] },
+    { "name": "indices decided", "onLines": [15] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6] },
+    { "phase": "loop", "lines": [7, 10] },
+    { "phase": "update", "lines": [8, 12, 13, 16] },
+    { "phase": "move", "lines": [9, 14, 15] },
+    { "phase": "check", "lines": [11] },
+    { "phase": "return", "lines": [17] }
+  ],
+  "keyEvents": [
+    { "line": 12, "label": "Index proven reachable", "kind": "result" },
+    { "line": 17, "label": "Final answer", "kind": "return" }
+  ]
+}

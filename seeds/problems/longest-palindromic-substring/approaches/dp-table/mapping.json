@@ -1,0 +1,37 @@
+{
+  "primitive": "grid",
+  "gridFrom": "dp",
+  "pointers": [
+    { "name": "cell", "rowVar": "i", "colVar": "j" }
+  ],
+  "cellStateRules": [
+    { "state": "path", "when": "r == best_lo && c == best_lo + best_len - 1" },
+    { "state": "current", "when": "r == i && c == j" },
+    { "state": "compared", "when": "r == i + 1 && c == j - 1" },
+    { "state": "result", "when": "dp[r][c] == 1" },
+    { "state": "idle", "when": "true" }
+  ],
+  "readout": {
+    "when": "j != null",
+    "expr": "is s[{i}..{j}] a palindrome?",
+    "relation": "longest so far, length {best_len}",
+    "relationColor": "path"
+  },
+  "counters": [
+    { "name": "spans checked", "onLines": [22] },
+    { "name": "palindromes found", "onLines": [23] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
+    { "phase": "loop", "lines": [14, 16] },
+    { "phase": "move", "lines": [15, 27, 28] },
+    { "phase": "update", "lines": [17, 18, 19, 21, 23, 25, 26, 29] },
+    { "phase": "check", "lines": [20, 22, 24] },
+    { "phase": "return", "lines": [30] }
+  ],
+  "keyEvents": [
+    { "line": 23, "label": "Palindrome span confirmed", "kind": "result" },
+    { "line": 25, "label": "New longest palindrome", "kind": "best" },
+    { "line": 30, "label": "Final answer", "kind": "return" }
+  ]
+}

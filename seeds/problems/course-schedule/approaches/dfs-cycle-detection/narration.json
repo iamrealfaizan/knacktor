@@ -1,0 +1,68 @@
+{
+  "byLine": {
+    "3": { "happening": "We create the list of course nodes.", "why": "The prerequisites form a directed graph of courses.", "invariant": "One node exists per course." },
+    "4": { "happening": "We add course node {i}.", "why": "Each course is a graph vertex.", "invariant": "Nodes are numbered 0..numCourses-1." },
+    "5": { "happening": "We append a node for this course.", "why": "It becomes a vertex in the graph.", "invariant": "Every course has exactly one node." },
+    "6": { "happening": "We create the edge list.", "why": "Each prerequisite is a directed edge.", "invariant": "Edges point from prerequisite to dependent." },
+    "7": { "happening": "We create the adjacency list.", "why": "DFS needs each node's outgoing neighbours.", "invariant": "adj[b] lists courses that require b." },
+    "8": { "happening": "We prepare an empty neighbour list per course.", "why": "Neighbours are added as prerequisites are read.", "invariant": "Every course starts with no neighbours." },
+    "9": { "happening": "We start course {i}'s neighbour list empty.", "why": "It fills as prerequisites are processed.", "invariant": "adj has one list per course." },
+    "10": { "happening": "We read prerequisite pair {p}.", "why": "Each pair defines one edge.", "invariant": "Every prerequisite becomes an edge." },
+    "11": { "happening": "Course {a} depends on another.", "why": "It is the edge's destination.", "invariant": "a cannot be taken before its prerequisite." },
+    "12": { "happening": "Course {b} is the prerequisite.", "why": "It is the edge's source.", "invariant": "b must be taken before a." },
+    "13": { "happening": "We add the edge {b} to {a}.", "why": "It records the dependency direction.", "invariant": "Edges go prerequisite to dependent." },
+    "14": { "happening": "We record {a} as a neighbour of {b}.", "why": "DFS follows these neighbour links.", "invariant": "adj[b] now includes a." },
+    "15": { "happening": "We create the colour array.", "why": "DFS colours nodes white, grey, or black.", "invariant": "Colour tracks each node's DFS state." },
+    "16": { "happening": "We prepare course {i}'s colour.", "why": "Every course starts unseen.", "invariant": "0 means white (unseen)." },
+    "17": { "happening": "We colour course {i} white.", "why": "No course has been visited yet.", "invariant": "White nodes are untouched." },
+    "18": { "happening": "We assume there is no cycle.", "why": "A cycle is proven only by a back-edge.", "invariant": "has_cycle is False until a back-edge appears." },
+    "19": { "happening": "There is no current node yet.", "why": "cur is set only during DFS.", "invariant": "-1 means no current node." },
+    "20": { "happening": "We start scanning courses for a DFS root.", "why": "Every course must be visited.", "invariant": "start sweeps all courses." },
+    "21": [
+      { "when": "start < numCourses", "happening": "We consider course {start} as a DFS root.", "why": "Disconnected parts each need their own DFS.", "invariant": "Courses before start are already handled." },
+      { "happening": "Every course has been visited.", "why": "The scan is complete.", "invariant": "The final answer is ready." }
+    ],
+    "22": [
+      { "when": "color[start] == 0", "happening": "Course {start} is white — start a DFS here.", "why": "Only unvisited courses begin a new DFS.", "invariant": "Each node is rooted at most once." },
+      { "happening": "Course {start} was already visited — skip it.", "why": "It belongs to an earlier DFS tree.", "invariant": "Visited nodes are not re-rooted." }
+    ],
+    "23": { "happening": "We seed the DFS stack with course {start}.", "why": "The stack drives the iterative DFS.", "invariant": "The stack holds the current DFS path plus pending nodes." },
+    "24": [
+      { "when": "len(stack) > 0", "happening": "The DFS stack still has {len(stack)} node(s).", "why": "DFS continues until the stack empties.", "invariant": "Every stacked node is eventually finished." },
+      { "happening": "The DFS stack is empty — this tree is done.", "why": "All reachable courses were visited.", "invariant": "The component is fully explored." }
+    ],
+    "25": { "happening": "We peek the top node {node_id}.", "why": "DFS processes the deepest pending node.", "invariant": "The top of the stack is the deepest node." },
+    "26": { "happening": "We mark course {node_id} current.", "why": "It is the node being processed.", "invariant": "cur is the active node." },
+    "27": [
+      { "when": "color[node_id] == 0", "happening": "This is the first visit to course {node_id}.", "why": "First visits expand neighbours.", "invariant": "A white node becomes grey on first visit." },
+      { "happening": "Course {node_id} was already expanded.", "why": "Its neighbours are done, so it can finish.", "invariant": "A grey node finishes on its second visit." }
+    ],
+    "28": { "happening": "We colour course {node_id} grey (on the current path).", "why": "Grey marks nodes in the active DFS path.", "invariant": "A back-edge is an edge to a grey node." },
+    "29": { "happening": "We look at course {node_id}'s neighbours.", "why": "DFS follows outgoing edges.", "invariant": "Every neighbour is inspected once per expansion." },
+    "30": { "happening": "We consider neighbour course {nb}.", "why": "It might extend the path or reveal a cycle.", "invariant": "nb is a course that requires node_id." },
+    "31": [
+      { "when": "color[nb] == 1", "happening": "Neighbour {nb} is grey — a back-edge, so there is a cycle!", "why": "An edge to a node on the current path closes a loop.", "invariant": "A grey target means the courses cannot all be taken." },
+      { "happening": "Neighbour {nb} is not grey, so no back-edge here.", "why": "Only grey targets indicate a cycle.", "invariant": "White or black neighbours are safe." }
+    ],
+    "32": { "happening": "We record that a cycle exists.", "why": "A back-edge was found.", "invariant": "has_cycle stays True once set." },
+    "33": [
+      { "when": "color[nb] == 0", "happening": "Neighbour {nb} is white — push it to explore.", "why": "Unvisited neighbours extend the DFS.", "invariant": "Only white neighbours are pushed." },
+      { "happening": "Neighbour {nb} is already seen, so it is not pushed.", "why": "Grey and black nodes need no re-exploration.", "invariant": "Each node is pushed for exploration once." }
+    ],
+    "34": { "happening": "We push neighbour {nb} onto the DFS stack.", "why": "It will be explored next.", "invariant": "The stack grows deeper along the path." },
+    "36": { "happening": "All of course {node_id}'s neighbours are done — colour it black.", "why": "Black means fully explored and safe.", "invariant": "A black node leaves the current path." },
+    "37": { "happening": "We pop the finished node off the stack.", "why": "It is done and off the path.", "invariant": "The stack shrinks as nodes finish." },
+    "38": { "happening": "We clear the current node between components.", "why": "No node is current while scanning for the next root.", "invariant": "-1 means no current node." },
+    "39": { "happening": "We move to the next course.", "why": "Every course must be rooted or skipped.", "invariant": "start only increases." },
+    "40": { "happening": "The answer is true only if no cycle was found.", "why": "A cycle makes the schedule impossible.", "invariant": "result is the negation of has_cycle." },
+    "41": { "happening": "We return {result}.", "why": "It says whether all courses can be finished.", "invariant": "A cycle-free graph can always be finished." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the prerequisite graph and colour all courses white.", "why": "Setup for the DFS.", "invariant": "No course has been visited." },
+    "loop": { "happening": "Root a DFS or expand the stack.", "why": "Every course is visited via DFS.", "invariant": "Grey nodes form the current path." },
+    "check": { "happening": "Test a root, a first visit, or a back-edge.", "why": "These drive exploration and cycle detection.", "invariant": "A grey neighbour means a cycle." },
+    "update": { "happening": "Colour a node, record a cycle, or push a neighbour.", "why": "DFS state advances.", "invariant": "Colours reflect DFS progress." },
+    "move": { "happening": "Peek, pop, or advance the scan.", "why": "The stack and scan move deterministically.", "invariant": "The stack is last-in, first-out." },
+    "return": { "happening": "Return whether the courses can be finished.", "why": "The DFS is complete.", "invariant": "The verdict follows from cycle detection." }
+  }
+}

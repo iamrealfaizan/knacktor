@@ -1,0 +1,73 @@
+{
+  "id": "top-down-memo",
+  "name": "Top-Down Memoization",
+  "kind": "brute",
+  "summary": "Recursively ask 'fewest coins for this amount?', trying each coin as the last one used, and cache every sub-amount's answer in a memo array so it is solved only once.",
+  "visualizationIntent": "init: show a memo array of length amount+1, all set to a sentinel (unsolved) except memo[0]=0. recurse: the amt pointer marks the sub-amount being solved; the call-stack panel shows the recursion depth. check: on a memoized cell, reuse it instead of recomputing. update: after trying every coin, store the minimum in memo[amt] and turn the cell green. return: memo[amount] holds the answer, or -1 if it stays at the sentinel.",
+  "complexity": {
+    "time": "O(amount * coins)",
+    "space": "O(amount)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.coinChange",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "best",
+    "label": "MIN COINS",
+    "render": "scalar"
+  },
+  "varColors": {
+    "amt": "ptr-i",
+    "best": "result",
+    "sub": "compared",
+    "memo": "special"
+  },
+  "lineExplanations": {
+    "3": "Pick a sentinel 'infinity' (amount+1) that means an amount is not solvable / not yet solved.",
+    "4": "Create the memo array, one slot per amount from 0 to amount, all starting at the sentinel.",
+    "5": "The base case: zero coins are needed to make amount 0.",
+    "6": "Kick off the recursion for the full target amount.",
+    "7": "If the answer never dropped below the sentinel, the amount is impossible.",
+    "8": "Report impossibility as -1.",
+    "9": "Return the minimum number of coins (or -1).",
+    "12": "Base case inside the recursion: amount 0 needs 0 coins.",
+    "13": "Return 0 for the empty amount.",
+    "14": "If this sub-amount was already solved, reuse the cached answer.",
+    "15": "Return the memoized result without recomputing.",
+    "16": "Start the best-for-this-amount at the sentinel (unknown).",
+    "17": "Try each coin as the last coin used.",
+    "18": "Only a coin no larger than the remaining amount can be used.",
+    "19": "Recurse on the smaller amount left after taking this coin.",
+    "20": "Using this coin costs one more coin than solving the remainder.",
+    "21": "Keep this candidate only if it beats the best found so far.",
+    "22": "Record the new best coin count for this amount.",
+    "23": "Cache the finished answer for this amount so it is never recomputed.",
+    "24": "Return the minimum coins for this amount."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def coinChange(self, coins, amount): receives the coin denominations and the target amount.",
+    "3": "inf = amount + 1 is a value larger than any real coin count, used as 'infinity'.",
+    "4": "memo = [inf] * (amount + 1) makes amount+1 slots, all initialized to the sentinel.",
+    "5": "memo[0] = 0 records the base case directly in the table.",
+    "6": "best = self.solve(coins, amount, memo, inf) starts the recursive search.",
+    "7": "if best >= inf: is true when no combination of coins reached the amount.",
+    "8": "best = -1 signals that the amount cannot be formed.",
+    "9": "return best sends back the minimum coin count or -1.",
+    "11": "def solve(self, coins, amt, memo, inf): solves one sub-amount amt, sharing the memo.",
+    "12": "if amt == 0: is the recursion's base case.",
+    "13": "return 0 because no coins are needed for amount 0.",
+    "14": "if memo[amt] != inf: is true when this amount was already solved.",
+    "15": "return memo[amt] reuses the cached answer.",
+    "16": "best = inf starts this amount's answer as 'unknown'.",
+    "17": "for c in coins: tries every coin denomination.",
+    "18": "if c <= amt: skips coins that are too large to use here.",
+    "19": "sub = self.solve(coins, amt - c, memo, inf) solves the remaining amount.",
+    "20": "cand = sub + 1 adds the coin just used to the remainder's count.",
+    "21": "if cand < best: keeps the smaller coin count.",
+    "22": "best = cand updates the best answer for this amount.",
+    "23": "memo[amt] = best caches the finished result.",
+    "24": "return best hands this amount's answer back to the caller."
+  }
+}

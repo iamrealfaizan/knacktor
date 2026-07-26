@@ -1,0 +1,47 @@
+{
+  "byLine": {
+    "3": { "happening": "We choose inf = {inf} as a stand-in for 'not solvable / not yet solved'.", "why": "Any real coin count is smaller, so inf is safe to compare against.", "invariant": "inf is larger than any achievable coin count." },
+    "4": { "happening": "We build the memo table with one slot per amount, all set to inf.", "why": "Every sub-amount's answer will be cached here exactly once.", "invariant": "A cell holding inf means that amount is still unsolved." },
+    "5": { "happening": "We seed the base case: memo[0] = 0.", "why": "It takes zero coins to make the amount zero.", "invariant": "memo[0] is always 0." },
+    "6": { "happening": "We start solving the full target amount {amount}.", "why": "The recursion breaks it into smaller sub-amounts.", "invariant": "The answer to amount is built from answers to smaller amounts." },
+    "7": [
+      { "when": "best >= inf", "happening": "best is still the sentinel, so amount {amount} cannot be formed.", "why": "No sequence of coins ever reached it.", "invariant": "An unreachable amount stays at inf." },
+      { "happening": "best dropped below inf, so a real coin count was found.", "why": "At least one coin combination reached the amount.", "invariant": "A solvable amount holds a finite coin count." }
+    ],
+    "8": { "happening": "We convert the sentinel to -1 to report impossibility.", "why": "The problem asks for -1 when the amount cannot be made.", "invariant": "best now holds the reportable answer." },
+    "9": { "happening": "We return best = {best}.", "why": "It is the minimum coins for the amount, or -1.", "invariant": "The returned value is the final answer." },
+    "12": [
+      { "when": "amt == 0", "happening": "This sub-amount is 0 — the base case.", "why": "Nothing more is needed to make zero.", "invariant": "Reaching amount 0 costs 0 coins." },
+      { "happening": "Sub-amount {amt} is positive, so it must be solved.", "why": "Positive amounts need at least one coin.", "invariant": "We only recurse on non-negative amounts." }
+    ],
+    "13": { "happening": "We return 0 for the empty amount.", "why": "Zero coins make zero.", "invariant": "The base case never uses a coin." },
+    "14": [
+      { "when": "memo[amt] != inf", "happening": "memo[{amt}] is already solved as {memo[amt]}.", "why": "Recomputing it would waste work — this is the whole point of memoization.", "invariant": "Each sub-amount is computed at most once." },
+      { "happening": "memo[{amt}] is still inf, so this amount is unsolved.", "why": "We must compute it now.", "invariant": "An unsolved cell is computed exactly once, then cached." }
+    ],
+    "15": { "happening": "We reuse the cached answer memo[{amt}] = {memo[amt]}.", "why": "The sub-amount was solved earlier in the recursion.", "invariant": "The memo makes repeated sub-amounts free." },
+    "16": { "happening": "We set this amount's best to inf (unknown so far).", "why": "Each candidate coin will try to lower it.", "invariant": "best only ever decreases from inf." },
+    "17": { "happening": "We try coin {c} as the last coin used.", "why": "The best answer is the smallest over all coin choices.", "invariant": "Every coin denomination is considered." },
+    "18": [
+      { "when": "c <= amt", "happening": "Coin {c} fits in the remaining amount {amt}.", "why": "Only usable coins can lead to a valid solution.", "invariant": "We never take a coin larger than the amount." },
+      { "happening": "Coin {c} is larger than {amt}, so it is skipped.", "why": "It cannot be part of solving this amount.", "invariant": "Oversized coins are ignored." }
+    ],
+    "19": { "happening": "We recurse on the remainder {amt} - {c}.", "why": "Solving the remainder tells us how many coins that part needs.", "invariant": "The remainder is strictly smaller, so recursion terminates." },
+    "20": { "happening": "Adding this coin costs one more than the remainder: cand = {sub} + 1.", "why": "Using coin {c} contributes exactly one coin.", "invariant": "cand counts the coin just used plus the remainder's coins." },
+    "21": [
+      { "when": "cand < best", "happening": "cand {cand} beats the current best.", "why": "We want the fewest coins.", "invariant": "best tracks the minimum over all tried coins." },
+      { "happening": "cand {cand} does not beat best {best}.", "why": "A worse candidate is discarded.", "invariant": "best never increases." }
+    ],
+    "22": { "happening": "We lower best to {cand}.", "why": "A cheaper coin combination was found.", "invariant": "best is the smallest coin count seen for this amount." },
+    "23": { "happening": "We cache memo[{amt}] = best.", "why": "This amount is now solved once and for all.", "invariant": "The cell turns green and is reused if revisited." },
+    "24": { "happening": "We return this amount's answer to the caller.", "why": "The caller adds it into its own count.", "invariant": "Every solved amount returns its cached minimum." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the memo table and seed the base case.", "why": "Setup for the cached recursion.", "invariant": "Only memo[0] is known at first." },
+    "recurse": { "happening": "Descend into a smaller sub-amount.", "why": "Each amount is solved from smaller amounts.", "invariant": "Recursion always shrinks the amount." },
+    "check": { "happening": "Test a base case, a cache hit, or a coin fit.", "why": "These decide whether to recurse, reuse, or skip.", "invariant": "No amount is computed twice." },
+    "update": { "happening": "Improve or cache a coin count.", "why": "Each amount stores its minimum.", "invariant": "Stored answers are final." },
+    "loop": { "happening": "Iterate over the coin denominations.", "why": "The best answer is the minimum across coins.", "invariant": "All coins are tried." },
+    "return": { "happening": "Return a solved amount's minimum coins.", "why": "The value flows back up the recursion.", "invariant": "The final return is memo[amount] or -1." }
+  }
+}

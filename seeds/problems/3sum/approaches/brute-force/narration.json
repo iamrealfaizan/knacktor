@@ -1,0 +1,107 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "We sort nums so equal values sit next to each other.",
+      "why": "Sorting lets us recognise and skip duplicate triples cheaply later.",
+      "invariant": "The multiset of numbers is unchanged; only their order changed."
+    },
+    "4": {
+      "happening": "We record n = {n}, the count of numbers.",
+      "why": "All three loops need the end boundary.",
+      "invariant": "n never changes for the rest of the search."
+    },
+    "5": {
+      "happening": "We start result as an empty list.",
+      "why": "It will collect only the unique triples that sum to zero.",
+      "invariant": "No triple has been accepted yet."
+    },
+    "6": {
+      "happening": "Anchor index i moves to {i}, the first number of the triple.",
+      "why": "Fixing i lets the inner loops search every pair after it.",
+      "invariant": "Every triple starting before i has already been considered."
+    },
+    "7": {
+      "happening": "Index j moves to {j}, the second number, always after i.",
+      "why": "Starting j after i keeps the three indices distinct and avoids repeats.",
+      "invariant": "i < j is always true."
+    },
+    "8": {
+      "happening": "Index k sweeps to {k}, the third number, always after j.",
+      "why": "k scans every remaining position to complete the triple.",
+      "invariant": "i < j < k is always true."
+    },
+    "9": {
+      "happening": "We add the three highlighted values into total.",
+      "why": "A triple qualifies only when its three values sum to zero.",
+      "invariant": "total describes exactly the currently highlighted i, j, k."
+    },
+    "10": [
+      {
+        "when": "total == 0",
+        "happening": "total is {total} — the three values cancel to zero.",
+        "why": "This is exactly the condition for a valid triple.",
+        "invariant": "A zero-sum triple has been located at i, j, k."
+      },
+      {
+        "happening": "total is {total}, not zero, so this triple is rejected.",
+        "why": "Only triples summing to zero are answers.",
+        "invariant": "No stored triple is affected by a rejected candidate."
+      }
+    ],
+    "11": {
+      "happening": "We build the concrete triple from nums[i], nums[j], nums[k].",
+      "why": "We need the values (not indices) to compare against what we already stored.",
+      "invariant": "triple holds the three values that just summed to zero."
+    },
+    "12": [
+      {
+        "when": "len(result) == 0",
+        "happening": "result is still empty, so this triple is new.",
+        "why": "The first zero-sum triple is always worth keeping.",
+        "invariant": "Only distinct triples are ever stored."
+      },
+      {
+        "happening": "We check whether this triple was already collected.",
+        "why": "Sorting can produce the same triple from different indices; we keep each once.",
+        "invariant": "result never holds two identical triples."
+      }
+    ],
+    "13": {
+      "happening": "We append the new triple {triple} to result.",
+      "why": "It is a distinct set of three numbers that sum to zero.",
+      "invariant": "result now contains this triple exactly once."
+    },
+    "14": {
+      "happening": "We return result with {len(result)} unique triple(s).",
+      "why": "Every combination of three indices has been tested.",
+      "invariant": "result holds every distinct zero-sum triple."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Sort the array and prepare an empty answer list.",
+      "why": "Setup for an exhaustive, duplicate-free triple search.",
+      "invariant": "No triple has been accepted yet."
+    },
+    "loop": {
+      "happening": "Advance one of the three triple cursors.",
+      "why": "Nested loops enumerate every combination i < j < k.",
+      "invariant": "The three indices are always strictly increasing."
+    },
+    "update": {
+      "happening": "Compute a sum or record a found triple.",
+      "why": "Each candidate triple must be summed and possibly stored.",
+      "invariant": "State reflects one concrete triple."
+    },
+    "check": {
+      "happening": "Test the triple's sum or its novelty.",
+      "why": "Only new, zero-sum triples are kept.",
+      "invariant": "Rejected candidates change nothing."
+    },
+    "return": {
+      "happening": "Return every unique zero-sum triple.",
+      "why": "The search space is exhausted.",
+      "invariant": "result is complete and duplicate-free."
+    }
+  }
+}

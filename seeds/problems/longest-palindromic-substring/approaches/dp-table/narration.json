@@ -1,0 +1,58 @@
+{
+  "byLine": {
+    "3": { "happening": "We record n = {n}, the string length.", "why": "The table is n by n.", "invariant": "n is fixed." },
+    "4": { "happening": "We create the palindrome table.", "why": "dp[i][j] will say whether s[i..j] is a palindrome.", "invariant": "Only the upper triangle (i <= j) is used." },
+    "5": { "happening": "We add table row {i}.", "why": "One row per starting character.", "invariant": "Every cell starts false." },
+    "6": { "happening": "We add a row of falses.", "why": "No span is known to be a palindrome yet.", "invariant": "dp begins entirely false." },
+    "7": { "happening": "We set best_lo = 0.", "why": "It will mark the longest palindrome's start.", "invariant": "best_lo points at the best span's start." },
+    "8": { "happening": "We set best_len = 1.", "why": "Any single character is a palindrome of length 1.", "invariant": "best_len is at least 1." },
+    "9": { "happening": "We start seeding the diagonal at index 0.", "why": "Single characters are the base palindromes.", "invariant": "The diagonal represents length-1 spans." },
+    "10": [
+      { "when": "i < n", "happening": "We seed the single character at index {i}.", "why": "Every single character is trivially a palindrome.", "invariant": "The diagonal fills left to right." },
+      { "happening": "The whole diagonal is seeded.", "why": "All single characters are marked.", "invariant": "dp[k][k] is true for every k." }
+    ],
+    "11": { "happening": "We mark s[{i}] alone a palindrome.", "why": "A one-character span reads the same both ways.", "invariant": "Diagonal cells are always true." },
+    "12": { "happening": "We advance to the next diagonal cell.", "why": "To seed the next single character.", "invariant": "The diagonal fills fully." },
+    "13": { "happening": "We start filling two-character spans.", "why": "Longer palindromes build on shorter ones.", "invariant": "Spans are filled by increasing length." },
+    "14": [
+      { "when": "length <= n", "happening": "We fill spans of length {length}.", "why": "Every span length up to n is considered.", "invariant": "Shorter spans are already decided." },
+      { "happening": "All span lengths are done.", "why": "The table is complete.", "invariant": "dp holds every span's palindrome status." }
+    ],
+    "15": { "happening": "We reset the span start to 0.", "why": "Every start position of this length is tried.", "invariant": "i sweeps the starts for the current length." },
+    "16": [
+      { "when": "i + length - 1 < n", "happening": "A length-{length} span fits starting at {i}.", "why": "Only spans that fit inside the string are checked.", "invariant": "The span end j stays within the string." },
+      { "happening": "No more spans of this length fit.", "why": "The start ran off the end.", "invariant": "All spans of this length were checked." }
+    ],
+    "17": { "happening": "The span's right end is j = {j}.", "why": "The span covers s[{i}..{j}].", "invariant": "j = i + length - 1." },
+    "18": { "happening": "We compare the two ends s[{i}] and s[{j}].", "why": "A palindrome must have matching ends.", "invariant": "ends_match is true only when the ends agree." },
+    "19": { "happening": "A length-2 span needs no inner check.", "why": "Two matching characters are already a palindrome.", "invariant": "inner_ok starts true only for length 2." },
+    "20": [
+      { "when": "dp[i + 1][j - 1] == 1", "happening": "The inner span s[{i}+1..{j}-1] is a palindrome.", "why": "A span is a palindrome when its inside already is.", "invariant": "Longer palindromes wrap shorter ones." },
+      { "happening": "The inner span is not a palindrome.", "why": "Then wrapping it cannot form one either.", "invariant": "A false inner blocks a longer palindrome." }
+    ],
+    "21": { "happening": "We accept the inner span, so this one can qualify.", "why": "Its inside is a palindrome.", "invariant": "inner_ok is now true." },
+    "22": [
+      { "when": "ends_match && inner_ok", "happening": "Ends match and the inside is a palindrome — s[{i}..{j}] is one.", "why": "This is exactly the palindrome rule.", "invariant": "dp[i][j] becomes true here." },
+      { "happening": "The span s[{i}..{j}] is not a palindrome.", "why": "Either the ends differ or the inside is not a palindrome.", "invariant": "dp[i][j] stays false." }
+    ],
+    "23": { "happening": "We mark span s[{i}..{j}] a palindrome.", "why": "It satisfied the palindrome rule.", "invariant": "This cell turns green." },
+    "24": [
+      { "when": "length > best_len", "happening": "Length {length} beats the best {best_len}.", "why": "We keep the longest palindrome.", "invariant": "best_len tracks the maximum true span." },
+      { "happening": "Length {length} does not beat best {best_len}.", "why": "A shorter or equal palindrome is not recorded.", "invariant": "best_len never decreases." }
+    ],
+    "25": { "happening": "We record best_len = {length}.", "why": "A longer palindrome was found.", "invariant": "best_len is the longest so far." },
+    "26": { "happening": "We record best_lo = {i}.", "why": "So the best span cell can stay gold.", "invariant": "best_lo marks the winning span's start." },
+    "27": { "happening": "We slide the span start right.", "why": "Every start of this length is tried.", "invariant": "i moves forward only." },
+    "28": { "happening": "We move on to the next span length.", "why": "Longer spans depend on shorter ones being done.", "invariant": "Lengths increase monotonically." },
+    "29": { "happening": "We extract the best palindrome substring.", "why": "best_lo and best_len describe the winning span.", "invariant": "The substring is the longest palindrome." },
+    "30": { "happening": "We return '{result}'.", "why": "It is the longest palindromic substring.", "invariant": "No longer palindrome exists in s." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the table and seed single characters.", "why": "Single characters are the base palindromes.", "invariant": "The diagonal is all true." },
+    "loop": { "happening": "Fill spans of increasing length.", "why": "Longer palindromes build on shorter ones.", "invariant": "Shorter spans are already decided." },
+    "move": { "happening": "Slide the span start or grow the length.", "why": "Every span is visited once.", "invariant": "Spans are filled by length." },
+    "update": { "happening": "Mark a palindrome or record a new best.", "why": "The table and best span are maintained.", "invariant": "dp records true spans; best tracks the longest." },
+    "check": { "happening": "Test the ends, the inner span, or a new best.", "why": "These decide the palindrome rule and the answer.", "invariant": "A span is a palindrome only by the rule." },
+    "return": { "happening": "Return the longest palindromic substring.", "why": "The table is complete.", "invariant": "The answer is the best span." }
+  }
+}

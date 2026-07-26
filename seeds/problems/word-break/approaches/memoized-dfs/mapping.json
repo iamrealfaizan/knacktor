@@ -1,0 +1,39 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "end", "var": "end" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "idx == i" },
+    { "state": "compared", "when": "idx >= i && idx < end" },
+    { "state": "result", "when": "memo[idx] == 1" },
+    { "state": "error", "when": "memo[idx] == -1" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "end"] },
+  "readout": {
+    "when": "i != null",
+    "expr": "can the suffix from index {i} be segmented?",
+    "relation": "word fits to index {end}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "positions solved", "onLines": [12] },
+    { "name": "memo hits", "onLines": [11] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5] },
+    { "phase": "recurse", "lines": [6, 17] },
+    { "phase": "loop", "lines": [13] },
+    { "phase": "check", "lines": [10, 15, 16, 19] },
+    { "phase": "update", "lines": [12, 14, 18, 20, 22] },
+    { "phase": "return", "lines": [7, 11, 23] }
+  ],
+  "keyEvents": [
+    { "line": 20, "label": "Position is breakable", "kind": "result" },
+    { "line": 22, "label": "Position is a dead end", "kind": "boundary" },
+    { "line": 7, "label": "Final answer", "kind": "return" }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "byLine": {
+    "3": { "happening": "We count the grid's {rows} rows.", "why": "Bounds checks need the row count.", "invariant": "rows is fixed." },
+    "4": { "happening": "We count the {cols} columns.", "why": "Bounds checks need the column count.", "invariant": "cols is fixed." },
+    "5": { "happening": "We prepare a visited-state grid.", "why": "Each cell needs a flag: unvisited, queued, or done.", "invariant": "state mirrors the grid's shape." },
+    "6": { "happening": "We build the state grid row by row.", "why": "Every cell starts unvisited.", "invariant": "state fills to match the grid." },
+    "7": { "happening": "We add a row of zero (unvisited) flags.", "why": "No cell has been seen yet.", "invariant": "All state cells start at 0." },
+    "8": { "happening": "We start the largest area at 0.", "why": "No island has been measured yet.", "invariant": "best is the largest island area so far." },
+    "9": { "happening": "There is no current cell yet.", "why": "cur_r is set only during a flood.", "invariant": "-1 means 'no current cell'." },
+    "10": { "happening": "There is no current column yet.", "why": "cur_c is set only during a flood.", "invariant": "-1 means 'no current cell'." },
+    "11": { "happening": "We list the four orthogonal directions.", "why": "Islands connect through edges, not diagonals.", "invariant": "Only up/down/left/right count as connected." },
+    "12": { "happening": "We scan row {sr} for a starting cell.", "why": "Every land cell belongs to some island.", "invariant": "Cells before (sr,sc) are already handled." },
+    "13": { "happening": "We scan column {sc}.", "why": "We check each cell as a possible island start.", "invariant": "The scan covers the whole grid." },
+    "14": [
+      { "when": "grid[sr][sc] == 1 && state[sr][sc] == 0", "happening": "Cell ({sr},{sc}) is unvisited land — start a flood.", "why": "Each island is flooded once from its first-found cell.", "invariant": "A flood begins only from fresh land." },
+      { "happening": "Cell ({sr},{sc}) is water or already visited — skip it.", "why": "Only new land starts a new island.", "invariant": "Visited land and water are not re-flooded." }
+    ],
+    "15": { "happening": "We start this island's area at 0.", "why": "Cells are counted as the queue processes them.", "invariant": "area counts fully-visited cells of this island." },
+    "16": { "happening": "We create an empty BFS queue.", "why": "It holds the frontier of cells to visit.", "invariant": "The queue holds discovered-but-unprocessed cells." },
+    "17": { "happening": "We seed the queue with the start cell.", "why": "The flood spreads outward from here.", "invariant": "The queue always has the frontier." },
+    "18": { "happening": "We mark the start cell as queued.", "why": "So it is never enqueued twice.", "invariant": "A queued cell has state 1." },
+    "19": [
+      { "when": "len(queue) > 0", "happening": "The queue still has {len(queue)} cell(s) to process.", "why": "BFS continues until the frontier empties.", "invariant": "Every queued cell will be counted." },
+      { "happening": "The queue is empty — this island is fully flooded.", "why": "No more connected land remains.", "invariant": "The island's area is final." }
+    ],
+    "20": { "happening": "We take the front cell off the queue.", "why": "BFS processes cells in the order they were found.", "invariant": "The queue is first-in, first-out." },
+    "21": { "happening": "We read its row {cur_r}.", "why": "To mark and expand from this cell.", "invariant": "cur_r is the current cell's row." },
+    "22": { "happening": "We read its column {cur_c}.", "why": "To mark and expand from this cell.", "invariant": "cur_c is the current cell's column." },
+    "23": { "happening": "We mark ({cur_r},{cur_c}) fully visited.", "why": "It is now counted and will not be revisited.", "invariant": "A visited cell has state 2." },
+    "24": { "happening": "We count this cell, area becomes {area} + 1.", "why": "Each visited land cell adds to the island's area.", "invariant": "area equals the visited cells of this island." },
+    "25": { "happening": "We look at the four neighbours of the current cell.", "why": "Connected land extends the island.", "invariant": "Only orthogonal neighbours are considered." },
+    "26": { "happening": "The neighbour row is {nr}.", "why": "We must check it is a valid land cell.", "invariant": "nr = cur_r + a direction step." },
+    "27": { "happening": "The neighbour column is {nc}.", "why": "We must check it is a valid land cell.", "invariant": "nc = cur_c + a direction step." },
+    "28": { "happening": "We test if ({nr},{nc}) is in-bounds, land, and unvisited.", "why": "Only such neighbours belong to this island.", "invariant": "Out-of-bounds, water, and visited cells are rejected." },
+    "29": { "happening": "We mark the neighbour queued.", "why": "So it is not enqueued twice.", "invariant": "A queued cell has state 1." },
+    "30": { "happening": "We add the neighbour to the queue.", "why": "It will be counted and expanded later.", "invariant": "The frontier grows outward." },
+    "31": [
+      { "when": "area > best", "happening": "This island's area {area} beats the best {best}.", "why": "We track the largest island.", "invariant": "best is the maximum area seen." },
+      { "happening": "This island's area {area} does not beat best {best}.", "why": "A smaller island is discarded.", "invariant": "best never decreases." }
+    ],
+    "32": { "happening": "We record best = {area}.", "why": "A larger island was found.", "invariant": "best is the largest island so far." },
+    "33": { "happening": "We clear the current-cell row between islands.", "why": "So no cell shows as current while scanning.", "invariant": "-1 means 'no current cell'." },
+    "34": { "happening": "We clear the current-cell column between islands.", "why": "So no cell shows as current while scanning.", "invariant": "-1 means 'no current cell'." },
+    "35": { "happening": "We return the largest island area {best}.", "why": "Every island has been flooded and measured.", "invariant": "best is the maximum over all islands." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the visited grid and setup.", "why": "Setup for the BFS floods.", "invariant": "No cell visited yet." },
+    "loop": { "happening": "Scan for a start or flood the frontier.", "why": "Every land cell is visited once.", "invariant": "The queue holds the frontier." },
+    "check": { "happening": "Test a start cell, a neighbour, or a new best.", "why": "These gate flooding and the answer.", "invariant": "Only valid land is flooded." },
+    "update": { "happening": "Count a cell, enqueue a neighbour, or record a best.", "why": "The island grows and the best is tracked.", "invariant": "State reflects the flood so far." },
+    "move": { "happening": "Dequeue a cell or compute a neighbour.", "why": "BFS expands outward.", "invariant": "Cells are processed FIFO." },
+    "return": { "happening": "Return the largest island area.", "why": "All islands measured.", "invariant": "best is final." }
+  }
+}

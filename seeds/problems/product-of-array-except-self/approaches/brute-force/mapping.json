@@ -1,0 +1,47 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" }
+  ],
+  "cellStateRules": [
+    { "state": "dimmed", "when": "idx == i" },
+    { "state": "current", "when": "idx == j" },
+    { "state": "compared", "when": "idx < j" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "j"] },
+  "readout": {
+    "when": "i != null",
+    "expr": "output[{i}] = product of all except index {i}",
+    "relation": "running product {prod}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "multiplications", "onLines": [9] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4] },
+    { "phase": "loop", "lines": [5, 7] },
+    { "phase": "update", "lines": [6, 9, 10] },
+    { "phase": "check", "lines": [8] },
+    { "phase": "return", "lines": [11] }
+  ],
+  "keyEvents": [
+    { "line": 10, "label": "Output slot filled", "kind": "result" },
+    { "line": 11, "label": "All products computed", "kind": "return" }
+  ],
+  "auxMappings": [
+    {
+      "label": "Result",
+      "primitive": "array",
+      "valuesFrom": "result",
+      "cellStateRules": [
+        { "state": "result", "when": "idx == len(result) - 1" },
+        { "state": "visited", "when": "idx < len(result) - 1" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ]
+}

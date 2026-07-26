@@ -1,0 +1,41 @@
+{
+  "byLine": {
+    "3": { "happening": "We start result as an empty list of match positions.", "why": "It fills only when a window's letters match p exactly.", "invariant": "No window has been accepted yet." },
+    "4": { "happening": "We record n = {n}, the length of s.", "why": "The window may not run past the end of s.", "invariant": "n is fixed." },
+    "5": { "happening": "We record m = {m}, the length of p and the window width.", "why": "Every window has exactly this many characters.", "invariant": "The window width never changes." },
+    "6": { "happening": "We create a 26-slot count for p's letters.", "why": "Two strings are anagrams exactly when their letter counts match.", "invariant": "need describes p and never changes." },
+    "7": { "happening": "We read each character of p.", "why": "To build p's letter-count target.", "invariant": "Every letter of p is counted once." },
+    "8": { "happening": "We tally one letter of p into need.", "why": "need must reflect how many of each letter p has.", "invariant": "The sum of need equals m." },
+    "9": { "happening": "We place the first window start at index 0.", "why": "We scan windows left to right.", "invariant": "start marks the window's left edge." },
+    "10": [
+      { "when": "start + m <= n", "happening": "A full window still fits starting at {start}.", "why": "Only complete windows can be anagrams of p.", "invariant": "Every window checked has exactly m characters." },
+      { "happening": "The window would run past the end, so scanning stops.", "why": "There are no more full-width windows.", "invariant": "All valid windows have been checked." }
+    ],
+    "11": { "happening": "We compute the window's last index end = {end}.", "why": "It bounds the inner scan.", "invariant": "The window spans start..end inclusive." },
+    "12": { "happening": "We reset a fresh count for this window.", "why": "The brute force recomputes counts from scratch each time.", "invariant": "window starts empty for every position." },
+    "13": { "happening": "We assume this window does not match yet.", "why": "It is proven only after comparing counts.", "invariant": "matched is False until the comparison passes." },
+    "14": { "happening": "We move the scan cursor pos to the window start {start}.", "why": "We tally the window one character at a time.", "invariant": "pos walks from start to end." },
+    "15": [
+      { "when": "pos <= end", "happening": "The cursor is still inside the window at {pos}.", "why": "Every window character must be counted.", "invariant": "pos never leaves the window during the scan." },
+      { "happening": "The cursor passed the window end, so the count is complete.", "why": "The whole window has been tallied.", "invariant": "window now holds this position's letter counts." }
+    ],
+    "16": { "happening": "We tally s[{pos}] into the window count.", "why": "Rebuilding counts is how brute force measures the window.", "invariant": "window reflects characters start..pos." },
+    "17": { "happening": "We advance the scan cursor.", "why": "To count the next character.", "invariant": "pos increases by one each step." },
+    "18": [
+      { "when": "matched", "happening": "The window's counts equal p's — an anagram at {start}.", "why": "Equal letter counts mean one is a rearrangement of the other.", "invariant": "A match means window == need." },
+      { "happening": "The window's counts differ from p's, so this position is not an anagram.", "why": "Any letter mismatch disqualifies the window.", "invariant": "Only exact count matches are recorded." }
+    ],
+    "19": { "happening": "We flag this window as a match.", "why": "Its letters are a permutation of p.", "invariant": "matched is True only for genuine anagram windows." },
+    "20": { "happening": "We record start = {start} as a match position.", "why": "The problem asks for every anagram's start index.", "invariant": "result holds matching starts in increasing order." },
+    "21": { "happening": "We slide the window right to {start} + 1.", "why": "Every possible window position must be tried.", "invariant": "Windows are checked left to right without gaps." },
+    "22": { "happening": "We return result with {len(result)} match(es).", "why": "Every window has been checked.", "invariant": "result lists every anagram start index." }
+  },
+  "byPhase": {
+    "init": { "happening": "Measure the strings and build p's letter target.", "why": "Setup for the sliding brute-force scan.", "invariant": "need describes p; no window checked yet." },
+    "loop": { "happening": "Iterate windows, or scan characters within one.", "why": "Every window and every character in it is examined.", "invariant": "The window always has width m." },
+    "update": { "happening": "Tally counts or record a match.", "why": "Each window's letters are recomputed and compared.", "invariant": "State reflects one concrete window." },
+    "move": { "happening": "Advance a cursor or slide the window.", "why": "Scanning proceeds left to right.", "invariant": "Cursors only move forward." },
+    "check": { "happening": "Compare the window's counts to p's.", "why": "A match means an anagram was found.", "invariant": "Only exact matches are recorded." },
+    "return": { "happening": "Return every matching start index.", "why": "All windows have been checked.", "invariant": "result is complete." }
+  }
+}

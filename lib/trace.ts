@@ -293,6 +293,14 @@ export interface Approach {
   complexity: { time: string; space: string };
   language: "python";
   source: string;
+  /**
+   * Optional genuine, submittable LeetCode solution. Present only for problems
+   * whose `source` is adapted to array I/O for the visualizer (linked-list /
+   * tree / graph / design). Reference-only — never traced. When set, the code
+   * panel offers a "LeetCode" toggle. Absent means `source` is already the
+   * submittable solution.
+   */
+  leetcodeSource?: string;
   /** function the tracer calls, e.g. "Solution.maxArea" */
   entrypoint?: string;
   /** lineNo -> algorithm-level explanation (shown in narration panel) */

@@ -25,7 +25,17 @@ export function CodePanel({
    *  executing line's explanation — hover doesn't exist on touch. */
   mobileExplanation?: string;
 }) {
-  const lines = approach.source.split("\n");
+  const hasLeetcode = !!approach.leetcodeSource;
+  // "visualized" = the traced solution.py (line-highlight + hover explainers);
+  // "leetcode" = the genuine submittable solution (static, no per-line trace).
+  const [view, setView] = useState<"visualized" | "leetcode">("visualized");
+  // Reset to the traced view whenever the approach changes (the new approach
+  // may not offer a LeetCode reference).
+  useEffect(() => setView("visualized"), [approach.id]);
+  const showLeetcode = hasLeetcode && view === "leetcode";
+  const displayedSource = showLeetcode ? approach.leetcodeSource! : approach.source;
+
+  const lines = displayedSource.split("\n");
   const [hover, setHover] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -49,7 +59,7 @@ export function CodePanel({
   }, [currentLine]);
 
   function copy() {
-    navigator.clipboard.writeText(approach.source);
+    navigator.clipboard.writeText(displayedSource);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   }
@@ -76,7 +86,7 @@ export function CodePanel({
       })()
     : { left: 0, top: 0 };
 
-  const showTooltip = hover !== null && !!(approach.syntaxExplanations?.[hover]) && mousePos !== null;
+  const showTooltip = !showLeetcode && hover !== null && !!(approach.syntaxExplanations?.[hover]) && mousePos !== null;
 
   if (collapsed) {
     return (
@@ -96,7 +106,35 @@ export function CodePanel({
       {/* header strip */}
       <div className="flex-none flex items-center gap-2 px-3 py-2.5 border-b border-kn-border-0 bg-kn-surface-1">
         <span className="w-1.5 h-1.5 rounded-full bg-kn-result" />
-        <span className="font-mono text-[10px] font-semibold tracking-widest text-kn-ink-2">SOLUTION.PY</span>
+        <span className="font-mono text-[10px] font-semibold tracking-widest text-kn-ink-2">
+          {showLeetcode ? "LEETCODE.PY" : "SOLUTION.PY"}
+        </span>
+        {hasLeetcode && (
+          <div className="flex items-center rounded-md border border-kn-border-0 overflow-hidden ml-1">
+            <button
+              type="button"
+              onClick={() => setView("visualized")}
+              title="The animated solution (adapted to arrays for the visualizer)"
+              className={cn(
+                "px-2 py-0.5 font-mono text-[9.5px] font-semibold tracking-wide transition-colors",
+                !showLeetcode ? "bg-kn-accent-soft text-kn-current" : "text-kn-ink-2 hover:text-kn-ink-1"
+              )}
+            >
+              VISUALIZED
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("leetcode")}
+              title="The genuine, submittable LeetCode solution"
+              className={cn(
+                "px-2 py-0.5 font-mono text-[9.5px] font-semibold tracking-wide border-l border-kn-border-0 transition-colors",
+                showLeetcode ? "bg-kn-accent-soft text-kn-current" : "text-kn-ink-2 hover:text-kn-ink-1"
+              )}
+            >
+              LEETCODE
+            </button>
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-1">
           <Button size="sm" variant="ghost" onClick={copy} className="h-6 px-1.5 font-mono text-[11px] text-kn-ink-2 gap-1">
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
@@ -108,11 +146,21 @@ export function CodePanel({
         </div>
       </div>
 
+      {/* LeetCode note — this view is reference-only, not driven by the player */}
+      {showLeetcode && (
+        <div className="flex-none mx-3 mt-2.5 rounded-lg border border-kn-compared bg-kn-surface-1 px-3 py-2">
+          <p className="text-[11.5px] leading-snug text-kn-ink-1">
+            Genuine, submittable LeetCode solution. The animation uses an
+            array-based adaptation, so this view isn&apos;t line-synced to the player.
+          </p>
+        </div>
+      )}
+
       {/* code body — capped on mobile so long files don't dominate the scroll body */}
       <div ref={scrollRef} className="flex-1 overflow-auto cs-scroll py-2.5 max-lg:max-h-[45dvh]">
         {lines.map((line, i) => {
           const lineNo = i + 1;
-          const active = lineNo === currentLine;
+          const active = !showLeetcode && lineNo === currentLine;
           const tokens = tokenizeLine(line);
           return (
             <div
@@ -144,7 +192,7 @@ export function CodePanel({
       </div>
 
       {/* mobile line explainer — always shows the executing line (no hover on touch) */}
-      {mobileExplanation !== undefined && (
+      {mobileExplanation !== undefined && !showLeetcode && (
         <div className="lg:hidden flex-none mx-3 mb-3 rounded-lg border border-kn-border-0 bg-kn-surface-1 px-3 py-2.5">
           <p className="font-mono text-[8.5px] font-bold tracking-widest text-kn-current mb-1">
             ⌕ LINE {currentLine} · CURRENT
