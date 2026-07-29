@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
+import { DeactivatedNotice } from "@/components/auth/deactivated-notice";
 
 export const metadata: Metadata = {
   title: "Sign in · Knacktor",
@@ -19,6 +20,11 @@ export default function LoginPage() {
       <p className="mt-1.5 text-sm text-kn-ink-1">
         Pick up right where you left off.
       </p>
+
+      {/* Client-side query read (keeps this page statically rendered). */}
+      <Suspense>
+        <DeactivatedNotice />
+      </Suspense>
 
       <div className="mt-7">
         <Suspense>
