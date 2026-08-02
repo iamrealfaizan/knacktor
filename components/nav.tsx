@@ -29,7 +29,8 @@ export function Nav() {
 
   // Topics/Patterns/Sheets live under the app/(app) route group and render the
   // full dashboard HomeHeader from that group's layout — Nav must yield to it.
-  const APP_PREFIXES = ["/topics", "/patterns", "/sheets"];
+  // /admin renders its own sidebar + top bar shell (components/admin/admin-shell).
+  const APP_PREFIXES = ["/topics", "/patterns", "/sheets", "/admin"];
   if (APP_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/")))
     return null;
 
