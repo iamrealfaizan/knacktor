@@ -11,6 +11,15 @@
 import { ObjectId, type Db, MongoServerError } from "mongodb";
 import bcrypt from "bcryptjs";
 import clientPromise from "./mongodb";
+import {
+  DEFAULT_ROLE,
+  DEFAULT_STATUS,
+  effectiveRole,
+  normalizeRole,
+  normalizeStatus,
+  type UserRole,
+  type UserStatus,
+} from "./rbac";
 
 const DB = "knacktor";
 
@@ -21,10 +30,21 @@ export interface UserDoc {
   email: string; // lowercased
   passwordHash: string;
   createdAt: Date;
+  // Added with the admin panel. OPTIONAL on purpose: accounts created before it
+  // existed have neither field, so every reader normalizes via lib/rbac.ts
+  // (normalizeRole / normalizeStatus) instead of trusting the raw value.
+  role?: UserRole;
+  status?: UserStatus;
+  roleChangedAt?: Date;
+  statusChangedAt?: Date;
 }
 
 async function db(): Promise<Db> {
   return (await clientPromise).db(DB);
+}
+
+export async function usersCollection() {
+  return (await db()).collection<UserDoc>("users");
 }
 
 // Lazy, idempotent index setup — cached per process so createUser doesn't
@@ -37,6 +57,10 @@ function ensureUserIndexes(): Promise<void> {
       const users = (await db()).collection<UserDoc>("users");
       await users.createIndex({ email: 1 }, { unique: true });
       await users.createIndex({ username: 1 }, { unique: true });
+      // Admin-panel list/filter/sort paths.
+      await users.createIndex({ createdAt: -1 });
+      await users.createIndex({ role: 1 });
+      await users.createIndex({ status: 1 });
     })().catch((err) => {
       indexesReady = undefined; // allow retry on transient failure
       throw err;
@@ -89,6 +113,8 @@ export async function createUser(input: {
       email,
       passwordHash,
       createdAt: new Date(),
+      role: DEFAULT_ROLE,
+      status: DEFAULT_STATUS,
     });
   } catch (err) {
     // Race with a concurrent signup — the unique index is the real guard.
@@ -111,6 +137,40 @@ export async function findUserByIdentifier(
   if (!id) return null;
   const users = (await db()).collection<UserDoc>("users");
   return users.findOne({ $or: [{ email: id }, { username: id }] });
+}
+
+export interface UserAuthState {
+  /** Role as stored in Mongo (normalized), ignoring the env override. */
+  dbRole: UserRole;
+  /** What authorization checks should use: dbRole escalated by ADMIN_EMAILS. */
+  role: UserRole;
+  status: UserStatus;
+  email: string;
+}
+
+/**
+ * The single per-request authorization read: effective role + status for a user
+ * id, or null when the account no longer exists. Deliberately projects only
+ * three fields so this stays a cheap `_id` lookup — it runs on every
+ * authenticated navigation (see lib/session-guard.ts) and on every admin
+ * Server Action (see lib/admin-guard.ts).
+ */
+export async function getUserAuthState(
+  userId: string
+): Promise<UserAuthState | null> {
+  if (!ObjectId.isValid(userId)) return null;
+  const users = await usersCollection();
+  const doc = await users.findOne(
+    { _id: new ObjectId(userId) },
+    { projection: { role: 1, status: 1, email: 1 } }
+  );
+  if (!doc) return null;
+  return {
+    dbRole: normalizeRole(doc.role),
+    role: effectiveRole(doc.role, doc.email),
+    status: normalizeStatus(doc.status),
+    email: doc.email,
+  };
 }
 
 export function verifyPassword(

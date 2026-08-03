@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/session-guard";
 import {
   getProblemsPage,
   getProblemFacets,
@@ -47,19 +46,19 @@ export default async function ProblemsPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  // Middleware already gates /problems; this is a defensive fallback.
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  // Middleware gates /problems for anonymous users; this also boots accounts
+  // that were deactivated after their JWT was issued.
+  const sessionUser = await requireActiveSession();
 
   const user = {
-    name: session.user.name ?? "there",
-    username: session.user.username,
-    email: session.user.email ?? "",
+    name: sessionUser.name,
+    username: sessionUser.username,
+    email: sessionUser.email,
   };
 
   // Initial browse state comes from the URL so a shared link renders correctly (SSR).
   const initialState = parseState(searchParams);
-  const userId = session.user.id || null;
+  const userId = sessionUser.id || null;
 
   // Resolve the status filter into an _id constraint server-side, so a shared
   // link like /problems?status=solved renders the correct filtered page on first paint.
@@ -153,7 +152,11 @@ export default async function ProblemsPage({
 
   return (
     <div className="min-h-screen bg-kn-bg text-kn-ink-0">
-      <HomeHeader user={user} streakDays={streak?.currentStreak ?? 0} />
+      <HomeHeader
+        user={user}
+        streakDays={streak?.currentStreak ?? 0}
+        isAdmin={sessionUser.role === "admin"}
+      />
       <main className="max-w-[1280px] mx-auto px-4 sm:px-6 pt-[26px] pb-16">
         {/* Page heading */}
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, Bookmark } from "lucide-react";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/session-guard";
 import { getBookmarkedIds } from "@/lib/progress-service";
 import { getProblemsByIds } from "@/lib/content-service";
 import { ProblemList } from "@/components/problem-list";
@@ -13,11 +12,11 @@ export const metadata: Metadata = { title: "Saved Problems" };
 export const dynamic = "force-dynamic";
 
 export default async function SavedPage() {
-  // Middleware gates this route; defensive fallback for the anon path.
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  // Middleware gates this route for anonymous users; this also boots accounts
+  // that were deactivated after their JWT was issued.
+  const sessionUser = await requireActiveSession();
 
-  const ids = await getBookmarkedIds(session.user.id);
+  const ids = await getBookmarkedIds(sessionUser.id);
   const problems = (await getProblemsByIds(ids)).sort((a, b) => a.number - b.number);
 
   return (

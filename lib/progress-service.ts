@@ -21,6 +21,7 @@ import {
   getSiteStats,
   getProblemAfterNumber,
 } from "./content-service";
+import { getUserAuthState } from "./user-service";
 import type {
   ProgressStatus,
   ProgressSummary,
@@ -124,11 +125,23 @@ export type { RawUserProblemProgress, RawUserDailyActivity, RawUserStreak };
 /**
  * The signed-in user's id (hex string), or null when anonymous. Wraps the
  * NextAuth session; never throws — callers degrade gracefully for anon users.
+ *
+ * Deactivated accounts resolve to null. This is the single choke point for every
+ * UserProgress read and write, so it's where deactivation is enforced for the
+ * statically-rendered problem page — that page has no server-side session check
+ * of its own (adding one would force it dynamic and break `revalidate = 3600`),
+ * so without this a deactivated user sitting on a cached problem URL could keep
+ * writing progress until their JWT expired. Callers already treat null as
+ * anonymous, so the UI degrades instead of erroring.
  */
 export async function getSessionUserId(): Promise<string | null> {
   try {
     const session = await auth();
-    return session?.user?.id ?? null;
+    const id = session?.user?.id;
+    if (!id) return null;
+    const state = await getUserAuthState(id);
+    if (!state || state.status === "inactive") return null;
+    return id;
   } catch {
     return null;
   }

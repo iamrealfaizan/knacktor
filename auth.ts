@@ -7,6 +7,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { authConfig } from "./auth.config";
 import { findUserByIdentifier, verifyPassword } from "@/lib/user-service";
+import { effectiveRole, normalizeStatus } from "@/lib/rbac";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -27,29 +28,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await verifyPassword(password, user.passwordHash);
         if (!ok) return null;
 
+        // Deactivated accounts cannot sign in. Returning null gives the same
+        // "invalid credentials" surface as a wrong password — deliberate, so
+        // the form can't be used to probe which accounts are deactivated.
+        // Already-signed-in sessions are cut off separately by
+        // lib/session-guard.ts on the next navigation.
+        if (normalizeStatus(user.status) === "inactive") return null;
+
         return {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
           username: user.username,
+          role: effectiveRole(user.role, user.email),
         };
       },
     }),
   ],
-  callbacks: {
-    ...authConfig.callbacks,
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (typeof token.id === "string") session.user.id = token.id;
-      if (typeof token.username === "string")
-        session.user.username = token.username;
-      return session;
-    },
-  },
+  // jwt/session/authorized all come from authConfig — they must live there so
+  // middleware (which builds NextAuth from authConfig alone) sees them too.
+  // Do NOT re-declare them here; an override would apply on the server only and
+  // silently diverge from what the edge sees.
+  callbacks: authConfig.callbacks,
 });
