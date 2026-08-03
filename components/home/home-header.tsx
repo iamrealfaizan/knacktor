@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Search, Flame, LogOut, Menu } from "lucide-react";
+import { Search, Flame, LogOut, Menu, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { NAV_LINKS } from "./home-data";
@@ -27,15 +27,21 @@ export interface HeaderUser {
   email: string;
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  const first = parts[0][0] ?? "";
-  const second = parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "";
-  return (first + second).toUpperCase();
-}
-
-export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays: number }) {
+export function HomeHeader({
+  user,
+  streakDays,
+  isAdmin = false,
+}: {
+  user: HeaderUser;
+  streakDays: number;
+  /**
+   * Shows the "Admin panel" entry in the account menu. Purely a discovery
+   * affordance — /admin is gated server-side (auth.config.ts + admin layout +
+   * requireAdmin in every action), so hiding or showing this changes nothing
+   * about who can actually get in.
+   */
+  isAdmin?: boolean;
+}) {
   const [navOpen, setNavOpen] = useState(false);
   const pathname = usePathname();
 
@@ -153,6 +159,15 @@ export function HomeHeader({ user, streakDays }: { user: HeaderUser; streakDays:
               <div className="font-mono text-xs text-kn-ink-2">@{user.username}</div>
               <div className="font-mono text-xs text-kn-ink-2">{user.email}</div>
             </div>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem render={<Link href="/admin" />}>
+                  <ShieldCheck />
+                  Admin panel
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
