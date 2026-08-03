@@ -1,0 +1,38 @@
+{
+  "id": "brute-force",
+  "name": "Multiply All Others",
+  "kind": "brute",
+  "summary": "For each output slot i, multiply together every element except nums[i]. Uses no division and O(n^2) time — the baseline the prefix/suffix trick optimises to O(n).",
+  "visualizationIntent": "init: show the input array and an empty result. outer-loop: the i cursor picks an output slot; that cell dims to show it is skipped. inner-loop: the j cursor sweeps every other element, multiplying them into a running product. update: write the product into the result slot. return: the completed products array.",
+  "complexity": { "time": "O(n^2)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.productExceptSelf",
+  "primaryPrimitive": "array",
+  "auxStructures": ["array"],
+  "resultSpec": { "varName": "result", "label": "PRODUCTS", "render": "list" },
+  "varColors": { "i": "ptr-i", "j": "ptr-j", "prod": "compared", "result": "result" },
+  "lineExplanations": {
+    "3": "Count the elements.",
+    "4": "Start an empty result list.",
+    "5": "Choose the output slot i to compute.",
+    "6": "Begin this slot's product at 1.",
+    "7": "Sweep every index to consider as a factor.",
+    "8": "Skip the element at i itself.",
+    "9": "Multiply every other element into the running product.",
+    "10": "Store the product for output slot i.",
+    "11": "Return all the products."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def productExceptSelf(self, nums): receives the input array.",
+    "3": "n = len(nums) counts the elements.",
+    "4": "result = [] creates the empty output list.",
+    "5": "for i in range(n): picks each output slot.",
+    "6": "prod = 1 starts the running product at the multiplicative identity.",
+    "7": "for j in range(n): visits every element as a potential factor.",
+    "8": "if j != i: skips the slot's own element.",
+    "9": "prod = prod * nums[j] multiplies in every other element.",
+    "10": "result.append(prod) records the product for slot i.",
+    "11": "return result hands back all products."
+  }
+}

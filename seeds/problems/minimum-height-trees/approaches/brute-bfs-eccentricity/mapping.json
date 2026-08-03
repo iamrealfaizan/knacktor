@@ -1,0 +1,50 @@
+{
+  "primitive": "graph",
+  "nodesFrom": "nodes",
+  "edgesFrom": "graph_edges",
+  "directed": false,
+  "nodeStateRules": [
+    { "state": "current", "when": "node_idx == cur" },
+    { "state": "result", "when": "heights[node_idx] == best_height" },
+    { "state": "frontier", "when": "dist[node_idx] >= 0" },
+    { "state": "idle", "when": "true" }
+  ],
+  "pointers": [
+    { "name": "cur", "var": "cur" }
+  ],
+  "auxMappings": [
+    {
+      "label": "BFS queue",
+      "primitive": "queue",
+      "itemsFrom": "queue",
+      "cellStateRules": [
+        { "state": "visited", "when": "idx < head" },
+        { "state": "frontier", "when": "true" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ],
+  "readout": {
+    "when": "root < n && far != null",
+    "expr": "BFS from root {root}, farthest {far}",
+    "relation": "min height so far {best_height}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "roots evaluated", "onLines": [42] },
+    { "name": "nodes reached", "onLines": [39] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21] },
+    { "phase": "loop", "lines": [22, 24, 30, 36, 47] },
+    { "phase": "update", "lines": [23, 25, 26, 27, 28, 29, 35, 39, 40, 42, 44, 46, 49] },
+    { "phase": "move", "lines": [31, 32, 33, 37, 41, 45] },
+    { "phase": "check", "lines": [34, 38, 43, 48] },
+    { "phase": "return", "lines": [50] }
+  ],
+  "keyEvents": [
+    { "line": 44, "label": "New minimum height", "kind": "best" },
+    { "line": 49, "label": "Min-height root", "kind": "result" },
+    { "line": 50, "label": "Final answer", "kind": "return" }
+  ]
+}

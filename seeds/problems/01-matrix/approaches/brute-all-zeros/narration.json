@@ -1,0 +1,176 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Read the matrix height.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "4": {
+      "happening": "Read the matrix width.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "5": {
+      "happening": "Prepare a list of every zero coordinate.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "6": {
+      "happening": "Visit each possible zero row.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "7": {
+      "happening": "Visit each possible zero column.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "8": {
+      "happening": "Check whether this matrix cell is zero.",
+      "why": "This condition decides whether the current candidate can contribute to the answer.",
+      "invariant": "Only candidates satisfying the algorithm's condition advance."
+    },
+    "9": {
+      "happening": "We found a zero at ({zr}, {zc}).",
+      "why": "Every cell will be compared with every recorded zero.",
+      "invariant": "zeros contains all zero coordinates seen so far."
+    },
+    "10": {
+      "happening": "Choose a value larger than any possible matrix distance.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "11": {
+      "happening": "Create the output distance grid.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "12": {
+      "happening": "Create one unresolved output row.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "13": {
+      "happening": "Fill that row with the large unresolved value.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "14": {
+      "happening": "Start solving at the first row.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "15": {
+      "happening": "Continue until every row is solved.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "16": {
+      "happening": "Start at the first column of this row.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "17": {
+      "happening": "Continue until every cell in the row is solved.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "18": {
+      "happening": "Assume the current cell's distance is the large value.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "19": {
+      "happening": "Start with the first known zero.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "20": {
+      "happening": "Compare the current cell with every zero.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "21": {
+      "happening": "Read the candidate zero's row.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "22": {
+      "happening": "Read the candidate zero's column.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "23": {
+      "happening": "The distance from ({cr}, {cc}) to ({zr}, {zc}) is {cand}.",
+      "why": "The nearest zero determines this cell's answer.",
+      "invariant": "best is the smallest distance measured so far."
+    },
+    "24": {
+      "happening": "Check whether this zero is closer.",
+      "why": "This condition decides whether the current candidate can contribute to the answer.",
+      "invariant": "Only candidates satisfying the algorithm's condition advance."
+    },
+    "25": {
+      "happening": "This zero is closer, so best becomes {best}.",
+      "why": "Only the minimum distance matters.",
+      "invariant": "best never increases."
+    },
+    "26": {
+      "happening": "Move to the next zero.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "27": {
+      "happening": "Cell ({cr}, {cc}) is fixed to distance {best}.",
+      "why": "Every zero has now been checked for this cell.",
+      "invariant": "A fixed output cell is final."
+    },
+    "28": {
+      "happening": "Move to the next column.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "29": {
+      "happening": "Move to the next row.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "30": {
+      "happening": "We return the completed distance matrix.",
+      "why": "Every cell now stores its nearest-zero distance.",
+      "invariant": "dist is the final answer."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Collect zero coordinates and prepare the output grid.",
+      "why": "The brute-force method needs every zero as a candidate.",
+      "invariant": "Unsolved cells begin at a safely large value."
+    },
+    "loop": {
+      "happening": "Visit the next cell or zero candidate.",
+      "why": "Every cell is compared with every zero.",
+      "invariant": "No candidate is skipped."
+    },
+    "check": {
+      "happening": "Test a cell value or a candidate distance.",
+      "why": "Zeros are collected and closer candidates improve the answer.",
+      "invariant": "best is the minimum seen so far."
+    },
+    "update": {
+      "happening": "Record a zero, candidate, or finished distance.",
+      "why": "The brute-force search gradually resolves the grid.",
+      "invariant": "Finished cells never change again."
+    },
+    "move": {
+      "happening": "Advance a row, column, or zero pointer.",
+      "why": "The nested loops enumerate the full search space.",
+      "invariant": "Pointers move monotonically through their ranges."
+    },
+    "return": {
+      "happening": "Return the distance matrix.",
+      "why": "All cell-to-zero comparisons are complete.",
+      "invariant": "The result is final."
+    }
+  }
+}

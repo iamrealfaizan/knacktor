@@ -1,0 +1,78 @@
+{
+  "byLine": {
+    "3": { "happening": "We create the graph nodes.", "why": "The tree is an undirected graph of n nodes.", "invariant": "One node per index 0..n-1." },
+    "4": { "happening": "We add node {i}.", "why": "Each index is a vertex.", "invariant": "Nodes are created in order." },
+    "5": { "happening": "We append a node.", "why": "It becomes a graph vertex.", "invariant": "Every index has a node." },
+    "6": { "happening": "We create the edge list.", "why": "Edges connect the tree's nodes.", "invariant": "Edges are undirected." },
+    "7": { "happening": "We create the adjacency list.", "why": "BFS needs each node's neighbours.", "invariant": "adj[v] lists v's neighbours." },
+    "8": { "happening": "We prepare node {i}'s neighbour list.", "why": "Neighbours are added as edges are read.", "invariant": "Every node starts with no neighbours." },
+    "9": { "happening": "We start an empty neighbour list.", "why": "It fills from the edges.", "invariant": "adj has one list per node." },
+    "10": { "happening": "We read edge {e}.", "why": "Each edge links two nodes both ways.", "invariant": "Every edge is added once." },
+    "11": { "happening": "One endpoint is {a}.", "why": "It gets the other as a neighbour.", "invariant": "a is a node index." },
+    "12": { "happening": "The other endpoint is {b}.", "why": "It gets the first as a neighbour.", "invariant": "b is a node index." },
+    "13": { "happening": "We record the edge {a}-{b}.", "why": "For drawing the graph.", "invariant": "The edge connects a and b." },
+    "14": { "happening": "We link {a} to {b}.", "why": "The tree is undirected.", "invariant": "b is now a neighbour of a." },
+    "15": { "happening": "We link {b} to {a}.", "why": "Both directions of an undirected edge.", "invariant": "a is now a neighbour of b." },
+    "16": { "happening": "We create the heights array.", "why": "Each node's height when used as root goes here.", "invariant": "heights[v] is v's tree height." },
+    "17": { "happening": "We prepare node {i}'s height slot.", "why": "Heights are unknown until each BFS runs.", "invariant": "-1 means unknown." },
+    "18": { "happening": "We mark this height unknown.", "why": "It is set after BFS from that root.", "invariant": "Unknown heights are -1." },
+    "19": { "happening": "We set best_height = {n} (above any real height).", "why": "The first root will lower it.", "invariant": "best_height is the smallest height found so far." },
+    "20": { "happening": "We start with root 0.", "why": "Every node is tried as a root.", "invariant": "root sweeps all nodes." },
+    "21": { "happening": "There is no current BFS node yet.", "why": "cur is set only during a BFS.", "invariant": "-1 means no current node." },
+    "22": [
+      { "when": "root < n", "happening": "We root the tree at node {root}.", "why": "The height depends on which node is the root.", "invariant": "Each root's height is measured by BFS." },
+      { "happening": "Every node has been tried as a root.", "why": "All heights are known.", "invariant": "The minimum height is final." }
+    ],
+    "23": { "happening": "We create BFS distances for this root.", "why": "BFS measures each node's distance from the root.", "invariant": "dist is reset for every root." },
+    "24": { "happening": "We prepare distance slot {i}.", "why": "All distances start unknown.", "invariant": "-1 means unreached." },
+    "25": { "happening": "We mark this distance unknown.", "why": "BFS will fill it.", "invariant": "Unreached nodes are -1." },
+    "26": { "happening": "The root is at distance 0.", "why": "It is where BFS begins.", "invariant": "dist[root] is always 0." },
+    "27": { "happening": "We seed the queue with the root.", "why": "BFS spreads outward from here.", "invariant": "The queue holds the BFS frontier." },
+    "28": { "happening": "We set the queue read position to 0.", "why": "Nodes are processed in enqueue order.", "invariant": "head marks the front of the queue." },
+    "29": { "happening": "We start the farthest distance at 0.", "why": "It will become this root's tree height.", "invariant": "far is the largest distance seen." },
+    "30": [
+      { "when": "head < len(queue)", "happening": "The BFS queue still has nodes to process.", "why": "BFS continues until every node is reached.", "invariant": "Reached nodes get their true distance." },
+      { "happening": "The BFS finished — every node was reached.", "why": "The frontier emptied.", "invariant": "far is this root's height." }
+    ],
+    "31": { "happening": "We take node {node_id} from the queue.", "why": "BFS processes nodes nearest the root first.", "invariant": "The queue is first-in, first-out." },
+    "32": { "happening": "We advance the read position.", "why": "The next node moves to the front.", "invariant": "head only increases." },
+    "33": { "happening": "We mark node {node_id} current.", "why": "It is being expanded.", "invariant": "cur is the active node." },
+    "34": [
+      { "when": "dist[node_id] > far", "happening": "Node {node_id} is farther than any seen — distance {dist[node_id]}.", "why": "The height is the farthest distance from the root.", "invariant": "far tracks the maximum distance." },
+      { "happening": "Node {node_id} is not the farthest so far.", "why": "The height stays as it is.", "invariant": "far never decreases within a BFS." }
+    ],
+    "35": { "happening": "We update the height to {dist[node_id]}.", "why": "A new farthest node raises the tree height.", "invariant": "far equals the farthest distance so far." },
+    "36": { "happening": "We look at node {node_id}'s neighbours.", "why": "BFS spreads to adjacent nodes.", "invariant": "Every neighbour is checked once." },
+    "37": { "happening": "We consider neighbour {nb}.", "why": "Unvisited neighbours extend the BFS.", "invariant": "nb is adjacent to the current node." },
+    "38": [
+      { "when": "dist[nb] == -1", "happening": "Neighbour {nb} is unreached — record its distance.", "why": "Each node is reached once, by its shortest path.", "invariant": "Only unreached neighbours are enqueued." },
+      { "happening": "Neighbour {nb} was already reached.", "why": "Re-visiting would not shorten its distance.", "invariant": "Reached nodes keep their first distance." }
+    ],
+    "39": { "happening": "Neighbour {nb} is one step farther than {node_id}.", "why": "BFS distance grows by one per edge.", "invariant": "dist[nb] = dist[node_id] + 1." },
+    "40": { "happening": "We enqueue neighbour {nb}.", "why": "It will be expanded later.", "invariant": "The frontier grows outward." },
+    "41": { "happening": "We clear the current node after this BFS.", "why": "No node is current between roots.", "invariant": "-1 means no current node." },
+    "42": { "happening": "We record root {root}'s height as {far}.", "why": "This is the tree's height when rooted here.", "invariant": "heights[root] is now known." },
+    "43": [
+      { "when": "far < best_height", "happening": "Height {far} is the smallest so far.", "why": "Minimum-height roots give the shallowest tree.", "invariant": "best_height tracks the minimum." },
+      { "happening": "Height {far} does not beat the best {best_height}.", "why": "A taller rooting is not the minimum.", "invariant": "best_height never increases." }
+    ],
+    "44": { "happening": "We record the new minimum height {far}.", "why": "A shallower rooting was found.", "invariant": "best_height is the smallest height so far." },
+    "45": { "happening": "We move to the next root.", "why": "Every node must be tried.", "invariant": "root only increases." },
+    "46": { "happening": "We prepare the answer list.", "why": "It collects nodes achieving the minimum height.", "invariant": "result holds minimum-height roots." },
+    "47": { "happening": "We check node {i}'s height.", "why": "Minimum-height roots go in the answer.", "invariant": "Every node's height is compared to the minimum." },
+    "48": [
+      { "when": "heights[i] == best_height", "happening": "Node {i}'s height equals the minimum.", "why": "It is a minimum-height-tree root.", "invariant": "Only minimum-height nodes are kept." },
+      { "happening": "Node {i}'s height is above the minimum.", "why": "It roots a taller tree.", "invariant": "Non-minimum nodes are excluded." }
+    ],
+    "49": { "happening": "We add node {i} to the answer.", "why": "It gives a minimum-height tree.", "invariant": "result lists all minimum-height roots." },
+    "50": { "happening": "We return the minimum-height roots.", "why": "Every node's height has been measured.", "invariant": "The answer holds every node with minimum height." }
+  },
+  "byPhase": {
+    "init": { "happening": "Build the undirected graph and height slots.", "why": "Setup for the per-node BFS.", "invariant": "No heights measured yet." },
+    "loop": { "happening": "Root a BFS or spread its frontier.", "why": "Each node's height is measured by BFS.", "invariant": "BFS reaches every node once per root." },
+    "update": { "happening": "Record a distance, height, or a new minimum.", "why": "Heights and the minimum are tracked.", "invariant": "State reflects the current BFS and best." },
+    "move": { "happening": "Dequeue, advance, or step to the next root.", "why": "BFS and the outer scan move deterministically.", "invariant": "Frontier and root advance forward." },
+    "check": { "happening": "Test a new farthest, an unvisited neighbour, or a minimum.", "why": "These drive BFS and the answer.", "invariant": "Only valid updates are made." },
+    "return": { "happening": "Return the minimum-height roots.", "why": "All heights are known.", "invariant": "The answer is final." }
+  }
+}

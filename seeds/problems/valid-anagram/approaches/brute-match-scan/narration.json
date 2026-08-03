@@ -1,0 +1,141 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "The verdict starts from the length comparison.",
+      "why": "Anagrams must contain the same number of characters.",
+      "invariant": "answer is false immediately when lengths differ."
+    },
+    "4": {
+      "happening": "The algorithm checks the initial length verdict.",
+      "why": "A false verdict needs no character scanning.",
+      "invariant": "Only equal-length strings reach the nested scans."
+    },
+    "5": {
+      "happening": "The false length verdict is returned.",
+      "why": "Different-length strings cannot be anagrams.",
+      "invariant": "answer accurately represents the rejected input."
+    },
+    "6": {
+      "happening": "Every character in t starts unused.",
+      "why": "Each source character must claim a distinct matching position.",
+      "invariant": "used[j] is true only after t[j] has been consumed."
+    },
+    "7": {
+      "happening": "Start with the first source character.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "8": {
+      "happening": "Match every character in s.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "9": {
+      "happening": "Assume no match has been found yet.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "10": {
+      "happening": "Start scanning t from the beginning.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "11": {
+      "happening": "Inspect every t position.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "12": {
+      "happening": "We compare s[{i}] with t[{j}].",
+      "why": "The brute-force scan checks candidates one by one.",
+      "invariant": "Candidates before j were unavailable or different."
+    },
+    "13": {
+      "happening": "Check whether the candidate is unused.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "14": {
+      "happening": "Accept only an equal unused candidate.",
+      "why": "This condition decides whether the current candidate can contribute to the answer.",
+      "invariant": "Only candidates satisfying the algorithm's condition advance."
+    },
+    "15": {
+      "happening": "t[{j}] is consumed as the match for s[{i}].",
+      "why": "The same target character cannot satisfy two source characters.",
+      "invariant": "Consumed positions remain unavailable."
+    },
+    "16": {
+      "happening": "Record that this source character matched.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "17": {
+      "happening": "Stop scanning t for this source character.",
+      "why": "This value reports the completed branch or final answer.",
+      "invariant": "The returned value matches all candidates explored by this scope."
+    },
+    "18": {
+      "happening": "Advance to the next t candidate.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "19": {
+      "happening": "Check whether the full t scan failed.",
+      "why": "This condition decides whether the current candidate can contribute to the answer.",
+      "invariant": "Only candidates satisfying the algorithm's condition advance."
+    },
+    "20": {
+      "happening": "No unused match exists for s[{i}].",
+      "why": "The strings cannot contain the same character multiset.",
+      "invariant": "The verdict is permanently false."
+    },
+    "21": {
+      "happening": "The false matching verdict is returned.",
+      "why": "One unmatched source character disproves an anagram.",
+      "invariant": "answer is false and final."
+    },
+    "22": {
+      "happening": "Advance to the next source character.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "23": {
+      "happening": "Every source character found a distinct match.",
+      "why": "Equal lengths plus one-to-one matches prove an anagram.",
+      "invariant": "The returned answer is true."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Reset source and candidate scan state.",
+      "why": "Each source character begins a fresh search through t.",
+      "invariant": "Previously consumed t positions stay marked."
+    },
+    "loop": {
+      "happening": "Scan another source character or candidate.",
+      "why": "Brute force may inspect all n candidates for each source.",
+      "invariant": "No available candidate is skipped."
+    },
+    "check": {
+      "happening": "Test lengths, a candidate pair, or scan failure.",
+      "why": "Only an equal unused candidate is valid.",
+      "invariant": "Matches are one-to-one."
+    },
+    "update": {
+      "happening": "Compare or consume a matching character.",
+      "why": "The used row records the partial pairing.",
+      "invariant": "A consumed target position never becomes free again."
+    },
+    "move": {
+      "happening": "Advance a source or candidate pointer.",
+      "why": "Nested scans cover every possible pairing.",
+      "invariant": "Pointers move left to right."
+    },
+    "return": {
+      "happening": "Return the anagram verdict.",
+      "why": "A missing match rejects; complete pairing accepts.",
+      "invariant": "The verdict is final."
+    }
+  }
+}

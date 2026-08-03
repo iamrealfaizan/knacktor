@@ -1,0 +1,39 @@
+{
+  "primitive": "grid",
+  "gridFrom": "dist",
+  "pointers": [
+    { "name": "cell", "rowVar": "cr", "colVar": "cc" },
+    { "name": "zero", "rowVar": "zr", "colVar": "zc" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "r == cr && c == cc" },
+    { "state": "compared", "when": "r == zr && c == zc" },
+    { "state": "result", "when": "mat[r][c] == 0" },
+    { "state": "visited", "when": "dist[r][c] < big" },
+    { "state": "frontier", "when": "dist[r][c] == big" },
+    { "state": "idle", "when": "true" }
+  ],
+  "readout": {
+    "when": "cand != null",
+    "expr": "distance from ({cr}, {cc}) to zero ({zr}, {zc}) = {cand}",
+    "relation": "best distance {best}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "zero comparisons", "onLines": [23] },
+    { "name": "cells solved", "onLines": [27] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 10, 11, 13, 14] },
+    { "phase": "loop", "lines": [6, 7, 12, 15, 17, 20] },
+    { "phase": "check", "lines": [8, 24] },
+    { "phase": "update", "lines": [9, 18, 21, 22, 23, 25, 27] },
+    { "phase": "move", "lines": [16, 19, 26, 28, 29] },
+    { "phase": "return", "lines": [30] }
+  ],
+  "keyEvents": [
+    { "line": 25, "label": "Closer zero found", "kind": "best" },
+    { "line": 27, "label": "Cell distance fixed", "kind": "result" },
+    { "line": 30, "label": "Distance matrix complete", "kind": "return" }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "byLine": {
+    "3": { "happening": "We record n = {n}, the string length.", "why": "Both loops are bounded by n.", "invariant": "n is fixed." },
+    "4": { "happening": "We start best at 0.", "why": "No run has been measured yet.", "invariant": "best is the longest unique run found so far." },
+    "5": { "happening": "We start best_start at 0.", "why": "It marks where the best run begins, for highlighting.", "invariant": "best_start points at the start of the best run." },
+    "6": { "happening": "We set the first start index i = 0.", "why": "Every start position gets its own run.", "invariant": "i marks the run's left edge." },
+    "7": [
+      { "when": "i < n", "happening": "We try a run starting at index {i}.", "why": "The longest unique substring must start somewhere.", "invariant": "Starts before i have already been measured." },
+      { "happening": "Every start has been tried, so scanning stops.", "why": "There are no more starting positions.", "invariant": "best holds the overall longest run." }
+    ],
+    "8": { "happening": "We reset seen to empty for this run.", "why": "Each run tracks its own set of characters.", "invariant": "seen holds exactly the run's current characters." },
+    "9": { "happening": "We reset this run's length to 0.", "why": "The run is measured from scratch at each start.", "invariant": "length counts characters in the current run." },
+    "10": { "happening": "We put the run's right edge j at the start {i}.", "why": "The run grows rightward from its start.", "invariant": "The run currently spans i..j-1." },
+    "11": [
+      { "when": "j < n", "happening": "We try to extend the run to include index {j}.", "why": "A longer run may still be unique.", "invariant": "Characters i..j-1 are all distinct." },
+      { "happening": "The run reached the end of the string.", "why": "There is nothing more to add.", "invariant": "The run i..j-1 is maximal for this start." }
+    ],
+    "12": { "happening": "We read the candidate character s[{j}].", "why": "We must check it does not already appear in the run.", "invariant": "ch is the character at the run's right edge." },
+    "13": { "happening": "We test whether s[{j}] is already inside the run.", "why": "A repeated character is what ends a unique run.", "invariant": "is_dup is True exactly when the character repeats." },
+    "14": [
+      { "when": "is_dup", "happening": "s[{j}] already appears in the run, so it must stop.", "why": "A repeat breaks the 'all distinct' rule.", "invariant": "The run keeps only distinct characters." },
+      { "happening": "s[{j}] is new to the run, so the run can grow.", "why": "The distinctness rule still holds.", "invariant": "Extending keeps all characters distinct." }
+    ],
+    "15": { "happening": "We stop extending this run at the repeat.", "why": "Nothing past a repeat can be part of this unique run.", "invariant": "The run i..j-1 is complete." },
+    "16": { "happening": "We add the new character to seen.", "why": "It is now part of the current unique run.", "invariant": "seen matches the run's characters." },
+    "17": { "happening": "The run length grows to {length} + 1.", "why": "One more distinct character was added.", "invariant": "length equals j - i after this step." },
+    "18": { "happening": "We advance the run's right edge.", "why": "To test the next character.", "invariant": "j only moves rightward within a run." },
+    "19": [
+      { "when": "length > best", "happening": "This run's length {length} beats the best {best}.", "why": "We keep the longest run seen.", "invariant": "best tracks the maximum run length." },
+      { "happening": "This run's length {length} does not beat best {best}.", "why": "A shorter run is discarded.", "invariant": "best never decreases." }
+    ],
+    "20": { "happening": "We update best to {length}.", "why": "A longer unique run was found.", "invariant": "best is the longest run so far." },
+    "21": { "happening": "We record best_start = {i}.", "why": "So the best run can stay highlighted.", "invariant": "best_start marks the winning run's start." },
+    "22": { "happening": "We move to the next start index.", "why": "Every start must be tried.", "invariant": "Starts are tried left to right." },
+    "23": { "happening": "We return best = {best}.", "why": "Every start's run has been measured.", "invariant": "best is the length of the longest unique substring." }
+  },
+  "byPhase": {
+    "init": { "happening": "Set up the best length and the first start.", "why": "Setup for the brute-force scan.", "invariant": "No run measured yet." },
+    "loop": { "happening": "Try a new start or extend the current run.", "why": "Every start and extension is examined.", "invariant": "The current run is always all-distinct." },
+    "update": { "happening": "Grow the run or record a new best.", "why": "Each run is measured and compared.", "invariant": "State reflects one concrete run." },
+    "move": { "happening": "Advance the run edge or the start.", "why": "Both scan forward.", "invariant": "Cursors only move forward." },
+    "check": { "happening": "Test a repeat or a new best.", "why": "These bound the run and update the answer.", "invariant": "Runs keep only distinct characters." },
+    "return": { "happening": "Return the longest run length.", "why": "All starts have been tried.", "invariant": "best is final." }
+  }
+}

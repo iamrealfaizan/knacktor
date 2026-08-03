@@ -1,0 +1,51 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    { "name": "source", "var": "i" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "idx == i" },
+    { "state": "result", "when": "idx < i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "auxMappings": [
+    {
+      "label": "characters in t",
+      "primitive": "array",
+      "valuesFrom": "t",
+      "pointers": [
+        { "name": "candidate", "var": "j" }
+      ],
+      "cellStateRules": [
+        { "state": "current", "when": "idx == j" },
+        { "state": "result", "when": "used[idx]" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ],
+  "ghosts": { "track": ["i", "j"] },
+  "readout": {
+    "when": "i != null",
+    "expr": "find an unused {s[i]} in t",
+    "relation": "candidate matches {same}, available {available}",
+    "relationColor": "compared"
+  },
+  "counters": [
+    { "name": "character comparisons", "onLines": [12] },
+    { "name": "matches consumed", "onLines": [15] }
+  ],
+  "phaseRules": [
+    { "phase": "check", "lines": [4, 14, 19] },
+    { "phase": "init", "lines": [3, 6, 7, 9, 10] },
+    { "phase": "loop", "lines": [8, 11] },
+    { "phase": "update", "lines": [12, 13, 15, 16, 20] },
+    { "phase": "move", "lines": [18, 22] },
+    { "phase": "return", "lines": [5, 17, 21, 23] }
+  ],
+  "keyEvents": [
+    { "line": 15, "label": "Unused matching character consumed", "kind": "match" },
+    { "line": 21, "label": "No matching character remains", "kind": "boundary" },
+    { "line": 23, "label": "Return final anagram verdict", "kind": "return" }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "linear-scan",
+  "name": "Linear Scan",
+  "kind": "brute",
+  "summary": "Ignore the rotation entirely and check each element left to right until target is found or the array ends. The honest O(n) baseline that the O(log n) binary search improves on.",
+  "visualizationIntent": "init: show the rotated array and answer = -1. loop: the i cursor walks left to right; each checked cell dims. check: compare nums[i] to target; on a match flash the cell green, record its index, and stop. return: the found index or -1.",
+  "complexity": { "time": "O(n)", "space": "O(1)" },
+  "language": "python",
+  "entrypoint": "Solution.search",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": { "varName": "answer", "label": "INDEX", "render": "scalar" },
+  "varColors": { "i": "ptr-i", "answer": "result" },
+  "lineExplanations": {
+    "3": "Count the elements.",
+    "4": "Assume target is absent until found.",
+    "5": "Start the scan at index 0.",
+    "6": "Walk until the array ends (or we break early).",
+    "7": "Compare the current element to target.",
+    "8": "Record the index where target was found.",
+    "9": "Stop scanning — the answer is found.",
+    "10": "Otherwise move one step right.",
+    "11": "Return the found index, or -1 if target never appeared."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def search(self, nums, target): receives the rotated array and the value to find.",
+    "3": "n = len(nums) counts the elements.",
+    "4": "answer = -1 means 'not found yet'.",
+    "5": "i = 0 starts at the first element.",
+    "6": "while i < n: scans to the end.",
+    "7": "if nums[i] == target: is true when the current element is the target.",
+    "8": "answer = i records the matching index.",
+    "9": "break stops the scan once found.",
+    "10": "i = i + 1 advances to the next element.",
+    "11": "return answer reports the index or -1."
+  }
+}

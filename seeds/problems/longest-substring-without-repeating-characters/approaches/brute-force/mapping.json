@@ -1,0 +1,37 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "idx == j" },
+    { "state": "compared", "when": "idx >= i && idx < j" },
+    { "state": "result", "when": "idx >= best_start && idx <= best_start + best - 1" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "j"] },
+  "readout": {
+    "when": "i < n",
+    "expr": "run from {i}, length {length}",
+    "relation": "longest {best}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "starts tried", "onLines": [7] },
+    { "name": "chars examined", "onLines": [12] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6] },
+    { "phase": "loop", "lines": [7, 11] },
+    { "phase": "update", "lines": [8, 9, 12, 13, 15, 16, 17, 20, 21] },
+    { "phase": "move", "lines": [10, 18, 22] },
+    { "phase": "check", "lines": [14, 19] },
+    { "phase": "return", "lines": [23] }
+  ],
+  "keyEvents": [
+    { "line": 20, "label": "New longest run", "kind": "best" },
+    { "line": 23, "label": "Final answer", "kind": "return" }
+  ]
+}

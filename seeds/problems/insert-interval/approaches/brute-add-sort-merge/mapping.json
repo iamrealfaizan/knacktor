@@ -1,0 +1,48 @@
+{
+  "primitive": "array",
+  "valuesFrom": "intervals",
+  "pointers": [
+    { "name": "i", "var": "i" }
+  ],
+  "cellStateRules": [
+    { "state": "current", "when": "idx == i" },
+    { "state": "visited", "when": "idx < i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i"] },
+  "readout": {
+    "when": "start != null",
+    "expr": "current interval [{start}, {end}]",
+    "relation": "merged so far {len(merged)}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "intervals visited", "onLines": [6] },
+    { "name": "extensions", "onLines": [17] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5] },
+    { "phase": "loop", "lines": [6] },
+    { "phase": "update", "lines": [7, 8, 10, 12, 14, 17] },
+    { "phase": "check", "lines": [9, 13, 16] },
+    { "phase": "return", "lines": [18] }
+  ],
+  "keyEvents": [
+    { "line": 10, "label": "First interval starts the result", "kind": "result" },
+    { "line": 14, "label": "New disjoint interval", "kind": "result" },
+    { "line": 17, "label": "Overlap merged", "kind": "match" },
+    { "line": 18, "label": "Insert complete", "kind": "return" }
+  ],
+  "auxMappings": [
+    {
+      "label": "Merged",
+      "primitive": "array",
+      "valuesFrom": "merged",
+      "cellStateRules": [
+        { "state": "result", "when": "idx == len(merged) - 1" },
+        { "state": "visited", "when": "idx < len(merged) - 1" },
+        { "state": "idle", "when": "true" }
+      ]
+    }
+  ]
+}

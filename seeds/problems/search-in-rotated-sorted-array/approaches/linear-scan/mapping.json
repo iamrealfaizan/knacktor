@@ -1,0 +1,36 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "i", "var": "i" }
+  ],
+  "flags": { "isFound": "nums[i] == target" },
+  "cellStateRules": [
+    { "state": "result", "when": "idx == i", "onlyWhen": "isFound" },
+    { "state": "current", "when": "idx == i" },
+    { "state": "dimmed", "when": "idx < i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i"] },
+  "readout": {
+    "when": "i < n",
+    "expr": "index {i}: {nums[i]} vs target {target}",
+    "relation": "found at {answer}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "comparisons", "onLines": [7] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5] },
+    { "phase": "loop", "lines": [6] },
+    { "phase": "check", "lines": [7] },
+    { "phase": "update", "lines": [8] },
+    { "phase": "move", "lines": [9, 10] },
+    { "phase": "return", "lines": [11] }
+  ],
+  "keyEvents": [
+    { "line": 8, "label": "Target found", "kind": "match" },
+    { "line": 11, "label": "Final answer", "kind": "return" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "byLine": {
+    "3": { "happening": "We count the elements as n = {n}.", "why": "Both loops range over all indices.", "invariant": "n is fixed." },
+    "4": { "happening": "We start result as an empty list.", "why": "One product will be appended per output slot.", "invariant": "result grows one slot at a time, left to right." },
+    "5": { "happening": "We pick output slot i = {i}.", "why": "Each slot's value is the product of every other element.", "invariant": "Slots before i are already computed." },
+    "6": { "happening": "We reset the running product to 1.", "why": "1 is the identity, so it does not change the product.", "invariant": "prod holds the product of the elements considered so far." },
+    "7": { "happening": "We sweep index j = {j} as a possible factor.", "why": "Every element except the slot's own is multiplied in.", "invariant": "prod includes all considered j != i so far." },
+    "8": [
+      { "when": "j != i", "happening": "Index {j} is not the slot itself, so it is a factor.", "why": "The product excludes only the slot's own element.", "invariant": "nums[i] is never multiplied into slot i's product." },
+      { "happening": "Index {j} is the slot itself, so it is skipped.", "why": "'Except self' means the element at i is left out.", "invariant": "The slot's own value is excluded." }
+    ],
+    "9": { "happening": "We multiply nums[{j}] into the running product.", "why": "It is one of the 'other' elements for this slot.", "invariant": "prod is the product of every j != i seen so far." },
+    "10": { "happening": "We store prod = {prod} into result for slot {i}.", "why": "This slot's answer is complete.", "invariant": "result now has this slot's product." },
+    "11": { "happening": "We return the products array.", "why": "Every slot has been computed.", "invariant": "result[k] is the product of all elements except nums[k]." }
+  },
+  "byPhase": {
+    "init": { "happening": "Count elements and prepare an empty result.", "why": "Setup for the O(n^2) scan.", "invariant": "No slot computed yet." },
+    "loop": { "happening": "Pick an output slot or sweep a factor.", "why": "Each slot multiplies every other element.", "invariant": "Slots and factors are visited in order." },
+    "update": { "happening": "Multiply a factor or store a slot's product.", "why": "The product builds up then is recorded.", "invariant": "State reflects one slot's running product." },
+    "check": { "happening": "Skip the slot's own element.", "why": "'Except self' excludes index i.", "invariant": "nums[i] is never a factor of slot i." },
+    "return": { "happening": "Return all the products.", "why": "Every slot is filled.", "invariant": "result is complete." }
+  }
+}

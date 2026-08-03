@@ -1,0 +1,41 @@
+{
+  "primitive": "array",
+  "valuesFrom": "nums",
+  "pointers": [
+    { "name": "i", "var": "i" },
+    { "name": "j", "var": "j" },
+    { "name": "k", "var": "k" }
+  ],
+  "flags": {
+    "hasK": "k != null",
+    "isZero": "total == 0"
+  },
+  "cellStateRules": [
+    { "state": "result", "when": "idx == i || idx == j || idx == k", "onlyWhen": "isZero" },
+    { "state": "current", "when": "idx == k" },
+    { "state": "compared", "when": "idx == i || idx == j", "onlyWhen": "hasK" },
+    { "state": "special", "when": "idx == i" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "j", "k"] },
+  "readout": {
+    "when": "k != null",
+    "expr": "nums[i] + nums[j] + nums[k] = {total}",
+    "relation": "triples found {len(result)}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "triple checks", "onLines": [9] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5] },
+    { "phase": "loop", "lines": [6, 7, 8] },
+    { "phase": "update", "lines": [9, 11, 13] },
+    { "phase": "check", "lines": [10, 12] },
+    { "phase": "return", "lines": [14] }
+  ],
+  "keyEvents": [
+    { "line": 13, "label": "New zero-sum triple", "kind": "result" },
+    { "line": 14, "label": "All triples found", "kind": "return" }
+  ]
+}

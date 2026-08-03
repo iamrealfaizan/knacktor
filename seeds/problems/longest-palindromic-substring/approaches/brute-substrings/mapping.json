@@ -1,0 +1,41 @@
+{
+  "primitive": "array",
+  "valuesFrom": "s",
+  "pointers": [
+    { "name": "start", "var": "i" },
+    { "name": "end", "var": "j" },
+    { "name": "left check", "var": "lo" },
+    { "name": "right check", "var": "hi" }
+  ],
+  "window": { "from": "i", "to": "j" },
+  "cellStateRules": [
+    { "state": "compared", "when": "idx == lo || idx == hi" },
+    { "state": "result", "when": "idx >= best_lo && idx < best_lo + best_len" },
+    { "state": "current", "when": "idx >= i && idx <= j" },
+    { "state": "idle", "when": "true" }
+  ],
+  "ghosts": { "track": ["i", "j", "lo", "hi"] },
+  "readout": {
+    "when": "i != null",
+    "expr": "test substring [{i}, {j}]",
+    "relation": "longest length {best_len}",
+    "relationColor": "result"
+  },
+  "counters": [
+    { "name": "character comparisons", "onLines": [14] },
+    { "name": "substrings tested", "onLines": [19] }
+  ],
+  "phaseRules": [
+    { "phase": "init", "lines": [3, 4, 5, 6, 8, 10, 11, 12] },
+    { "phase": "loop", "lines": [7, 9, 13] },
+    { "phase": "check", "lines": [14, 20] },
+    { "phase": "update", "lines": [15, 19, 21, 22, 25] },
+    { "phase": "move", "lines": [17, 18, 23, 24] },
+    { "phase": "return", "lines": [16, 26] }
+  ],
+  "keyEvents": [
+    { "line": 15, "label": "Substring rejected", "kind": "boundary" },
+    { "line": 22, "label": "New longest palindrome", "kind": "best" },
+    { "line": 26, "label": "Longest palindrome returned", "kind": "return" }
+  ]
+}

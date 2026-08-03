@@ -1,0 +1,156 @@
+{
+  "byLine": {
+    "3": {
+      "happening": "Read the string length.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "4": {
+      "happening": "Start the best palindrome at index zero.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "5": {
+      "happening": "A single character is always a palindrome.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "6": {
+      "happening": "Start the substring's left boundary.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "7": {
+      "happening": "Try every left boundary.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "8": {
+      "happening": "Start the right boundary at the left.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "9": {
+      "happening": "Try every substring ending at or after i.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "10": {
+      "happening": "Place the left comparison pointer.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "11": {
+      "happening": "Place the right comparison pointer.",
+      "why": "This establishes the state needed for the exhaustive search.",
+      "invariant": "Initialization preserves the problem input and prepares valid working state."
+    },
+    "12": {
+      "happening": "We begin testing substring [{i}, {j}] as a palindrome.",
+      "why": "Every possible substring must be checked.",
+      "invariant": "is_pal remains true until a mirrored pair differs."
+    },
+    "13": {
+      "happening": "Compare mirrored characters inward.",
+      "why": "The brute-force method must enumerate every relevant candidate.",
+      "invariant": "No candidate in the current search range is skipped."
+    },
+    "14": {
+      "happening": "We compare s[{lo}] with s[{hi}].",
+      "why": "A palindrome has equal mirrored characters.",
+      "invariant": "All pairs outside lo and hi already matched."
+    },
+    "15": {
+      "happening": "The mirrored characters differ, so this substring is rejected.",
+      "why": "One mismatch is enough to disprove a palindrome.",
+      "invariant": "Rejected candidates cannot become the best."
+    },
+    "16": {
+      "happening": "Stop checking this rejected candidate.",
+      "why": "This value reports the completed branch or final answer.",
+      "invariant": "The returned value matches all candidates explored by this scope."
+    },
+    "17": {
+      "happening": "Move the left pointer inward.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "18": {
+      "happening": "Move the right pointer inward.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "19": {
+      "happening": "Compute the candidate length.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "20": {
+      "happening": "Check whether it is a longer palindrome.",
+      "why": "This condition decides whether the current candidate can contribute to the answer.",
+      "invariant": "Only candidates satisfying the algorithm's condition advance."
+    },
+    "21": {
+      "happening": "Remember its start.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "22": {
+      "happening": "This palindrome becomes the new longest with length {best_len}.",
+      "why": "It is longer than every palindrome seen earlier.",
+      "invariant": "best_lo and best_len identify a confirmed palindrome."
+    },
+    "23": {
+      "happening": "Extend to the next candidate end.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "24": {
+      "happening": "Advance to the next candidate start.",
+      "why": "Advancing the pointer continues the exhaustive scan.",
+      "invariant": "The pointer moves within its valid range."
+    },
+    "25": {
+      "happening": "Slice out the best palindrome.",
+      "why": "The working state must reflect the candidate or result just discovered.",
+      "invariant": "Recorded state remains consistent with all work completed so far."
+    },
+    "26": {
+      "happening": "We return {result}.",
+      "why": "Every substring was considered.",
+      "invariant": "result is a longest palindromic substring."
+    }
+  },
+  "byPhase": {
+    "init": {
+      "happening": "Set up a candidate substring and its mirror pointers.",
+      "why": "Each substring is checked independently.",
+      "invariant": "Single characters establish a valid initial best."
+    },
+    "loop": {
+      "happening": "Enumerate another substring or mirrored pair.",
+      "why": "Brute force covers all O(n²) substrings.",
+      "invariant": "No candidate window is skipped."
+    },
+    "check": {
+      "happening": "Test mirrored characters or a new best.",
+      "why": "Character symmetry determines palindromes.",
+      "invariant": "Only confirmed palindromes can update the best."
+    },
+    "update": {
+      "happening": "Reject a candidate or record a longer palindrome.",
+      "why": "The best range tracks the strongest result so far.",
+      "invariant": "best_len never decreases."
+    },
+    "move": {
+      "happening": "Move mirror or substring boundaries.",
+      "why": "Pointers enumerate the full cubic search.",
+      "invariant": "Each local scan progresses."
+    },
+    "return": {
+      "happening": "Return the best substring.",
+      "why": "All candidates have been checked.",
+      "invariant": "The highlighted best range is final."
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "brute-force",
+  "name": "Check Every Triple",
+  "kind": "brute",
+  "summary": "Sort the array, then test every combination of three indices i < j < k and keep the ones whose values sum to zero (skipping duplicates).",
+  "visualizationIntent": "init: sort the array and show an empty result list. outer-loop: anchor i on the first value of the triple. middle-loop: place j after i. inner-loop: sweep k after j as the moving cursor. check: highlight nums[i], nums[j], nums[k] and show their sum; when the sum is zero flash the three cells green and, if the triple is new, add it to the result. return: freeze on the collected unique triples.",
+  "complexity": {
+    "time": "O(n^3)",
+    "space": "O(1)"
+  },
+  "language": "python",
+  "entrypoint": "Solution.threeSum",
+  "primaryPrimitive": "array",
+  "auxStructures": [],
+  "resultSpec": {
+    "varName": "result",
+    "label": "TRIPLES",
+    "render": "tuple-list"
+  },
+  "varColors": {
+    "i": "ptr-i",
+    "j": "ptr-j",
+    "k": "special",
+    "total": "compared",
+    "result": "result"
+  },
+  "lineExplanations": {
+    "3": "Sort the array so equal values sit together, which makes duplicate triples easy to skip.",
+    "4": "Store the length so the three loops know where to stop.",
+    "5": "Create an empty result list that will collect every zero-sum triple.",
+    "6": "Anchor the first index i of the triple.",
+    "7": "Choose the second index j strictly after i.",
+    "8": "Sweep the third index k strictly after j.",
+    "9": "Add the three selected values to test this triple.",
+    "10": "Check whether the three values sum to exactly zero.",
+    "11": "Build the concrete triple from the three chosen values.",
+    "12": "Only keep this triple if it is not already in the result, avoiding duplicates.",
+    "13": "Record the new zero-sum triple.",
+    "14": "Return every unique zero-sum triple found."
+  },
+  "syntaxExplanations": {
+    "1": "class Solution: defines the class wrapper expected by the platform.",
+    "2": "def threeSum(self, nums): defines a method that receives the array nums.",
+    "3": "nums.sort() reorders nums in place from smallest to largest.",
+    "4": "n = len(nums) stores how many numbers are in the array.",
+    "5": "result = [] creates an empty Python list for the answer triples.",
+    "6": "for i in range(n): loops i over every index of nums.",
+    "7": "for j in range(i + 1, n): loops j over every index after i.",
+    "8": "for k in range(j + 1, n): loops k over every index after j.",
+    "9": "total = nums[i] + nums[j] + nums[k] adds the three selected values.",
+    "10": "if total == 0: runs the block only when the three values cancel out.",
+    "11": "triple = [nums[i], nums[j], nums[k]] builds the three-number list.",
+    "12": "if triple not in result: is true only when this exact triple was not stored before.",
+    "13": "result.append(triple) adds the new triple to the answer list.",
+    "14": "return result sends back all unique zero-sum triples."
+  }
+}

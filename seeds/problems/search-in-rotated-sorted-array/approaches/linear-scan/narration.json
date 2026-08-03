@@ -1,0 +1,27 @@
+{
+  "byLine": {
+    "3": { "happening": "We count the elements as n = {n}.", "why": "The scan runs to the end of the array.", "invariant": "n is fixed." },
+    "4": { "happening": "We start answer at -1.", "why": "It stays -1 unless target is found.", "invariant": "answer is the found index, or -1." },
+    "5": { "happening": "We start the scan at index 0.", "why": "Linear scan checks every position from the left.", "invariant": "i marks the current position." },
+    "6": [
+      { "when": "i < n", "happening": "We are at index {i}, still inside the array.", "why": "Every element may be the target.", "invariant": "Indices before i were checked and did not match." },
+      { "happening": "The scan reached the end without a break.", "why": "Target never appeared.", "invariant": "answer is still -1." }
+    ],
+    "7": [
+      { "when": "nums[i] == target", "happening": "nums[{i}] equals target {target} — found it.", "why": "This is exactly the value we are searching for.", "invariant": "The first match is the reported answer." },
+      { "happening": "nums[{i}] is {nums[i]}, not target {target}.", "why": "This position is not the answer.", "invariant": "The scan continues rightward." }
+    ],
+    "8": { "happening": "We record the found index answer = {i}.", "why": "This is where target lives.", "invariant": "answer now points at the target." },
+    "9": { "happening": "We stop the scan.", "why": "There is no need to look further once found.", "invariant": "The first match is returned." },
+    "10": { "happening": "We advance to the next index.", "why": "The current element did not match.", "invariant": "i only moves rightward." },
+    "11": { "happening": "We return answer = {answer}.", "why": "It is the target's index, or -1 if absent.", "invariant": "The scan examined every needed element." }
+  },
+  "byPhase": {
+    "init": { "happening": "Set up the scan and a not-found answer.", "why": "Setup for a left-to-right search.", "invariant": "answer starts at -1." },
+    "loop": { "happening": "Advance through the array.", "why": "Every element is a candidate.", "invariant": "Checked elements did not match." },
+    "check": { "happening": "Compare the current element to target.", "why": "A match ends the search.", "invariant": "Only an exact match is accepted." },
+    "update": { "happening": "Record the matching index.", "why": "The target was found.", "invariant": "answer points at the target." },
+    "move": { "happening": "Advance the cursor or stop early.", "why": "Scanning proceeds until found or exhausted.", "invariant": "The cursor moves one way." },
+    "return": { "happening": "Return the found index or -1.", "why": "The scan is complete.", "invariant": "answer is final." }
+  }
+}
