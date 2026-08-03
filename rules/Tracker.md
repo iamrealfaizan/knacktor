@@ -110,6 +110,70 @@ solution OR question/test-cases-only where Claude authors the solutions):
 **Follow-up (not done here):** wire `leetcodeSource` end-to-end (schema/type field, import+ingest
 passthrough, code-panel copy preference) so dual-code design problems can actually ship.
 
+### D25 — Admin panel Phase 1: RBAC + user management
+**Date:** 2026-08-03
+**Decision:** Introduce privilege. Until now every signed-in user was equally powerful and there was no
+surface for seeing who had signed up or managing them.
+
+1. **Two roles.** `users.role: "user" | "admin"`; admin has full access to `/admin`. `users.status:
+   "active" | "inactive"`. Both fields are **optional in the doc** — pre-existing accounts have neither, so
+   every read normalizes through `lib/rbac.ts` (`normalizeRole`/`normalizeStatus`, absent → `user`/`active`)
+   and every admin filter uses `$ne` rather than equality. `npm run backfill-users` writes the fields
+   explicitly (idempotent); `createUser()` writes them going forward.
+2. **Bootstrap two ways.** `ADMIN_EMAILS` (comma-separated, in `.env.local`) escalates a matching email to
+   admin at sign-in regardless of the DB field — the break-glass that makes lockout impossible. `npm run
+   make-admin <email>` (also `-- --demote`, `-- --list`) is the normal promotion path. Env wins: the panel
+   refuses to demote an env-listed account and says why.
+3. **Defence in depth — three layers, and the third is the real one.** (a) `auth.config.ts` `authorized()`
+   rejects non-admin JWTs at the edge; (b) `app/admin/layout.tsx` → `requireAdminPage()` re-reads role +
+   status from Mongo and 404s a stale token; (c) **every** admin Server Action calls `requireAdmin()` before
+   it writes. Layer 3 is non-negotiable — Server Actions are POST endpoints reachable without rendering any
+   admin UI, and the JWT role is a sign-in snapshot up to 30 days stale.
+   **Load-bearing detail:** `jwt`/`session` callbacks MUST live in `auth.config.ts`, not `auth.ts`.
+   Middleware builds NextAuth from `authConfig` alone, so a callback defined only in `auth.ts` is invisible
+   at the edge — `auth.user.role` silently stays `undefined` and every admin is redirected away from
+   `/admin`. This was a real bug caught in verification.
+4. **Deactivation, not deletion.** No hard delete: `status: "inactive"` preserves the user doc and all
+   `userProblemProgress` / `userDailyActivity` / `userStreak` rows, so reactivation is lossless.
+   Enforced in three places: `authorize()` blocks new logins; `requireActiveSession()` (`lib/session-guard.ts`)
+   boots a live session on the next navigation to `/login?reason=deactivated`; and `getSessionUserId()` in
+   progress-service returns null for inactive accounts — which is how deactivation reaches the
+   **statically-rendered** problem page without forcing it dynamic and losing `revalidate = 3600`.
+5. **Guardrails live in the service, not the UI.** `lib/admin-user-service.ts` refuses: self role-change,
+   self-deactivation, demoting the last admin, demoting an env-listed admin, and deactivating an admin
+   without demoting first. The UI's disabled states are a courtesy, not the boundary.
+6. **Scope.** `/admin` overview + `/admin/users` + `/admin/users/[id]`. Content/Sheets are disabled sidebar
+   stubs. **No audit log**, no impersonation, no admin password reset, no bulk actions, no `author`/`moderator`
+   role — the `role` field and `requireAdmin()` are the extension points.
+7. **UI.** Warm-paper tokens only (D3) — no admin-only palette. Distinct shell: persistent left sidebar on
+   `lg+`, `sheet` below (D14); table on `lg+`, stacked cards below (never a horizontally scrolling table).
+   All list state (`q`/`role`/`status`/`sort`/`page`) lives in the URL, so filters are shareable and the back
+   button is correct.
+**Files added:** `lib/rbac.ts`, `lib/admin-guard.ts`, `lib/session-guard.ts`, `lib/admin-user-service.ts`,
+`lib/admin-users-url.ts`, `app/actions/admin-users.ts`, `app/admin/{layout,page,loading}.tsx`,
+`app/admin/users/{page,loading}.tsx`, `app/admin/users/[id]/{page,loading}.tsx`, `components/admin/*`
+(shell, sidebar, nav-config, stat-card, user-table, user-filters, user-row-actions, user-badges,
+user-progress-panel, confirm-deactivate-dialog), `components/shared/link-pagination-bar.tsx`,
+`components/auth/deactivated-notice.tsx`, `scripts/make-admin.ts`, `scripts/backfill-users.ts`.
+**Files changed:** `auth.ts` + `auth.config.ts` (role in jwt/session, `/admin` gate, inactive-login block),
+`types/next-auth.d.ts`, `lib/user-service.ts` (role/status/indexes/`getUserAuthState`),
+`lib/progress-service.ts` (`getSessionUserId` status check), `lib/utils.ts` (`getInitials` extracted),
+`components/nav.tsx` (yields on `/admin`), `components/home/home-header.tsx` (`isAdmin` menu entry),
+`app/(app)/layout.tsx` + `app/{home,problems,saved}/page.tsx` (`requireActiveSession`),
+`app/(auth)/login/page.tsx`, `components/ui/sonner.tsx` (rewired to the project's ThemeProvider, not
+next-themes), `package.json`.
+**shadcn added:** table, dialog, alert-dialog, select, tabs, switch, sonner.
+**Verified:** tsc + lint clean, `next build` green — `/problems/[slug]` still SSG (63 prerendered paths) and
+`/login` still static. RBAC matrix confirmed by HTTP: anonymous → `/login?callbackUrl=…`; regular user →
+`/home`; admin → 200. Stale-JWT attack: DB-demoted admin holding a valid cookie gets **404** on pages and
+`{"ok":false,"error":"You don't have permission to do that."}` from both Server Actions invoked directly by
+POST, with **no DB write**. All six guardrails block; promote/demote/deactivate/reactivate succeed; search
+matches name+username+email with regex metacharacters escaped (`?q=.*` → 0 results, not all);
+deactivation boots a live session and blocks fresh login, and reactivation restores access. Detail-page
+progress numbers reconcile exactly with raw Mongo counts.
+**Not done:** `/admin/content` + `/admin/sheets` (stubs only). `ADMIN_EMAILS` must be added to `.env.local`
+by hand.
+
 ### Standing decisions (from planning)
 - Full platform; first milestone = engine + **1–2** pilot problems.
 - Next.js App Router; `shadcn/ui` + `lucide-react` (hard requirement).
