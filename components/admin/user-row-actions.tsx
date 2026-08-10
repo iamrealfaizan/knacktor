@@ -12,7 +12,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,15 +66,17 @@ export function UserRowActions({
   return (
     <>
       <DropdownMenu>
+        {/*
+          Styled via buttonVariants rather than render={<Button/>} on purpose.
+          Base UI's Trigger needs to own the DOM node it renders — that node is
+          the popup's positioning anchor — so letting it render its own native
+          <button> is the reliable form. This matches every other working
+          dropdown in the app (top-bar, compare-lane, home-header, admin-shell).
+        */}
         <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={`Actions for ${user.username}`}
-              disabled={pending}
-            />
-          }
+          aria-label={`Actions for ${user.username}`}
+          disabled={pending}
+          className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
         >
           <Ellipsis className="h-4 w-4" />
         </DropdownMenuTrigger>
