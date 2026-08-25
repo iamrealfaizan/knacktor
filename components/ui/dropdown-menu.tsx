@@ -39,9 +39,20 @@ function DropdownMenuContent({
         side={side}
         sideOffset={sideOffset}
       >
+        {/*
+          The registry ships Tailwind v4 syntax here — `max-h-(--available-height)`
+          and `w-(--anchor-width)`. This project is on Tailwind 3.4, where those
+          compile to NOTHING (verified: neither var appears in the built CSS while
+          sibling classes from this same string do). Translated to v3 bracket form.
+
+          `w-(--anchor-width)` is deliberately NOT translated: anchor-width on a
+          dropdown pins the menu to its trigger's width, which for a 28px icon
+          button would be a 28px-wide menu. Width belongs to min-w plus whatever
+          the caller passes.
+        */}
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none", className )}
+          className={cn("z-50 max-h-[var(--available-height)] min-w-32 overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none", className )}
           {...props}
         />
       </MenuPrimitive.Positioner>

@@ -1,3 +1,4 @@
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -40,19 +41,29 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+/**
+ * forwardRef is load-bearing, not boilerplate. This project runs React 18, where
+ * a plain function component cannot receive a ref at all. Base UI passes a ref
+ * into whatever you hand its `render` prop (via React.cloneElement), and for a
+ * trigger that ref IS the popup's positioning anchor — so a non-forwardRef
+ * Button silently produced menus that opened (scroll-locked, focus-trapped) but
+ * never became visible. Every Base UI primitive is itself forwardRef-wrapped;
+ * this wrapper must be too, or it breaks the chain.
+ *
+ * Keep this if the shadcn registry ever overwrites the file.
+ */
+const Button = React.forwardRef<
+  HTMLButtonElement,
+  ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
+>(function Button({ className, variant = "default", size = "default", ...props }, ref) {
   return (
     <ButtonPrimitive
+      ref={ref}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
   )
-}
+})
 
 export { Button, buttonVariants }
